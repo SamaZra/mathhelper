@@ -1,9 +1,9 @@
-п»ї<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>РљРѕРЅРІРµСЂС‚РµСЂ РІРµР»РёС‡РёРЅ</title>
+    <title>Конвертер величин</title>
     <style>
         * {
             margin: 0;
@@ -463,17 +463,17 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">в†</button>`n    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">рџЊ™</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">?</button>`n    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">??</button>
 
     <div class="converter-card">
         <div class="history" id="historyContainer">
-            <div class="clear-history" onclick="clearHistory()">вњ– РћС‡РёСЃС‚РёС‚СЊ</div>
-            <div id="historyList">вЂ”</div>
+            <div class="clear-history" onclick="clearHistory()">? Очистить</div>
+            <div id="historyList">—</div>
         </div>
 
         <div class="categories-grid" id="categoriesGrid"></div>
         <div class="back-link-wrapper">
-            <button class="back-link" onclick="window.location.href='index.html'">в†ђ РќР°Р·Р°Рґ РІ РјРµРЅСЋ</button>
+            <button class="back-link" onclick="window.location.href='index.html'">< Назад в меню</button>
         </div>
     </div>
 </div>
@@ -481,60 +481,60 @@
 <div id="converterModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 id="modalTitle">РљРѕРЅРІРµСЂС‚РµСЂ</h3>
+            <h3 id="modalTitle">Конвертер</h3>
             <span class="close-modal" id="closeModalBtn">&times;</span>
         </div>
         <div class="converter-body" id="converterBody">
             <div class="input-group">
-                <label>Р’РІРµРґРёС‚Рµ Р·РЅР°С‡РµРЅРёРµ</label>
+                <label>Введите значение</label>
                 <input type="number" id="inputValue" class="converter-input" placeholder="0" step="any" value="1" inputmode="decimal">
             </div>
             <div class="unit-select-row">
                 <select id="fromUnit" class="select-unit"></select>
-                <div class="swap-icon" id="swapUnitsBtn">в‡„</div>
+                <div class="swap-icon" id="swapUnitsBtn">?</div>
                 <select id="toUnit" class="select-unit"></select>
             </div>
             <div id="extraFieldsContainer"></div>
             <div class="output-group">
-                <label>Р РµР·СѓР»СЊС‚Р°С‚</label>
-                <input type="text" id="outputValue" class="converter-output" readonly placeholder="вЂ”">
+                <label>Результат</label>
+                <input type="text" id="outputValue" class="converter-output" readonly placeholder="—">
             </div>
-            <div class="info-note" id="infoNote">РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ РїРµСЂРµСЃС‡РµС‚</div>
+            <div class="info-note" id="infoNote">Автоматический пересчет</div>
         </div>
     </div>
 </div>
 
 <script>
     const baseConverters = {
-        currency: { name: "Р’Р°Р»СЋС‚Р°", units: ["RUB", "USD", "EUR", "CNY", "GBP"], rates: { USD: 1, RUB: 88.5, EUR: 0.92, CNY: 7.25, GBP: 0.79 }, convert: (v, f, t, d) => { const base = v / d.rates[f]; return base * d.rates[t]; } },
-        length: { name: "Р”Р»РёРЅР°", units: ["РњРµС‚СЂС‹", "РљРёР»РѕРјРµС‚СЂС‹", "РЎР°РЅС‚РёРјРµС‚СЂС‹", "РњРёР»Р»РёРјРµС‚СЂС‹", "РњРёР»Рё", "Р¤СѓС‚С‹", "Р”СЋР№РјС‹"], toMeter: { "РњРµС‚СЂС‹": 1, "РљРёР»РѕРјРµС‚СЂС‹": 1000, "РЎР°РЅС‚РёРјРµС‚СЂС‹": 0.01, "РњРёР»Р»РёРјРµС‚СЂС‹": 0.001, "РњРёР»Рё": 1609.344, "Р¤СѓС‚С‹": 0.3048, "Р”СЋР№РјС‹": 0.0254 }, convert: (v, f, t, d) => (v * d.toMeter[f]) / d.toMeter[t] },
-        mass: { name: "РњР°СЃСЃР°", units: ["РљРёР»РѕРіСЂР°РјРјС‹", "Р“СЂР°РјРјС‹", "РўРѕРЅРЅС‹", "Р¤СѓРЅС‚С‹", "РЈРЅС†РёРё"], toKg: { "РљРёР»РѕРіСЂР°РјРјС‹": 1, "Р“СЂР°РјРјС‹": 0.001, "РўРѕРЅРЅС‹": 1000, "Р¤СѓРЅС‚С‹": 0.453592, "РЈРЅС†РёРё": 0.0283495 }, convert: (v, f, t, d) => (v * d.toKg[f]) / d.toKg[t] },
-        area: { name: "РџР»РѕС‰Р°РґСЊ", units: ["РјВІ", "РєРјВІ", "СЃРјВІ", "Р“РµРєС‚Р°СЂС‹", "РђРєСЂС‹", "Р¤СѓС‚С‹ВІ"], toSqM: { "РјВІ": 1, "РєРјВІ": 1e6, "СЃРјВІ": 0.0001, "Р“РµРєС‚Р°СЂС‹": 10000, "РђРєСЂС‹": 4046.86, "Р¤СѓС‚С‹ВІ": 0.092903 }, convert: (v, f, t, d) => v * d.toSqM[f] / d.toSqM[t] },
-        time: { name: "Р’СЂРµРјСЏ", units: ["РЎРµРєСѓРЅРґС‹", "РњРёРЅСѓС‚С‹", "Р§Р°СЃС‹", "Р”РЅРё", "РќРµРґРµР»Рё"], toSec: { "РЎРµРєСѓРЅРґС‹": 1, "РњРёРЅСѓС‚С‹": 60, "Р§Р°СЃС‹": 3600, "Р”РЅРё": 86400, "РќРµРґРµР»Рё": 604800 }, convert: (v, f, t, d) => v * d.toSec[f] / d.toSec[t] },
-        finance: { name: "Р¤РёРЅР°РЅСЃС‹", units: ["РџСЂРѕС†РµРЅС‚С‹ %", "Р”РµСЃСЏС‚РёС‡РЅР°СЏ РґСЂРѕР±СЊ", "РќР”РЎ 20%", "РЎСѓРјРјР° СЃ РќР”РЎ"], convert: (v, f, t) => { if (f === "РџСЂРѕС†РµРЅС‚С‹ %" && t === "Р”РµСЃСЏС‚РёС‡РЅР°СЏ РґСЂРѕР±СЊ") return v / 100; if (f === "Р”РµСЃСЏС‚РёС‡РЅР°СЏ РґСЂРѕР±СЊ" && t === "РџСЂРѕС†РµРЅС‚С‹ %") return v * 100; if (f === "РќР”РЎ 20%" && t === "РЎСѓРјРјР° СЃ РќР”РЎ") return v * 1.2; if (f === "РЎСѓРјРјР° СЃ РќР”РЎ" && t === "РќР”РЎ 20%") return v / 1.2; return v; } },
-        data: { name: "Р”Р°РЅРЅС‹Рµ", units: ["Р‘Р°Р№С‚С‹", "РљР‘", "РњР‘", "Р“Р‘", "РўР‘"], toBytes: { "Р‘Р°Р№С‚С‹": 1, "РљР‘": 1024, "РњР‘": 1048576, "Р“Р‘": 1073741824, "РўР‘": 1099511627776 }, convert: (v, f, t, d) => v * d.toBytes[f] / d.toBytes[t] },
-        date: { name: "Р”Р°С‚Р°", units: ["Р”РЅРё", "РќРµРґРµР»Рё", "РњРµСЃСЏС†С‹ (РїСЂРёР±Р».)", "Р“РѕРґС‹ (РїСЂРёР±Р».)"], convert: (v, f, t) => { const factors = { "Р”РЅРё": 1, "РќРµРґРµР»Рё": 7, "РњРµСЃСЏС†С‹ (РїСЂРёР±Р».)": 30.44, "Р“РѕРґС‹ (РїСЂРёР±Р».)": 365.25 }; return (v * factors[f]) / factors[t]; } },
-        volume: { name: "РћР±СЉРµРј", units: ["Р›РёС‚СЂС‹", "СЃРјВі", "РјРјВі", "РґРјВі", "РјВі"], toLiter: { "Р›РёС‚СЂС‹": 1, "СЃРјВі": 0.001, "РјРјВі": 0.000001, "РґРјВі": 1, "РјВі": 1000 }, convert: (v, f, t, d) => (v * d.toLiter[f]) / d.toLiter[t] },
-        numeralSystem: { name: "РЎРёСЃС‚РµРјР° СЃС‡РёСЃР»РµРЅРёСЏ", units: ["Р”РµСЃСЏС‚РёС‡РЅР°СЏ", "Р”РІРѕРёС‡РЅР°СЏ", "Р’РѕСЃСЊРјРµСЂРёС‡РЅР°СЏ", "РЁРµСЃС‚РЅР°РґС†Р°С‚РµСЂРёС‡РЅР°СЏ"], convert: (v, f, t) => { try { let num; if (f === "Р”РµСЃСЏС‚РёС‡РЅР°СЏ") num = parseFloat(v); else if (f === "Р”РІРѕРёС‡РЅР°СЏ") num = parseInt(v, 2); else if (f === "Р’РѕСЃСЊРјРµСЂРёС‡РЅР°СЏ") num = parseInt(v, 8); else num = parseInt(v, 16); if (isNaN(num)) return "РћС€РёР±РєР°"; if (t === "Р”РµСЃСЏС‚РёС‡РЅР°СЏ") return num; if (t === "Р”РІРѕРёС‡РЅР°СЏ") return num.toString(2); if (t === "Р’РѕСЃСЊРјРµСЂРёС‡РЅР°СЏ") return num.toString(8); return num.toString(16).toUpperCase(); } catch(e) { return "РЅРµРІРµСЂРЅРѕ"; } } },
-        speed: { name: "РЎРєРѕСЂРѕСЃС‚СЊ", units: ["РєРј/С‡", "Рј/СЃ", "РјРёР»СЊ/С‡", "СѓР·Р»С‹"], toKmph: { "РєРј/С‡": 1, "Рј/СЃ": 3.6, "РјРёР»СЊ/С‡": 1.60934, "СѓР·Р»С‹": 1.852 }, convert: (v, f, t, d) => v * d.toKmph[f] / d.toKmph[t] },
-        temperature: { name: "РўРµРјРїРµСЂР°С‚СѓСЂР°", units: ["Р¦РµР»СЊСЃРёР№", "Р¤Р°СЂРµРЅРіРµР№С‚", "РљРµР»СЊРІРёРЅ"], convert: (v, f, t) => { let c; if (f === "Р¦РµР»СЊСЃРёР№") c = v; else if (f === "Р¤Р°СЂРµРЅРіРµР№С‚") c = (v - 32) * 5/9; else c = v - 273.15; if (t === "Р¦РµР»СЊСЃРёР№") return c; if (t === "Р¤Р°СЂРµРЅРіРµР№С‚") return c * 9/5 + 32; return c + 273.15; } },
-        bmi: { name: "РРњРў", units: ["РРњРў"], hasExtra: true, getExtraFields: () => [{ name: "weight", label: "Р’РµСЃ (РєРі)", type: "number", placeholder: "70" }, { name: "height", label: "Р РѕСЃС‚ (СЃРј)", type: "number", placeholder: "170" }], convertWithExtra: (_, __, ___, extra) => { let w = parseFloat(extra.weight), h = parseFloat(extra.height); if (isNaN(w) || isNaN(h) || h <= 0) return "Р’РІРµРґРёС‚Рµ РІРµСЃ Рё СЂРѕСЃС‚"; let bmi = w / ((h/100)**2); return bmi.toFixed(2); } }
+        currency: { name: "Валюта", units: ["RUB", "USD", "EUR", "CNY", "GBP"], rates: { USD: 1, RUB: 88.5, EUR: 0.92, CNY: 7.25, GBP: 0.79 }, convert: (v, f, t, d) => { const base = v / d.rates[f]; return base * d.rates[t]; } },
+        length: { name: "Длина", units: ["Метры", "Километры", "Сантиметры", "Миллиметры", "Мили", "Футы", "Дюймы"], toMeter: { "Метры": 1, "Километры": 1000, "Сантиметры": 0.01, "Миллиметры": 0.001, "Мили": 1609.344, "Футы": 0.3048, "Дюймы": 0.0254 }, convert: (v, f, t, d) => (v * d.toMeter[f]) / d.toMeter[t] },
+        mass: { name: "Масса", units: ["Килограммы", "Граммы", "Тонны", "Фунты", "Унции"], toKg: { "Килограммы": 1, "Граммы": 0.001, "Тонны": 1000, "Фунты": 0.453592, "Унции": 0.0283495 }, convert: (v, f, t, d) => (v * d.toKg[f]) / d.toKg[t] },
+        area: { name: "Площадь", units: ["м?", "км?", "см?", "Гектары", "Акры", "Футы?"], toSqM: { "м?": 1, "км?": 1e6, "см?": 0.0001, "Гектары": 10000, "Акры": 4046.86, "Футы?": 0.092903 }, convert: (v, f, t, d) => v * d.toSqM[f] / d.toSqM[t] },
+        time: { name: "Время", units: ["Секунды", "Минуты", "Часы", "Дни", "Недели"], toSec: { "Секунды": 1, "Минуты": 60, "Часы": 3600, "Дни": 86400, "Недели": 604800 }, convert: (v, f, t, d) => v * d.toSec[f] / d.toSec[t] },
+        finance: { name: "Финансы", units: ["Проценты %", "Десятичная дробь", "НДС 20%", "Сумма с НДС"], convert: (v, f, t) => { if (f === "Проценты %" && t === "Десятичная дробь") return v / 100; if (f === "Десятичная дробь" && t === "Проценты %") return v * 100; if (f === "НДС 20%" && t === "Сумма с НДС") return v * 1.2; if (f === "Сумма с НДС" && t === "НДС 20%") return v / 1.2; return v; } },
+        data: { name: "Данные", units: ["Байты", "КБ", "МБ", "ГБ", "ТБ"], toBytes: { "Байты": 1, "КБ": 1024, "МБ": 1048576, "ГБ": 1073741824, "ТБ": 1099511627776 }, convert: (v, f, t, d) => v * d.toBytes[f] / d.toBytes[t] },
+        date: { name: "Дата", units: ["Дни", "Недели", "Месяцы (прибл.)", "Годы (прибл.)"], convert: (v, f, t) => { const factors = { "Дни": 1, "Недели": 7, "Месяцы (прибл.)": 30.44, "Годы (прибл.)": 365.25 }; return (v * factors[f]) / factors[t]; } },
+        volume: { name: "Объем", units: ["Литры", "см?", "мм?", "дм?", "м?"], toLiter: { "Литры": 1, "см?": 0.001, "мм?": 0.000001, "дм?": 1, "м?": 1000 }, convert: (v, f, t, d) => (v * d.toLiter[f]) / d.toLiter[t] },
+        numeralSystem: { name: "Система счисления", units: ["Десятичная", "Двоичная", "Восьмеричная", "Шестнадцатеричная"], convert: (v, f, t) => { try { let num; if (f === "Десятичная") num = parseFloat(v); else if (f === "Двоичная") num = parseInt(v, 2); else if (f === "Восьмеричная") num = parseInt(v, 8); else num = parseInt(v, 16); if (isNaN(num)) return "Ошибка"; if (t === "Десятичная") return num; if (t === "Двоичная") return num.toString(2); if (t === "Восьмеричная") return num.toString(8); return num.toString(16).toUpperCase(); } catch(e) { return "неверно"; } } },
+        speed: { name: "Скорость", units: ["км/ч", "м/с", "миль/ч", "узлы"], toKmph: { "км/ч": 1, "м/с": 3.6, "миль/ч": 1.60934, "узлы": 1.852 }, convert: (v, f, t, d) => v * d.toKmph[f] / d.toKmph[t] },
+        temperature: { name: "Температура", units: ["Цельсий", "Фаренгейт", "Кельвин"], convert: (v, f, t) => { let c; if (f === "Цельсий") c = v; else if (f === "Фаренгейт") c = (v - 32) * 5/9; else c = v - 273.15; if (t === "Цельсий") return c; if (t === "Фаренгейт") return c * 9/5 + 32; return c + 273.15; } },
+        bmi: { name: "ИМТ", units: ["ИМТ"], hasExtra: true, getExtraFields: () => [{ name: "weight", label: "Вес (кг)", type: "number", placeholder: "70" }, { name: "height", label: "Рост (см)", type: "number", placeholder: "170" }], convertWithExtra: (_, __, ___, extra) => { let w = parseFloat(extra.weight), h = parseFloat(extra.height); if (isNaN(w) || isNaN(h) || h <= 0) return "Введите вес и рост"; let bmi = w / ((h/100)**2); return bmi.toFixed(2); } }
     };
 
     let discountMode = "discount";
     const discountConverter = {
-        name: "РЎРєРёРґРєР° / РќР°С†РµРЅРєР°",
-        units: ["Р‘Р°Р·РѕРІР°СЏ С†РµРЅР°", "РљРѕРЅРµС‡РЅР°СЏ С†РµРЅР°"],
+        name: "Скидка / Наценка",
+        units: ["Базовая цена", "Конечная цена"],
         hasExtra: true,
-        getExtraFields: () => [{ name: "percent", label: discountMode === "discount" ? "РЎРєРёРґРєР° (%)" : "РќР°С†РµРЅРєР° (%)", type: "number", placeholder: discountMode === "discount" ? "10" : "20" }],
+        getExtraFields: () => [{ name: "percent", label: discountMode === "discount" ? "Скидка (%)" : "Наценка (%)", type: "number", placeholder: discountMode === "discount" ? "10" : "20" }],
         getModeSwitch: () => {
             const div = document.createElement('div');
             div.className = 'mode-switch';
             const discountBtn = document.createElement('button');
-            discountBtn.textContent = 'РЎРєРёРґРєР° (-%)';
+            discountBtn.textContent = 'Скидка (-%)';
             discountBtn.className = `mode-switch-btn ${discountMode === 'discount' ? 'active' : ''}`;
             const markupBtn = document.createElement('button');
-            markupBtn.textContent = 'РќР°С†РµРЅРєР° (+%)';
+            markupBtn.textContent = 'Наценка (+%)';
             markupBtn.className = `mode-switch-btn ${discountMode === 'markup' ? 'active' : ''}`;
             discountBtn.onclick = () => { discountMode = 'discount'; openConverter('discount'); };
             markupBtn.onclick = () => { discountMode = 'markup'; openConverter('discount'); };
@@ -545,11 +545,11 @@
         convertWithExtra: (value, fromUnit, toUnit, extra) => {
             let percent = parseFloat(extra.percent);
             if (isNaN(percent)) percent = 0;
-            if (fromUnit === "Р‘Р°Р·РѕРІР°СЏ С†РµРЅР°" && toUnit === "РљРѕРЅРµС‡РЅР°СЏ С†РµРЅР°") {
+            if (fromUnit === "Базовая цена" && toUnit === "Конечная цена") {
                 if (discountMode === "discount") return (value * (1 - percent / 100)).toFixed(2);
                 else return (value * (1 + percent / 100)).toFixed(2);
             }
-            if (fromUnit === "РљРѕРЅРµС‡РЅР°СЏ С†РµРЅР°" && toUnit === "Р‘Р°Р·РѕРІР°СЏ С†РµРЅР°") {
+            if (fromUnit === "Конечная цена" && toUnit === "Базовая цена") {
                 if (discountMode === "discount") return (value / (1 - percent / 100)).toFixed(2);
                 else return (value / (1 + percent / 100)).toFixed(2);
             }
@@ -558,20 +558,20 @@
     };
 
     const categoriesList = [
-        { id: "currency", label: "Р’Р°Р»СЋС‚Р°", icon: "в‚Ѕ" },
-        { id: "length", label: "Р”Р»РёРЅР°", icon: "в„“" },
-        { id: "mass", label: "РњР°СЃСЃР°", icon: "kg" },
-        { id: "area", label: "РџР»РѕС‰Р°РґСЊ", icon: "mВІ" },
-        { id: "time", label: "Р’СЂРµРјСЏ", icon: "вЏ±" },
-        { id: "finance", label: "Р¤РёРЅР°РЅСЃС‹", icon: "%" },
-        { id: "data", label: "Р”Р°РЅРЅС‹Рµ", icon: "MB" },
-        { id: "date", label: "Р”Р°С‚Р°", icon: "рџ“…" },
-        { id: "discount", label: "РЎРєРёРґРєР°", icon: "в€’%" },
-        { id: "volume", label: "РћР±СЉРµРј", icon: "в„“" },
-        { id: "numeralSystem", label: "РЎС‡РёСЃР»РµРЅРёСЏ", icon: "01" },
-        { id: "speed", label: "РЎРєРѕСЂРѕСЃС‚СЊ", icon: "km/h" },
-        { id: "temperature", label: "РўРµРјРїРµСЂР°С‚СѓСЂР°", icon: "В°C" },
-        { id: "bmi", label: "РРњРў", icon: "вљ–" }
+        { id: "currency", label: "Валюта", icon: "?" },
+        { id: "length", label: "Длина", icon: "?" },
+        { id: "mass", label: "Масса", icon: "kg" },
+        { id: "area", label: "Площадь", icon: "m?" },
+        { id: "time", label: "Время", icon: "?" },
+        { id: "finance", label: "Финансы", icon: "%" },
+        { id: "data", label: "Данные", icon: "MB" },
+        { id: "date", label: "Дата", icon: "??" },
+        { id: "discount", label: "Скидка", icon: "?%" },
+        { id: "volume", label: "Объем", icon: "?" },
+        { id: "numeralSystem", label: "Счисления", icon: "01" },
+        { id: "speed", label: "Скорость", icon: "km/h" },
+        { id: "temperature", label: "Температура", icon: "°C" },
+        { id: "bmi", label: "ИМТ", icon: "?" }
     ];
 
     let currentCategory = null, currentConverter = null, extraValues = {};
@@ -590,7 +590,7 @@
     }
 
     function addToHistory(fromVal, fromUnit, toVal, toUnit) {
-        if (fromVal && toVal && toVal !== 'РћС€РёР±РєР°' && toVal !== 'РЅРµРІРµСЂРЅРѕ') {
+        if (fromVal && toVal && toVal !== 'Ошибка' && toVal !== 'неверно') {
             history.unshift({ from: `${fromVal} ${fromUnit}`, to: `${toVal} ${toUnit}` });
             if (history.length > 20) history.pop();
             saveHistory();
@@ -602,7 +602,7 @@
         const historyList = document.getElementById('historyList');
         if (!historyList) return;
         if (history.length === 0) {
-            historyList.innerHTML = 'вЂ”';
+            historyList.innerHTML = '—';
             return;
         }
         let html = '';
@@ -702,8 +702,8 @@
         if (!currentConverter) return;
         modalTitle.textContent = currentConverter.name;
 
-        let units = currentConverter.units ? [...currentConverter.units] : (categoryId === 'bmi' ? ["РРњРў"] : []);
-        if (categoryId === 'discount') units = ["Р‘Р°Р·РѕРІР°СЏ С†РµРЅР°", "РљРѕРЅРµС‡РЅР°СЏ С†РµРЅР°"];
+        let units = currentConverter.units ? [...currentConverter.units] : (categoryId === 'bmi' ? ["ИМТ"] : []);
+        if (categoryId === 'discount') units = ["Базовая цена", "Конечная цена"];
 
         fromSelect.innerHTML = '';
         toSelect.innerHTML = '';
@@ -712,12 +712,12 @@
             toSelect.add(new Option(u, u));
         });
 
-        if (categoryId === 'temperature') { fromSelect.value = "Р¦РµР»СЊСЃРёР№"; toSelect.value = "Р¤Р°СЂРµРЅРіРµР№С‚"; infoNote.innerText = "В°C в†’ В°F: *9/5+32"; }
-        else if (categoryId === 'volume') { fromSelect.value = "Р›РёС‚СЂС‹"; toSelect.value = "РјВі"; infoNote.innerText = "1 Р» = 0.001 РјВі"; }
-        else if (categoryId === 'finance') { fromSelect.value = "РџСЂРѕС†РµРЅС‚С‹ %"; toSelect.value = "Р”РµСЃСЏС‚РёС‡РЅР°СЏ РґСЂРѕР±СЊ"; infoNote.innerText = "1% = 0.01"; }
-        else if (categoryId === 'numeralSystem') { fromSelect.value = "Р”РµСЃСЏС‚РёС‡РЅР°СЏ"; toSelect.value = "Р”РІРѕРёС‡РЅР°СЏ"; infoNote.innerText = "РџРµСЂРµРІРѕРґ СЃРёСЃС‚РµРј СЃС‡РёСЃР»РµРЅРёСЏ"; }
-        else if (categoryId === 'discount') { fromSelect.value = "Р‘Р°Р·РѕРІР°СЏ С†РµРЅР°"; toSelect.value = "РљРѕРЅРµС‡РЅР°СЏ С†РµРЅР°"; infoNote.innerText = discountMode === "discount" ? "Р Р°СЃС‡РµС‚ С†РµРЅС‹ СЃРѕ СЃРєРёРґРєРѕР№" : "Р Р°СЃС‡РµС‚ С†РµРЅС‹ СЃ РЅР°С†РµРЅРєРѕР№"; }
-        else { if (units[0]) fromSelect.value = units[0]; if (units[1]) toSelect.value = units[1]; infoNote.innerText = "РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ РїРµСЂРµСЃС‡РµС‚"; }
+        if (categoryId === 'temperature') { fromSelect.value = "Цельсий"; toSelect.value = "Фаренгейт"; infoNote.innerText = "°C > °F: *9/5+32"; }
+        else if (categoryId === 'volume') { fromSelect.value = "Литры"; toSelect.value = "м?"; infoNote.innerText = "1 л = 0.001 м?"; }
+        else if (categoryId === 'finance') { fromSelect.value = "Проценты %"; toSelect.value = "Десятичная дробь"; infoNote.innerText = "1% = 0.01"; }
+        else if (categoryId === 'numeralSystem') { fromSelect.value = "Десятичная"; toSelect.value = "Двоичная"; infoNote.innerText = "Перевод систем счисления"; }
+        else if (categoryId === 'discount') { fromSelect.value = "Базовая цена"; toSelect.value = "Конечная цена"; infoNote.innerText = discountMode === "discount" ? "Расчет цены со скидкой" : "Расчет цены с наценкой"; }
+        else { if (units[0]) fromSelect.value = units[0]; if (units[1]) toSelect.value = units[1]; infoNote.innerText = "Автоматический пересчет"; }
 
         inputElem.value = "1";
         if (categoryId === 'bmi') inputElem.style.display = 'none';
@@ -735,17 +735,17 @@
             if (currentConverter.convertWithExtra) {
                 let res = currentConverter.convertWithExtra(0, null, null, extraValues);
                 outputElem.value = res;
-                if (res && res !== 'РћС€РёР±РєР°' && res !== 'Р’РІРµРґРёС‚Рµ РІРµСЃ Рё СЂРѕСЃС‚') {
+                if (res && res !== 'Ошибка' && res !== 'Введите вес и рост') {
                     let weight = extraValues.weight || '0';
                     let height = extraValues.height || '0';
-                    addToHistory(`${weight}РєРі/${height}СЃРј`, '', res, 'РРњРў');
+                    addToHistory(`${weight}кг/${height}см`, '', res, 'ИМТ');
                 }
             }
             return;
         }
         if (currentCategory === 'discount') {
             let val = parseFloat(inputElem.value);
-            if (isNaN(val)) { outputElem.value = "РѕС€РёР±РєР°"; return; }
+            if (isNaN(val)) { outputElem.value = "ошибка"; return; }
             let from = fromSelect.value, to = toSelect.value;
             let res = currentConverter.convertWithExtra(val, from, to, extraValues);
             outputElem.value = res;
@@ -753,7 +753,7 @@
             return;
         }
         let val = parseFloat(inputElem.value);
-        if (isNaN(val)) { outputElem.value = "РѕС€РёР±РєР°"; return; }
+        if (isNaN(val)) { outputElem.value = "ошибка"; return; }
         let from = fromSelect.value, to = toSelect.value;
         let res = currentConverter.convert(val, from, to, currentConverter);
         if (typeof res === 'number') {
@@ -779,17 +779,17 @@
         if (html.classList.contains('light-mode')) {
             html.classList.remove('light-mode');
             localStorage.setItem('mathTheme', 'dark');
-            btn.textContent = 'рџЊ™';
+            btn.textContent = '??';
         } else {
             html.classList.add('light-mode');
             localStorage.setItem('mathTheme', 'light');
-            btn.textContent = 'вЂпёЏ';
+            btn.textContent = '??';
         }
     }
 
     if (localStorage.getItem('mathTheme') === 'light') {
         document.documentElement.classList.add('light-mode');
-        document.getElementById('themeBtn').textContent = 'вЂпёЏ';
+        document.getElementById('themeBtn').textContent = '??';
     }
 
     loadHistory();
@@ -800,6 +800,6 @@
     }
 </script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='в†';btn.classList.remove('active');}else{f.push(u);btn.textContent='в…';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='в…';btn.classList.add('active');}else{btn.textContent='в†';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='?';btn.classList.remove('active');}else{f.push(u);btn.textContent='?';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='?';btn.classList.add('active');}else{btn.textContent='?';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
 </body>
 </html>
