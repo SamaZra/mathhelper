@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Таблица и правила дифференцирования</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root {
+    --bg: #1a2d3c;
+    --card-bg: #1e3545;
+    --text: #ffffff;
+    --text-secondary: #8ba5b8;
+    --accent: #1abc9c;
+    --border: rgba(46, 204, 113, 0.1);
+    --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+    --formula-card-bg: #1e3545;
+    --example-bg: #1e3545;
+}
+
+:root.light-mode {
+    --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+    --card-bg: white;
+    --text: #1a2a3f;
+    --text-secondary: #5a7a94;
+    --accent: #1abc9c;
+    --border: #eff3f8;
+    --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+    --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+    --example-bg: #f8fafc;
+}
+
+body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+.container{max-width:1200px;margin:0 auto;position:relative;}
+
+.theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+.theme-toggle:hover{transform:scale(1.1);}
+
+.header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+.subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+.content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+.section{margin-bottom:20px;}
+.section-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;border-left:4px solid #2c7cb6;padding-left:12px;cursor:pointer;user-select:none;}
+.section-title:hover{opacity:0.8;}
+.section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+.section.collapsed .section-title::after{transform:rotate(-90deg);}
+.section-content{max-height:5000px;overflow:hidden;transition:max-height 0.4s ease;}
+.section.collapsed .section-content{max-height:0;}
+
+.table-wrapper{overflow-x:auto;border-radius:20px;border:1px solid var(--border);background:var(--card-bg);margin-bottom:10px;}
+table{width:100%;border-collapse:collapse;font-size:0.85rem;min-width:750px;}
+th{background:#103956;color:white;font-weight:700;padding:12px 8px;text-align:center;border:1px solid #265d84;}
+td{padding:10px 6px;border:1px solid var(--border);vertical-align:middle;text-align:center;color:var(--text);}
+.func-basic{background:var(--formula-card-bg);}
+.func-example-simple{background:var(--card-bg);}
+.func-complex{background:var(--formula-card-bg);}
+.func-example-complex{background:var(--card-bg);}
+
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:16px 0;}
+.rule-card{background:var(--formula-card-bg);border:1px solid var(--border);border-radius:24px;padding:16px;transition:transform 0.2s;}
+.rule-card:hover{transform:translateY(-3px);}
+.rule-card h3{font-size:1.1rem;color:var(--text);margin-bottom:10px;font-weight:800;border-bottom:1px dashed var(--border);display:inline-block;}
+.rule-formula{background:var(--card-bg);padding:10px;border-radius:18px;margin:10px 0;text-align:center;font-weight:800;font-size:1rem;color:var(--text);}
+.rule-text{font-size:0.85rem;color:var(--text-secondary);line-height:1.5;}
+
+.examples-block{background:var(--example-bg);border-radius:24px;padding:20px;border:1px solid var(--border);margin:16px 0;}
+.example-item{margin-bottom:24px;border-left:4px solid #3080b0;padding-left:16px;}
+.example-title{font-weight:800;color:var(--text);font-size:1rem;margin-bottom:8px;}
+.math-example{background:var(--card-bg);padding:12px 16px;border-radius:20px;margin:8px 0;font-size:1rem;overflow-x:auto;white-space:pre-wrap;word-break:break-word;line-height:1.8;font-weight:600;color:var(--text);}
+
+.back-link{display:inline-block;margin-top:24px;padding:10px 24px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
+.back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
+@media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:18px;}.section-title{font-size:1.1rem;}.math-example{font-size:0.9rem;}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+.header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true,macros:{tg:'\\mathop{\\mathrm{tg}}',ctg:'\\mathop{\\mathrm{ctg}}'}},chtml:{scale:1.05,displayAlign:'center'}};</script>
+<script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+<button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+<div class="header"><h1>Таблица и правила дифференцирования</h1><div class="subtitle">Формулы · Правила · Примеры</div></div>
+<div class="content-card">
+<div class="section">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📊 Таблица производных</div>
+<div class="section-content"><div class="table-wrapper"><table><thead><tr><th>№</th><th>Простая функция</th><th>Пример (простая)</th><th>Сложная функция \(Kx+b\)</th><th>Пример (сложная)</th></tr></thead><tbody>
+<tr><td>1</td><td class="func-basic">\((C)' = 0\)</td><td class="func-example-simple">\((3)' = 0\)</td><td class="func-complex">\((C)' = 0\)</td><td class="func-example-complex">\((5)' = 0\)</td></tr>
+<tr><td>2</td><td class="func-basic">\((x^n)' = n x^{n-1}\)</td><td class="func-example-simple">\((x^3)' = 3x^2\)</td><td class="func-complex">\(((Kx+b)^n)' = n(Kx+b)^{n-1} \cdot K\)</td><td class="func-example-complex">\(((2x+3)^5)' = 5(2x+3)^4 \cdot 2\)</td></tr>
+<tr><td>3</td><td class="func-basic">\((x)' = 1\)</td><td class="func-example-simple">\((2x)' = 2\)</td><td class="func-complex">\((Kx+b)' = K\)</td><td class="func-example-complex">\((3x-4)' = 3\)</td></tr>
+<tr><td>4</td><td class="func-basic">\((\frac{1}{x})' = -\frac{1}{x^2}\)</td><td class="func-example-simple">\((\frac{3}{x})' = -\frac{3}{x^2}\)</td><td class="func-complex">\((\frac{1}{Kx+b})' = -\frac{K}{(Kx+b)^2}\)</td><td class="func-example-complex">\((\frac{1}{3x-5})' = -\frac{3}{(3x-5)^2}\)</td></tr>
+<tr><td>5</td><td class="func-basic">\((\sqrt{x})' = \frac{1}{2\sqrt{x}}\)</td><td class="func-example-simple">\((3\sqrt{x})' = \frac{3}{2\sqrt{x}}\)</td><td class="func-complex">\((\sqrt{Kx+b})' = \frac{K}{2\sqrt{Kx+b}}\)</td><td class="func-example-complex">\((\sqrt{2-3x})' = -\frac{3}{2\sqrt{2-3x}}\)</td></tr>
+<tr><td>6</td><td class="func-basic">\((e^x)' = e^x\)</td><td class="func-example-simple">\((2e^x)' = 2e^x\)</td><td class="func-complex">\((e^{Kx+b})' = e^{Kx+b} \cdot K\)</td><td class="func-example-complex">\((e^{2x+3})' = e^{2x+3} \cdot 2\)</td></tr>
+<tr><td>7</td><td class="func-basic">\((a^x)' = a^x \ln a\)</td><td class="func-example-simple">\((4^x)' = 4^x \ln 4\)</td><td class="func-complex">\((a^{Kx+b})' = a^{Kx+b} \ln a \cdot K\)</td><td class="func-example-complex">\((4^{3x-2})' = 4^{3x-2} \ln 4 \cdot 3\)</td></tr>
+<tr><td>8</td><td class="func-basic">\((\ln x)' = \frac{1}{x}\)</td><td class="func-example-simple">\((2\ln x)' = \frac{2}{x}\)</td><td class="func-complex">\((\ln(Kx+b))' = \frac{K}{Kx+b}\)</td><td class="func-example-complex">\((\ln(2-5x))' = \frac{-5}{2-5x}\)</td></tr>
+<tr><td>9</td><td class="func-basic">\((\log_a x)' = \frac{1}{x \ln a}\)</td><td class="func-example-simple">\((\log_3 x)' = \frac{1}{x \ln 3}\)</td><td class="func-complex">\((\log_a(Kx+b))' = \frac{K}{(Kx+b) \ln a}\)</td><td class="func-example-complex">\((\log_3(3-4x))' = \frac{-4}{(3-4x) \ln 3}\)</td></tr>
+<tr><td>10</td><td class="func-basic">\((\sin x)' = \cos x\)</td><td class="func-example-simple">\((3\sin x)' = 3\cos x\)</td><td class="func-complex">\((\sin(Kx+b))' = \cos(Kx+b) \cdot K\)</td><td class="func-example-complex">\((\sin 2x)' = \cos 2x \cdot 2\)</td></tr>
+<tr><td>11</td><td class="func-basic">\((\cos x)' = -\sin x\)</td><td class="func-example-simple">\((1.5\cos x)' = -1.5\sin x\)</td><td class="func-complex">\((\cos(Kx+b))' = -\sin(Kx+b) \cdot K\)</td><td class="func-example-complex">\((\cos(5x-2))' = -\sin(5x-2) \cdot 5\)</td></tr>
+<tr><td>12</td><td class="func-basic">\((\operatorname{tg} x)' = \frac{1}{\cos^2 x}\)</td><td class="func-example-simple">\((3\operatorname{tg} x)' = \frac{3}{\cos^2 x}\)</td><td class="func-complex">\((\operatorname{tg}(Kx+b))' = \frac{K}{\cos^2(Kx+b)}\)</td><td class="func-example-complex">\((2\operatorname{tg}(3x-2))' = \frac{6}{\cos^2(3x-2)}\)</td></tr>
+<tr><td>13</td><td class="func-basic">\((\operatorname{ctg} x)' = -\frac{1}{\sin^2 x}\)</td><td class="func-example-simple">\((4\operatorname{ctg} x)' = -\frac{4}{\sin^2 x}\)</td><td class="func-complex">\((\operatorname{ctg}(Kx+b))' = -\frac{K}{\sin^2(Kx+b)}\)</td><td class="func-example-complex">\((\operatorname{ctg}(3x-2))' = -\frac{3}{\sin^2(3x-2)}\)</td></tr>
+</tbody></table></div></div>
+</div>
+<div class="section collapsed">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Правила дифференцирования</div>
+<div class="section-content"><div class="rules-grid">
+<div class="rule-card"><h3>➤ Вынесение константы</h3><div class="rule-formula">\((c \cdot u)' = c \cdot u'\)</div><div class="rule-text">Постоянный множитель выносится за знак производной.</div></div>
+<div class="rule-card"><h3>➤ Сумма / разность</h3><div class="rule-formula">\((u \pm v)' = u' \pm v'\)</div><div class="rule-text">Производная суммы равна сумме производных.</div></div>
+<div class="rule-card"><h3>➤ Произведение</h3><div class="rule-formula">\((u \cdot v)' = u' \cdot v + u \cdot v'\)</div><div class="rule-text">Производная произведения: первой на производную второй плюс второй на производную первой.</div></div>
+<div class="rule-card"><h3>➤ Частное</h3><div class="rule-formula">\(\left(\frac{u}{v}\right)' = \frac{u'v - uv'}{v^2}\)</div><div class="rule-text">Производная дроби, знаменатель в квадрате.</div></div>
+</div></div>
+</div>
+<div class="section collapsed">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">✍️ Примеры на правила</div>
+<div class="section-content"><div class="examples-block">
+<div class="example-item"><div class="example-title">📌 Пример 1 (константа + сумма)</div><div class="math-example">\(f(x) = 5x^3 + 2\sqrt{x} - 7\)<br><br>\(f'(x) = 5 \cdot (x^3)' + 2 \cdot (\sqrt{x})' - 0 =\)<br>\(= 5 \cdot 3x^2 + 2 \cdot \frac{1}{2\sqrt{x}} =\)<br>\(= 15x^2 + \frac{1}{\sqrt{x}}\)</div></div>
+<div class="example-item"><div class="example-title">📌 Пример 2 (произведение)</div><div class="math-example">\(f(x) = x^2 \cdot \ln x\)<br><br>\(f'(x) = (x^2)' \cdot \ln x + x^2 \cdot (\ln x)' =\)<br>\(= 2x \cdot \ln x + x^2 \cdot \frac{1}{x} =\)<br>\(= 2x\ln x + x\)</div></div>
+<div class="example-item"><div class="example-title">📌 Пример 3 (частное)</div><div class="math-example">\(f(x) = \frac{x^3 + 1}{\sin x}\)<br><br>\(f'(x) = \frac{3x^2 \cdot \sin x - (x^3+1) \cdot \cos x}{\sin^2 x}\)</div></div>
+<div class="example-item"><div class="example-title">📌 Пример 4 (комбинация)</div><div class="math-example">\(f(x) = 3x e^x + 4\cos x\)<br><br>\(f'(x) = 3\bigl[(x)'e^x + x(e^x)'\bigr] - 4\sin x =\)<br>\(= 3(1\cdot e^x + x e^x) - 4\sin x =\)<br>\(= 3e^x(1+x) - 4\sin x\)</div></div>
+</div></div>
+</div>
+<a href="derivative.html" class="back-link">← Назад к производной</a>
+</div>
+</div>
+<script>
+function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
+(function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

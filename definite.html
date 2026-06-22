@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Определённый интеграл</title>
+    <script src="file:///android_asset/es5/tex-chtml.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --formula-card-bg: #1e3545;
+            --example-bg: #1e3545;
+            --example-border: #1abc9c;
+            --info-bg: #1e3545;
+            --special-bg: #1e3545;
+            --special-border: #2e8b57;
+            --property-bg: #1a2d3c;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --example-bg: #f8fafc;
+            --example-border: #16a085;
+            --info-bg: #e8f0fe;
+            --special-bg: #e8f0fe;
+            --special-border: #2e8b57;
+            --property-bg: white;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; }
+
+        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid #2e8b57; text-align: center; }
+        h2 { font-size: 1.3rem; color: var(--text); margin: 10px 0 8px 0; padding-left: 10px; border-left: 4px solid var(--special-border); }
+        .section { margin-bottom: 14px; }
+        .section-title { font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
+        .section-title:hover { opacity: 0.8; }
+        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.9rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .section.collapsed .section-title::after { transform: rotate(-90deg); }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 10px 0; }
+        .formula-card { background: var(--formula-card-bg); border-radius: 16px; padding: 14px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; }
+        .formula-card p { margin: 6px 0; font-family: 'Times New Roman', monospace; font-size: 1.1rem; font-weight: bold; color: var(--text); }
+        .def-card { background: var(--info-bg); border-left: 4px solid #2e8b57; border-radius: 14px; padding: 12px 14px; margin: 8px 0; }
+        .def-card p { margin: 4px 0; font-size: 0.95rem; line-height: 1.4; color: var(--text); }
+        .def-card strong { color: var(--text); }
+        .special-case { background: var(--special-bg); border-left: 5px solid var(--special-border); }
+        .special-badge { background: #2e8b57; color: white; font-size: 0.85rem; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; font-weight: 600; }
+        .property-card { background: var(--property-bg); border-radius: 16px; padding: 14px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; border-left: 5px solid var(--special-border); }
+        .property-name { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+        .property-formula { font-family: 'Times New Roman', monospace; font-size: 1.1rem; font-weight: bold; color: var(--text); overflow-x: auto; white-space: nowrap; padding: 5px 0; }
+        .example-block { background: var(--example-bg); border-radius: 16px; padding: 12px 14px; margin: 10px 0; border: 1px solid var(--border); }
+        .example-block p { margin: 2px 0; font-size: 1rem; line-height: 1.4; color: var(--text); }
+        .example-block .step { color: var(--special-border); font-weight: 600; font-size: 0.95rem; }
+        .example-block .formula-used { background: var(--info-bg); display: inline-block; padding: 1px 6px; border-radius: 12px; font-size: 0.9rem; color: var(--text); }
+        .example-block .result { background: rgba(46, 139, 87, 0.2); display: inline-block; padding: 1px 6px; border-radius: 12px; font-size: 0.9rem; color: var(--text); font-weight: 600; }
+        .note-box { background: var(--info-bg); border-left: 4px solid #2e8b57; border-radius: 16px; padding: 12px 14px; margin: 12px 0; font-size: 0.95rem; line-height: 1.5; color: var(--text); }
+        .back-link { display: inline-block; margin: 20px 0 10px; padding: 10px 20px; background: #2e8b57; color: white; text-decoration: none; font-weight: bold; border-radius: 20px; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+</head>
+<body>
+<div class="container">
+<button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <h1>📐 Определённый интеграл</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📘 Определение</div>
+        <div class="section-content">
+            <div class="def-card">
+                <p><strong>Определённый интеграл</strong> — это число, которое показывает, чему равна площадь под графиком функции \(f(x)\) на отрезке от \(a\) до \(b\).</p>
+                <p style="margin-top:6px;">Обозначается \(\int_a^b f(x)\,dx\). Число \(a\) — нижний предел (начало отрезка), \(b\) — верхний предел (конец отрезка).</p>
+                <p style="margin-top:6px;">Если функция принимает отрицательные значения, то площадь берётся со знаком «минус».</p>
+            </div>
+            <div class="def-card">
+                <p><strong>Простыми словами:</strong> разбиваем отрезок \([a, b]\) на много маленьких частей, считаем площадь каждого узкого прямоугольника под графиком, складываем — получаем интеграл.</p>
+            </div>
+            <div class="def-card">
+                <p><strong>Пример из жизни:</strong> если известна скорость тела в каждый момент времени, то определённый интеграл от скорости — это пройденный путь.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📏 Формула Ньютона-Лейбница</div>
+        <div class="section-content">
+            <div class="formula-grid">
+                <div class="formula-card">
+                    <p>\(\displaystyle \int_a^b f(x)\,dx = F(x) \Big|_a^b = F(b) - F(a)\)</p>
+                    <p style="font-size:0.9rem;font-weight:normal;color:var(--text-secondary);">где \(F(x)\) — первообразная функции \(f(x)\), то есть \(F'(x) = f(x)\)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Алгоритм вычисления</div>
+        <div class="section-content">
+            <div class="def-card">
+                <p><strong>1.</strong> Найти первообразную \(F(x)\) функции \(f(x)\). <span style="color: #c21820;">Константу \(C\) не добавлять.</span></p>
+                <p style="margin-top:6px;"><strong>2.</strong> Подставить верхний предел \(b\) и вычислить \(F(b)\).</p>
+                <p style="margin-top:6px;"><strong>3.</strong> Подставить нижний предел \(a\) и вычислить \(F(a)\).</p>
+                <p style="margin-top:6px;"><strong>4.</strong> Найти разность \(F(b) - F(a)\) — это и будет значение интеграла.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚙️ Основные свойства</div>
+        <div class="section-content">
+            <div class="formula-grid">
+                <div class="property-card">
+                    <div class="property-name">1. Интеграл суммы / разности</div>
+                    <div class="property-formula">\(\int_a^b (f(x) \pm g(x))dx = \int_a^b f(x)dx \pm \int_a^b g(x)dx\)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">2. Вынесение константы</div>
+                    <div class="property-formula">\(\int_a^b c \cdot f(x)dx = c \cdot \int_a^b f(x)dx\)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">3. Перестановка пределов</div>
+                    <div class="property-formula">\(\int_a^b f(x)dx = -\int_b^a f(x)dx\)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">4. Аддитивность</div>
+                    <div class="property-formula">\(\int_a^b f(x)dx = \int_a^c f(x)dx + \int_c^b f(x)dx\)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">5. Одинаковые пределы</div>
+                    <div class="property-formula">\(\int_a^a f(x)dx = 0\)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">6. Интеграл от константы</div>
+                    <div class="property-formula">\(\int_a^b c \,dx = c(b - a)\)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример с подробным разбором</div>
+        <div class="section-content">
+            <div class="example-block">
+                <p><strong>Вычислить определённый интеграл:</strong></p>
+                <p style="text-align:center;font-size:1.3rem;margin:10px 0;">\(\displaystyle \int_1^4 \frac{dx}{\sqrt{x}}\)</p>
+                <p><span class="step">Шаг 1. Находим первообразную:</span></p>
+                <p>\(\displaystyle \int \frac{dx}{\sqrt{x}} = \int x^{-\frac{1}{2}} dx = \frac{x^{\frac{1}{2}}}{\frac{1}{2}} + C = 2\sqrt{x} + C\)</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);">✓ \(F(x) = 2\sqrt{x}\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Подставляем верхний предел \(b = 4\):</span></p>
+                <p>\(F(4) = 2\sqrt{4} = 2 \cdot 2 = 4\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем нижний предел \(a = 1\):</span></p>
+                <p>\(F(1) = 2\sqrt{1} = 2 \cdot 1 = 2\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Находим разность \(F(4) - F(1)\):</span></p>
+                <p>\(\int_1^4 \frac{dx}{\sqrt{x}} = F(4) - F(1) = 4 - 2 = 2\)</p>
+                <p style="margin-top:10px;"><span class="result">Ответ: \(\displaystyle \int_1^4 \frac{dx}{\sqrt{x}} = 2\)</span></p>
+                <p style="margin-top:10px;font-size:0.9rem;color:var(--text-secondary);">💡 <strong>Геометрический смысл:</strong> площадь под графиком функции \(y = \frac{1}{\sqrt{x}}\) на отрезке от \(x = 1\) до \(x = 4\) равна 2 квадратным единицам.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="note-box">
+        <strong>📌 Запомните:</strong><br>
+        • Определённый интеграл — это <strong>число</strong><br>
+        • Первообразную находим без константы \(C\)<br>
+        • Формула Ньютона-Лейбница: \(\int_a^b f(x)dx = F(b) - F(a)\)<br>
+        • Геометрический смысл — площадь под графиком
+    </div>
+
+    <a href="integral.html" class="back-link">← назад в меню</a>
+</div>
+<script>
+function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
+(function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

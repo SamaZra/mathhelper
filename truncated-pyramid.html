@@ -1,0 +1,582 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Правильная пятиугольная усечённая пирамида — 3D модель</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(46, 204, 113, 0.1);
+            --special-border: #10b981;
+            --canvas-bg: #1a2d3c;
+            --formula-color: #ffffff;
+            --formula-bg: #1e3545;
+            --info-bg: #1e3545;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --border: #eff3f8;
+            --canvas-bg: #eef2f8;
+            --formula-color: #1a2a3f;
+            --formula-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --info-bg: #e8f0fe;
+            --special-border: #10b981;
+        }
+
+        body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);padding:8px;}
+        .container{max-width:1200px;margin:0 auto;background:var(--card-bg);border-radius:24px;padding:16px;padding-top:50px;position:relative;}
+
+        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        h1{font-size:1.5rem;color:var(--text);margin:0 auto 16px auto;padding-bottom:8px;border-bottom:4px solid #10b981;text-align:center;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--special-border);padding-left:12px;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:5000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .def-card{background:var(--info-bg);border-left:4px solid var(--special-border);border-radius:14px;padding:12px 14px;margin:8px 0;}
+        .def-card p{margin:4px 0;font-size:0.95rem;line-height:1.4;color:var(--text);}
+        .def-card strong{color:var(--text);}
+
+        .model-container {
+            text-align: center;
+            margin: 16px 0;
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--canvas-bg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            min-height: 380px;
+        }
+        .model-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border-radius: 20px;
+            touch-action: none;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 20;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+
+        .legend-3d {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(8px);
+            padding: 8px 14px;
+            border-radius: 28px;
+            font-size: 12px;
+            font-family: monospace;
+            color: #ddd;
+            pointer-events: none;
+            z-index: 10;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .legend-3d span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend-3d .h-color { color: #34d399; font-weight: bold; }
+        .legend-3d .ap-color { color: #f97316; font-weight: bold; }
+        .legend-3d .edge-color { color: #f472b6; font-weight: bold; }
+
+        .comp-list{list-style:none;}
+        .comp-list li{padding-left:26px;margin-bottom:10px;line-height:1.4;font-size:0.95rem;color:var(--text);background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%2310b981"><circle cx="12" cy="12" r="6"/></svg>') left center no-repeat;background-size:16px;}
+
+        .formula-block {
+            background: var(--formula-bg);
+            padding: 20px 24px;
+            border-radius: 24px;
+            margin: 16px 0;
+            border-left: 5px solid #10b981;
+            overflow-x: auto;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--formula-color);
+        }
+        .formula-block mjx-container { font-size: 1.7rem !important; color: var(--formula-color) !important; }
+
+        .note-box {
+            background: var(--info-bg);
+            border-left: 4px solid var(--special-border);
+            border-radius: 18px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .back-link{display:inline-block;margin:20px 0 10px;padding:10px 20px;background:#10b981;color:white;text-decoration:none;font-weight:bold;border-radius:20px;transition:transform 0.2s;}
+        .back-link:hover{transform:scale(1.02);}
+        mjx-container{font-size:1.1em!important;overflow-x:auto!important;max-width:100%!important;}
+
+        .model-container:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            max-height: none;
+            margin: 0;
+            border-radius: 0;
+            background: #0a0f16;
+            aspect-ratio: auto;
+        }
+        .model-container:fullscreen .model-canvas { width: 100vw; height: 100vh; border-radius: 0; }
+
+        @media (max-width: 700px) {
+            .model-container { min-height: 280px; }
+            .legend-3d { font-size: 9px; gap: 8px; padding: 5px 10px; }
+            .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
+            .formula-block { padding: 14px 16px; font-size: 1.3rem; }
+            .formula-block mjx-container { font-size: 1.4rem !important; }
+        }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+            chtml: { scale: 1.3 }
+        };
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/" } }
+    </script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <h1>⛰️ Правильная пятиугольная усечённая пирамида</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 3D-модель</div>
+        <div class="section-content">
+            <div class="model-container" id="truncated-pyramid-container">
+                <canvas id="truncated-pyramid-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fullscreenBtn" title="Во весь экран">⛶</button>
+                <div class="legend-3d">
+                    <span>● <span class="h-color">Высота (h)</span></span>
+                    <span>● <span class="ap-color">Апофема (aₚ)</span></span>
+                    <span>● <span class="edge-color">Боковое ребро</span></span>
+                </div>
+            </div>
+            <div class="def-card">
+                <p><strong>Интерактивная модель:</strong> вращайте пальцем, масштабируйте двумя пальцами (щипок). <strong>Правильная пятиугольная усечённая пирамида</strong> — получена сечением правильной пирамиды плоскостью, параллельной основанию.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Определение</div>
+        <div class="section-content">
+            <div class="def-card">
+                <ul class="comp-list">
+                    <li><strong>Усечённая пирамида</strong> — часть пирамиды между основанием и секущей плоскостью, параллельной основанию.</li>
+                    <li><strong>Правильная усечённая пирамида</strong> — получена из правильной пирамиды.</li>
+                    <li><strong>Пятиугольная усечённая пирамида</strong> — в основаниях — правильные пятиугольники.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🔷 Элементы</div>
+        <div class="section-content">
+            <div class="def-card">
+                <ul class="comp-list">
+                    <li><strong>Нижнее основание</strong> — правильный пятиугольник (радиус R)</li>
+                    <li><strong>Верхнее основание</strong> — правильный пятиугольник (радиус r)</li>
+                    <li><strong>Боковые грани</strong> — равнобедренные трапеции</li>
+                    <li><strong>Высота (h)</strong> — перпендикуляр между основаниями</li>
+                    <li><strong>Апофема (aₚ)</strong> — высота боковой грани-трапеции</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">✂️ Сечения</div>
+        <div class="section-content">
+            <div class="def-card">
+                <ul class="comp-list">
+                    <li><strong>Сечение, параллельное основаниям</strong> — правильный пятиугольник, подобный основаниям.</li>
+                    <li><strong>Диагональное сечение</strong> — равнобедренная трапеция.</li>
+                    <li><strong>Осевое сечение</strong> — равнобедренная трапеция.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧮 Формулы</div>
+        <div class="section-content">
+            <div class="formula-block">\[ S_{\text{бок}} = \frac{1}{2} (P_1 + P_2) \cdot a_p \]</div>
+            <div class="formula-block">\[ S_{\text{полн}} = S_{\text{бок}} + S_1 + S_2 \]</div>
+            <div class="formula-block">\[ V = \frac{1}{3} h \left( S_1 + S_2 + \sqrt{S_1 S_2} \right) \]</div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Свойства</div>
+        <div class="section-content">
+            <div class="def-card">
+                <ul class="comp-list">
+                    <li><strong>Вершин:</strong> 10, <strong>рёбер:</strong> 15, <strong>граней:</strong> 7</li>
+                    <li><strong>Теорема Эйлера:</strong> \(10 - 15 + 7 = 2\)</li>
+                    <li>Основания — подобные правильные пятиугольники, параллельны</li>
+                    <li>Боковые грани — равнобедренные трапеции</li>
+                    <li>Все боковые рёбра равны</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="note-box">
+        <strong>📌 Запомните:</strong><br>
+        • \(V = \frac{1}{3} h (S_1 + S_2 + \sqrt{S_1 S_2})\)<br>
+        • \(S_{\text{бок}} = \frac{1}{2}(P_1 + P_2) \cdot a_p\)
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    // ========== ОПРЕДЕЛЕНИЕ КАЧЕСТВА 3D ==========
+    let quality3D = 'high';
+    if (window.Android && window.Android.getQuality3D) {
+        quality3D = window.Android.getQuality3D();
+    } else {
+        const saved = localStorage.getItem('quality3d');
+        if (saved) quality3D = saved;
+    }
+
+    const qualitySettings = {
+        low: {
+            segments: 24,
+            opacity: 0.85,
+            transparent: false
+        },
+        medium: {
+            segments: 48,
+            opacity: 0.65,
+            transparent: true
+        },
+        high: {
+            segments: 96,
+            opacity: 0.55,
+            transparent: true
+        }
+    };
+
+    const settings = qualitySettings[quality3D];
+    // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    (async function() {
+        const THREE = await import('three');
+        const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
+        const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
+
+        const canvasElem = document.getElementById('truncated-pyramid-canvas');
+        const containerElem = document.getElementById('truncated-pyramid-container');
+        if (!canvasElem || !containerElem) return;
+
+        const R = 1.3, r = 0.8, h = 1.6, sides = 5, halfH = h / 2;
+
+        function getPentagonVertices(radius, yPos) {
+            const verts = [];
+            for (let i = 0; i < sides; i++) {
+                const angle = (i / sides) * Math.PI * 2 - Math.PI / 2;
+                verts.push(new THREE.Vector3(radius * Math.cos(angle), yPos, radius * Math.sin(angle)));
+            }
+            return verts;
+        }
+
+        const bottomVerts = getPentagonVertices(R, -halfH);
+        const topVerts = getPentagonVertices(r, halfH);
+
+        const scene = new THREE.Scene();
+        scene.background = null;
+
+        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        camera.position.set(3.5, 2.2, 4.8);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvasElem, alpha: true, antialias: true });
+
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        containerElem.style.position = 'relative';
+        containerElem.appendChild(labelRenderer.domElement);
+
+        function updateSize() {
+            const rect = containerElem.getBoundingClientRect();
+            let width = rect.width;
+            let heightVal = rect.height;
+            if (document.fullscreenElement === containerElem || document.webkitFullscreenElement === containerElem) {
+                width = window.innerWidth;
+                heightVal = window.innerHeight;
+            }
+            if (width < 10) width = 800;
+            if (heightVal < 10) heightVal = 450;
+            canvasElem.style.width = `${width}px`;
+            canvasElem.style.height = `${heightVal}px`;
+            canvasElem.width = width;
+            canvasElem.height = heightVal;
+            renderer.setSize(width, heightVal);
+            labelRenderer.setSize(width, heightVal);
+            camera.aspect = width / heightVal;
+            camera.updateProjectionMatrix();
+        }
+
+        function forceResize() {
+            canvasElem.style.width = '';
+            canvasElem.style.height = '';
+            setTimeout(() => { updateSize(); requestAnimationFrame(() => updateSize()); }, 30);
+        }
+
+        const resizeObserver = new ResizeObserver(() => updateSize());
+        resizeObserver.observe(containerElem);
+        setTimeout(() => updateSize(), 100);
+
+        const ambientLight = new THREE.AmbientLight(0x40486c, 0.6);
+        scene.add(ambientLight);
+        const keyLight = new THREE.DirectionalLight(0xfff5e0, 1.2);
+        keyLight.position.set(2, 5, 2);
+        scene.add(keyLight);
+        const fillLight = new THREE.PointLight(0xccaa77, 0.55);
+        fillLight.position.set(-1.5, 2, 2);
+        scene.add(fillLight);
+        const rimLight = new THREE.PointLight(0x88aaff, 0.5);
+        rimLight.position.set(1, 2, -3);
+        scene.add(rimLight);
+        const bottomLight = new THREE.PointLight(0x6699cc, 0.35);
+        bottomLight.position.set(0, -1.2, 0);
+        scene.add(bottomLight);
+
+        const gridHelper = new THREE.GridHelper(5, 12, 0x5f7f9e, 0x2c4258);
+        gridHelper.position.y = -halfH - 0.2;
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.2;
+        scene.add(gridHelper);
+
+        const sideMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x3b82f6, metalness: 0.35, roughness: 0.28,
+            transparent: settings.transparent, opacity: settings.opacity,
+            side: THREE.DoubleSide, emissive: 0x001133
+        });
+
+        for (let i = 0; i < sides; i++) {
+            const p1 = bottomVerts[i];
+            const p2 = bottomVerts[(i + 1) % sides];
+            const p3 = topVerts[(i + 1) % sides];
+            const p4 = topVerts[i];
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+                p1.x, p1.y, p1.z, p2.x, p2.y, p2.z,
+                p3.x, p3.y, p3.z, p4.x, p4.y, p4.z
+            ]), 3));
+            geometry.setIndex([0, 1, 2, 0, 2, 3]);
+            geometry.computeVertexNormals();
+            scene.add(new THREE.Mesh(geometry, sideMaterial));
+        }
+
+        const bottomGeometry = new THREE.BufferGeometry();
+        const bottomVertsFlat = [];
+        for (const v of bottomVerts) bottomVertsFlat.push(v.x, v.y, v.z);
+        bottomGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(bottomVertsFlat), 3));
+        const bottomIndices = [];
+        for (let i = 1; i < sides - 1; i++) bottomIndices.push(0, i, i + 1);
+        bottomGeometry.setIndex(bottomIndices);
+        bottomGeometry.computeVertexNormals();
+        scene.add(new THREE.Mesh(bottomGeometry, new THREE.MeshPhysicalMaterial({ color: 0x60a5fa, metalness: 0.3, roughness: 0.4, transparent: true, opacity: 0.5, side: THREE.DoubleSide })));
+
+        const topGeometry = new THREE.BufferGeometry();
+        const topVertsFlat = [];
+        for (const v of topVerts) topVertsFlat.push(v.x, v.y, v.z);
+        topGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(topVertsFlat), 3));
+        const topIndices = [];
+        for (let i = 1; i < sides - 1; i++) topIndices.push(0, i, i + 1);
+        topGeometry.setIndex(topIndices);
+        topGeometry.computeVertexNormals();
+        scene.add(new THREE.Mesh(topGeometry, new THREE.MeshPhysicalMaterial({ color: 0x60a5fa, metalness: 0.3, roughness: 0.4, transparent: true, opacity: 0.5, side: THREE.DoubleSide })));
+
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([...bottomVerts, bottomVerts[0]]), new THREE.LineBasicMaterial({ color: 0x7cb8ff })));
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([...topVerts, topVerts[0]]), new THREE.LineBasicMaterial({ color: 0x7cb8ff })));
+
+        const heightStart = new THREE.Vector3(0, -halfH, 0);
+        const heightEnd = new THREE.Vector3(0, halfH, 0);
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([heightStart, heightEnd]), new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 3 })));
+
+        const heightSphereMat = new THREE.MeshStandardMaterial({ color: 0x34d399, emissive: 0x004d2e });
+        const bottomHPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), heightSphereMat);
+        bottomHPoint.position.copy(heightStart);
+        const topHPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), heightSphereMat);
+        topHPoint.position.copy(heightEnd);
+        scene.add(bottomHPoint);
+        scene.add(topHPoint);
+
+        const midBottom = new THREE.Vector3((bottomVerts[0].x + bottomVerts[1].x) / 2, -halfH, (bottomVerts[0].z + bottomVerts[1].z) / 2);
+        const midTop = new THREE.Vector3((topVerts[0].x + topVerts[1].x) / 2, halfH, (topVerts[0].z + topVerts[1].z) / 2);
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([midBottom, midTop]), new THREE.LineBasicMaterial({ color: 0xf97316, linewidth: 3 })));
+
+        const apSphereMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0x442200 });
+        const apBottomPoint = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), apSphereMat);
+        apBottomPoint.position.copy(midBottom);
+        const apTopPoint = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), apSphereMat);
+        apTopPoint.position.copy(midTop);
+        scene.add(apBottomPoint);
+        scene.add(apTopPoint);
+
+        const edgeIdx = 3;
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([bottomVerts[edgeIdx], topVerts[edgeIdx]]), new THREE.LineBasicMaterial({ color: 0xf472b6, linewidth: 3 })));
+
+        const edgeSphereMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, emissive: 0x442244 });
+        const edgeBottomPoint = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), edgeSphereMat);
+        edgeBottomPoint.position.copy(bottomVerts[edgeIdx]);
+        const edgeTopPoint = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), edgeSphereMat);
+        edgeTopPoint.position.copy(topVerts[edgeIdx]);
+        scene.add(edgeBottomPoint);
+        scene.add(edgeTopPoint);
+
+        function makeLabel(text, color, position, fontSize = '0.75rem') {
+            const div = document.createElement('div');
+            div.textContent = text;
+            div.style.color = color;
+            div.style.fontSize = fontSize;
+            div.style.fontWeight = 'bold';
+            div.style.fontFamily = "'JetBrains Mono', monospace";
+            div.style.background = 'rgba(10, 15, 26, 0.8)';
+            div.style.padding = '2px 8px';
+            div.style.borderRadius = '20px';
+            div.style.border = `1px solid ${color}`;
+            div.style.backdropFilter = 'blur(6px)';
+            div.style.whiteSpace = 'nowrap';
+            const label = new CSS2DObject(div);
+            label.position.copy(position);
+            scene.add(label);
+            return label;
+        }
+
+        makeLabel('Высота (h)', '#34d399', new THREE.Vector3(0.45, 0, 0.7), '0.75rem');
+
+        const apMid = new THREE.Vector3((midBottom.x + midTop.x) / 2, (midBottom.y + midTop.y) / 2, (midBottom.z + midTop.z) / 2);
+        makeLabel('Апофема (aₚ)', '#f97316', new THREE.Vector3(apMid.x + 0.05, apMid.y + 0.01, apMid.z + 0.03), '0.75rem');
+
+        const edgeMid = new THREE.Vector3((bottomVerts[edgeIdx].x + topVerts[edgeIdx].x) / 2, (bottomVerts[edgeIdx].y + topVerts[edgeIdx].y) / 2, (bottomVerts[edgeIdx].z + topVerts[edgeIdx].z) / 2);
+        makeLabel('Боковое ребро', '#f472b6', new THREE.Vector3(edgeMid.x + 0.08, edgeMid.y + 0.02, edgeMid.z + 0.06), '0.75rem');
+
+        makeLabel('Нижнее основание', '#60a5fa', new THREE.Vector3(0, -halfH - 0.45, R + 0.3), '0.7rem');
+        makeLabel('Верхнее основание', '#60a5fa', new THREE.Vector3(0, halfH + 0.45, r + 0.3), '0.7rem');
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.autoRotate = false;
+        controls.enableZoom = true;
+        controls.enablePan = true;
+        controls.zoomSpeed = 1.0;
+        controls.panSpeed = 0.8;
+        controls.rotateSpeed = 1.0;
+        controls.target.set(0, 0, 0);
+
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        async function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                try { await containerElem.requestFullscreen(); fullscreenBtn.textContent = '✖'; } catch(err) {}
+            } else {
+                if (document.exitFullscreen) await document.exitFullscreen();
+                else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                fullscreenBtn.textContent = '⛶';
+                forceResize();
+            }
+        }
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement === containerElem || document.webkitFullscreenElement === containerElem) {
+                fullscreenBtn.textContent = '✖';
+                updateSize();
+            } else {
+                fullscreenBtn.textContent = '⛶';
+                forceResize();
+            }
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        animate();
+        window.addEventListener('resize', () => forceResize());
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

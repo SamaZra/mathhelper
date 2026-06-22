@@ -1,0 +1,223 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+<title>Площадь криволинейной трапеции</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root {
+    --bg: #1a2d3c;
+    --card-bg: #1e3545;
+    --text: #ffffff;
+    --text-secondary: #8ba5b8;
+    --accent: #1abc9c;
+    --border: rgba(46, 204, 113, 0.1);
+    --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+    --formula-card-bg: #1e3545;
+    --example-bg: #1e3545;
+    --info-bg: #1e3545;
+    --special-bg: #1e3545;
+    --special-border: #2e8b57;
+    --property-bg: #1a2d3c;
+    --graph-bg: #243848;
+    --svg-stroke: #ffffff;
+    --svg-fill: #4a9fd4;
+}
+
+:root.light-mode {
+    --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+    --card-bg: white;
+    --text: #1a2a3f;
+    --text-secondary: #5a7a94;
+    --accent: #1abc9c;
+    --border: #eff3f8;
+    --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+    --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+    --example-bg: #f8fafc;
+    --info-bg: #e8f0fe;
+    --special-bg: #e8f5e9;
+    --special-border: #2e8b57;
+    --property-bg: white;
+    --graph-bg: #f8fafc;
+    --svg-stroke: #000000;
+    --svg-fill: #1e3c72;
+}
+
+body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);padding:8px;}
+.container{max-width:1200px;margin:0 auto;background:var(--card-bg);border-radius:24px;padding:16px;padding-top:50px;position:relative;}
+
+.theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+.theme-toggle:hover{transform:scale(1.1);}
+
+h1{font-size:1.5rem;color:var(--text);margin:0 auto 16px auto;padding-bottom:8px;border-bottom:4px solid var(--special-border);text-align:center;}
+.section{margin-bottom:14px;}
+.section-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--special-border);padding-left:12px;cursor:pointer;user-select:none;}
+.section-title:hover{opacity:0.8;}
+.section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+.section.collapsed .section-title::after{transform:rotate(-90deg);}
+.section-content{max-height:5000px;overflow:hidden;transition:max-height 0.4s ease;}
+.section.collapsed .section-content{max-height:0;}
+
+.def-card{background:var(--info-bg);border-left:4px solid var(--special-border);border-radius:14px;padding:12px 14px;margin:8px 0;}
+.def-card p{margin:4px 0;font-size:0.95rem;line-height:1.4;color:var(--text);}
+.def-card strong{color:var(--text);}
+
+.graph-block{text-align:center;margin:16px 0;background:var(--graph-bg);border-radius:24px;padding:16px 8px;border:1px solid var(--border);}
+.graph-block svg{max-width:100%;height:auto;}
+
+.formula-block{background:var(--formula-card-bg);padding:16px 18px;border-radius:24px;margin:16px 0;border-left:4px solid var(--special-border);text-align:center;}
+.main-formula{font-size:1.6rem;font-weight:600;color:var(--text);margin:12px 0;}
+
+.case-card{background:var(--property-bg);border-radius:24px;padding:16px 18px;margin-bottom:12px;box-shadow:0 3px 10px rgba(0,0,0,0.05);border-left:5px solid var(--special-border);}
+.case-name{font-weight:600;color:var(--text);font-size:1.1rem;margin-bottom:8px;}
+.case-formula{font-size:1.2rem;color:var(--text);overflow-x:auto;white-space:normal;word-break:break-word;padding:5px 0;line-height:1.8;}
+
+.example-block{background:var(--example-bg);border-radius:24px;padding:20px;margin:16px 0;box-shadow:0 3px 10px rgba(0,0,0,0.05);border:1px solid var(--border);}
+.example-title{font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:12px;text-align:center;}
+.task-text{font-size:1rem;margin-bottom:16px;text-align:center;color:var(--text);}
+.example-step{margin-bottom:14px;padding-bottom:10px;border-bottom:1px dashed var(--border);}
+.example-step:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.step-label{font-weight:700;color:var(--special-border);margin-bottom:6px;font-size:0.95rem;}
+.step-formula{font-size:1rem;margin:6px 0;overflow-x:auto;white-space:normal;word-break:break-word;padding:2px 0;color:var(--text);line-height:1.8;}
+.step-formula-wrap{font-size:1rem;margin:6px 0;white-space:normal;word-break:break-word;color:var(--text);line-height:1.8;}
+.step-comment{font-size:0.9rem;color:var(--text-secondary);margin-top:4px;font-style:italic;}
+
+.graph-container{background:var(--graph-bg);border-radius:20px;padding:12px 8px;margin:10px 0;text-align:center;}
+
+.final-answer{background:rgba(46,139,87,0.15);padding:12px 16px;border-radius:20px;text-align:center;margin-top:16px;font-size:1rem;font-weight:600;color:var(--text);}
+
+.note-box{background:var(--info-bg);border-left:4px solid var(--special-border);border-radius:16px;padding:12px 14px;margin:12px 0;font-size:0.95rem;line-height:1.5;color:var(--text);}
+.back-link{display:inline-block;margin:20px 0 10px;padding:10px 20px;background:var(--special-border);color:white;text-decoration:none;font-weight:bold;border-radius:20px;}
+mjx-container{font-size:1em!important;overflow-x:auto!important;max-width:100%!important;}
+@media(max-width:600px){
+.main-formula{font-size:1.3rem;}
+.case-formula{font-size:1.05rem;}
+.step-formula{font-size:0.95rem;}
+}
+
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:0.95}};</script>
+<script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+<button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+<h1>📐 Площадь криволинейной трапеции</h1>
+
+<div class="section">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Определение</div>
+<div class="section-content">
+<div class="graph-block" style="max-width:450px;margin:16px auto;">
+<svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" width="100%" height="100%" viewBox="0 0 750 700" style="max-width:400px">
+<g style="stroke:var(--svg-stroke);stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;fill-rule:evenodd">
+<path style="fill:#2e8b57;fill-opacity:0.3" d="M 237.6,188.8 C 279.5,201.3 335.4,235 386,263.1 461.5,305 537.6,335.2 636.9,303.3 L 638,571.3 237.6,570.2 237.6,188.8 z"/>
+<path style="fill:var(--svg-fill)" d="M 46.88,571.3 687.3,572.5"/>
+<path style="fill:var(--svg-fill)" d="M 107.2,636.7 106,37.33 106,59.37"/>
+<path style="fill:none;stroke:var(--svg-fill)" d="M 636.3,303.3 C 668.1,293.8 686,287 713.7,274.6"/>
+<path style="fill:none;stroke:var(--svg-fill)" d="M 11.22,241.4 C 73.07,198.8 137.7,161.3 238,188.7"/>
+<path style="fill:var(--svg-fill);stroke-width:1" d="M 104.1,63.81 86.74,80.54 105.9,12.39 125.1,79.92 108.4,63.81 104.1,63.81 z"/>
+<path style="fill:var(--svg-fill);stroke-width:1" d="M 678.4,570.5 661.8,553 729.8,572.7 662.1,591.4 678.4,574.8 678.4,570.5 z"/>
+</g>
+<g style="font-size:70px;font-style:italic;font-weight:bold;text-anchor:start;fill:var(--svg-fill);stroke:none;font-family:Times New Roman">
+<text x="213" y="633">a</text><text x="609" y="638">b</text><text x="682" y="633">x</text><text x="146" y="53">y</text><text x="439" y="247">f(x)</text><text x="411" y="460">S</text>
+</g>
+</svg>
+</div>
+<div class="def-card">
+<p><strong>Криволинейная трапеция</strong> — фигура, ограниченная графиком \(y = f(x)\) (где \(f(x) \ge 0\)), прямыми \(x = a\), \(x = b\) и осью \(Ox\).</p>
+</div>
+<div class="formula-block"><div class="main-formula">\(S = \int_a^b f(x)\,dx\)</div></div>
+</div>
+</div>
+
+<div class="section collapsed">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Частные случаи</div>
+<div class="section-content">
+<div class="case-card"><div class="case-name">1. Фигура ограничена двумя функциями (между кривыми)</div><div class="case-formula">\(S = \int_a^b (f(x) - g(x))dx\),<br>где \(f(x) \ge g(x)\) на \([a,b]\)</div></div>
+<div class="case-card"><div class="case-name">2. Фигура состоит из нескольких частей</div><div class="case-formula">\(S = S_1 + S_2 + \dots =\)<br>\(= \int_a^c f(x)dx + \int_c^b g(x)dx + \dots\)</div></div>
+<div class="case-card"><div class="case-name">3. Фигура расположена под осью \(Ox\) (\(f(x) \le 0\))</div><div class="case-formula">\(S = -\int_a^b f(x)dx\)</div></div>
+</div>
+</div>
+
+<div class="section collapsed">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример с графиком</div>
+<div class="section-content">
+<div class="example-block">
+<div class="example-title">По графику найти площадь закрашенной фигуры:</div>
+<div class="graph-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="109.838 47.169 291.778 243.261" style="max-width:100%;height:auto;">
+<defs></defs>
+<polyline style="fill:none;stroke:var(--svg-fill);" points="229.914 70.992 234.849 59.074 238.138 72.421"></polyline>
+<polyline style="fill:none;stroke:var(--svg-fill);" points="382.313 198.77 394.255 204.341 380.88 206.995"></polyline>
+<path style="stroke:var(--svg-fill);fill:#2e8b57;fill-opacity:0.4;" d="M 180.42 203.086 L 189.6293333333333 184.66733333333335 C 198.83866666666665 166.24866666666668 217.25733333333332 129.41133333333335 235.33916666666667 129.52366666666668 C 253.42099999999996 129.636 271.166 166.698 280.0385 185.22899999999996 L 288.911 203.76"></path>
+<line style="fill:none;stroke:var(--svg-fill);" x1="123.1" y1="203.193" x2="394.901" y2="204.245"></line>
+<text style="white-space:pre;fill:var(--svg-fill);font-family:Arial,sans-serif;font-size:28px;font-weight:bold;" x="124.49" y="87.857" transform="matrix(0.505957,0,0,0.443566,313.693634,180.191162)">x</text>
+<text style="white-space:pre;fill:var(--svg-fill);font-family:Arial,sans-serif;font-size:28px;font-weight:bold;" x="177.725" y="33.948" transform="matrix(0.516173,0,0,0.420688,125.970299,58.821735)">y</text>
+<text style="white-space:pre;fill:var(--svg-fill);font-family:Arial,sans-serif;font-size:28px;" x="319.234" y="42.708" transform="matrix(0.567275,0,0,0.468085,41.779213,196.428223)">0</text>
+<text style="white-space:pre;fill:var(--svg-fill);font-family:Arial,sans-serif;font-size:28px;" x="392.684" y="82.466" transform="matrix(0.404651,0,0,0.406852,18.824223,184.623322)">-2</text>
+<text style="white-space:pre;fill:var(--svg-fill);font-family:Arial,sans-serif;font-size:28px;" x="407.509" y="130.31" transform="matrix(0.435233,0,0,0.424307,112.896652,161.368591)">2</text>
+<text style="white-space:pre;fill:var(--svg-fill);font-family:Arial,sans-serif;font-size:28px;" x="415.595" y="178.153" transform="matrix(0.448101,0,0,0.427484,60.063229,48.185089)">4</text>
+<line style="fill:none;stroke:var(--svg-fill);transform-box:fill-box;transform-origin:50% 50%;" x1="233.957" y1="279.426" x2="234.04" y2="61.475"></line>
+</svg>
+</div>
+<div class="task-text">На графике изображена парабола \(y = 4 - x^2\). Закрашенная область ограничена параболой и осью \(Ox\).</div>
+<div class="example-step"><div class="step-label">Шаг 1. По графику определяем пределы интегрирования</div><div class="step-formula-wrap">Парабола пересекает ось \(Ox\) в точках \(x = -2\) и \(x = 2\). Значит, \(a = -2\), \(b = 2\).</div></div>
+<div class="example-step"><div class="step-label">Шаг 2. По графику видим, что функция выше оси \(Ox\)</div><div class="step-formula-wrap">На отрезке \([-2, 2]\) парабола \(y = 4 - x^2 \ge 0\). Площадь равна интегралу от функции.</div></div>
+<div class="example-step"><div class="step-label">Шаг 3. Записываем интеграл</div><div class="step-formula">\(S = \int_{-2}^{2} (4 - x^2)\,dx\)</div></div>
+<div class="example-step"><div class="step-label">Шаг 4. Находим первообразную</div><div class="step-formula">\(F(x) = 4x - \frac{x^3}{3}\)</div></div>
+<div class="example-step"><div class="step-label">Шаг 5. Вычисляем по формуле Ньютона-Лейбница</div><div class="step-formula">\(F(2) = 4 \cdot 2 - \frac{8}{3} = 8 - \frac{8}{3} = \frac{16}{3}\)<br>\(F(-2) = 4 \cdot (-2) - \frac{(-2)^3}{3} = -8 + \frac{8}{3} = -\frac{16}{3}\)<br>\(S = F(2) - F(-2) = \frac{16}{3} - \left(-\frac{16}{3}\right) = \frac{32}{3}\)</div></div>
+<div class="final-answer">Ответ: \(S = \frac{32}{3}\) кв. ед.</div>
+</div>
+</div>
+</div>
+
+<div class="section collapsed">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример без графика</div>
+<div class="section-content">
+<div class="example-block">
+<div class="example-title">Найти площадь фигуры, ограниченной линиями:</div>
+<div class="task-text">\(y = x^2 - 3x\), \(y = 0\)</div>
+<div class="example-step"><div class="step-label">Шаг 1. Находим точки пересечения с осью \(Ox\)</div><div class="step-formula">\(x^2 - 3x = 0 \;\Rightarrow\; x(x - 3) = 0\)<br>\(\Rightarrow\; x_1 = 0,\; x_2 = 3\)</div><div class="step-comment">Пределы интегрирования: \(a = 0\), \(b = 3\).</div></div>
+<div class="example-step"><div class="step-label">Шаг 2. Определяем знак функции на отрезке \([0, 3]\)</div><div class="step-formula">При \(x = 1\): \(1^2 - 3 \cdot 1 = -2 < 0\).<br>Функция отрицательна.</div><div class="step-comment">Так как \(f(x) \le 0\), площадь равна интегралу со знаком минус.</div></div>
+<div class="example-step"><div class="step-label">Шаг 3. Записываем формулу площади</div><div class="step-formula">\(S = -\int_0^3 (x^2 - 3x)\,dx = \int_0^3 (3x - x^2)\,dx\)</div></div>
+<div class="example-step"><div class="step-label">Шаг 4. Находим первообразную</div><div class="step-formula">\(F(x) = \frac{3x^2}{2} - \frac{x^3}{3}\)</div></div>
+<div class="example-step"><div class="step-label">Шаг 5. Вычисляем по формуле Ньютона-Лейбница</div><div class="step-formula">\(F(3) = \frac{3 \cdot 9}{2} - \frac{27}{3} = \frac{27}{2} - 9 = 13,5 - 9 = 4,5\)<br>\(F(0) = 0\)<br>\(S = F(3) - F(0) = 4,5 - 0 = 4,5\)</div></div>
+<div class="final-answer">Ответ: \(S = 4,5\) кв. ед.</div>
+</div>
+</div>
+</div>
+
+<div class="section collapsed">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример: площадь между двумя кривыми</div>
+<div class="section-content">
+<div class="example-block">
+<div class="example-title">Найти площадь фигуры, ограниченной линиями:</div>
+<div class="task-text">\(y = x^2\), \(y = 2x\)</div>
+<div class="example-step"><div class="step-label">Шаг 1. Находим точки пересечения кривых</div><div class="step-formula">\(x^2 = 2x \;\Rightarrow\; x^2 - 2x = 0 \;\Rightarrow\; x(x - 2) = 0\)<br>\(\Rightarrow\; x_1 = 0,\; x_2 = 2\)</div><div class="step-comment">Пределы интегрирования: \(a = 0\), \(b = 2\).</div></div>
+<div class="example-step"><div class="step-label">Шаг 2. Определяем, какая функция выше на отрезке \([0, 2]\)</div><div class="step-formula">При \(x = 1\): \(y_1 = 1^2 = 1\), \(y_2 = 2 \cdot 1 = 2\).<br>Значит, \(2x \ge x^2\) на \([0, 2]\).</div><div class="step-comment">Верхняя функция: \(f(x) = 2x\), нижняя: \(g(x) = x^2\).</div></div>
+<div class="example-step"><div class="step-label">Шаг 3. Записываем формулу площади между кривыми</div><div class="step-formula">\(S = \int_a^b (f(x) - g(x))\,dx = \int_0^2 (2x - x^2)\,dx\)</div></div>
+<div class="example-step"><div class="step-label">Шаг 4. Находим первообразную</div><div class="step-formula">\(F(x) = 2 \cdot \frac{x^2}{2} - \frac{x^3}{3} = x^2 - \frac{x^3}{3}\)</div></div>
+<div class="example-step"><div class="step-label">Шаг 5. Вычисляем по формуле Ньютона-Лейбница</div><div class="step-formula">\(F(2) = 2^2 - \frac{2^3}{3} = 4 - \frac{8}{3} = \frac{12}{3} - \frac{8}{3} = \frac{4}{3}\)<br>\(F(0) = 0 - 0 = 0\)<br>\(S = F(2) - F(0) = \frac{4}{3} - 0 = \frac{4}{3}\)</div></div>
+<div class="final-answer">Ответ: \(S = \frac{4}{3}\) кв. ед.</div>
+<div style="margin-top:16px;padding:12px;background:rgba(46,139,87,0.15);border-radius:16px;"><p style="font-weight:600;margin-bottom:6px;color:var(--text);">💡 Геометрический смысл:</p><p style="font-size:0.95rem;color:var(--text);">Площадь фигуры, заключённой между параболой \(y = x^2\) и прямой \(y = 2x\) на отрезке \([0, 2]\).</p></div>
+</div>
+</div>
+</div>
+
+<a href="integral.html" class="back-link">← Назад к интегралам</a>
+</div>
+<script>
+function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
+(function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

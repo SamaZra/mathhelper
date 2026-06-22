@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Тригонометрия — Чётность и нечётность</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --formula-card-bg: #1e3545;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+        }
+
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; }
+
+        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 12px auto; padding-bottom: 8px; border-bottom: 4px solid #2980b9; text-align: center; }
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin: 10px 0; }
+        .formula-card { background: var(--formula-card-bg); border-radius: 16px; padding: 16px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; word-wrap: break-word; }
+        .formula-card p { margin: 6px 0; font-family: 'Times New Roman', monospace; font-size: 1.2rem; font-weight: bold; color: var(--text); }
+        .formula-card .note { font-size: 0.85rem; color: var(--text-secondary); font-weight: normal; font-family: 'Segoe UI', sans-serif; margin-top: 2px; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        .back-link { display: inline-block; margin: 20px 0 10px; padding: 10px 20px; background: #2980b9; color: white; text-decoration: none; font-weight: bold; border-radius: 20px; }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true,macros:{tg:'\\mathop{\\mathrm{tg}}',ctg:'\\mathop{\\mathrm{ctg}}',arctg:'\\mathop{\\mathrm{arctg}}',arcctg:'\\mathop{\\mathrm{arcctg}}'}},chtml:{scale:0.95}};</script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+<button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <h1>Чётность и нечётность</h1>
+    <div class="formula-grid">
+        <div class="formula-card">
+            <p>\(\sin(-x) = -\sin x\)</p>
+            <p class="note">нечётная функция</p>
+        </div>
+        <div class="formula-card">
+            <p>\(\cos(-x) = \cos x\)</p>
+            <p class="note">чётная функция</p>
+        </div>
+        <div class="formula-card">
+            <p>\(\tg(-x) = -\tg x\)</p>
+            <p class="note">нечётная функция</p>
+        </div>
+        <div class="formula-card">
+            <p>\(\ctg(-x) = -\ctg x\)</p>
+            <p class="note">нечётная функция</p>
+        </div>
+    </div>
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+<script>
+(function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

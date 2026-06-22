@@ -1,0 +1,418 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Калькулятор квадратных уравнений</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --input-bg: #2c5a77;
+            --btn-bg: #2c5a77;
+            --result-bg: #0f2a38;
+            --discriminant: #f39c12;
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #6a7e9c;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --input-bg: #e2e8f0;
+            --btn-bg: #e2e8f0;
+            --result-bg: #f1f5f9;
+            --discriminant: #e67e22;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 32px 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: -10px;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: var(--text);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 32px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+        }
+
+        .formula {
+            background: var(--result-bg);
+            padding: 16px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 1.1rem;
+            color: var(--text);
+            overflow-x: auto;
+        }
+
+        .formula mjx-container {
+            font-size: 1.1rem !important;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border-radius: 16px;
+            padding: 0 16px;
+            border: 1px solid var(--border);
+        }
+
+        .input-prefix {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-right: 12px;
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 0;
+            font-size: 1rem;
+            color: var(--text);
+            outline: none;
+        }
+
+        input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .solve-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .solve-btn:active {
+            transform: scale(0.97);
+        }
+
+        .result {
+            margin-top: 24px;
+            background: var(--result-bg);
+            border-radius: 20px;
+            padding: 16px;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .discriminant-value {
+            color: var(--discriminant);
+            font-weight: 700;
+            font-size: 1.2rem;
+            font-family: monospace;
+        }
+
+        .roots {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .root-item {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-family: monospace;
+            font-size: 1rem;
+            color: var(--text);
+        }
+
+        .root-label {
+            font-weight: 600;
+            color: var(--accent);
+            min-width: 30px;
+        }
+
+        .root-value {
+            font-weight: 700;
+            word-break: break-all;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding: 20px 16px;
+            }
+            .card {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.3rem;
+            }
+        }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            chtml: {
+                scale: 0.95,
+                displayAlign: 'center'
+            },
+            startup: {
+                ready: () => {
+                    MathJax.startup.defaultReady();
+                }
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="file:///android_asset/es5/tex-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+
+    <div class="card">
+        <h1>📐 Квадратное уравнение</h1>
+        <div class="subtitle">$ax^2 + bx + c = 0$</div>
+
+        <div class="formula">
+            $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+        </div>
+
+        <div class="input-group">
+            <label>Коэффициент <i>a</i></label>
+            <div class="input-wrapper">
+                <span class="input-prefix">a =</span>
+                <input type="number" id="a" placeholder="например, 1" step="any" value="">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Коэффициент <i>b</i></label>
+            <div class="input-wrapper">
+                <span class="input-prefix">b =</span>
+                <input type="number" id="b" placeholder="например, -5" step="any" value="">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Коэффициент <i>c</i></label>
+            <div class="input-wrapper">
+                <span class="input-prefix">c =</span>
+                <input type="number" id="c" placeholder="например, 6" step="any" value="">
+            </div>
+        </div>
+
+        <button class="solve-btn" onclick="solveQuadratic()">РЕШИТЬ</button>
+
+        <div id="result" class="result" style="display: none;">
+            <div class="result-title">📊 РЕЗУЛЬТАТ</div>
+            <div>Дискриминант: <span id="discriminant" class="discriminant-value"></span></div>
+            <div id="roots" class="roots"></div>
+        </div>
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+
+    <div style="text-align: center;">
+        <a href="formulas.html" class="back-link">← Назад к формулам</a>
+    </div>
+</div>
+
+<script>
+    function solveQuadratic() {
+        document.getElementById('errorMessage').innerHTML = '';
+        document.getElementById('result').style.display = 'none';
+
+        let a = parseFloat(document.getElementById('a').value);
+        let b = parseFloat(document.getElementById('b').value);
+        let c = parseFloat(document.getElementById('c').value);
+
+        if (isNaN(a) || isNaN(b) || isNaN(c)) {
+            document.getElementById('errorMessage').innerHTML = '❌ Введите все коэффициенты (числа)';
+            return;
+        }
+
+        if (a === 0) {
+            document.getElementById('errorMessage').innerHTML = '❌ Коэффициент a не может быть равен 0 (это не квадратное уравнение)';
+            return;
+        }
+
+        let D = b * b - 4 * a * c;
+        document.getElementById('discriminant').innerHTML = D;
+
+        let rootsHtml = '';
+
+        if (D < 0) {
+            rootsHtml = '<div style="color: #e74c3c;">❌ Действительных корней нет (D < 0)</div>';
+        } else if (D === 0) {
+            let x = (-b) / (2 * a);
+            rootsHtml = `
+                <div class="root-item">
+                    <span class="root-label">x₁ = x₂ =</span>
+                    <span class="root-value">${x}</span>
+                </div>
+            `;
+        } else {
+            let sqrtD = Math.sqrt(D);
+            let x1 = (-b + sqrtD) / (2 * a);
+            let x2 = (-b - sqrtD) / (2 * a);
+
+            x1 = parseFloat(x1.toFixed(10));
+            x2 = parseFloat(x2.toFixed(10));
+
+            rootsHtml = `
+                <div class="root-item">
+                    <span class="root-label">x₁ =</span>
+                    <span class="root-value">${x1}</span>
+                </div>
+                <div class="root-item">
+                    <span class="root-label">x₂ =</span>
+                    <span class="root-value">${x2}</span>
+                </div>
+            `;
+        }
+
+        document.getElementById('roots').innerHTML = rootsHtml;
+        document.getElementById('result').style.display = 'block';
+    }
+
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') solveQuadratic();
+        });
+    });
+
+    // Тема
+    (function() {
+        var savedTheme = localStorage.getItem('mathTheme');
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+            var btn = document.getElementById('themeBtn');
+            if (btn) btn.textContent = '☀️';
+        }
+    })();
+
+    function toggleTheme() {
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            if (btn) btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            if (btn) btn.textContent = '☀️';
+        }
+    }
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

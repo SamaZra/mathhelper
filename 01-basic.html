@@ -1,0 +1,727 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Основные понятия стереометрии — 3D модели</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(59, 130, 246, 0.1);
+            --special-border: #3b82f6;
+            --canvas-bg: #1a2d3c;
+            --theorem-bg: #1a2d3c;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --border: #eff3f8;
+            --special-border: #3b82f6;
+            --canvas-bg: #eef2f8;
+            --theorem-bg: #fefce8;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); padding: 8px; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; }
+
+        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
+        .section-title:hover { opacity: 0.8; }
+        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .section.collapsed .section-title::after { transform: rotate(-90deg); }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .comp-list { list-style: none; }
+        .comp-list li { padding-left: 26px; margin-bottom: 10px; font-size: 0.95rem; line-height: 1.6; color: var(--text); background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%233b82f6"><circle cx="12" cy="12" r="6"/></svg>') left center no-repeat; background-size: 14px; }
+        p { font-size: 0.95rem; line-height: 1.6; color: var(--text); margin: 8px 0; }
+
+        .model-container {
+            text-align: center;
+            margin: 16px 0;
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--canvas-bg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            min-height: 380px;
+        }
+        .model-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border-radius: 20px;
+            cursor: grab;
+            touch-action: none;
+        }
+        .model-canvas:active { cursor: grabbing; }
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            color: white;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .back-link { display: inline-block; margin: 20px 0 10px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: transform 0.2s; }
+        .back-link:hover { transform: scale(1.02); }
+
+        @media (max-width: 700px) {
+            .model-container { min-height: 280px; }
+            .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
+        }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>📐 Основные понятия стереометрии</h1>
+
+    <!-- Аксиома 1 -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Аксиома 1 (о плоскости)</div>
+        <div class="section-content">
+            <div class="model-container" id="axiom1-container">
+                <canvas id="axiom1-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="axiom1-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div class="subtitle">Через любые три точки, не лежащие на одной прямой, проходит плоскость (и притом только одна).</div>
+        </div>
+    </div>
+
+    <!-- Аксиома 2 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Аксиома 2 (о прямой и плоскости)</div>
+        <div class="section-content">
+            <div class="model-container" id="axiom2-container">
+                <canvas id="axiom2-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="axiom2-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div class="subtitle">Если две точки прямой лежат в плоскости, то вся прямая лежит в этой плоскости.</div>
+        </div>
+    </div>
+
+    <!-- Аксиома 3 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Аксиома 3 (о пересечении плоскостей)</div>
+        <div class="section-content">
+            <div class="model-container" id="axiom3-container">
+                <canvas id="axiom3-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="axiom3-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div class="subtitle">Если две плоскости имеют общую точку, то они пересекаются по прямой, проходящей через эту точку.</div>
+        </div>
+    </div>
+
+    <!-- Следствие 1 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Следствие 1</div>
+        <div class="section-content">
+            <div class="model-container" id="consequence1-container">
+                <canvas id="consequence1-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="consequence1-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div class="subtitle">Через прямую и не лежащую на ней точку проходит плоскость (и притом только одна).</div>
+        </div>
+    </div>
+
+    <!-- Следствие 2 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Следствие 2</div>
+        <div class="section-content">
+            <div class="model-container" id="consequence2-container">
+                <canvas id="consequence2-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="consequence2-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div class="subtitle">Через две пересекающиеся прямые проходит плоскость (и притом только одна).</div>
+        </div>
+    </div>
+
+    <!-- Следствие 3 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Следствие 3</div>
+        <div class="section-content">
+            <div class="model-container" id="consequence3-container">
+                <canvas id="consequence3-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="consequence3-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div class="subtitle">Через две параллельные прямые проходит плоскость (и притом только одна).</div>
+        </div>
+    </div>
+
+    <!-- Способы задания плоскости -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧩 Способы задания плоскости</div>
+        <div class="section-content">
+            <ul class="comp-list">
+                <li>Тремя точками, не лежащими на одной прямой.</li>
+                <li>Прямой и точкой вне её.</li>
+                <li>Двумя пересекающимися прямыми.</li>
+                <li>Двумя параллельными прямыми.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Основные неопределяемые понятия -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📏 Основные неопределяемые понятия</div>
+        <div class="section-content">
+            <ul class="comp-list">
+                <li>Точка</li>
+                <li>Прямая</li>
+                <li>Плоскость</li>
+            </ul>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    // ========== ОПРЕДЕЛЕНИЕ КАЧЕСТВА 3D ==========
+    let quality3D = 'high';
+    if (window.Android && window.Android.getQuality3D) {
+        quality3D = window.Android.getQuality3D();
+    } else {
+        const saved = localStorage.getItem('quality3d');
+        if (saved) quality3D = saved;
+    }
+
+    const qualitySettings = {
+        low: {
+            segments: 24,
+            opacity: 0.85,
+            transparent: false
+        },
+        medium: {
+            segments: 48,
+            opacity: 0.65,
+            transparent: true
+        },
+        high: {
+            segments: 96,
+            opacity: 0.55,
+            transparent: true
+        }
+    };
+
+    const settings = qualitySettings[quality3D];
+    // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    (async function() {
+        const THREE = await import('three');
+        const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
+        const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
+
+        function makeLabel(text, color, position, fontSize = '0.75rem') {
+            const div = document.createElement('div');
+            div.textContent = text;
+            div.style.color = color;
+            div.style.fontSize = fontSize;
+            div.style.fontWeight = 'bold';
+            div.style.fontFamily = "'JetBrains Mono', monospace";
+            div.style.background = 'rgba(10, 15, 26, 0.8)';
+            div.style.padding = '2px 8px';
+            div.style.borderRadius = '20px';
+            div.style.border = `1px solid ${color}`;
+            div.style.backdropFilter = 'blur(6px)';
+            div.style.whiteSpace = 'nowrap';
+            const label = new CSS2DObject(div);
+            label.position.copy(position);
+            return label;
+        }
+
+        function initScene(containerId, canvasId, builder, fullscreenBtnId = null) {
+            const container = document.getElementById(containerId);
+            const canvas = document.getElementById(canvasId);
+            if (!container || !canvas) return;
+
+            const scene = new THREE.Scene();
+            scene.background = null;
+            scene.fog = null;
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            camera.position.set(4, 3, 5);
+            camera.lookAt(0, 0, 0);
+
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            renderer.setSize(width, height);
+
+            const labelRenderer = new CSS2DRenderer();
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.left = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            container.style.position = 'relative';
+            container.appendChild(labelRenderer.domElement);
+
+            function updateSize() {
+                const rect = container.getBoundingClientRect();
+                let w = rect.width, h = rect.height;
+                if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
+                    w = window.innerWidth;
+                    h = window.innerHeight;
+                }
+                if (w < 10) w = 800;
+                if (h < 10) h = 450;
+                canvas.style.width = `${w}px`;
+                canvas.style.height = `${h}px`;
+                canvas.width = w;
+                canvas.height = h;
+                renderer.setSize(w, h);
+                labelRenderer.setSize(w, h);
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+            }
+
+            function forceResizeScene() {
+                canvas.style.width = '';
+                canvas.style.height = '';
+                setTimeout(() => { updateSize(); requestAnimationFrame(() => updateSize()); }, 30);
+            }
+
+            const resizeObserver = new ResizeObserver(() => updateSize());
+            resizeObserver.observe(container);
+            setTimeout(updateSize, 100);
+
+            const ambientLight = new THREE.AmbientLight(0x40486c, 0.6);
+            scene.add(ambientLight);
+            const keyLight = new THREE.DirectionalLight(0xfff5e0, 1.2);
+            keyLight.position.set(2, 5, 2);
+            scene.add(keyLight);
+            const fillLight = new THREE.PointLight(0xccaa77, 0.55);
+            fillLight.position.set(-1.5, 2, 2);
+            scene.add(fillLight);
+            const rimLight = new THREE.PointLight(0x88aaff, 0.5);
+            rimLight.position.set(1, 2, -3);
+            scene.add(rimLight);
+            const bottomLight = new THREE.PointLight(0x6699cc, 0.35);
+            bottomLight.position.set(0, -1.2, 0);
+            scene.add(bottomLight);
+
+            const gridHelper = new THREE.GridHelper(6, 16, 0x5f7f9e, 0x2c4258);
+            gridHelper.position.y = -1.5;
+            gridHelper.material.transparent = true;
+            gridHelper.material.opacity = 0.2;
+            scene.add(gridHelper);
+
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.06;
+            controls.autoRotate = false;
+            controls.enableZoom = true;
+            controls.enablePan = true;
+            controls.rotateSpeed = 1.0;
+            controls.target.set(0, 0, 0);
+
+            if (builder) builder(scene, THREE, labelRenderer, camera, makeLabel);
+
+            if (fullscreenBtnId) {
+                const fullscreenBtn = document.getElementById(fullscreenBtnId);
+                if (fullscreenBtn) {
+                    async function toggleFullscreen() {
+                        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                            try { await container.requestFullscreen(); fullscreenBtn.textContent = '✖'; fullscreenBtn.title = 'Выйти из полноэкранного режима'; } catch(err) {}
+                        } else {
+                            if (document.exitFullscreen) await document.exitFullscreen();
+                            else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                            fullscreenBtn.textContent = '⛶';
+                            fullscreenBtn.title = 'Во весь экран';
+                            forceResizeScene();
+                        }
+                    }
+                    fullscreenBtn.addEventListener('click', toggleFullscreen);
+                    document.addEventListener('fullscreenchange', () => {
+                        if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
+                            fullscreenBtn.textContent = '✖'; updateSize();
+                        } else {
+                            fullscreenBtn.textContent = '⛶'; forceResizeScene();
+                        }
+                    });
+                }
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
+            }
+            animate();
+
+            return { scene, controls };
+        }
+
+        // ===== АКСИОМА 1 =====
+        initScene('axiom1-container', 'axiom1-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+            const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
+            const planeMat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6,
+                side: THREE.DoubleSide,
+                transparent: settings.transparent,
+                opacity: settings.opacity,
+                metalness: 0.3,
+                roughness: 0.4,
+                emissive: 0x001133
+            });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = -0.2;
+            scene.add(plane);
+
+            const borderPoints = [
+                new THREE.Vector3(-1.75, -0.2, -1.75),
+                new THREE.Vector3( 1.75, -0.2, -1.75),
+                new THREE.Vector3( 1.75, -0.2,  1.75),
+                new THREE.Vector3(-1.75, -0.2,  1.75),
+                new THREE.Vector3(-1.75, -0.2, -1.75)
+            ];
+            const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
+            const border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 }));
+            scene.add(border);
+
+            const points = [
+                { pos: new THREE.Vector3(-0.8, -0.2, -0.8), name: 'A' },
+                { pos: new THREE.Vector3(0.9, -0.2, -0.5), name: 'B' },
+                { pos: new THREE.Vector3(0.2, -0.2, 1.0), name: 'C' }
+            ];
+
+            points.forEach(p => {
+                const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.07, 32, 32), new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 }));
+                sphere.position.copy(p.pos);
+                scene.add(sphere);
+                scene.add(makeLabel(p.name, '#facc15', p.pos.clone().add(new THREE.Vector3(0.12, 0.12, 0.12)), '0.7rem'));
+            });
+        }, 'axiom1-fullscreen');
+
+        // ===== АКСИОМА 2 =====
+        initScene('axiom2-container', 'axiom2-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+            const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
+            const planeMat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6,
+                side: THREE.DoubleSide,
+                transparent: settings.transparent,
+                opacity: settings.opacity,
+                metalness: 0.3,
+                roughness: 0.4,
+                emissive: 0x001133
+            });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = -0.2;
+            scene.add(plane);
+
+            const borderPoints = [
+                new THREE.Vector3(-1.75, -0.2, -1.75),
+                new THREE.Vector3( 1.75, -0.2, -1.75),
+                new THREE.Vector3( 1.75, -0.2,  1.75),
+                new THREE.Vector3(-1.75, -0.2,  1.75),
+                new THREE.Vector3(-1.75, -0.2, -1.75)
+            ];
+            const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
+            const border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 }));
+            scene.add(border);
+
+            const point1 = new THREE.Vector3(-1.0, -0.2, -0.8);
+            const point2 = new THREE.Vector3(1.2, -0.2, 0.6);
+
+            const sphereMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 });
+            const sphere1 = new THREE.Mesh(new THREE.SphereGeometry(0.07, 32, 32), sphereMat);
+            sphere1.position.copy(point1);
+            const sphere2 = new THREE.Mesh(new THREE.SphereGeometry(0.07, 32, 32), sphereMat);
+            sphere2.position.copy(point2);
+            scene.add(sphere1);
+            scene.add(sphere2);
+
+            const lineGeo = new THREE.BufferGeometry().setFromPoints([point1.clone().add(new THREE.Vector3(-0.3, 0, -0.2)), point2.clone().add(new THREE.Vector3(0.3, 0, 0.2))]);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 3 });
+            const line = new THREE.Line(lineGeo, lineMat);
+            scene.add(line);
+
+            scene.add(makeLabel('A', '#facc15', point1.clone().add(new THREE.Vector3(0.12, 0.12, 0.12)), '0.7rem'));
+            scene.add(makeLabel('B', '#facc15', point2.clone().add(new THREE.Vector3(0.12, 0.12, 0.12)), '0.7rem'));
+        }, 'axiom2-fullscreen');
+
+        // ===== АКСИОМА 3 =====
+        initScene('axiom3-container', 'axiom3-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+            const plane1Geo = new THREE.PlaneGeometry(3.5, 3.5);
+            const plane1Mat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6,
+                side: THREE.DoubleSide,
+                transparent: settings.transparent,
+                opacity: settings.opacity,
+                metalness: 0.3,
+                roughness: 0.4,
+                emissive: 0x001133
+            });
+            const plane1 = new THREE.Mesh(plane1Geo, plane1Mat);
+            plane1.rotation.x = -Math.PI / 2;
+            plane1.position.y = 0;
+            scene.add(plane1);
+
+            const border1Points = [
+                new THREE.Vector3(-1.75, 0, -1.75),
+                new THREE.Vector3( 1.75, 0, -1.75),
+                new THREE.Vector3( 1.75, 0,  1.75),
+                new THREE.Vector3(-1.75, 0,  1.75),
+                new THREE.Vector3(-1.75, 0, -1.75)
+            ];
+            const border1Geo = new THREE.BufferGeometry().setFromPoints(border1Points);
+            const border1 = new THREE.Line(border1Geo, new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 }));
+            scene.add(border1);
+
+            const plane2Geo = new THREE.PlaneGeometry(3.5, 3.5);
+            const plane2Mat = new THREE.MeshPhysicalMaterial({
+                color: 0xef4444,
+                side: THREE.DoubleSide,
+                transparent: settings.transparent,
+                opacity: settings.opacity,
+                metalness: 0.3,
+                roughness: 0.4,
+                emissive: 0x330000
+            });
+            const plane2 = new THREE.Mesh(plane2Geo, plane2Mat);
+            plane2.rotation.set(0, 0, Math.PI / 3);
+            plane2.position.y = 0;
+            scene.add(plane2);
+
+            const border2Points = [
+                new THREE.Vector3(-1.75, -1.75, 0),
+                new THREE.Vector3( 1.75, -1.75, 0),
+                new THREE.Vector3( 1.75,  1.75, 0),
+                new THREE.Vector3(-1.75,  1.75, 0),
+                new THREE.Vector3(-1.75, -1.75, 0)
+            ];
+            const border2Geo = new THREE.BufferGeometry().setFromPoints(border2Points);
+            const border2 = new THREE.Line(border2Geo, new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 2 }));
+            border2.rotation.set(0, 0, Math.PI / 3);
+            scene.add(border2);
+
+            const linePoints = [new THREE.Vector3(-1.5, 0, 0), new THREE.Vector3(1.5, 0, 0)];
+            const lineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 3 });
+            const intersectionLine = new THREE.Line(lineGeo, lineMat);
+            scene.add(intersectionLine);
+
+            const pointAPos = new THREE.Vector3(0, 0, 0);
+            const pointASphere = new THREE.Mesh(new THREE.SphereGeometry(0.08, 32, 32), new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x064e3b }));
+            pointASphere.position.copy(pointAPos);
+            scene.add(pointASphere);
+
+            scene.add(makeLabel('A', '#10b981', new THREE.Vector3(0.15, 0.12, 0.15), '0.8rem'));
+            scene.add(makeLabel('Плоскость α', '#3b82f6', new THREE.Vector3(2.2, 0.3, 1.5), '0.7rem'));
+            scene.add(makeLabel('Плоскость β', '#ef4444', new THREE.Vector3(-1.5, 0.3, 1.5), '0.7rem'));
+            scene.add(makeLabel('m = α ∩ β', '#facc15', new THREE.Vector3(1.7, 0.15, 0.3), '0.65rem'));
+        }, 'axiom3-fullscreen');
+
+        // ===== СЛЕДСТВИЕ 1 =====
+        initScene('consequence1-container', 'consequence1-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+            const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
+            const planeMat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6,
+                side: THREE.DoubleSide,
+                transparent: settings.transparent,
+                opacity: settings.opacity,
+                metalness: 0.3,
+                roughness: 0.4,
+                emissive: 0x001133
+            });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = -0.2;
+            scene.add(plane);
+
+            const borderPoints = [
+                new THREE.Vector3(-1.75, -0.2, -1.75),
+                new THREE.Vector3( 1.75, -0.2, -1.75),
+                new THREE.Vector3( 1.75, -0.2,  1.75),
+                new THREE.Vector3(-1.75, -0.2,  1.75),
+                new THREE.Vector3(-1.75, -0.2, -1.75)
+            ];
+            const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
+            const border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 }));
+            scene.add(border);
+
+            const linePoints = [new THREE.Vector3(-1.2, -0.2, -0.8), new THREE.Vector3(1.3, -0.2, 0.7)];
+            const lineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 3 });
+            const line = new THREE.Line(lineGeo, lineMat);
+            scene.add(line);
+
+            const pointPos = new THREE.Vector3(-0.3, -0.18, 1.1);
+            const pointSphere = new THREE.Mesh(new THREE.SphereGeometry(0.07, 32, 32), new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 }));
+            pointSphere.position.copy(pointPos);
+            scene.add(pointSphere);
+
+            scene.add(makeLabel('M', '#facc15', pointPos.clone().add(new THREE.Vector3(0.12, 0.12, 0.12)), '0.7rem'));
+        }, 'consequence1-fullscreen');
+
+        // ===== СЛЕДСТВИЕ 2 =====
+        initScene('consequence2-container', 'consequence2-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+            const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
+            const planeMat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6,
+                side: THREE.DoubleSide,
+                transparent: settings.transparent,
+                opacity: settings.opacity,
+                metalness: 0.3,
+                roughness: 0.4,
+                emissive: 0x001133
+            });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = -0.2;
+            scene.add(plane);
+
+            const borderPoints = [
+                new THREE.Vector3(-1.75, -0.2, -1.75),
+                new THREE.Vector3( 1.75, -0.2, -1.75),
+                new THREE.Vector3( 1.75, -0.2,  1.75),
+                new THREE.Vector3(-1.75, -0.2,  1.75),
+                new THREE.Vector3(-1.75, -0.2, -1.75)
+            ];
+            const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
+            const border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 }));
+            scene.add(border);
+
+            const line1Points = [new THREE.Vector3(-1.2, -0.2, 0), new THREE.Vector3(1.2, -0.2, 0)];
+            const line1Geo = new THREE.BufferGeometry().setFromPoints(line1Points);
+            const line1Mat = new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 3 });
+            const line1 = new THREE.Line(line1Geo, line1Mat);
+            scene.add(line1);
+
+            const line2Points = [new THREE.Vector3(0, -0.2, -1.2), new THREE.Vector3(0, -0.2, 1.2)];
+            const line2Geo = new THREE.BufferGeometry().setFromPoints(line2Points);
+            const line2Mat = new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 3 });
+            const line2 = new THREE.Line(line2Geo, line2Mat);
+            scene.add(line2);
+
+            const intersectionPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 32, 32), new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0x441100 }));
+            intersectionPoint.position.set(0, -0.2, 0);
+            scene.add(intersectionPoint);
+
+            scene.add(makeLabel('O', '#ef4444', new THREE.Vector3(0.12, -0.08, 0.12), '0.7rem'));
+        }, 'consequence2-fullscreen');
+
+        // ===== СЛЕДСТВИЕ 3 =====
+        initScene('consequence3-container', 'consequence3-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+            const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
+            const planeMat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6,
+                side: THREE.DoubleSide,
+                transparent: settings.transparent,
+                opacity: settings.opacity,
+                metalness: 0.3,
+                roughness: 0.4,
+                emissive: 0x001133
+            });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = -0.2;
+            scene.add(plane);
+
+            const borderPoints = [
+                new THREE.Vector3(-1.75, -0.2, -1.75),
+                new THREE.Vector3( 1.75, -0.2, -1.75),
+                new THREE.Vector3( 1.75, -0.2,  1.75),
+                new THREE.Vector3(-1.75, -0.2,  1.75),
+                new THREE.Vector3(-1.75, -0.2, -1.75)
+            ];
+            const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
+            const border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 }));
+            scene.add(border);
+
+            const line1Points = [new THREE.Vector3(-1.2, -0.2, -0.6), new THREE.Vector3(1.2, -0.2, -0.6)];
+            const line1Geo = new THREE.BufferGeometry().setFromPoints(line1Points);
+            const line1Mat = new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 3 });
+            const line1 = new THREE.Line(line1Geo, line1Mat);
+            scene.add(line1);
+
+            const line2Points = [new THREE.Vector3(-1.2, -0.2, 0.8), new THREE.Vector3(1.2, -0.2, 0.8)];
+            const line2Geo = new THREE.BufferGeometry().setFromPoints(line2Points);
+            const line2Mat = new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 3 });
+            const line2 = new THREE.Line(line2Geo, line2Mat);
+            scene.add(line2);
+
+            scene.add(makeLabel('a', '#facc15', new THREE.Vector3(1.4, -0.1, -0.6), '0.7rem'));
+            scene.add(makeLabel('b', '#facc15', new THREE.Vector3(1.4, -0.1, 0.8), '0.7rem'));
+            scene.add(makeLabel('a ∥ b', '#88aaff', new THREE.Vector3(1.4, 0.1, 0.1), '0.65rem'));
+        }, 'consequence3-fullscreen');
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

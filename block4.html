@@ -1,0 +1,397 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <title>Векторы — Скалярное произведение</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(46,204,113,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #2980b9; --example-bg: #162a38; --canvas-bg: #1a2d3c; --theorem-bg: #1a2d3c;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #2980b9; --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8; --theorem-bg: #fefce8;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
+        .section-title:hover { opacity: 0.8; }
+        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .section.collapsed .section-title::after { transform: rotate(-90deg); }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-family: 'Times New Roman', monospace; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.0; color: var(--text); }
+        .example { background: var(--example-bg); padding: 12px 16px; border-radius: 14px; margin-top: 8px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 1.9; color: var(--text); }
+        .example .step { font-weight: 700; color: #60a5fa; margin-top: 8px; }
+        .example .result { margin-top: 8px; font-weight: 600; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .model-container {
+            text-align: center; margin: 16px 0; position: relative; border-radius: 24px; overflow: hidden;
+            background: var(--canvas-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%; aspect-ratio: 16 / 9; min-height: 350px;
+        }
+        .model-container:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            max-height: none;
+            margin: 0;
+            border-radius: 0;
+            background: #0a0f16;
+            aspect-ratio: auto;
+        }
+        .model-container:fullscreen .model-canvas {
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+        }
+        .model-canvas { display: block; width: 100%; height: 100%; background: transparent; border-radius: 20px; cursor: grab; touch-action: none; }
+        .model-canvas:active { cursor: grabbing; }
+        .fullscreen-btn {
+            position: absolute; bottom: 15px; right: 15px; width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3); cursor: pointer; font-size: 22px;
+            display: flex; align-items: center; justify-content: center; z-index: 20; color: white;
+            transition: all 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #1c6ea4; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .model-container { min-height: 280px; }
+            .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
+        }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>MathJax = {tex: {inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true}, chtml: {scale: 1.0, displayAlign: 'center'}};</script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+    <script type="importmap">
+        {"imports":{"three":"https://unpkg.com/three@0.128.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.128.0/examples/jsm/"}}
+    </script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Скалярное произведение векторов</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Скалярное произведение</div>
+        <div class="section-content">
+            <div class="model-container" id="container1">
+                <canvas id="canvas1" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs1" title="Во весь экран">⛶</button>
+            </div>
+            <div class="formula-block"><strong>Определение:</strong> $\vec{a}\cdot\vec{b} = |\vec{a}|\cdot|\vec{b}|\cdot\cos\varphi$, где $\varphi = \angle(\vec{a},\vec{b})$</div>
+            <div class="formula-block"><strong>В координатах:</strong> $\vec{a}\{x_1,y_1,z_1\},\; \vec{b}\{x_2,y_2,z_2\}$ ⇒ $\vec{a}\cdot\vec{b} = x_1x_2 + y_1y_2 + z_1z_2$</div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📏 Косинус угла и ортогональность</div>
+        <div class="section-content">
+            <div class="model-container" id="container2">
+                <canvas id="canvas2" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs2" title="Во весь экран">⛶</button>
+            </div>
+            <div class="formula-block">
+                <strong>Косинус угла:</strong><br><br>
+                $\cos\varphi = \dfrac{\vec{a}\cdot\vec{b}}{|\vec{a}|\cdot|\vec{b}|}$<br><br>
+                $\cos\varphi = \dfrac{x_1x_2 + y_1y_2 + z_1z_2}{\sqrt{x_1^2+y_1^2+z_1^2}\;\sqrt{x_2^2+y_2^2+z_2^2}}$
+            </div>
+            <div class="formula-block"><strong>Условие ортогональности:</strong> $\vec{a} \perp \vec{b} \;\Longleftrightarrow\; \vec{a}\cdot\vec{b} = 0$</div>
+            <p><strong>Знак скалярного произведения</strong> определяет вид угла между векторами:</p>
+            <div class="formula-block">
+                $\vec{a}\cdot\vec{b} > 0 \;\Rightarrow\;$ угол <strong>острый</strong> ($\varphi < 90^\circ$)<br><br>
+                $\vec{a}\cdot\vec{b} = 0 \;\Rightarrow\;$ угол <strong>прямой</strong> ($\varphi = 90^\circ$)<br><br>
+                $\vec{a}\cdot\vec{b} < 0 \;\Rightarrow\;$ угол <strong>тупой</strong> ($\varphi > 90^\circ$)
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">✨ Примеры</div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 1 (ортогональны):</strong><br><br>
+                <span class="step">Даны векторы:</span> $\vec{m}\{1,2,2\}$, $\vec{n}\{2,1,-2\}$<br><br>
+                <span class="step">Вычисляем скалярное произведение:</span><br>
+                $\vec{m}\cdot\vec{n} = 1·2+2·1+2·(-2)=2+2-4=0$<br><br>
+                <span class="result">Так как $\vec{m}\cdot\vec{n}=0$, векторы ортогональны: $\vec{m}\perp\vec{n}$, $\varphi=90^\circ$</span>
+            </div>
+            <div class="example" style="margin-top:10px;">
+                <strong>Пример 2 (острый угол):</strong><br><br>
+                <span class="step">Даны векторы:</span> $\vec{u}\{3,0,4\}$, $\vec{v}\{1,2,2\}$<br><br>
+                <span class="step">Вычисляем скалярное произведение:</span><br>
+                $\vec{u}\cdot\vec{v}=3·1+0·2+4·2=11$<br><br>
+                <span class="step">Находим модули векторов:</span><br>
+                $|\vec{u}|=\sqrt{3^2+0^2+4^2}=5$<br>
+                $|\vec{v}|=\sqrt{1^2+2^2+2^2}=3$<br><br>
+                <span class="step">Вычисляем косинус угла:</span><br>
+                $\cos\varphi = \dfrac{11}{5·3} = \dfrac{11}{15} \approx 0.7333$<br><br>
+                <span class="result">$\varphi \approx 42.8^\circ$ — острый угол</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="formula-block" style="background:var(--info-bg); border-left:4px solid var(--special-border); margin-top:16px;">
+        <strong>📌 Шпаргалка:</strong><br>
+        $\vec{a}\cdot\vec{b} = x_1x_2+y_1y_2+z_1z_2$<br>
+        $\cos\varphi = \dfrac{\vec{a}\cdot\vec{b}}{|\vec{a}||\vec{b}|}$<br>
+        $\vec{a}\perp\vec{b} \Leftrightarrow \vec{a}\cdot\vec{b}=0$
+    </div>
+
+    <a href="vectors.html" class="back-link">← Назад к векторам</a>
+</div>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+    // ========== ОПРЕДЕЛЕНИЕ КАЧЕСТВА 3D (исправлено) ==========
+    let quality3D = 'high';
+    if (window.Android && window.Android.getQuality3D) {
+        quality3D = window.Android.getQuality3D();
+    } else {
+        const saved = localStorage.getItem('quality3d');
+        if (saved) quality3D = saved;
+    }
+
+    const qualitySettings = {
+        low: {
+            segments: 24,
+            opacity: 0.85,
+            transparent: false
+        },
+        medium: {
+            segments: 48,
+            opacity: 0.65,
+            transparent: true
+        },
+        high: {
+            segments: 96,
+            opacity: 0.55,
+            transparent: true
+        }
+    };
+
+    const settings = qualitySettings[quality3D];
+    // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
+
+    function makeLabel(text, color, position, fontSize = '0.7rem') {
+        const div = document.createElement('div');
+        div.textContent = text;
+        div.style.color = color;
+        div.style.fontSize = fontSize;
+        div.style.fontWeight = 'bold';
+        div.style.fontFamily = "'JetBrains Mono', 'Segoe UI', 'Arial Unicode MS', monospace";
+        div.style.background = 'rgba(10, 15, 26, 0.8)';
+        div.style.padding = '2px 8px';
+        div.style.borderRadius = '20px';
+        div.style.border = `1px solid ${color}`;
+        div.style.backdropFilter = 'blur(6px)';
+        div.style.whiteSpace = 'nowrap';
+        const label = new CSS2DObject(div);
+        label.position.copy(position);
+        return label;
+    }
+
+    function createVectorLine(start, end, color) {
+        const group = new THREE.Group();
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+        group.add(new THREE.Line(lineGeo, new THREE.LineBasicMaterial({color})));
+        const dir = end.clone().sub(start);
+        if (dir.length() > 0.001) {
+            dir.normalize();
+            const coneGeo = new THREE.ConeGeometry(0.06, 0.14, 8);
+            const coneMat = new THREE.MeshStandardMaterial({color, emissive: new THREE.Color(color).multiplyScalar(0.3)});
+            const cone = new THREE.Mesh(coneGeo, coneMat);
+            cone.position.copy(end.clone().add(dir.clone().multiplyScalar(-0.07)));
+            cone.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), dir));
+            group.add(cone);
+        }
+        return group;
+    }
+
+    function createAxisLine(start, end, color) {
+        const group = new THREE.Group();
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+        group.add(new THREE.Line(lineGeo, new THREE.LineBasicMaterial({color})));
+        const dir = end.clone().sub(start);
+        if (dir.length() > 0.001) {
+            dir.normalize();
+            const coneGeo = new THREE.ConeGeometry(0.05, 0.12, 8);
+            const coneMat = new THREE.MeshStandardMaterial({color, emissive: new THREE.Color(color).multiplyScalar(0.3)});
+            const cone = new THREE.Mesh(coneGeo, coneMat);
+            cone.position.copy(end.clone().add(dir.clone().multiplyScalar(-0.06)));
+            cone.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), dir));
+            group.add(cone);
+        }
+        return group;
+    }
+
+    const AXES_LEN = 2.5;
+
+    function createAxes() {
+        const g = new THREE.Group();
+        g.add(createAxisLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,AXES_LEN), 0x33ff33));
+        g.add(createAxisLine(new THREE.Vector3(0,0,0), new THREE.Vector3(AXES_LEN,0,0), 0xff3333));
+        g.add(createAxisLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,AXES_LEN,0), 0x3388ff));
+        return g;
+    }
+
+    function createArc(startDir, endDir, color, radius = 0.35) {
+        const arcPts = [];
+        const angle = Math.acos(Math.max(-1, Math.min(1, startDir.dot(endDir))));
+        const axis = new THREE.Vector3().crossVectors(startDir, endDir).normalize();
+        for (let i = 0; i <= 24; i++) {
+            const t = i / 24;
+            arcPts.push(startDir.clone().applyAxisAngle(axis, angle * t).multiplyScalar(radius));
+        }
+        const geo = new THREE.BufferGeometry().setFromPoints(arcPts);
+        return new THREE.Line(geo, new THREE.LineBasicMaterial({color}));
+    }
+
+    function initScene(containerId, canvasId, fsBtnId, setupFn) {
+        const container = document.getElementById(containerId);
+        const canvas = document.getElementById(canvasId);
+        if (!container || !canvas) return;
+        const scene = new THREE.Scene(); scene.background = null;
+        const w = container.clientWidth, h = container.clientHeight;
+        const camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 100);
+        camera.position.set(3.5, 3, 4.5);
+        camera.lookAt(1, 0.8, 1);
+        const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+        renderer.setSize(w,h); renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px'; labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        container.style.position = 'relative'; container.appendChild(labelRenderer.domElement);
+        function updateSize() {
+            const rect = container.getBoundingClientRect();
+            let rw=rect.width, rh=rect.height;
+            if(document.fullscreenElement===container||document.webkitFullscreenElement===container){rw=window.innerWidth;rh=window.innerHeight;}
+            if(rw<10) rw=800; if(rh<10) rh=450;
+            canvas.width=rw; canvas.height=rh;
+            renderer.setSize(rw,rh); labelRenderer.setSize(rw,rh);
+            camera.aspect=rw/rh; camera.updateProjectionMatrix();
+        }
+        new ResizeObserver(updateSize).observe(container); setTimeout(updateSize,100);
+        scene.add(new THREE.AmbientLight(0x40486c,0.6));
+        const kl = new THREE.DirectionalLight(0xfff5e0,1.2); kl.position.set(2,5,2); scene.add(kl);
+        scene.add(new THREE.PointLight(0xccaa77,0.55).position.copy(new THREE.Vector3(-1.5,2,2)));
+        scene.add(new THREE.PointLight(0x88aaff,0.5).position.copy(new THREE.Vector3(1,2,-3)));
+        scene.add(new THREE.PointLight(0x6699cc,0.35).position.copy(new THREE.Vector3(0,-1.2,0)));
+        const grid = new THREE.GridHelper(6,16,0x5f7f9e,0x2c4258);
+        grid.position.y = -0.01; grid.material.transparent=true; grid.material.opacity=0.2; scene.add(grid);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping=true; controls.dampingFactor=0.06;
+        controls.target.set(1,0.8,1); controls.update();
+        setupFn(scene, {makeLabel, createVectorLine, createAxes, createArc});
+
+        const fsBtn = document.getElementById(fsBtnId);
+        if(fsBtn){
+            fsBtn.addEventListener('click',async()=>{
+                if(!document.fullscreenElement&&!document.webkitFullscreenElement){
+                    try{await container.requestFullscreen();fsBtn.textContent='✖';}catch(e){}
+                }else{
+                    if(document.exitFullscreen) await document.exitFullscreen();
+                    else if(document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                    fsBtn.textContent='⛶';
+                }
+            });
+            document.addEventListener('fullscreenchange',()=>{
+                fsBtn.textContent=(document.fullscreenElement===container||document.webkitFullscreenElement===container)?'✖':'⛶';
+                updateSize();
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        animate();
+    }
+
+    initScene('container1','canvas1','fs1',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','#aaaaaa',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+        const o = new THREE.Vector3(0,0,0);
+        const aEnd = new THREE.Vector3(1.2,1.0,0.8);
+        const bEnd = new THREE.Vector3(-0.4,1.2,1.0);
+        scene.add(t.createVectorLine(o,aEnd,0xffaa00));
+        scene.add(t.makeLabel('a','#ffaa00',aEnd.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.7rem'));
+        scene.add(t.createVectorLine(o,bEnd,0xffaa00));
+        scene.add(t.makeLabel('b','#ffaa00',bEnd.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.7rem'));
+        const aDir = aEnd.clone().normalize();
+        const bDir = bEnd.clone().normalize();
+        scene.add(t.createArc(aDir, bDir, 0xfacc15));
+        const mid = aDir.clone().add(bDir).normalize().multiplyScalar(0.5);
+        scene.add(t.makeLabel('φ','#facc15',mid,'0.65rem'));
+    });
+
+    initScene('container2','canvas2','fs2',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','#aaaaaa',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+        const o = new THREE.Vector3(0,0,0);
+        const aEnd = new THREE.Vector3(1.0,0,0.8);
+        const bEnd = new THREE.Vector3(0,1.2,0);
+        scene.add(t.createVectorLine(o,aEnd,0xa855f7));
+        scene.add(t.makeLabel('a','#a855f7',aEnd.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.7rem'));
+        scene.add(t.createVectorLine(o,bEnd,0xa855f7));
+        scene.add(t.makeLabel('b','#a855f7',bEnd.clone().add(new THREE.Vector3(0.1,0.15,0.05)),'0.7rem'));
+        const aDir = aEnd.clone().normalize();
+        const bDir = bEnd.clone().normalize();
+        scene.add(t.createArc(aDir, bDir, 0xfacc15));
+        const mid = aDir.clone().add(bDir).normalize().multiplyScalar(0.5);
+        scene.add(t.makeLabel('90°','#facc15',mid,'0.65rem'));
+    });
+</script>
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        setTimeout(() => location.reload(), 100);
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

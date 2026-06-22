@@ -1,0 +1,367 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Векторы — справочник</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --icon-color: #8ba5b8;
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --menu-card-bg: #1e3545;
+            --menu-item-bg: #1e3545;
+            --menu-item-hover: #233e50;
+            --timer-bg: #2c5a77;
+            --timer-warning: #f39c12;
+            --timer-danger: #e74c3c;
+            --progress-bg: #2c5a77;
+            --progress-fill: #1abc9c;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #6a7e9c;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --icon-color: #1a2d3c;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --menu-card-bg: white;
+            --menu-item-bg: white;
+            --menu-item-hover: linear-gradient(95deg, #f8fafd, #ffffff);
+            --timer-bg: #e2e8f0;
+            --progress-bg: #e2e8f0;
+            --progress-fill: #1abc9c;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:720px;margin:0 auto;position:relative;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:white;margin-bottom:6px;text-transform:uppercase;letter-spacing:2px;}
+        :root.light-mode h1{background:linear-gradient(135deg,#1a2a3f,#2c5a77);-webkit-background-clip:text;background-clip:text;color:transparent;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .menu-card{background:var(--menu-card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.04);margin-bottom:24px;animation:fadeInUp 0.4s ease-out;}
+        .menu-item{display:flex;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border);text-decoration:none;transition:all 0.2s;cursor:pointer;background:var(--menu-item-bg);}
+        .menu-item:hover{background:var(--menu-item-hover);transform:translateX(4px);}
+        .menu-item:last-child{border-bottom:none;}
+        .menu-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-right:16px;font-size:24px;font-weight:400;color:var(--icon-color);transition:all 0.2s;flex-shrink:0;}
+        .menu-item:hover .menu-icon{color:var(--accent);transform:scale(1.05);}
+        .item-content{flex:1;}
+        .item-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-0.2px;}
+        .item-desc{font-size:0.75rem;color:var(--text-secondary);line-height:1.4;}
+        .arrow{font-size:22px;color:var(--text-secondary);transition:all 0.2s;flex-shrink:0;}
+        .menu-item:hover .arrow{transform:translateX(5px);color:var(--accent);}
+        .footer{text-align:center;margin-top:28px;}
+        .back-link{display:inline-block;padding:12px 28px;background:var(--card-bg);border:1px solid var(--border);border-radius:40px;color:var(--text-secondary);text-decoration:none;font-weight:600;font-size:0.9rem;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+        .back-link:hover{background:var(--menu-item-hover);transform:translateY(-2px);border-color:var(--accent);}
+
+        /* Тест */
+        .test-section{margin-top:20px;text-align:center;}
+        .test-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);color:white;border:none;padding:14px 28px;border-radius:40px;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,0.1);transition:all 0.2s;border:1px solid rgba(255,255,255,0.1);}
+        .test-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,0.15);}
+
+        .timer-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--timer-bg);border-radius:14px;}
+        .timer-icon{font-size:1.2rem;}
+        .timer-text{font-weight:600;color:var(--text);font-size:0.9rem;}
+        .timer-text.warning{color:var(--timer-warning);}
+        .timer-text.danger{color:var(--timer-danger);animation:pulse 1s infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+
+        .progress-container{margin-bottom:16px;}
+        .progress-info{display:flex;justify-content:space-between;margin-bottom:6px;color:var(--text-secondary);font-size:0.8rem;}
+        .progress-bar{height:8px;background:var(--progress-bg);border-radius:10px;overflow:hidden;}
+        .progress-fill{height:100%;background:var(--progress-fill);border-radius:10px;transition:width 0.3s ease;}
+
+        .test-container{margin-top:20px;background:var(--card-bg);border-radius:24px;padding:20px;border:1px solid var(--border);text-align:left;}
+        .test-container h3{font-size:1.2rem;color:var(--text);margin-bottom:6px;}
+        .test-info{color:var(--text-secondary);margin-bottom:20px;font-size:0.85rem;}
+        .question{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+        .question:last-of-type{border-bottom:none;margin-bottom:12px;padding-bottom:0;}
+        .question p{font-weight:600;color:var(--text);margin-bottom:10px;font-size:1rem;}
+        .options{display:flex;flex-direction:column;gap:6px;}
+        .options label{display:block;padding:10px 14px;background:var(--menu-item-bg);border-radius:14px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;font-size:0.95rem;color:var(--text);}
+        .options label:hover{background:var(--menu-item-hover);border-color:var(--accent);}
+        .options input{margin-right:10px;accent-color:var(--accent);}
+        .test-submit{background:var(--accent);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:0.95rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all 0.2s;width:100%;}
+        .test-submit:hover{background:#16a085;}
+        .test-submit:disabled{opacity:0.5;cursor:not-allowed;}
+        .test-result{margin-top:16px;padding:14px;border-radius:18px;text-align:center;font-weight:600;font-size:1rem;}
+        .test-result.excellent{background:#d1fae5;color:#065f46;}
+        .test-result.good{background:#fef3c7;color:#92400e;}
+        .test-result.poor{background:#fee2e2;color:#991b1b;}
+        .restart-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:0.9rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all 0.2s;width:100%;}
+        .restart-btn:hover{transform:translateY(-2px);}
+        @media (max-width:550px){body{padding:20px 14px 36px;}h1{font-size:1.3rem;}.menu-icon{width:40px;height:40px;font-size:20px;margin-right:12px;}.menu-item{padding:14px 16px;}.item-title{font-size:0.95rem;}.item-desc{font-size:0.7rem;}.arrow{font-size:20px;}.test-container{padding:16px;}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.05,displayAlign:'center'},startup:{ready:()=>{MathJax.startup.defaultReady();}}};
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header">
+        <h1>Векторы в пространстве</h1>
+        <div class="subtitle">Координаты, действия, базис, скалярное произведение</div>
+    </div>
+    <div class="menu-card">
+        <a href="block1.html" class="menu-item"><div class="menu-icon">→</div><div class="item-content"><div class="item-title">1. Вектор и действия над ними</div><div class="item-desc">Определение, сложение, вычитание, умножение на число, длина, коллинеарность</div></div><div class="arrow">›</div></a>
+        <a href="block2.html" class="menu-item"><div class="menu-icon">⌖</div><div class="item-content"><div class="item-title">2. Декартовы координаты в пространстве</div><div class="item-desc">Система Oxyz, координаты точки и вектора, базисные векторы i,j,k, разложение</div></div><div class="arrow">›</div></a>
+        <a href="block3.html" class="menu-item"><div class="menu-icon">⊙</div><div class="item-content"><div class="item-title">3. Простейшие задачи в координатах</div><div class="item-desc">Середина отрезка, длина отрезка, расстояние между точками — формулы и примеры</div></div><div class="arrow">›</div></a>
+        <a href="block4.html" class="menu-item"><div class="menu-icon">⋅</div><div class="item-content"><div class="item-title">4. Скалярное произведение</div><div class="item-desc">Угол между векторами, косинус угла, условие перпендикулярности</div></div><div class="arrow">›</div></a>
+    </div>
+    <div class="test-section">
+        <button class="test-btn" onclick="startTest()">ПРОВЕРИТЬ ЗНАНИЯ ПО ВЕКТОРАМ</button>
+        <div id="testContainer" class="test-container" style="display:none;"></div>
+    </div>
+    <div class="footer">
+        <a href="geometry.html" class="back-link">← Назад в геометрию</a>
+    </div>
+</div>
+
+<script>
+    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+
+    // Банк из 40 вопросов
+    const questionBank=[
+    // Определение вектора, сложение, вычитание (6 вопросов)
+    {question:"Что такое вектор?",options:["Направленный отрезок","Отрезок","Прямая","Точка"],correct:0},
+    {question:"Нулевой вектор — это вектор, у которого:",options:["Начало совпадает с концом","Длина равна 1","Нет направления","Он перпендикулярен оси"],correct:0},
+    {question:"Сумма векторов \\(\\vec{a}\\) и \\(\\vec{b}\\) по правилу треугольника:",options:["Соединяем начало первого с концом второго","Соединяем концы векторов","Строим параллелограмм","Складываем координаты крест-накрест"],correct:0},
+    {question:"Разность векторов \\(\\vec{a} - \\vec{b}\\) это:",options:["\\(\\vec{a} + (-\\vec{b})\\)","\\(\\vec{a} \\cdot \\vec{b}\\)","\\(\\vec{b} - \\vec{a}\\)","\\(\\vec{a} + \\vec{b}\\)"],correct:0},
+    {question:"При умножении вектора на число получается:",options:["Вектор, коллинеарный исходному","Перпендикулярный вектор","Вектор той же длины","Точка"],correct:0},
+    {question:"Если \\(\\vec{a} = k\\vec{b}\\) и \\(k \\neq 0\\), то векторы:",options:["Коллинеарны","Перпендикулярны","Противоположны","Равны по длине"],correct:0},
+
+    // Длина вектора (5 вопросов)
+    {question:"Длина вектора \\(\\vec{a}\\{x,y,z\\}\\) вычисляется по формуле:",options:["\\(|\\vec{a}| = \\sqrt{x^2 + y^2 + z^2}\\)","\\(|\\vec{a}| = x + y + z\\)","\\(|\\vec{a}| = x^2 + y^2 + z^2\\)","\\(|\\vec{a}| = \\sqrt{x + y + z}\\)"],correct:0},
+    {question:"Длина вектора \\(\\vec{a}\\{3,4,0\\}\\) равна:",options:["5","7","25","12"],correct:0},
+    {question:"Длина вектора \\(\\vec{a}\\{1,2,2\\}\\) равна:",options:["3","5","9","\\(\\sqrt{5}\\)"],correct:0},
+    {question:"Длина единичного вектора равна:",options:["1","0","Зависит от координат","2"],correct:0},
+    {question:"Если \\(|\\vec{a}| = 0\\), то вектор:",options:["Нулевой","Единичный","Коллинеарный","Перпендикулярный"],correct:0},
+
+    // Действия над векторами в координатах (6 вопросов)
+    {question:"Координаты суммы векторов \\(\\vec{a} + \\vec{b}\\) равны:",options:["Сумме соответствующих координат","Разности координат","Произведению координат","Частному координат"],correct:0},
+    {question:"Если \\(\\vec{a}\\{2,-3,1\\}\\) и \\(\\vec{b}\\{0,5,-2\\}\\), то \\(\\vec{a}+\\vec{b}\\):",options:["\\(\\{2,2,-1\\}\\)","\\(\\{2,-8,3\\}\\)","\\(\\{2,2,3\\}\\)","\\(\\{2,8,-1\\}\\)"],correct:0},
+    {question:"При умножении вектора на число каждая координата:",options:["Умножается на это число","Делится на это число","Не изменяется","Возводится в степень"],correct:0},
+    {question:"Если \\(\\vec{a}\\{1,2,3\\}\\), то \\(2\\vec{a}\\) равен:",options:["\\(\\{2,4,6\\}\\)","\\(\\{1,4,9\\}\\)","\\(\\{2,2,2\\}\\)","\\(\\{0.5,1,1.5\\}\\)"],correct:0},
+    {question:"Если \\(\\vec{a}\\{4,-2,6\\}\\), то \\(\\frac{1}{2}\\vec{a}\\) равен:",options:["\\(\\{2,-1,3\\}\\)","\\(\\{8,-4,12\\}\\)","\\(\\{2,2,3\\}\\)","\\(\\{4,-2,3\\}\\)"],correct:0},
+    {question:"Вектор \\(\\vec{a} - \\vec{b}\\) имеет координаты:",options:["Разность соответствующих координат","Сумму координат","Произведение координат","Обратные координаты"],correct:0},
+
+    // Базис и разложение вектора (5 вопросов)
+    {question:"Базисные векторы \\(\\vec{i}, \\vec{j}, \\vec{k}\\) имеют длину:",options:["1","0","2","Зависит от системы координат"],correct:0},
+    {question:"Координаты вектора \\(\\vec{a} = 2\\vec{i} - 3\\vec{j} + \\vec{k}\\):",options:["\\(\\{2,-3,1\\}\\)","\\(\\{2,3,1\\}\\)","\\(\\{-2,3,-1\\}\\)","\\(\\{1,-3,2\\}\\)"],correct:0},
+    {question:"Базисные векторы \\(\\vec{i}, \\vec{j}, \\vec{k}\\) взаимно:",options:["Перпендикулярны","Параллельны","Коллинеарны","Противоположны"],correct:0},
+    {question:"Любой вектор в пространстве можно разложить по:",options:["Трём некомпланарным векторам","Двум векторам","Любому одному вектору","Только базисным векторам"],correct:0},
+    {question:"Разложение вектора \\(\\vec{a}\\) с координатами \\(\\{x,y,z\\}\\):",options:["\\(\\vec{a} = x\\vec{i} + y\\vec{j} + z\\vec{k}\\)","\\(\\vec{a} = x + y + z\\)","\\(\\vec{a} = \\vec{i}^x + \\vec{j}^y + \\vec{k}^z\\)","\\(\\vec{a} = (x,y,z)\\)"],correct:0},
+
+    // Координаты середины отрезка и расстояние (6 вопросов)
+    {question:"Координаты середины отрезка:",options:["\\(\\left(\\frac{x_1+x_2}{2},\\frac{y_1+y_2}{2},\\frac{z_1+z_2}{2}\\right)\\)","\\(\\left(\\frac{x_1-x_2}{2},\\frac{y_1-y_2}{2},\\frac{z_1-z_2}{2}\\right)\\)","\\((x_1+x_2, y_1+y_2, z_1+z_2)\\)","\\((x_1 x_2, y_1 y_2, z_1 z_2)\\)"],correct:0},
+    {question:"Расстояние между точками:",options:["\\(d = \\sqrt{(x_2-x_1)^2 + (y_2-y_1)^2 + (z_2-z_1)^2}\\)","\\(d = |x_2-x_1| + |y_2-y_1| + |z_2-z_1|\\)","\\(d = (x_2-x_1)^2 + (y_2-y_1)^2 + (z_2-z_1)^2\\)","\\(d = \\sqrt{x_1^2+y_1^2+z_1^2} + \\sqrt{x_2^2+y_2^2+z_2^2}\\)"],correct:0},
+    {question:"Середина отрезка AB с A(2,4,6) и B(4,8,10):",options:["(3,6,8)","(6,12,16)","(1,2,2)","(3,4,5)"],correct:0},
+    {question:"Расстояние между точками A(1,0,0) и B(4,0,0):",options:["3","5","4","\\(\\sqrt{17}\\)"],correct:0},
+    {question:"Расстояние между точками A(0,0,0) и B(1,2,2):",options:["3","5","9","\\(\\sqrt{5}\\)"],correct:0},
+    {question:"Координаты вектора \\(\\vec{AB}\\) с A(1,2,3) и B(4,6,8):",options:["\\(\\{3,4,5\\}\\)","\\(\\{5,8,11\\}\\)","\\(\\{-3,-4,-5\\}\\)","\\(\\{4,6,8\\}\\)"],correct:0},
+
+    // Скалярное произведение (6 вопросов)
+    {question:"Скалярное произведение векторов:",options:["\\(\\vec{a}\\cdot\\vec{b} = x_1x_2 + y_1y_2 + z_1z_2\\)","\\(\\vec{a}\\cdot\\vec{b} = x_1+x_2 + y_1+y_2 + z_1+z_2\\)","\\(\\vec{a}\\cdot\\vec{b} = x_1x_2 \\cdot y_1y_2 \\cdot z_1z_2\\)","\\(\\vec{a}\\cdot\\vec{b} = (x_1+x_2)(y_1+y_2)(z_1+z_2)\\)"],correct:0},
+    {question:"Скалярное произведение \\(\\vec{a}\\{1,2,3\\} \\cdot \\vec{b}\\{4,5,6\\}\\):",options:["32","15","\\(\\{4,10,18\\}\\)","16"],correct:0},
+    {question:"Скалярное произведение \\(\\vec{a}\\{2,-1,3\\} \\cdot \\vec{b}\\{0,4,1\\}\\):",options:["-1","1","7","\\(\\{0,-4,3\\}\\)"],correct:0},
+    {question:"Если скалярное произведение равно 0, то векторы:",options:["Перпендикулярны","Параллельны","Коллинеарны","Противоположны"],correct:0},
+    {question:"Условие перпендикулярности векторов:",options:["\\(\\vec{a}\\cdot\\vec{b} = 0\\)","\\(\\vec{a}\\cdot\\vec{b} = 1\\)","\\(|\\vec{a}| = |\\vec{b}|\\)","\\(\\vec{a} + \\vec{b} = \\vec{0}\\)"],correct:0},
+    {question:"Скалярный квадрат вектора \\(\\vec{a}\\cdot\\vec{a}\\) равен:",options:["\\(|\\vec{a}|^2\\)","\\(|\\vec{a}|\\)","\\(2|\\vec{a}|\\)","\\(\\vec{a}\\)"],correct:0},
+
+    // Угол между векторами (6 вопросов)
+    {question:"Косинус угла между векторами:",options:["\\(\\cos\\varphi = \\frac{\\vec{a}\\cdot\\vec{b}}{|\\vec{a}||\\vec{b}|}\\)","\\(\\cos\\varphi = \\vec{a}\\cdot\\vec{b}\\)","\\(\\cos\\varphi = \\frac{|\\vec{a}||\\vec{b}|}{\\vec{a}\\cdot\\vec{b}}\\)","\\(\\cos\\varphi = |\\vec{a}|^2 + |\\vec{b}|^2\\)"],correct:0},
+    {question:"Если \\(\\cos\\varphi = 1\\), то векторы:",options:["Сонаправлены","Противоположно направлены","Перпендикулярны","Образуют угол 90°"],correct:0},
+    {question:"Если \\(\\cos\\varphi = -1\\), то векторы:",options:["Противоположно направлены","Сонаправлены","Перпендикулярны","Образуют угол 45°"],correct:0},
+    {question:"Если \\(\\cos\\varphi = 0\\), то угол между векторами:",options:["90°","0°","180°","45°"],correct:0},
+    {question:"Угол между сонаправленными векторами равен:",options:["0°","90°","180°","45°"],correct:0},
+    {question:"Скалярное произведение через угол:",options:["\\(\\vec{a}\\cdot\\vec{b} = |\\vec{a}||\\vec{b}|\\cos\\varphi\\)","\\(\\vec{a}\\cdot\\vec{b} = |\\vec{a}||\\vec{b}|\\sin\\varphi\\)","\\(\\vec{a}\\cdot\\vec{b} = |\\vec{a}|+|\\vec{b}|\\cos\\varphi\\)","\\(\\vec{a}\\cdot\\vec{b} = |\\vec{a}||\\vec{b}|\\operatorname{tg}\\varphi\\)"],correct:0}
+    ];
+
+    let currentQuestions=[];
+    let timerInterval=null;
+    let timeLeft=0;
+    const TOTAL_TIME=600; // 10 минут
+
+    function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+    function formatTime(seconds){
+        const min=Math.floor(seconds/60);
+        const sec=seconds%60;
+        return `${min}:${sec.toString().padStart(2,'0')}`;
+    }
+
+    function updateTimerDisplay(){
+        const timerText=document.getElementById('timerText');
+        if(!timerText) return;
+        timerText.textContent=formatTime(timeLeft);
+        timerText.classList.remove('warning','danger');
+        if(timeLeft<=60) timerText.classList.add('danger');
+        else if(timeLeft<=180) timerText.classList.add('warning');
+    }
+
+    function updateProgress(){
+        const total=currentQuestions.length;
+        const answered=currentQuestions.filter((q,idx)=>{
+            const sel=document.querySelector(`input[name="q${idx}"]:checked`);
+            return sel!==null;
+        }).length;
+        const percent=Math.round((answered/total)*100);
+        const progressText=document.getElementById('progressText');
+        const progressPercent=document.getElementById('progressPercent');
+        const progressFill=document.getElementById('progressFill');
+        if(progressText) progressText.textContent=`Вопросов отвечено: ${answered} из ${total}`;
+        if(progressPercent) progressPercent.textContent=`${percent}%`;
+        if(progressFill) progressFill.style.width=`${percent}%`;
+    }
+
+    function timeExpired(){
+        const submitBtn=document.getElementById('submitBtn');
+        if(submitBtn) submitBtn.disabled=true;
+        const resultDiv=document.getElementById('testResult');
+        if(resultDiv){
+            resultDiv.innerHTML='⏰ Время вышло! Тест автоматически завершён.';
+            resultDiv.className='test-result poor';
+        }
+        checkAnswers(true);
+    }
+
+    function startTest(){
+        if(timerInterval) clearInterval(timerInterval);
+
+        const questionCount=10;
+        const shuffledBank=shuffleArray([...questionBank]);
+        const selectedQuestions=shuffledBank.slice(0, questionCount);
+
+        currentQuestions=selectedQuestions.map(q=>{
+            const opts=q.options.map((o,i)=>({text:o, idx:i}));
+            const shOpts=shuffleArray([...opts]);
+            const newCorrect=shOpts.findIndex(o=>o.idx===q.correct);
+            return {
+                question: q.question,
+                options: shOpts.map(o=>o.text),
+                correct: newCorrect
+            };
+        });
+
+        timeLeft=TOTAL_TIME;
+        updateTimerDisplay();
+
+        let html=`
+            <h3>Тест по векторам</h3>
+            <div class="test-info">${questionCount} случайных вопросов из 40</div>
+
+            <div class="timer-bar">
+                <span class="timer-icon">⏱️</span>
+                <span class="timer-text" id="timerText">${formatTime(timeLeft)}</span>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span id="progressText">Вопросов отвечено: 0 из ${questionCount}</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div id="questions"></div>
+            <button class="test-submit" id="submitBtn" onclick="checkAnswers(false)">ПРОВЕРИТЬ ОТВЕТЫ</button>
+            <div id="testResult" class="test-result"></div>
+        `;
+
+        document.getElementById('testContainer').innerHTML=html;
+        document.getElementById('testContainer').style.display='block';
+        renderQuestions();
+        updateProgress();
+
+        timerInterval=setInterval(()=>{
+            timeLeft--;
+            updateTimerDisplay();
+            if(timeLeft<=0){
+                clearInterval(timerInterval);
+                timeExpired();
+            }
+        }, 1000);
+
+        if(window.MathJax)MathJax.typesetPromise();
+        document.getElementById('testContainer').scrollIntoView({behavior:'smooth'});
+    }
+
+    function renderQuestions(){
+        let html='';
+        currentQuestions.forEach((q,idx)=>{
+            html+=`<div class="question"><p>${idx+1}. ${q.question}</p><div class="options">`;
+            q.options.forEach((opt,optIdx)=>{
+                html+=`<label><input type="radio" name="q${idx}" value="${optIdx}" onchange="updateProgress()"> ${opt}</label>`;
+            });
+            html+=`</div></div>`;
+        });
+        document.getElementById('questions').innerHTML=html;
+        if(window.MathJax)MathJax.typesetPromise();
+    }
+
+    function checkAnswers(timeUp=false){
+        if(timerInterval) clearInterval(timerInterval);
+
+        let correctCount=0;
+        currentQuestions.forEach((q,idx)=>{
+            const sel=document.querySelector(`input[name="q${idx}"]:checked`);
+            if(sel&&parseInt(sel.value)===q.correct) correctCount++;
+        });
+
+        const pct=correctCount/currentQuestions.length*100;
+        let msg='', cls='';
+        if(pct>=80){msg=`Отлично! ${correctCount}/${currentQuestions.length} (${Math.round(pct)}%)`;cls='excellent';}
+        else if(pct>=50){msg=`Хорошо! ${correctCount}/${currentQuestions.length} (${Math.round(pct)}%)`;cls='good';}
+        else{msg=`${correctCount}/${currentQuestions.length} (${Math.round(pct)}%). Повторите!`;cls='poor';}
+
+        if(timeUp) msg='⏰ ' + msg;
+
+        const rd=document.getElementById('testResult');
+        rd.innerHTML=msg;
+        rd.className=`test-result ${cls}`;
+
+        const submitBtn=document.getElementById('submitBtn');
+        if(submitBtn){
+            submitBtn.disabled=true;
+            submitBtn.textContent='ТЕСТ ЗАВЕРШЁН';
+        }
+
+        const restartHTML='<button class="restart-btn" onclick="startTest()">🔄 ПРОЙТИ ТЕСТ ЗАНОВО</button>';
+        if(!document.getElementById('restartBtn')){
+            rd.insertAdjacentHTML('afterend', `<div id="restartBtn">${restartHTML}</div>`);
+        }
+
+        document.querySelectorAll('input[type="radio"]').forEach(radio=>radio.disabled=true);
+        rd.scrollIntoView({behavior:'smooth'});
+    }
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

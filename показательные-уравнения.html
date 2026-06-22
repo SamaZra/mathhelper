@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <title>Показательные уравнения — 10-11 класс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #10b981; --example-bg: #162a38;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #10b981; --example-bg: #e8f0fe;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
+        .section-title:hover { opacity: 0.8; }
+        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .section.collapsed .section-title::after { transform: rotate(-90deg); }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: #34d399; margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: #4ade80; }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .star { color: #fbbf24; font-weight: bold; margin-left: 4px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #059669; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Показательные уравнения</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Что такое показательное уравнение</div>
+        <div class="section-content">
+            <p><strong>Показательное уравнение</strong> — уравнение, в котором неизвестное содержится в показателе степени.</p>
+            <div class="formula-block">
+                $2^x = 8$<br>
+                $3^{x+1} = 27$<br>
+                $5^{2x} + 5^x - 2 = 0$<br>
+                $2^x = 3^{x-1}$<br>
+                $4^x - 2^x - 12 = 0$
+            </div>
+            <p><strong>Основной принцип:</strong> привести обе части к одному основанию и приравнять показатели, либо использовать замену переменной.</p>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Метод приведения к одному основанию</div>
+        <div class="section-content">
+            <p>Если $a^{f(x)} = a^{g(x)}$ и $a > 0$, $a \neq 1$, то $f(x) = g(x)$.</p>
+
+            <div class="example">
+                <strong>Пример 1.</strong> $2^x = 8$<br><br>
+                <span class="step">Шаг 1. Приводим правую часть к основанию 2.</span>
+                $8 = 2^3$, поэтому $2^x = 2^3$.<br><br>
+                <span class="step">Шаг 2. Приравниваем показатели.</span>
+                $x = 3$.<br><br>
+                <span class="step">Проверка.</span> $2^3 = 8$ — верно.<br><br>
+                <span class="result">Ответ: $x = 3$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2.</strong> $3^{x+1} = 27$<br><br>
+                <span class="step">Шаг 1.</span> $27 = 3^3$, поэтому $3^{x+1} = 3^3$.<br><br>
+                <span class="step">Шаг 2.</span> $x + 1 = 3 \Rightarrow x = 2$.<br><br>
+                <span class="step">Проверка.</span> $3^{2+1} = 3^3 = 27$ — верно.<br><br>
+                <span class="result">Ответ: $x = 2$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 3.</strong> $4^{x} = 2^{x+3}$<br><br>
+                <span class="step">Шаг 1.</span> $4 = 2^2$, поэтому $(2^2)^x = 2^{x+3}$, то есть $2^{2x} = 2^{x+3}$.<br><br>
+                <span class="step">Шаг 2.</span> $2x = x + 3 \Rightarrow x = 3$.<br><br>
+                <span class="step">Проверка.</span> $4^3 = 64$, $2^{6} = 64$ — верно.<br><br>
+                <span class="result">Ответ: $x = 3$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 4.</strong> $\left(\dfrac{1}{3}\right)^{x} = 9$<br><br>
+                <span class="step">Шаг 1.</span> $\dfrac{1}{3} = 3^{-1}$, $9 = 3^2$. Тогда $(3^{-1})^x = 3^2$, то есть $3^{-x} = 3^2$.<br><br>
+                <span class="step">Шаг 2.</span> $-x = 2 \Rightarrow x = -2$.<br><br>
+                <span class="step">Проверка.</span> $\left(\dfrac{1}{3}\right)^{-2} = 3^2 = 9$ — верно.<br><br>
+                <span class="result">Ответ: $x = -2$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Метод замены переменной</div>
+        <div class="section-content">
+            <p>Если уравнение содержит $a^x$ и $a^{2x}$, вводим замену $t = a^x$ ($t > 0$) и сводим к квадратному.</p>
+
+            <div class="example">
+                <strong>Пример 5.</strong> $5^{2x} + 5^x - 2 = 0$<br><br>
+                <span class="step">Шаг 1. Замена.</span> $t = 5^x$, $t > 0$. Тогда $5^{2x} = (5^x)^2 = t^2$. Уравнение: $t^2 + t - 2 = 0$.<br><br>
+                <span class="step">Шаг 2. Решаем квадратное уравнение.</span> $D = 1 + 8 = 9$, $t_1 = 1$, $t_2 = -2$. $t > 0 \Rightarrow t = 1$.<br><br>
+                <span class="step">Шаг 3. Возврат.</span> $5^x = 1 \Rightarrow x = 0$.<br><br>
+                <span class="step">Проверка.</span> $5^0 + 5^0 - 2 = 1+1-2=0$ — верно.<br><br>
+                <span class="result">Ответ: $x = 0$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 6.</strong> $9^x - 4 \cdot 3^x + 3 = 0$<br><br>
+                <span class="step">Шаг 1.</span> $9^x = (3^2)^x = 3^{2x} = (3^x)^2$. Замена $t = 3^x$, $t > 0$: $t^2 - 4t + 3 = 0$.<br><br>
+                <span class="step">Шаг 2.</span> По теореме Виета: $t_1 = 1$, $t_2 = 3$. Оба положительны.<br><br>
+                <span class="step">Шаг 3.</span> $3^x = 1 \Rightarrow x = 0$; $3^x = 3 \Rightarrow x = 1$.<br><br>
+                <span class="step">Проверка.</span> При $x=0$: $1-4+3=0$; при $x=1$: $9-12+3=0$ — верно.<br><br>
+                <span class="result">Ответ: $x = 0$ или $x = 1$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Метод вынесения общего множителя</div>
+        <div class="section-content">
+            <div class="important">
+                <strong>💡 Правило:</strong> За скобку выносим степень с <strong>наименьшим</strong> показателем. Это позволяет упростить выражение в скобках до целого числа.
+            </div>
+
+            <div class="example">
+                <strong>Пример 7.</strong> $2^{x+1} + 2^x = 12$<br><br>
+                <span class="step">Шаг 1. Определяем степени.</span> Слагаемые: $2^{x+1}$ и $2^x$. Меньший показатель у $2^x$ (показатель $x$).<br><br>
+                <span class="step">Шаг 2. Выносим $2^x$ за скобку.</span>
+                $2^{x+1} = 2^x \cdot 2^1 = 2 \cdot 2^x$.<br>
+                $2^{x+1} + 2^x = 2 \cdot 2^x + 1 \cdot 2^x = 2^x(2 + 1) = 3 \cdot 2^x$.<br><br>
+                <span class="step">Шаг 3. Решаем уравнение.</span> $3 \cdot 2^x = 12 \Rightarrow 2^x = 4 = 2^2 \Rightarrow x = 2$.<br><br>
+                <span class="step">Проверка.</span> $2^{3} + 2^2 = 8 + 4 = 12$ — верно.<br><br>
+                <span class="result">Ответ: $x = 2$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 8.</strong> $3^{x+2} - 3^{x} = 24$<br><br>
+                <span class="step">Шаг 1.</span> Степени: $3^{x+2}$ и $3^x$. Меньший показатель у $3^x$. Выносим $3^x$.<br><br>
+                <span class="step">Шаг 2.</span> $3^{x+2} = 3^x \cdot 3^2 = 9 \cdot 3^x$.<br>
+                $9 \cdot 3^x - 1 \cdot 3^x = 3^x(9 - 1) = 8 \cdot 3^x$.<br><br>
+                <span class="step">Шаг 3.</span> $8 \cdot 3^x = 24 \Rightarrow 3^x = 3 \Rightarrow x = 1$.<br><br>
+                <span class="step">Проверка.</span> $3^3 - 3^1 = 27 - 3 = 24$ — верно.<br><br>
+                <span class="result">Ответ: $x = 1$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 9.</strong> $5^{x+1} - 5^{x-1} = 120$<br><br>
+                <span class="step">Шаг 1.</span> Степени: $x+1$ и $x-1$. Меньший показатель $x-1$. Выносим $5^{x-1}$.<br><br>
+                <span class="step">Шаг 2.</span> $5^{x+1} = 5^{x-1} \cdot 5^2 = 25 \cdot 5^{x-1}$.<br>
+                $5^x = 5^{x-1} \cdot 5^1 = 5 \cdot 5^{x-1}$.<br>
+                Уравнение: $25 \cdot 5^{x-1} - 5^{x-1} = 120$, то есть $5^{x-1}(25 - 1) = 24 \cdot 5^{x-1} = 120$.<br><br>
+                <span class="step">Шаг 3.</span> $5^{x-1} = 5 \Rightarrow x-1 = 1 \Rightarrow x = 2$.<br><br>
+                <span class="step">Проверка.</span> $5^3 - 5^1 = 125 - 5 = 120$ — верно.<br><br>
+                <span class="result">Ответ: $x = 2$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Уравнения вида $a^x = b^x$</div>
+        <div class="section-content">
+            <p>Если в уравнении степени с разными основаниями, но одинаковыми показателями, делим обе части на одну из степеней.</p>
+
+            <div class="example">
+                <strong>Пример 10.</strong> $5^x = 7^x$<br><br>
+                <span class="step">Шаг 1. Делим обе части на $7^x$ ($7^x > 0$ при любом $x$).</span>
+                $\dfrac{5^x}{7^x} = 1$, то есть $\left(\dfrac{5}{7}\right)^x = 1$.<br><br>
+                <span class="step">Шаг 2. Решаем уравнение $a^x = 1$.</span>
+                $\left(\dfrac{5}{7}\right)^x = \left(\dfrac{5}{7}\right)^0 \Rightarrow x = 0$.<br><br>
+                <span class="step">Проверка.</span> $5^0 = 1$, $7^0 = 1$, $1 = 1$ — верно.<br><br>
+                <span class="result">Ответ: $x = 0$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 11.</strong> $3^{2x} = 5^{2x}$<br><br>
+                <span class="step">Шаг 1. Делим на $5^{2x}$.</span>
+                $\left(\dfrac{3}{5}\right)^{2x} = 1 \Rightarrow 2x = 0 \Rightarrow x = 0$.<br><br>
+                <span class="result">Ответ: $x = 0$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 12.</strong> $2^{x} \cdot 3^{x} = 36$<br><br>
+                <span class="step">Шаг 1.</span> $2^x \cdot 3^x = (2 \cdot 3)^x = 6^x$. Уравнение: $6^x = 36$.<br><br>
+                <span class="step">Шаг 2.</span> $36 = 6^2 \Rightarrow x = 2$.<br><br>
+                <span class="result">Ответ: $x = 2$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Однородные уравнения <span class="star">★</span></div>
+        <div class="section-content">
+            <p>Уравнение вида $A \cdot a^{2x} + B \cdot a^x b^x + C \cdot b^{2x} = 0$ решается делением на $b^{2x}$ и заменой $t = \left(\dfrac{a}{b}\right)^x$.</p>
+
+            <div class="example">
+                <strong>Пример 13.</strong> $4^x - 2^x \cdot 3^x - 2 \cdot 9^x = 0$<br><br>
+                <span class="step">Шаг 1. Делим на $9^x$.</span>
+                $\dfrac{4^x}{9^x} - \dfrac{2^x \cdot 3^x}{9^x} - 2 = 0$<br>
+                $\left(\dfrac{4}{9}\right)^x - \left(\dfrac{2 \cdot 3}{9}\right)^x - 2 = 0$<br>
+                $\left(\dfrac{2}{3}\right)^{2x} - \left(\dfrac{2}{3}\right)^x - 2 = 0$.<br><br>
+                <span class="step">Шаг 2. Замена $t = \left(\dfrac{2}{3}\right)^x$, $t > 0$.</span>
+                $t^2 - t - 2 = 0$. Корни: $t_1 = 2$, $t_2 = -1$ (не подходит).<br><br>
+                <span class="step">Шаг 3.</span> $\left(\dfrac{2}{3}\right)^x = 2$. Логарифмируем: $x = \log_{\frac{2}{3}} 2$.<br><br>
+                <span class="result">Ответ: $x = \log_{\frac{2}{3}} 2$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Метод логарифмирования</div>
+        <div class="section-content">
+            <p>Если основания разные и не сводятся друг к другу — логарифмируем обе части.</p>
+
+            <div class="example">
+                <strong>Пример 14.</strong> $2^x = 3^{x-1}$<br><br>
+                <span class="step">Шаг 1. Логарифмируем (натуральный логарифм).</span>
+                $\ln(2^x) = \ln(3^{x-1})$<br>
+                $x \ln 2 = (x-1) \ln 3$.<br><br>
+                <span class="step">Шаг 2. Решаем линейное уравнение.</span>
+                $x \ln 2 = x \ln 3 - \ln 3$<br>
+                $x(\ln 2 - \ln 3) = -\ln 3$<br>
+                $x = \dfrac{-\ln 3}{\ln 2 - \ln 3} = \dfrac{\ln 3}{\ln 3 - \ln 2}$.<br><br>
+                <span class="result">Ответ: $x = \dfrac{\ln 3}{\ln 3 - \ln 2} = \log_{\frac{2}{3}} \dfrac{1}{3}$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 15.</strong> $5^{x} = 7$<br><br>
+                <span class="step">Шаг 1.</span> $\ln(5^x) = \ln 7 \Rightarrow x \ln 5 = \ln 7$.<br><br>
+                <span class="step">Шаг 2.</span> $x = \dfrac{\ln 7}{\ln 5} = \log_5 7$.<br><br>
+                <span class="result">Ответ: $x = \log_5 7$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🎯 Задачи с параметром <span class="star">★</span></div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 16.</strong> При каких $a$ уравнение $4^x - a \cdot 2^x + a = 0$ имеет единственное решение?<br><br>
+                <span class="step">Шаг 1. Замена $t = 2^x$, $t > 0$.</span> $t^2 - at + a = 0$.<br><br>
+                <span class="step">Шаг 2. Анализ корней.</span> $D = a^2 - 4a = a(a-4)$. Корни есть при $a \leq 0$ или $a \geq 4$.<br>
+                По Виету: $t_1 + t_2 = a$, $t_1 t_2 = a$.<br><br>
+                <span class="step">Шаг 3. Единственный положительный корень.</span>
+                $D=0$: $a=0$ (корень $t=0$, не подходит) или $a=4$ ($t=2$, подходит).<br>
+                $D>0$, один корень положителен: $t_1 t_2 = a < 0 \Rightarrow a < 0$.<br><br>
+                <span class="result">Ответ: $a < 0$ или $a = 4$.</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

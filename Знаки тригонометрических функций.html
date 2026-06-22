@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Тригонометрия — Знаки по четвертям</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --table-bg: #1e3545;
+            --table-even: #233e50;
+            --table-odd: #1e3545;
+            --info-bg: #1e3545;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --table-bg: white;
+            --table-even: #f0f4fa;
+            --table-odd: white;
+            --info-bg: #e8f0fe;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; }
+        .container { max-width: 100%; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 14px 10px; padding-top: 50px; overflow-x: auto; position: relative; }
+
+        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 10px auto; padding-bottom: 8px; border-bottom: 4px solid #2980b9; text-align: center; }
+        .signs-table { width: 100%; border-collapse: collapse; background: var(--table-bg); border-radius: 16px; overflow: hidden; text-align: center; font-weight: bold; margin: 15px 0; table-layout: fixed; }
+        .signs-table th { background: #1a2d3c; color: white; padding: 14px 6px; font-weight: 700; font-size: 0.9rem; text-align: center; border-right: 1px solid #4a9fd4; vertical-align: middle; }
+        .signs-table th:last-child { border-right: none; }
+        .signs-table td:first-child, .signs-table th:first-child { background: var(--info-bg); width: 90px; color: var(--text); }
+        .signs-table td { padding: 12px 6px; border: 1px solid var(--border); font-weight: 700; font-size: 0.95rem; text-align: center; vertical-align: middle; color: var(--text); }
+        .signs-table tr:nth-child(even) td { background: var(--table-even); }
+        .signs-table tr:nth-child(even) td:first-child { background: var(--info-bg); }
+        .signs-table tr:nth-child(odd) td { background: var(--table-odd); }
+        .signs-table tr:nth-child(odd) td:first-child { background: var(--info-bg); }
+        .sign-positive { color: #27ae60; font-weight: 800; font-size: 1.2rem; }
+        .sign-negative { color: #e74c3c; font-weight: 800; font-size: 1.2rem; }
+        .angle-range { display: block; font-size: 0.7rem; font-weight: 500; color: rgba(255,255,255,0.7); margin-top: 4px; line-height: 1.2; }
+        .circle-container { display: flex; justify-content: center; margin: 20px 0 15px; padding: 12px; background: var(--info-bg); border-radius: 20px; border: 1px solid var(--border); }
+        .circle-svg { max-width: 100%; height: auto; border-radius: 12px; }
+        .circle-caption { text-align: center; margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: #2980b9; color: white; text-decoration: none; font-weight: bold; border-radius: 20px; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 600px) {
+            .container { padding: 10px 6px; }
+            .signs-table th { padding: 10px 4px; font-size: 0.75rem; }
+            .signs-table td { padding: 8px 4px; font-size: 0.8rem; }
+            .sign-positive, .sign-negative { font-size: 1rem; }
+            .signs-table td:first-child, .signs-table th:first-child { width: 60px; }
+            h1 { font-size: 1.3rem; }
+        }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.0,displayAlign:'center'}};</script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+<button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <h1>Знаки тригонометрических функций по четвертям</h1>
+
+    <table class="signs-table">
+        <thead>
+            <tr>
+                <th>Функция</th>
+                <th>I<br><span class="angle-range">\(0^\circ\) – \(90^\circ\)</span></th>
+                <th>II<br><span class="angle-range">\(90^\circ\) – \(180^\circ\)</span></th>
+                <th>III<br><span class="angle-range">\(180^\circ\) – \(270^\circ\)</span></th>
+                <th>IV<br><span class="angle-range">\(270^\circ\) – \(360^\circ\)</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>sin α</strong></td>
+                <td><span class="sign-positive">+</span></td>
+                <td><span class="sign-positive">+</span></td>
+                <td><span class="sign-negative">−</span></td>
+                <td><span class="sign-negative">−</span></td>
+            </tr>
+            <tr>
+                <td><strong>cos α</strong></td>
+                <td><span class="sign-positive">+</span></td>
+                <td><span class="sign-negative">−</span></td>
+                <td><span class="sign-negative">−</span></td>
+                <td><span class="sign-positive">+</span></td>
+            </tr>
+            <tr>
+                <td><strong>tg α</strong></td>
+                <td><span class="sign-positive">+</span></td>
+                <td><span class="sign-negative">−</span></td>
+                <td><span class="sign-positive">+</span></td>
+                <td><span class="sign-negative">−</span></td>
+            </tr>
+            <tr>
+                <td><strong>ctg α</strong></td>
+                <td><span class="sign-positive">+</span></td>
+                <td><span class="sign-negative">−</span></td>
+                <td><span class="sign-positive">+</span></td>
+                <td><span class="sign-negative">−</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="circle-container">
+        <svg class="circle-svg" width="380" height="380" viewBox="-190 -190 380 380" xmlns="http://www.w3.org/2000/svg">
+            <rect x="-190" y="-190" width="380" height="380" fill="transparent" rx="10" ry="10"/>
+            <line x1="-160" y1="0" x2="160" y2="0" stroke="#2c3e50" stroke-width="1.5" marker-end="url(#arrowX)"/>
+            <line x1="0" y1="-160" x2="0" y2="160" stroke="#2c3e50" stroke-width="1.5" marker-end="url(#arrowY)"/>
+            <defs>
+                <marker id="arrowX" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                    <path d="M0,0 L8,4 L0,8 Z" fill="#2c3e50"/>
+                </marker>
+                <marker id="arrowY" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                    <path d="M0,0 L8,4 L0,8 Z" fill="#2c3e50"/>
+                </marker>
+            </defs>
+            <circle cx="0" cy="0" r="140" fill="none" stroke="#2980b9" stroke-width="2"/>
+            <text x="168" y="5" font-size="14" fill="#2c3e50" font-weight="bold">x</text>
+            <text x="8" y="-170" font-size="14" fill="#2c3e50" font-weight="bold">y</text>
+            <circle cx="0" cy="0" r="3" fill="#2980b9"/>
+            <circle cx="140" cy="0" r="4" fill="#e74c3c"/>
+            <text x="152" y="6" font-size="13" fill="#e74c3c" font-weight="bold">0°</text>
+            <circle cx="121.2" cy="-70" r="3" fill="#2980b9"/>
+            <text x="128" y="-82" font-size="12" fill="#2980b9">30°</text>
+            <circle cx="99" cy="-99" r="3" fill="#2980b9"/>
+            <text x="108" y="-112" font-size="12" fill="#2980b9">45°</text>
+            <circle cx="70" cy="-121.2" r="3" fill="#2980b9"/>
+            <text x="78" y="-138" font-size="12" fill="#2980b9">60°</text>
+            <circle cx="0" cy="-140" r="4" fill="#e74c3c"/>
+            <text x="8" y="-152" font-size="13" fill="#e74c3c" font-weight="bold">90°</text>
+            <circle cx="-70" cy="-121.2" r="3" fill="#2980b9"/>
+            <text x="-100" y="-138" font-size="12" fill="#2980b9">120°</text>
+            <circle cx="-99" cy="-99" r="3" fill="#2980b9"/>
+            <text x="-130" y="-112" font-size="12" fill="#2980b9">135°</text>
+            <circle cx="-121.2" cy="-70" r="3" fill="#2980b9"/>
+            <text x="-148" y="-82" font-size="12" fill="#2980b9">150°</text>
+            <circle cx="-140" cy="0" r="4" fill="#e74c3c"/>
+            <text x="-168" y="6" font-size="13" fill="#e74c3c" font-weight="bold">180°</text>
+            <circle cx="-121.2" cy="70" r="3" fill="#2980b9"/>
+            <text x="-148" y="88" font-size="12" fill="#2980b9">210°</text>
+            <circle cx="-99" cy="99" r="3" fill="#2980b9"/>
+            <text x="-130" y="118" font-size="12" fill="#2980b9">225°</text>
+            <circle cx="-70" cy="121.2" r="3" fill="#2980b9"/>
+            <text x="-100" y="142" font-size="12" fill="#2980b9">240°</text>
+            <circle cx="0" cy="140" r="4" fill="#e74c3c"/>
+            <text x="8" y="160" font-size="13" fill="#e74c3c" font-weight="bold">270°</text>
+            <circle cx="70" cy="121.2" r="3" fill="#2980b9"/>
+            <text x="73" y="145" font-size="12" fill="#2980b9">300°</text>
+            <circle cx="99" cy="99" r="3" fill="#2980b9"/>
+            <text x="108" y="125" font-size="12" fill="#2980b9">315°</text>
+            <circle cx="121.2" cy="70" r="3" fill="#2980b9"/>
+            <text x="130" y="90" font-size="12" fill="#2980b9">330°</text>
+            <text x="158" y="-10" font-size="11" fill="#e74c3c">360°</text>
+            <text x="55" y="-55" font-size="18" fill="#27ae60" font-weight="bold">I</text>
+            <text x="-70" y="-55" font-size="18" fill="#e74c3c" font-weight="bold">II</text>
+            <text x="-70" y="65" font-size="18" fill="#e74c3c" font-weight="bold">III</text>
+            <text x="55" y="65" font-size="18" fill="#27ae60" font-weight="bold">IV</text>
+        </svg>
+    </div>
+    <div class="circle-caption">
+        📐 Тригонометрический круг с основными углами (0°, 30°, 45°, 60°, 90°, 120°, 135°, 150°, 180°, 210°, 225°, 240°, 270°, 300°, 315°, 330°, 360°)
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+<script>
+(function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

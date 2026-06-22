@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Показательная функция</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --accent: #1abc9c; --border: rgba(46,204,113,0.1); --icon-color: #8ba5b8;
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38); --menu-card-bg: #1e3545;
+            --menu-item-bg: #1e3545; --menu-item-hover: #233e50;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #6a7e9c; --accent: #1abc9c; --border: #eff3f8;
+            --icon-color: #1a2d3c; --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --menu-card-bg: white; --menu-item-bg: white; --menu-item-hover: linear-gradient(95deg, #f8fafd, #ffffff);
+        }
+        body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:720px;margin:0 auto;position:relative;}
+        .theme-toggle{position:absolute;top:0;right:0;width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);z-index:100;color:var(--text);}
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:white;margin-bottom:6px;text-transform:uppercase;letter-spacing:2px;}
+        :root.light-mode h1{background:linear-gradient(135deg,#1a2a3f,#2c5a77);-webkit-background-clip:text;background-clip:text;color:transparent;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .menu-card{background:var(--menu-card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.04);animation:fadeInUp 0.4s ease-out;}
+        .menu-item{display:flex;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border);text-decoration:none;transition:all 0.2s;cursor:pointer;background:var(--menu-item-bg);}
+        .menu-item:hover{background:var(--menu-item-hover);transform:translateX(4px);}
+        .menu-item:last-child{border-bottom:none;}
+        .menu-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-right:16px;font-size:24px;font-weight:400;color:var(--icon-color);transition:all 0.2s;flex-shrink:0;}
+        .menu-item:hover .menu-icon{color:var(--accent);transform:scale(1.05);}
+        .item-content{flex:1;}
+        .item-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+        .item-desc{font-size:0.75rem;color:var(--text-secondary);}
+        .arrow{font-size:22px;color:var(--text-secondary);transition:0.2s;flex-shrink:0;}
+        .menu-item:hover .arrow{transform:translateX(5px);color:var(--accent);}
+        .footer{text-align:center;margin-top:20px;}
+        .back-link{display:inline-block;padding:12px 28px;background:var(--card-bg);border:1px solid var(--border);border-radius:40px;color:var(--text-secondary);text-decoration:none;font-weight:600;font-size:0.9rem;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+        .back-link:hover{background:var(--menu-item-hover);transform:translateY(-2px);border-color:var(--accent);}
+        @media (max-width:550px){body{padding:20px 14px;}h1{font-size:1.3rem;}.menu-item{padding:14px 16px;}.item-title{font-size:0.95rem;}.item-desc{font-size:0.7rem;}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            chtml: { scale: 0.95 }
+        };
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header">
+        <h1>Показательная функция</h1>
+        <div class="subtitle">Свойства, графики, уравнения, неравенства</div>
+    </div>
+
+    <div class="menu-card">
+        <a href="показательная-функция.html" class="menu-item">
+            <div class="menu-icon">↗</div>
+            <div class="item-content">
+                <div class="item-title">Показательная функция $y = a^x$</div>
+                <div class="item-desc">Свойства, графики, сравнение чисел, примеры</div>
+            </div>
+            <div class="arrow">›</div>
+        </a>
+        <a href="показательные-уравнения.html" class="menu-item">
+            <div class="menu-icon">=</div>
+            <div class="item-content">
+                <div class="item-title">Показательные уравнения</div>
+                <div class="item-desc">Приведение к одному основанию, замена, логарифмирование</div>
+            </div>
+            <div class="arrow">›</div>
+        </a>
+        <a href="показательные-неравенства.html" class="menu-item">
+            <div class="menu-icon">≠</div>
+            <div class="item-content">
+                <div class="item-title">Показательные неравенства</div>
+                <div class="item-desc">Знак сохраняется/меняется, замена, однородные</div>
+            </div>
+            <div class="arrow">›</div>
+        </a>
+    </div>
+
+    <div class="footer">
+        <a href="index.html" class="back-link">← Назад в главное меню</a>
+    </div>
+</div>
+
+<script>
+    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

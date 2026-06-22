@@ -1,0 +1,453 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <title>Иррациональные уравнения — 10-11 класс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(239,68,68,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #ef4444; --example-bg: #162a38;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #ef4444; --example-bg: #e8f0fe;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: #f87171; margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: #4ade80; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .star { color: #fbbf24; font-weight: bold; margin-left: 4px; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #dc2626; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Иррациональные уравнения</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое иррациональное уравнение</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Иррациональное уравнение</strong> — уравнение, в котором переменная содержится под знаком корня (радикала).</p>
+            <div class="formula-block">
+                $\sqrt{x+1} = 3$<br>
+                $\sqrt[3]{2x-1} = \sqrt{x}$<br>
+                $\sqrt{x+5} + \sqrt{x} = 5$
+            </div>
+            <div class="important">
+                <strong>⚠️ Важно:</strong> При решении необходимо учитывать <strong>ОДЗ</strong> — подкоренное выражение корня чётной степени должно быть $\geq 0$!
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Метод возведения в степень</span>
+            <span class="sub-title">основной алгоритм решения</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>Алгоритм:</strong><br>
+                1. Найти ОДЗ<br>
+                2. Возвести обе части в степень<br>
+                3. Решить полученное уравнение<br>
+                4. Проверить корни подстановкой в исходное уравнение
+            </div>
+
+            <div class="example">
+                <strong>Пример 1:</strong> Решить уравнение $\sqrt{x+2} = 4$.<br><br>
+                <span class="step">Шаг 1. Находим ОДЗ.</span>
+                Подкоренное выражение должно быть неотрицательным:<br>
+                $x + 2 \geq 0$<br>
+                $x \geq -2$<br><br>
+                <span class="step">Шаг 2. Возводим обе части в квадрат.</span>
+                $(\sqrt{x+2})^2 = 4^2$<br>
+                $x + 2 = 16$<br><br>
+                <span class="step">Шаг 3. Решаем полученное уравнение.</span>
+                $x = 16 - 2$<br>
+                $x = 14$<br><br>
+                <span class="step">Шаг 4. Проверка.</span>
+                Подставляем $x = 14$ в исходное уравнение:<br>
+                $\sqrt{14 + 2} = \sqrt{16} = 4$<br>
+                $4 = 4$ — верно.<br>
+                Также проверяем ОДЗ: $14 \geq -2$ — подходит.<br><br>
+                <span class="result">Ответ: $x = 14$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2:</strong> Решить уравнение $\sqrt{x+3} = x-3$.<br><br>
+                <span class="step">Шаг 1. Находим ОДЗ.</span>
+                Подкоренное выражение: $x + 3 \geq 0 \Rightarrow x \geq -3$.<br>
+                Правая часть (значение корня): $x - 3 \geq 0 \Rightarrow x \geq 3$.<br>
+                Общая ОДЗ: $x \geq 3$.<br><br>
+                <span class="step">Шаг 2. Возводим обе части в квадрат.</span>
+                $(\sqrt{x+3})^2 = (x-3)^2$<br>
+                $x + 3 = x^2 - 6x + 9$<br><br>
+                <span class="step">Шаг 3. Решаем квадратное уравнение.</span>
+                $x^2 - 6x + 9 - x - 3 = 0$<br>
+                $x^2 - 7x + 6 = 0$<br>
+                Находим дискриминант: $D = (-7)^2 - 4 \cdot 1 \cdot 6 = 49 - 24 = 25$<br>
+                $\sqrt{D} = 5$<br>
+                $x_1 = \dfrac{7 + 5}{2} = 6$<br>
+                $x_2 = \dfrac{7 - 5}{2} = 1$<br><br>
+                <span class="step">Шаг 4. Проверка корней с учётом ОДЗ.</span>
+                Проверяем $x = 6$:<br>
+                $\sqrt{6 + 3} = \sqrt{9} = 3$<br>
+                Правая часть: $6 - 3 = 3$<br>
+                $3 = 3$ — верно. ОДЗ: $6 \geq 3$ — подходит.<br><br>
+                Проверяем $x = 1$:<br>
+                ОДЗ: $1 \geq 3$ — не выполняется.<br>
+                Корень $x = 1$ не удовлетворяет ОДЗ.<br><br>
+                <span class="result">Ответ: $x = 6$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Уравнения с кубическими корнями</span>
+            <span class="sub-title">корни нечётной степени — ОДЗ не нужен</span>
+        </div>
+        <div class="section-content">
+            <p>Для корней <strong>нечётной степени</strong> ОДЗ не требуется — подкоренное выражение может быть любым действительным числом.</p>
+
+            <div class="example">
+                <strong>Пример 3:</strong> Решить уравнение $\sqrt[3]{2x-1} = 3$.<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                Корень кубический определён при любом $x$, поэтому ОДЗ: $x \in \mathbb{R}$.<br><br>
+                <span class="step">Шаг 2. Возводим обе части в куб.</span>
+                $(\sqrt[3]{2x-1})^3 = 3^3$<br>
+                $2x - 1 = 27$<br><br>
+                <span class="step">Шаг 3. Решаем линейное уравнение.</span>
+                $2x = 27 + 1$<br>
+                $2x = 28$<br>
+                $x = 14$<br><br>
+                <span class="step">Шаг 4. Проверка.</span>
+                Подставляем $x = 14$:<br>
+                $\sqrt[3]{2 \cdot 14 - 1} = \sqrt[3]{28 - 1} = \sqrt[3]{27} = 3$<br>
+                $3 = 3$ — верно.<br><br>
+                <span class="result">Ответ: $x = 14$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 4:</strong> Решить уравнение $\sqrt[3]{x+1} = \sqrt[3]{2x-3}$.<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                Оба корня кубические, определены при любых $x$. ОДЗ: $x \in \mathbb{R}$.<br><br>
+                <span class="step">Шаг 2. Возводим обе части в куб.</span>
+                $(\sqrt[3]{x+1})^3 = (\sqrt[3]{2x-3})^3$<br>
+                $x + 1 = 2x - 3$<br><br>
+                <span class="step">Шаг 3. Решаем линейное уравнение.</span>
+                $x - 2x = -3 - 1$<br>
+                $-x = -4$<br>
+                $x = 4$<br><br>
+                <span class="step">Шаг 4. Проверка.</span>
+                Левая часть: $\sqrt[3]{4 + 1} = \sqrt[3]{5}$<br>
+                Правая часть: $\sqrt[3]{2 \cdot 4 - 3} = \sqrt[3]{8 - 3} = \sqrt[3]{5}$<br>
+                $\sqrt[3]{5} = \sqrt[3]{5}$ — верно.<br><br>
+                <span class="result">Ответ: $x = 4$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Метод замены переменной</span>
+            <span class="sub-title">сведение к квадратному уравнению</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 5:</strong> Решить уравнение $\sqrt{x} + \sqrt[4]{x} = 6$.<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                $\sqrt{x}$ определён при $x \geq 0$, $\sqrt[4]{x}$ также при $x \geq 0$.<br>
+                ОДЗ: $x \geq 0$.<br><br>
+                <span class="step">Шаг 2. Вводим замену переменной.</span>
+                Пусть $t = \sqrt[4]{x}$, тогда $t \geq 0$.<br>
+                Выразим $\sqrt{x}$ через $t$: $\sqrt{x} = (\sqrt[4]{x})^2 = t^2$.<br>
+                Уравнение принимает вид:<br>
+                $t^2 + t = 6$<br>
+                $t^2 + t - 6 = 0$<br><br>
+                <span class="step">Шаг 3. Решаем квадратное уравнение относительно $t$.</span>
+                $D = 1^2 - 4 \cdot 1 \cdot (-6) = 1 + 24 = 25$<br>
+                $\sqrt{D} = 5$<br>
+                $t_1 = \dfrac{-1 + 5}{2} = 2$<br>
+                $t_2 = \dfrac{-1 - 5}{2} = -3$<br><br>
+                <span class="step">Шаг 4. Отбираем корни с учётом условия $t \geq 0$.</span>
+                $t = 2$ — подходит.<br>
+                $t = -3$ — не подходит (корень четвёртой степени не может быть отрицательным).<br><br>
+                <span class="step">Шаг 5. Возвращаемся к переменной $x$.</span>
+                $\sqrt[4]{x} = 2$<br>
+                Возводим в четвёртую степень:<br>
+                $x = 2^4 = 16$<br><br>
+                <span class="step">Шаг 6. Проверка.</span>
+                $\sqrt{16} + \sqrt[4]{16} = 4 + 2 = 6$<br>
+                $6 = 6$ — верно.<br><br>
+                <span class="result">Ответ: $x = 16$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Метод уединения радикала</span>
+            <span class="sub-title">уравнения с несколькими корнями</span>
+        </div>
+        <div class="section-content">
+            <p>Если в уравнении несколько корней, нужно уединить один из них (перенести всё остальное в другую часть) и возвести в степень.</p>
+
+            <div class="example">
+                <strong>Пример 6:</strong> Решить уравнение $\sqrt{x+5} + \sqrt{x} = 5$.<br><br>
+                <span class="step">Шаг 1. Находим ОДЗ.</span>
+                $\sqrt{x+5}$: $x + 5 \geq 0 \Rightarrow x \geq -5$<br>
+                $\sqrt{x}$: $x \geq 0$<br>
+                Общая ОДЗ: $x \geq 0$.<br><br>
+                <span class="step">Шаг 2. Уединяем радикал.</span>
+                Переносим $\sqrt{x}$ в правую часть:<br>
+                $\sqrt{x+5} = 5 - \sqrt{x}$<br>
+                Заметим, что правая часть должна быть неотрицательна:<br>
+                $5 - \sqrt{x} \geq 0 \Rightarrow \sqrt{x} \leq 5 \Rightarrow x \leq 25$<br><br>
+                <span class="step">Шаг 3. Возводим обе части в квадрат.</span>
+                $(\sqrt{x+5})^2 = (5 - \sqrt{x})^2$<br>
+                $x + 5 = 25 - 10\sqrt{x} + x$<br><br>
+                <span class="step">Шаг 4. Приводим подобные.</span>
+                $x + 5 - 25 - x = -10\sqrt{x}$<br>
+                $-20 = -10\sqrt{x}$<br>
+                $10\sqrt{x} = 20$<br>
+                $\sqrt{x} = 2$<br><br>
+                <span class="step">Шаг 5. Возводим в квадрат ещё раз.</span>
+                $x = 4$<br><br>
+                <span class="step">Шаг 6. Проверка.</span>
+                $\sqrt{4 + 5} + \sqrt{4} = \sqrt{9} + 2 = 3 + 2 = 5$<br>
+                $5 = 5$ — верно.<br>
+                Проверяем ОДЗ: $x = 4$, $0 \leq 4 \leq 25$ — подходит.<br><br>
+                <span class="result">Ответ: $x = 4$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Повторное возведение в степень</span>
+            <span class="sub-title">если радикал не исчез после первого шага</span>
+        </div>
+        <div class="section-content">
+            <p>Иногда после первого возведения в квадрат корень остаётся — тогда возводим ещё раз.</p>
+
+            <div class="example">
+                <strong>Пример 7:</strong> Решить уравнение $\sqrt{x+3} + \sqrt{x-2} = 5$.<br><br>
+                <span class="step">Шаг 1. Находим ОДЗ.</span>
+                $\sqrt{x+3}$: $x + 3 \geq 0 \Rightarrow x \geq -3$<br>
+                $\sqrt{x-2}$: $x - 2 \geq 0 \Rightarrow x \geq 2$<br>
+                Общая ОДЗ: $x \geq 2$.<br><br>
+                <span class="step">Шаг 2. Уединяем первый радикал.</span>
+                $\sqrt{x+3} = 5 - \sqrt{x-2}$<br>
+                Правая часть: $5 - \sqrt{x-2} \geq 0 \Rightarrow \sqrt{x-2} \leq 5 \Rightarrow x-2 \leq 25 \Rightarrow x \leq 27$<br><br>
+                <span class="step">Шаг 3. Возводим в квадрат первый раз.</span>
+                $(\sqrt{x+3})^2 = (5 - \sqrt{x-2})^2$<br>
+                $x + 3 = 25 - 10\sqrt{x-2} + (x - 2)$<br>
+                $x + 3 = 25 - 10\sqrt{x-2} + x - 2$<br>
+                $x + 3 = x + 23 - 10\sqrt{x-2}$<br><br>
+                <span class="step">Шаг 4. Приводим подобные.</span>
+                $x + 3 - x - 23 = -10\sqrt{x-2}$<br>
+                $-20 = -10\sqrt{x-2}$<br>
+                $10\sqrt{x-2} = 20$<br>
+                $\sqrt{x-2} = 2$<br><br>
+                <span class="step">Шаг 5. Возводим в квадрат второй раз.</span>
+                $x - 2 = 4$<br>
+                $x = 6$<br><br>
+                <span class="step">Шаг 6. Проверка.</span>
+                Подставляем $x = 6$ в исходное уравнение:<br>
+                $\sqrt{6 + 3} + \sqrt{6 - 2} = \sqrt{9} + \sqrt{4} = 3 + 2 = 5$<br>
+                $5 = 5$ — верно.<br>
+                Проверяем ОДЗ: $2 \leq 6 \leq 27$ — подходит.<br><br>
+                <span class="result">Ответ: $x = 6$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Системы иррациональных уравнений</span>
+            <span class="sub-title">замена переменных и симметричные системы</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 8:</strong> Решить систему уравнений $\begin{cases} \sqrt{x} + \sqrt{y} = 5 \\ x + y = 13 \end{cases}$.<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                $\sqrt{x}$ определён при $x \geq 0$, $\sqrt{y}$ — при $y \geq 0$.<br>
+                ОДЗ: $x \geq 0$, $y \geq 0$.<br><br>
+                <span class="step">Шаг 2. Вводим замену переменных.</span>
+                Пусть $a = \sqrt{x} \geq 0$, $b = \sqrt{y} \geq 0$.<br>
+                Тогда $x = a^2$, $y = b^2$.<br>
+                Система принимает вид:<br>
+                $\begin{cases} a + b = 5 \\ a^2 + b^2 = 13 \end{cases}$<br><br>
+                <span class="step">Шаг 3. Выражаем $a^2 + b^2$ через сумму и произведение.</span>
+                $a^2 + b^2 = (a+b)^2 - 2ab$<br>
+                $13 = 5^2 - 2ab$<br>
+                $13 = 25 - 2ab$<br>
+                $2ab = 25 - 13 = 12$<br>
+                $ab = 6$<br><br>
+                <span class="step">Шаг 4. Составляем квадратное уравнение.</span>
+                Числа $a$ и $b$ — корни уравнения $t^2 - 5t + 6 = 0$ (по теореме Виета: сумма корней $5$, произведение $6$).<br>
+                Решаем: $D = 25 - 24 = 1$<br>
+                $t_1 = \dfrac{5 + 1}{2} = 3$<br>
+                $t_2 = \dfrac{5 - 1}{2} = 2$<br><br>
+                <span class="step">Шаг 5. Находим $a$ и $b$.</span>
+                Возможны два случая:<br>
+                Случай 1: $a = 3$, $b = 2$<br>
+                Случай 2: $a = 2$, $b = 3$<br>
+                Оба подходят, так как $a,b \geq 0$.<br><br>
+                <span class="step">Шаг 6. Возвращаемся к $x$ и $y$.</span>
+                Случай 1: $\sqrt{x} = 3 \Rightarrow x = 9$, $\sqrt{y} = 2 \Rightarrow y = 4$.<br>
+                Случай 2: $\sqrt{x} = 2 \Rightarrow x = 4$, $\sqrt{y} = 3 \Rightarrow y = 9$.<br><br>
+                <span class="step">Шаг 7. Проверка.</span>
+                Для $(9; 4)$: $\sqrt{9} + \sqrt{4} = 3 + 2 = 5$, $9 + 4 = 13$ — верно.<br>
+                Для $(4; 9)$: $\sqrt{4} + \sqrt{9} = 2 + 3 = 5$, $4 + 9 = 13$ — верно.<br><br>
+                <span class="result">Ответ: $(4; 9)$ и $(9; 4)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🎯 Задачи с параметром <span class="star">★</span></span>
+            <span class="sub-title">анализ количества корней</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 9:</strong> При каких значениях параметра $a$ уравнение $\sqrt{x+a} = x$ имеет ровно один корень?<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                Корень квадратный: $x + a \geq 0 \Rightarrow x \geq -a$.<br>
+                Правая часть (значение корня): $x \geq 0$.<br>
+                Общая ОДЗ: $x \geq \max(0, -a)$.<br><br>
+                <span class="step">Шаг 2. Возводим в квадрат.</span>
+                $x + a = x^2$<br>
+                $x^2 - x - a = 0$<br><br>
+                <span class="step">Шаг 3. Анализируем квадратное уравнение.</span>
+                Дискриминант: $D = 1 + 4a$.<br>
+                Уравнение имеет корни, если $D \geq 0$, то есть $a \geq -\dfrac{1}{4}$.<br>
+                Корни: $x_{1,2} = \dfrac{1 \pm \sqrt{1 + 4a}}{2}$.<br><br>
+                <span class="step">Шаг 4. Проверяем ОДЗ для каждого корня.</span>
+                Оба корня должны удовлетворять $x \geq 0$ и $x \geq -a$.<br><br>
+                <strong>Случай $a < 0$:</strong> $-a > 0$, ОДЗ: $x \geq -a$.<br>
+                Меньший корень: $x_2 = \dfrac{1 - \sqrt{1+4a}}{2}$.<br>
+                При $a < 0$: $\sqrt{1+4a} < 1$, значит $x_2 > 0$.<br>
+                Проверяем $x_2 \geq -a$: это выполняется не всегда. Анализ показывает, что при $a < 0$ подходит только больший корень, если $a > -2$.<br><br>
+                <strong>Случай $a = 0$:</strong> $x^2 - x = 0$, корни $0$ и $1$. Оба подходят — два корня.<br><br>
+                <strong>Случай $a > 0$:</strong> $-a < 0$, ОДЗ: $x \geq 0$.<br>
+                Меньший корень $x_2 < 0$ (не подходит). Больший корень $x_1 > 0$ (подходит). Итого один корень.<br><br>
+                <strong>Случай $a = -\dfrac{1}{4}$:</strong> $D = 0$, единственный корень $x = \dfrac{1}{2}$. Проверяем ОДЗ: подходит.<br><br>
+                <span class="step">Шаг 5. Итоговый анализ.</span>
+                Один корень будет при $a = -\dfrac{1}{4}$ и при $a > 0$.<br>
+                При $a \in (-\dfrac{1}{4}; 0]$ — два корня.<br>
+                При $a < -\dfrac{1}{4}$ — корней нет.<br><br>
+                <span class="result">Ответ: $a = -\dfrac{1}{4}$ или $a > 0$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 10 (ЕГЭ):</strong> Найти все значения $a$, при которых уравнение $\sqrt{15x^2+6ax+9} = x^2+ax+3$ имеет ровно три различных корня.<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                Правая часть (значение корня): $x^2 + ax + 3 \geq 0$.<br>
+                Дискриминант правой части: $D = a^2 - 12$.<br>
+                Если $|a| \leq 2\sqrt{3}$, то $x^2+ax+3 > 0$ при всех $x$.<br><br>
+                <span class="step">Шаг 2. Возводим в квадрат.</span>
+                $15x^2 + 6ax + 9 = (x^2 + ax + 3)^2$<br>
+                Раскрываем правую часть:<br>
+                $(x^2 + ax + 3)^2 = x^4 + 2ax^3 + (a^2+6)x^2 + 6ax + 9$<br><br>
+                <span class="step">Шаг 3. Приравниваем и приводим подобные.</span>
+                $15x^2 + 6ax + 9 = x^4 + 2ax^3 + (a^2+6)x^2 + 6ax + 9$<br>
+                $0 = x^4 + 2ax^3 + (a^2+6-15)x^2 + (6a-6a)x + (9-9)$<br>
+                $0 = x^4 + 2ax^3 + (a^2-9)x^2$<br>
+                $x^2(x^2 + 2ax + a^2 - 9) = 0$<br><br>
+                <span class="step">Шаг 4. Решаем уравнение.</span>
+                $x^2 = 0 \Rightarrow x = 0$ (кратный корень, считается за один).<br>
+                $x^2 + 2ax + a^2 - 9 = 0$<br>
+                $(x + a)^2 - 9 = 0$<br>
+                $(x + a)^2 = 9$<br>
+                $x + a = \pm 3$<br>
+                $x = -a \pm 3$<br><br>
+                <span class="step">Шаг 5. Анализируем количество корней.</span>
+                Имеем три кандидата: $x = 0$, $x = -a+3$, $x = -a-3$.<br>
+                Чтобы было ровно три РАЗЛИЧНЫХ корня, все три должны быть различны и удовлетворять ОДЗ.<br><br>
+                Условие $x=0$ совпадает с $x=-a+3$, если $-a+3=0 \Rightarrow a=3$.<br>
+                Условие $x=0$ совпадает с $x=-a-3$, если $-a-3=0 \Rightarrow a=-3$.<br>
+                При $a \neq \pm 3$ все три корня различны.<br><br>
+                <span class="step">Шаг 6. Проверяем ОДЗ.</span>
+                Для $a = 3$: корни $0$, $0$, $-6$ — два различных (0 и -6), не подходит.<br>
+                Для $a = -3$: корни $0$, $6$, $0$ — два различных (0 и 6), не подходит.<br>
+                Для других $a$ нужно проверить ОДЗ. Анализ показывает, что при $|a| < \sqrt{12}$ все три корня удовлетворяют ОДЗ.<br><br>
+                <span class="result">Ответ: $a \in (-2\sqrt{3}; 2\sqrt{3}) \setminus \{-3; 3\}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

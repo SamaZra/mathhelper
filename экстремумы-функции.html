@@ -1,0 +1,274 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Экстремумы функции</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    :root {
+        --bg: #1a2d3c;
+        --card-bg: #1e3545;
+        --text: #ffffff;
+        --text-secondary: #8ba5b8;
+        --accent: #1abc9c;
+        --border: rgba(46, 204, 113, 0.1);
+        --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+        --formula-card-bg: #1e3545;
+        --example-bg: #1e3545;
+        --info-bg: #1e3545;
+        --info-border: #e67e22;
+        /* Цвета для SVG (тёмная тема) */
+        --svg-stroke: #ffffff;
+        --svg-fill: #ffffff;
+        --svg-text: #ffffff;
+        --svg-axis: #8ba5b8;
+    }
+
+    :root.light-mode {
+        --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+        --card-bg: white;
+        --text: #1a2a3f;
+        --text-secondary: #5a7a94;
+        --accent: #1abc9c;
+        --border: #eff3f8;
+        --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+        --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+        --example-bg: #f8fafc;
+        --info-bg: #f0fdf4;
+        --info-border: #e67e22;
+        /* Цвета для SVG (светлая тема) */
+        --svg-stroke: #1a2a3f;
+        --svg-fill: #1a2a3f;
+        --svg-text: #1a2a3f;
+        --svg-axis: #5a7a94;
+    }
+
+    body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+    .container{max-width:1000px;margin:0 auto;position:relative;}
+
+    .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+    .theme-toggle:hover{transform:scale(1.1);}
+
+    .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+    h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+    .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+    .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+    .section{margin-bottom:14px;}
+    .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--info-border);padding-left:12px;cursor:pointer;user-select:none;}
+    .section-title:hover{opacity:0.8;}
+    .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+    .section.collapsed .section-title::after{transform:rotate(-90deg);}
+    .section-content{max-height:3000px;overflow:hidden;transition:max-height 0.4s ease;}
+    .section.collapsed .section-content{max-height:0;}
+
+    .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:14px 16px;border-radius:14px;margin:12px 0;}
+    .definition-block p{font-size:0.95rem;line-height:1.4;color:var(--text);}
+    .definition-block strong{color:var(--text);}
+    .algorithm-list{list-style:none;counter-reset:step;margin:12px 0;padding:0;}
+    .algorithm-list li{counter-increment:step;margin-bottom:8px;padding-left:26px;position:relative;font-size:0.95rem;line-height:1.35;color:var(--text);}
+    .algorithm-list li::before{content:counter(step) ".";position:absolute;left:0;font-weight:700;color:var(--info-border);}
+    .algorithm-list li strong{color:var(--text);}
+    .example-block{background:var(--example-bg);border-radius:16px;padding:14px 16px;border:1px solid var(--border);margin:8px 0;}
+    .math-example{background:var(--card-bg);padding:10px 14px;border-radius:14px;margin:6px 0;font-size:0.9rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text);}
+    .math-example strong{color:var(--text);}
+
+    .image-no-gap {
+        background: transparent;
+        border-radius: 14px;
+        padding: 0;
+        text-align: center;
+        margin: 0;
+    }
+    .image-no-gap svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .back-link{display:inline-block;margin-top:16px;padding:10px 24px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
+    .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
+    @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.definition-block p{font-size:0.9rem;}.algorithm-list li{font-size:0.9rem;}.math-example{font-size:0.85rem;padding:8px 12px;}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+    .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+  
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+  <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.05,displayAlign:'center'}};</script>
+  <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+  <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+  <div class="header"><h1>Экстремумы функции</h1><div class="subtitle">Возрастание/убывание · Определение · Алгоритм · Пример</div></div>
+  <div class="content-card">
+
+    <div class="section">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Возрастание и убывание функции</div>
+      <div class="section-content"><div class="definition-block">
+        <p><strong>Функция возрастает</strong> на интервале, если для любых \(x_1 < x_2\) из этого интервала выполняется \(f(x_1) < f(x_2)\).</p>
+        <p style="margin-top:10px;"><strong>Функция убывает</strong> на интервале, если для любых \(x_1 < x_2\) из этого интервала выполняется \(f(x_1) > f(x_2)\).</p>
+        <p style="margin-top:12px;"><strong>Достаточное условие (связь с производной):</strong></p>
+        <ul style="margin-top:8px; padding-left:20px; font-size:0.95rem; line-height:1.4; color:var(--text);">
+          <li>Если \(f'(x) > 0\) на интервале, то функция <strong>возрастает</strong>.</li>
+          <li>Если \(f'(x) < 0\) на интервале, то функция <strong>убывает</strong>.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Определение экстремумов</div>
+      <div class="section-content"><div class="definition-block">
+        <p><strong>Точка максимума</strong> \(x_0\) — точка, в которой производная меняет знак с «+» на «−». Значение \(f(x_0)\) называется <strong>максимумом</strong> функции.</p>
+        <p style="margin-top:10px;"><strong>Точка минимума</strong> \(x_0\) — точка, в которой производная меняет знак с «−» на «+». Значение \(f(x_0)\) называется <strong>минимумом</strong> функции.</p>
+        <p style="margin-top:10px;">Точки максимума и минимума называются <strong>точками экстремума</strong>. Значения функции в этих точках — <strong>экстремумами</strong>.</p>
+      </div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Алгоритм нахождения экстремумов</div>
+      <div class="section-content"><ol class="algorithm-list">
+        <li><strong>Найти производную \(f'(x)\).</strong></li>
+        <li><strong>Найти критические точки:</strong> решить уравнение \(f'(x) = 0\).</li>
+        <li><strong>Определить знаки производной</strong> на интервалах, на которые критические точки разбивают область определения.</li>
+        <li><strong>Сделать вывод:</strong> если знак меняется с «+» на «−» — максимум, с «−» на «+» — минимум.</li>
+        <li><strong>Вычислить значения функции</strong> в точках экстремума.</li>
+      </ol></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Пример: найти экстремумы \(f(x) = x^3 - 3x\)</div>
+      <div class="section-content"><div class="example-block"><div class="math-example">
+        <strong>1. Найдём производную:</strong><br>
+        \(f'(x) = 3x^2 - 3\).<br><br>
+        <strong>2. Найдём критические точки:</strong><br>
+        \(f'(x) = 0\)<br>
+        \(3x^2 - 3 = 0\)<br>
+        \(x^2 = 1\)<br>
+        \(x = -1,\; x = 1\).<br><br>
+        <strong>3. Определим знаки производной:</strong><br>
+      </div>
+        <div class="image-no-gap" id="sign-svg-container">
+          <!-- SVG будет вставлен динамически для смены цвета -->
+        </div>
+        <div class="math-example">
+          • На интервале \((-\infty, -1)\):<br>
+          \(f'(-2) = 3(4) - 3 = 9 > 0\) — знак «+», функция <strong>возрастает</strong>.<br>
+          • На интервале \((-1, 1)\):<br>
+          \(f'(0) = -3 < 0\) — знак «−», функция <strong>убывает</strong>.<br>
+          • На интервале \((1, +\infty)\):<br>
+          \(f'(2) = 3(4) - 3 = 9 > 0\) — знак «+», функция <strong>возрастает</strong>.<br><br>
+          <strong>4. Сделаем вывод о точках экстремума:</strong><br>
+          В точке \(x = -1\) знак меняется с «+» на «−» ⇒ <strong>точка максимума</strong>.<br>
+          В точке \(x = 1\) знак меняется с «−» на «+» ⇒ <strong>точка минимума</strong>.<br><br>
+          <strong>5. Найдём значения функции в точках экстремума:</strong><br>
+          \(f(-1) = (-1)^3 - 3(-1) = -1 + 3 = 2\) — <strong>максимум</strong>.<br>
+          \(f(1) = 1^3 - 3\cdot 1 = 1 - 3 = -2\) — <strong>минимум</strong>.<br><br>
+          <strong>Ответ:</strong> максимум в точке \((-1, 2)\), минимум в точке \((1, -2)\).
+        </div></div></div>
+    </div>
+
+    <a href="derivative.html" class="back-link">← Назад к производной</a>
+  </div>
+</div>
+
+<script>
+  // Функция для получения текущих цветов темы
+  function getCurrentThemeColors() {
+      const isLight = document.documentElement.classList.contains('light-mode');
+      return {
+          stroke: isLight ? '#1a2a3f' : '#ffffff',
+          text: isLight ? '#1a2a3f' : '#ffffff',
+          axis: isLight ? '#5a7a94' : '#8ba5b8',
+          fill: isLight ? '#1a2a3f' : '#ffffff'
+      };
+  }
+
+  // SVG для метода интервалов (таблица знаков)
+  function renderSignSVG(colors) {
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="74.244 157.348 235.623 83.213">
+      <g>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="93.75 203.817 302.863 203.056"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="293.228 205.532 302.863 202.83 292.96 200.58"></polyline>
+        <path style="fill: none; stroke: ${colors.stroke};" d="M 91.846 171.441 C 83.724 167.249 156.903 175.974 158.884 203.056 C 173.181 173.229 224.695 170.011 242.681 203.056 C 243.388 182.085 302.148 166.458 297.911 168.775"></path>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="107.843 190.105 123.841 190.105"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="116.223 182.487 116.223 196.2"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="191.26 193.152 204.972 193.152"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="272.772 190.867 287.627 191.248"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="281.152 183.249 280.771 196.58"></polyline>
+        <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="135.649" y="105.165" transform="matrix(0.504781, 0, 0, 0.487948, 82.792793, 175.239182)">-1</text>
+        <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="288.008" y="104.784" transform="matrix(0.464534, 0, 0, 0.496824, 105.082504, 174.699203)">1</text>
+        <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="397.707" y="152.396" transform="matrix(0.464524, 0, 0, 0.470435, 111.305885, 147.498901)">x</text>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="104.035 228.576 141.743 214.167"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="181.357 211.055 213.353 229.513"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="256.394 226.29 287.627 214.167"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="134.39 214.078 141.743 214.077 136.751 220.229"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="209.938 224.465 213.353 229.339 207.577 229.339"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="280.291 214.314 287.627 214.077 283.832 220.229"></polyline>
+      </g>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="270.8680114746094 157.34800720214844"></polyline>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="144.30599975585938 227.2989959716797"></polyline>
+    </svg>`;
+  }
+
+  // Функция обновления SVG
+  function updateSVG() {
+      const colors = getCurrentThemeColors();
+      const container = document.getElementById('sign-svg-container');
+      if (container) {
+          container.innerHTML = renderSignSVG(colors);
+      }
+  }
+
+  // Переключение темы с обновлением SVG
+  function toggleTheme() {
+      const html = document.documentElement;
+      const btn = document.getElementById('themeBtn');
+      if (html.classList.contains('light-mode')) {
+          html.classList.remove('light-mode');
+          localStorage.setItem('mathTheme', 'dark');
+          if (btn) btn.textContent = '🌙';
+      } else {
+          html.classList.add('light-mode');
+          localStorage.setItem('mathTheme', 'light');
+          if (btn) btn.textContent = '☀️';
+      }
+      updateSVG();
+  }
+
+  // Инициализация темы и SVG при загрузке
+  (function() {
+      const savedTheme = localStorage.getItem('mathTheme');
+      if (savedTheme === 'light') {
+          document.documentElement.classList.add('light-mode');
+          const btn = document.getElementById('themeBtn');
+          if (btn) btn.textContent = '☀️';
+      } else {
+          if (!savedTheme) {
+              localStorage.setItem('mathTheme', 'dark');
+          }
+          const btn = document.getElementById('themeBtn');
+          if (btn) btn.textContent = '🌙';
+      }
+      updateSVG();
+  })();
+
+  // Наблюдатель за изменениями класса (на случай, если тема меняется внешне)
+  const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+          if (mutation.attributeName === 'class') {
+              updateSVG();
+          }
+      });
+  });
+  observer.observe(document.documentElement, { attributes: true });
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

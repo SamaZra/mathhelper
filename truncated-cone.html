@@ -1,0 +1,610 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Усечённый конус — тело вращения (3D с полноэкранным режимом)</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(46, 204, 113, 0.1);
+            --special-border: #ec489a;
+            --canvas-bg: #1a2d3c;
+            --formula-color: #ffffff;
+            --formula-bg: #1e3545;
+            --info-bg: #1e3545;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --border: #eff3f8;
+            --canvas-bg: #eef2f8;
+            --formula-color: #1a2a3f;
+            --formula-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --info-bg: #e8f0fe;
+            --special-border: #ec489a;
+        }
+
+        body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);padding:8px;}
+        .container{max-width:1200px;margin:0 auto;background:var(--card-bg);border-radius:24px;padding:16px;padding-top:50px;position:relative;}
+
+        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        h1{font-size:1.5rem;color:var(--text);margin:0 auto 16px auto;padding-bottom:8px;border-bottom:4px solid var(--special-border);text-align:center;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--special-border);padding-left:12px;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:5000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .def-card{background:var(--info-bg);border-left:4px solid var(--special-border);border-radius:14px;padding:12px 14px;margin:8px 0;}
+        .def-card p{margin:4px 0;font-size:0.95rem;line-height:1.4;color:var(--text);}
+        .def-card strong{color:var(--text);}
+
+        .model-container {
+            text-align: center;
+            margin: 16px 0;
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--canvas-bg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            min-height: 380px;
+        }
+        .model-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border-radius: 20px;
+            cursor: grab;
+            touch-action: none;
+        }
+        .model-canvas:active { cursor: grabbing; }
+
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 20;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+
+        .legend-3d {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(8px);
+            padding: 8px 14px;
+            border-radius: 28px;
+            font-size: 12px;
+            font-family: monospace;
+            color: #ddd;
+            pointer-events: none;
+            z-index: 10;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .legend-3d span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend-3d .R-color { color: #3b82f6; font-weight: bold; }
+        .legend-3d .r-color { color: #60a5fa; font-weight: bold; }
+        .legend-3d .h-color { color: #34d399; font-weight: bold; }
+        .legend-3d .l-color { color: #fb923c; font-weight: bold; }
+        .legend-3d .s-color { color: #facc15; font-weight: bold; }
+
+        .comp-list{list-style:none;}
+        .comp-list li{padding-left:26px;margin-bottom:10px;line-height:1.4;font-size:0.95rem;color:var(--text);background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%23ec489a"><circle cx="12" cy="12" r="6"/></svg>') left center no-repeat;background-size:16px;}
+
+        .formula-block {
+            background: var(--formula-bg);
+            padding: 18px 20px;
+            border-radius: 24px;
+            margin: 16px 0;
+            border-left: 5px solid var(--special-border);
+            overflow-x: auto;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--formula-color);
+        }
+        .formula-block mjx-container { font-size: 1.5rem !important; color: var(--formula-color) !important; }
+
+        .note-box {
+            background: var(--info-bg);
+            border-left: 4px solid var(--special-border);
+            border-radius: 18px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .back-link{display:inline-block;margin:20px 0 10px;padding:10px 20px;background:var(--special-border);color:white;text-decoration:none;font-weight:bold;border-radius:20px;transition:transform 0.2s;}
+        .back-link:hover{transform:scale(1.02);}
+        mjx-container{font-size:1.1em!important;overflow-x:auto!important;max-width:100%!important;}
+
+        .model-container:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            max-height: none;
+            margin: 0;
+            border-radius: 0;
+            background: #0a0f16;
+            aspect-ratio: auto;
+        }
+        .model-container:fullscreen .model-canvas { width: 100vw; height: 100vh; border-radius: 0; }
+
+        @media (max-width: 700px) {
+            .model-container { min-height: 280px; }
+            .legend-3d { font-size: 9px; gap: 8px; padding: 5px 10px; }
+            .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
+            .formula-block { padding: 14px 16px; font-size: 1.2rem; }
+            .formula-block mjx-container { font-size: 1.3rem !important; }
+        }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+            chtml: { scale: 1.2 },
+            startup: {
+                ready: () => {
+                    MathJax.startup.defaultReady();
+                    MathJax.startup.promise.then(() => {
+                        const updateFormulaColors = () => {
+                            const isLight = document.documentElement.classList.contains('light-mode');
+                            const color = isLight ? '#1a2a3f' : '#ffffff';
+                            document.querySelectorAll('mjx-container').forEach(el => { el.style.color = color; });
+                        };
+                        updateFormulaColors();
+                        const observer = new MutationObserver(() => updateFormulaColors());
+                        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+                    });
+                }
+            }
+        };
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/" } }
+    </script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <h1>⏢ Усечённый конус</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 3D-модель прямого усечённого конуса</div>
+        <div class="section-content">
+            <div class="model-container" id="canvas-container">
+                <canvas id="truncated-cone-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fullscreenBtn" title="Во весь экран">⛶</button>
+                <div class="legend-3d">
+                    <span>🔵 <span class="R-color">Нижний радиус (R)</span></span>
+                    <span>🔷 <span class="r-color">Верхний радиус (r)</span></span>
+                    <span>🟢 <span class="h-color">Высота (h)</span></span>
+                    <span>🟠 <span class="l-color">Образующая (L)</span></span>
+                    <span>🟡 <span class="s-color">Осевое сечение (трапеция)</span></span>
+                </div>
+            </div>
+            <div class="def-card">
+                <p><strong>Интерактивная модель:</strong> вращайте пальцем, масштабируйте двумя пальцами (щипок). Нажмите <strong>⛶</strong> для полноэкранного режима.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Определение</div>
+        <div class="section-content">
+            <div class="def-card">
+                <ul class="comp-list">
+                    <li><strong>Прямой усечённый конус</strong> — тело, образованное вращением прямоугольной трапеции вокруг боковой стороны, перпендикулярной основаниям.</li>
+                    <li>Основания — два круга разных радиусов (\(R\) и \(r\)).</li>
+                    <li>Боковая поверхность — часть конической поверхности.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🔷 Элементы</div>
+        <div class="section-content">
+            <div class="def-card">
+                <ul class="comp-list">
+                    <li>Нижний радиус \(R\), верхний радиус \(r\)</li>
+                    <li>Высота (\(h\)), образующая (\(\ell\))</li>
+                    <li>\(\ell = \sqrt{h^{2} + (R - r)^{2}}\)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">✂️ Сечения</div>
+        <div class="section-content">
+            <div class="def-card">
+                <ul class="comp-list">
+                    <li><strong>Сечение параллельно основаниям</strong> — круг.</li>
+                    <li><strong>Осевое сечение</strong> — равнобедренная трапеция.</li>
+                    <li><strong>Наклонное сечение</strong> — часть эллипса.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧮 Формулы</div>
+        <div class="section-content">
+            <div class="formula-block">\[ S_{\text{бок}} = \pi \ell (R + r) \]</div>
+            <div class="formula-block">\[ S_{\text{полн}} = S_{\text{бок}} + \pi R^{2} + \pi r^{2} \]</div>
+            <div class="formula-block">\[ V = \frac{1}{3}\pi h (R^{2} + Rr + r^{2}) \]</div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Свойства</div>
+        <div class="section-content">
+            <div class="def-card">
+                <ul class="comp-list">
+                    <li><strong>Основания</strong> — два круга в параллельных плоскостях.</li>
+                    <li><strong>Образующая</strong> \(\ell = \sqrt{h^{2} + (R - r)^{2}}\).</li>
+                    <li><strong>Развёртка</strong> — часть кругового кольца.</li>
+                    <li>Все образующие равны.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="note-box">
+        <strong>📌 Запомните:</strong><br>
+        • Образующая: \(\ell = \sqrt{h^{2} + (R - r)^{2}}\)<br>
+        • Объём: \(V = \frac{1}{3}\pi h (R^{2} + Rr + r^{2})\)
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    // ========== ОПРЕДЕЛЕНИЕ КАЧЕСТВА 3D ==========
+    let quality3D = 'high';
+    if (window.Android && window.Android.getQuality3D) {
+        quality3D = window.Android.getQuality3D();
+    } else {
+        const saved = localStorage.getItem('quality3d');
+        if (saved) quality3D = saved;
+    }
+
+    const qualitySettings = {
+        low: {
+            segments: 24,
+            opacity: 0.85,
+            transparent: false
+        },
+        medium: {
+            segments: 48,
+            opacity: 0.65,
+            transparent: true
+        },
+        high: {
+            segments: 96,
+            opacity: 0.55,
+            transparent: true
+        }
+    };
+
+    const settings = qualitySettings[quality3D];
+    // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    (async function() {
+        const THREE = await import('three');
+        const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
+        const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
+
+        const canvasElem = document.getElementById('truncated-cone-canvas');
+        const containerElem = document.getElementById('canvas-container');
+        if (!canvasElem || !containerElem) return;
+
+        const radiusBottom = 1.5;
+        const radiusTop = 0.7;
+        const height = 2.2;
+        const halfH = height / 2;
+
+        const scene = new THREE.Scene();
+        scene.background = null;
+
+        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        camera.position.set(5, 2.5, 5.5);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvasElem, alpha: true, antialias: true });
+
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        containerElem.style.position = 'relative';
+        containerElem.appendChild(labelRenderer.domElement);
+
+        function updateSize() {
+            const rect = containerElem.getBoundingClientRect();
+            let width = rect.width;
+            let heightVal = rect.height;
+            if (document.fullscreenElement === containerElem || document.webkitFullscreenElement === containerElem) {
+                width = window.innerWidth;
+                heightVal = window.innerHeight;
+            }
+            if (width < 10) width = 800;
+            if (heightVal < 10) heightVal = 450;
+            canvasElem.style.width = `${width}px`;
+            canvasElem.style.height = `${heightVal}px`;
+            canvasElem.width = width;
+            canvasElem.height = heightVal;
+            renderer.setSize(width, heightVal);
+            labelRenderer.setSize(width, heightVal);
+            camera.aspect = width / heightVal;
+            camera.updateProjectionMatrix();
+        }
+
+        function forceResize() {
+            canvasElem.style.width = '';
+            canvasElem.style.height = '';
+            setTimeout(() => { updateSize(); requestAnimationFrame(() => updateSize()); }, 30);
+        }
+
+        const resizeObserver = new ResizeObserver(() => updateSize());
+        resizeObserver.observe(containerElem);
+        setTimeout(() => updateSize(), 100);
+
+        const ambientLight = new THREE.AmbientLight(0x40486c, 0.6);
+        scene.add(ambientLight);
+        const keyLight = new THREE.DirectionalLight(0xfff5e0, 1.2);
+        keyLight.position.set(2.5, 5, 2);
+        scene.add(keyLight);
+        const fillLight = new THREE.PointLight(0xccaa77, 0.55);
+        fillLight.position.set(-1.2, 2, 2.2);
+        scene.add(fillLight);
+        const rimLight = new THREE.PointLight(0x88aaff, 0.5);
+        rimLight.position.set(0.8, 2.2, -3);
+        scene.add(rimLight);
+        const bottomLight = new THREE.PointLight(0x6699cc, 0.35);
+        bottomLight.position.set(0, -1.2, 0);
+        scene.add(bottomLight);
+
+        const gridHelper = new THREE.GridHelper(7, 18, 0x5f7f9e, 0x2c4258);
+        gridHelper.position.y = -1.2;
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.2;
+        scene.add(gridHelper);
+
+        const material = new THREE.MeshPhysicalMaterial({
+            color: 0x3b82f6, metalness: 0.35, roughness: 0.28,
+            transparent: settings.transparent, opacity: settings.opacity,
+            side: THREE.DoubleSide, emissive: 0x001133, clearcoat: 0.85
+        });
+        const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, settings.segments, settings.segments);
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.castShadow = true;
+        mesh.position.y = 0;
+        scene.add(mesh);
+
+        const trapezoidPoints = [
+            new THREE.Vector3(-radiusBottom, -halfH, 0),
+            new THREE.Vector3(radiusBottom, -halfH, 0),
+            new THREE.Vector3(radiusTop, halfH, 0),
+            new THREE.Vector3(-radiusTop, halfH, 0),
+            new THREE.Vector3(-radiusBottom, -halfH, 0)
+        ];
+        const trapezoidGeo = new THREE.BufferGeometry().setFromPoints(trapezoidPoints);
+        const sectionMat = new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 2 });
+        const sectionTrapezoid = new THREE.Line(trapezoidGeo, sectionMat);
+        scene.add(sectionTrapezoid);
+
+        const trapFillGeom = new THREE.BufferGeometry();
+        trapFillGeom.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+            -radiusBottom, -halfH, 0, radiusBottom, -halfH, 0,
+            radiusTop, halfH, 0, -radiusTop, halfH, 0
+        ]), 3));
+        trapFillGeom.setIndex([0, 1, 2, 0, 2, 3]);
+        trapFillGeom.computeVertexNormals();
+        const trapFillMat = new THREE.MeshPhongMaterial({
+            color: 0xfacc15, emissive: 0x442a00, side: THREE.DoubleSide,
+            transparent: true, opacity: 0.25
+        });
+        scene.add(new THREE.Mesh(trapFillGeom, trapFillMat));
+
+        const genStart = new THREE.Vector3(radiusBottom, -halfH, 0);
+        const genEnd = new THREE.Vector3(radiusTop, halfH, 0);
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([genStart, genEnd]), new THREE.LineBasicMaterial({ color: 0xf97316, linewidth: 3 })));
+
+        const endpointMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0x441100 });
+        const bottomGenPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), endpointMat);
+        bottomGenPoint.position.copy(genStart);
+        const topGenPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), endpointMat);
+        topGenPoint.position.copy(genEnd);
+        scene.add(bottomGenPoint);
+        scene.add(topGenPoint);
+
+        const bottomRadiusStart = new THREE.Vector3(0, -halfH, 0);
+        const bottomRadiusEnd = new THREE.Vector3(radiusBottom, -halfH, 0);
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([bottomRadiusStart, bottomRadiusEnd]), new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 3 })));
+
+        const topRadiusStart = new THREE.Vector3(0, halfH, 0);
+        const topRadiusEnd = new THREE.Vector3(radiusTop, halfH, 0);
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([topRadiusStart, topRadiusEnd]), new THREE.LineBasicMaterial({ color: 0x60a5fa, linewidth: 3 })));
+
+        const heightStart = new THREE.Vector3(0, -halfH, 0);
+        const heightEnd = new THREE.Vector3(0, halfH, 0);
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([heightStart, heightEnd]), new THREE.LineBasicMaterial({ color: 0x10b981, linewidth: 3 })));
+
+        const sphereMat = new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x004d2e });
+        const bottomHPoint = new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 14), sphereMat);
+        bottomHPoint.position.copy(heightStart);
+        const topHPoint = new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 14), sphereMat);
+        topHPoint.position.copy(heightEnd);
+        scene.add(bottomHPoint);
+        scene.add(topHPoint);
+
+        const blueSphereMat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, emissive: 0x002244 });
+        const bottomCenter = new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 14), blueSphereMat);
+        bottomCenter.position.copy(bottomRadiusStart);
+        const bottomEdge = new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 14), blueSphereMat);
+        bottomEdge.position.copy(bottomRadiusEnd);
+        scene.add(bottomCenter);
+        scene.add(bottomEdge);
+
+        const lightBlueSphereMat = new THREE.MeshStandardMaterial({ color: 0x60a5fa, emissive: 0x002244 });
+        const topCenter = new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 14), lightBlueSphereMat);
+        topCenter.position.copy(topRadiusStart);
+        const topEdge = new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 14), lightBlueSphereMat);
+        topEdge.position.copy(topRadiusEnd);
+        scene.add(topCenter);
+        scene.add(topEdge);
+
+        function makeLabel(text, color, position, fontSize = '0.8rem') {
+            const div = document.createElement('div');
+            div.textContent = text;
+            div.style.color = color;
+            div.style.fontSize = fontSize;
+            div.style.fontWeight = 'bold';
+            div.style.fontFamily = "'JetBrains Mono', monospace";
+            div.style.background = 'rgba(10, 15, 26, 0.8)';
+            div.style.padding = '2px 8px';
+            div.style.borderRadius = '20px';
+            div.style.border = `1px solid ${color}`;
+            div.style.backdropFilter = 'blur(6px)';
+            div.style.whiteSpace = 'nowrap';
+            const label = new CSS2DObject(div);
+            label.position.copy(position);
+            scene.add(label);
+            return label;
+        }
+
+        makeLabel('Нижний радиус (R)', '#3b82f6', new THREE.Vector3(radiusBottom / 2, -halfH - 0.25, 0.7), '0.75rem');
+        makeLabel('Верхний радиус (r)', '#60a5fa', new THREE.Vector3(radiusTop / 2, halfH + 0.22, 0.6), '0.75rem');
+        makeLabel('Высота (h)', '#34d399', new THREE.Vector3(0.75, 0, 0.9), '0.75rem');
+        makeLabel('Образующая (L)', '#fb923c', new THREE.Vector3((radiusBottom + radiusTop) / 2.5, 0.2, 1.1), '0.75rem');
+
+        const bottomBaseLabelDiv = document.createElement('div');
+        bottomBaseLabelDiv.textContent = 'Нижнее основание';
+        bottomBaseLabelDiv.style.color = '#94a3b8';
+        bottomBaseLabelDiv.style.fontSize = '0.65rem';
+        bottomBaseLabelDiv.style.background = 'rgba(0,0,0,0.5)';
+        bottomBaseLabelDiv.style.padding = '2px 8px';
+        bottomBaseLabelDiv.style.borderRadius = '14px';
+        const bottomBaseLabel = new CSS2DObject(bottomBaseLabelDiv);
+        bottomBaseLabel.position.set(0, -halfH - 0.35, radiusBottom + 0.25);
+        scene.add(bottomBaseLabel);
+
+        const topBaseLabelDiv = document.createElement('div');
+        topBaseLabelDiv.textContent = 'Верхнее основание';
+        topBaseLabelDiv.style.color = '#94a3b8';
+        topBaseLabelDiv.style.fontSize = '0.65rem';
+        topBaseLabelDiv.style.background = 'rgba(0,0,0,0.5)';
+        topBaseLabelDiv.style.padding = '2px 8px';
+        topBaseLabelDiv.style.borderRadius = '14px';
+        const topBaseLabel = new CSS2DObject(topBaseLabelDiv);
+        topBaseLabel.position.set(0, halfH + 0.3, radiusTop + 0.25);
+        scene.add(topBaseLabel);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.autoRotate = false;
+        controls.enableZoom = true;
+        controls.enablePan = true;
+        controls.target.set(0, 0, 0);
+
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        async function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                try { await containerElem.requestFullscreen(); fullscreenBtn.textContent = '✖'; } catch(err) {}
+            } else {
+                if (document.exitFullscreen) await document.exitFullscreen();
+                else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                fullscreenBtn.textContent = '⛶';
+                forceResize();
+            }
+        }
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement === containerElem || document.webkitFullscreenElement === containerElem) {
+                fullscreenBtn.textContent = '✖';
+                updateSize();
+            } else {
+                fullscreenBtn.textContent = '⛶';
+                forceResize();
+            }
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        animate();
+        window.addEventListener('resize', () => forceResize());
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

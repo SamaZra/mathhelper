@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Производная сложной функции</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --formula-card-bg: #1e3545;
+            --example-bg: #1e3545;
+            --info-bg: #1a4a5a;
+            --info-border: #8b5cf6;
+            --outer-color: #e74c3c;
+            --inner-color: #3498db;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --example-bg: #f8fafc;
+            --info-bg: #f5f3ff;
+            --info-border: #8b5cf6;
+            --outer-color: #e74c3c;
+            --inner-color: #2980b9;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:1000px;margin:0 auto;position:relative;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--info-border);padding-left:12px;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:3000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:16px 20px;border-radius:16px;margin:12px 0;}
+        .definition-block p{font-size:1rem;line-height:1.5;color:var(--text);}
+        .definition-block p strong{color:var(--text);}
+
+        .formula-block{background:var(--info-bg);border-left:4px solid var(--accent);padding:16px 20px;border-radius:16px;margin:12px 0 16px;text-align:center;overflow-x:auto;}
+        .main-formula{font-size:1.3rem;font-weight:800;color:var(--text);}
+        .rule-text{margin-top:10px;font-size:0.9rem;color:var(--text-secondary);}
+
+        .examples-block{background:var(--example-bg);border-radius:16px;padding:16px 20px;border:1px solid var(--border);margin:12px 0;}
+        .example-item{margin-bottom:20px;border-left:4px solid var(--accent);padding-left:16px;}
+        .example-item:last-child{margin-bottom:0;}
+        .example-title{font-weight:800;color:var(--text);font-size:1rem;margin-bottom:8px;}
+        .math-example{background:var(--card-bg);padding:14px 18px;border-radius:14px;margin:8px 0;font-size:1rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text);}
+        .math-example strong{color:var(--text);}
+        .math-example mjx-container {font-size:1.05rem !important;}
+
+        .back-link{display:inline-block;margin-top:20px;padding:10px 24px;background:var(--accent);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+        .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
+
+        @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.main-formula{font-size:1rem;}.math-example{font-size:0.95rem;padding:10px 14px;}.math-example mjx-container {font-size:0.95rem !important;}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { scale: 1.05, displayAlign: 'center' },
+            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' }
+        };
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header"><h1>📐 Производная сложной функции</h1><div class="subtitle">Определение · Формула · Примеры · Ошибки</div></div>
+    <div class="content-card">
+
+        <!-- ОПРЕДЕЛЕНИЕ -->
+        <div class="definition-block">
+            <p><strong>Сложная функция</strong> — это функция от функции: \(y = f(g(x))\), где \(u = g(x)\) — внутренняя функция, \(f(u)\) — внешняя функция.</p>
+            <p style="margin-top:8px;"><strong>Производная сложной функции</strong> равна произведению производной внешней функции по внутренней на производную внутренней функции.</p>
+        </div>
+
+        <!-- ФОРМУЛА -->
+        <div class="formula-block">
+            <div class="main-formula">$$ (f(g(x)))' = \color{#e74c3c}{f'(g(x))} \cdot \color{#3498db}{g'(x)} $$</div>
+            <div class="rule-text"><span style="color:#e74c3c;font-weight:800;">Красным</span> — производная внешней функции, <span style="color:#3498db;font-weight:800;">синим</span> — производная внутренней.</div>
+        </div>
+
+        <!-- ПОДРОБНЫЙ ПРИМЕР -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Подробный пример: \(y = \sin(4x - \pi/3)\)</div>
+            <div class="section-content"><div class="examples-block"><div class="math-example">
+                <strong>Шаг 1.</strong> Внешняя: \(f(u) = \color{#e74c3c}{\sin u}\), внутренняя: \(u = g(x) = \color{#3498db}{4x - \frac{\pi}{3}}\)<br><br>
+                <strong>Шаг 2.</strong> Производная внешней: \(f'(u) = \color{#e74c3c}{\cos u}\)<br><br>
+                <strong>Шаг 3.</strong> Производная внутренней: \(g'(x) = \color{#3498db}{4}\)<br><br>
+                <strong>Шаг 4.</strong> Подставляем: \(y' = \color{#e74c3c}{\cos(4x - \frac{\pi}{3})} \cdot \color{#3498db}{4} = 4\cos(4x - \frac{\pi}{3})\)
+            </div></div></div>
+        </div>
+
+        <!-- ДРУГИЕ ПРИМЕРЫ -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📚 Другие примеры</div>
+            <div class="section-content"><div class="examples-block">
+                <div class="example-item"><div class="example-title">📌 \(y = e^{-2x^2+1}\)</div><div class="math-example">$$ y' = \color{#e74c3c}{e^{-2x^2+1}} \cdot \color{#3498db}{(-4x)} = -4x e^{-2x^2+1} $$</div></div>
+                <div class="example-item"><div class="example-title">📌 \(y = \ln(5x^3 - 2x + 7)\)</div><div class="math-example">$$ y' = \color{#e74c3c}{\frac{1}{5x^3 - 2x + 7}} \cdot \color{#3498db}{(15x^2 - 2)} = \frac{15x^2 - 2}{5x^3 - 2x + 7} $$</div></div>
+                <div class="example-item"><div class="example-title">📌 \(y = \sqrt{3x^2 + 2x}\)</div><div class="math-example">$$ y' = \color{#e74c3c}{\frac{1}{2\sqrt{3x^2+2x}}} \cdot \color{#3498db}{(6x+2)} = \frac{3x+1}{\sqrt{3x^2+2x}} $$</div></div>
+                <div class="example-item"><div class="example-title">📌 \(y = \frac{1}{\sqrt{x^2+4}}\)</div><div class="math-example">$$ y = (x^2+4)^{-1/2},\quad y' = \color{#e74c3c}{-\frac{1}{2}(x^2+4)^{-3/2}} \cdot \color{#3498db}{2x} = -\frac{x}{(x^2+4)\sqrt{x^2+4}} $$</div></div>
+                <div class="example-item"><div class="example-title">📌 \(y = \frac{1}{(2x+1)^3}\)</div><div class="math-example">$$ y = (2x+1)^{-3},\quad y' = \color{#e74c3c}{-3(2x+1)^{-4}} \cdot \color{#3498db}{2} = -\frac{6}{(2x+1)^4} $$</div></div>
+                <div class="example-item"><div class="example-title">📌 \(y = \cos(5x^2 + 2)\)</div><div class="math-example">$$ y' = \color{#e74c3c}{-\sin(5x^2 + 2)} \cdot \color{#3498db}{(10x)} = -10x \sin(5x^2 + 2) $$</div></div>
+                <div class="example-item"><div class="example-title">📌 \(y = \operatorname{tg}(2x - \pi)\)</div><div class="math-example">$$ y' = \color{#e74c3c}{\frac{1}{\cos^2(2x - \pi)}} \cdot \color{#3498db}{2} = \frac{2}{\cos^2(2x - \pi)} $$</div></div>
+                <div class="example-item"><div class="example-title">📌 \(y = \operatorname{ctg}(3x)\)</div><div class="math-example">$$ y' = \color{#e74c3c}{-\frac{1}{\sin^2(3x)}} \cdot \color{#3498db}{3} = -\frac{3}{\sin^2(3x)} $$</div></div>
+            </div></div>
+        </div>
+
+        <!-- ЧАСТЫЕ ОШИБКИ -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚠️ Частые ошибки</div>
+            <div class="section-content"><div class="definition-block">
+                <p>❌ <strong>Забывают умножить на производную внутренней функции</strong> — самая распространённая ошибка.</p>
+                <p>❌ <strong>Путают порядок:</strong> сначала производная внешней (с внутренней!), потом умножаем на производную внутренней.</p>
+                <p>❌ <strong>Неправильно находят производную внешней</strong> — убедитесь, что внешняя функция продифференцирована правильно.</p>
+                <p>✅ <strong>Правило:</strong> «сначала внешнюю, умножить на производную внутренней».</p>
+            </div></div></div>
+    </div>
+
+    <a href="derivative.html" class="back-link">← Назад к производной</a>
+</div>
+</div>
+
+<script>
+    function toggleTheme() {
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    window.addEventListener('load', function() {
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    });
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Многогранники — справочник</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --icon-color: #8ba5b8;
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --menu-card-bg: #1e3545;
+            --menu-item-bg: #1e3545;
+            --menu-item-hover: #233e50;
+            --timer-bg: #2c5a77;
+            --timer-warning: #f39c12;
+            --timer-danger: #e74c3c;
+            --progress-bg: #2c5a77;
+            --progress-fill: #1abc9c;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #6a7e9c;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --icon-color: #1a2d3c;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --menu-card-bg: white;
+            --menu-item-bg: white;
+            --menu-item-hover: linear-gradient(95deg, #f8fafd, #ffffff);
+            --timer-bg: #e2e8f0;
+            --progress-bg: #e2e8f0;
+            --progress-fill: #1abc9c;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:720px;margin:0 auto;position:relative;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:white;margin-bottom:6px;text-transform:uppercase;letter-spacing:2px;}
+        :root.light-mode h1{background:linear-gradient(135deg,#1a2a3f,#2c5a77);-webkit-background-clip:text;background-clip:text;color:transparent;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .menu-card{background:var(--menu-card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.04);animation:fadeInUp 0.4s ease-out;}
+        .menu-item{display:flex;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border);text-decoration:none;transition:all 0.2s;cursor:pointer;background:var(--menu-item-bg);}
+        .menu-item:hover{background:var(--menu-item-hover);transform:translateX(4px);}
+        .menu-item:last-child{border-bottom:none;}
+        .menu-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-right:16px;font-size:24px;font-weight:400;color:var(--icon-color);transition:all 0.2s;flex-shrink:0;}
+        .menu-item:hover .menu-icon{color:var(--accent);transform:scale(1.05);}
+        .item-content{flex:1;}
+        .item-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-0.2px;}
+        .item-desc{font-size:0.75rem;color:var(--text-secondary);line-height:1.4;}
+        .arrow{font-size:22px;color:var(--text-secondary);transition:all 0.2s;flex-shrink:0;}
+        .menu-item:hover .arrow{transform:translateX(5px);color:var(--accent);}
+        .footer{text-align:center;margin-top:28px;}
+        .back-link{display:inline-block;padding:12px 28px;background:var(--card-bg);border:1px solid var(--border);border-radius:40px;color:var(--text-secondary);text-decoration:none;font-weight:600;font-size:0.9rem;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+        .back-link:hover{background:var(--menu-item-hover);transform:translateY(-2px);border-color:var(--accent);}
+
+        /* Секция теста */
+        .test-section{margin-top:20px;text-align:center;}
+        .test-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);color:white;border:none;padding:14px 28px;border-radius:40px;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,0.1);transition:all 0.2s;border:1px solid rgba(255,255,255,0.1);}
+        .test-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,0.15);}
+
+        /* Таймер */
+        .timer-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--timer-bg);border-radius:14px;}
+        .timer-icon{font-size:1.2rem;}
+        .timer-text{font-weight:600;color:var(--text);font-size:0.9rem;}
+        .timer-text.warning{color:var(--timer-warning);}
+        .timer-text.danger{color:var(--timer-danger);animation:pulse 1s infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+
+        /* Прогресс-бар */
+        .progress-container{margin-bottom:16px;}
+        .progress-info{display:flex;justify-content:space-between;margin-bottom:6px;color:var(--text-secondary);font-size:0.8rem;}
+        .progress-bar{height:8px;background:var(--progress-bg);border-radius:10px;overflow:hidden;}
+        .progress-fill{height:100%;background:var(--progress-fill);border-radius:10px;transition:width 0.3s ease;}
+
+        .test-container{margin-top:20px;background:var(--card-bg);border-radius:24px;padding:20px;border:1px solid var(--border);text-align:left;}
+        .test-container h3{font-size:1.2rem;color:var(--text);margin-bottom:6px;}
+        .test-info{color:var(--text-secondary);margin-bottom:20px;font-size:0.85rem;}
+        .question{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+        .question:last-of-type{border-bottom:none;margin-bottom:12px;padding-bottom:0;}
+        .question p{font-weight:600;color:var(--text);margin-bottom:10px;font-size:1rem;}
+        .options{display:flex;flex-direction:column;gap:6px;}
+        .options label{display:block;padding:10px 14px;background:var(--menu-item-bg);border-radius:14px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;font-size:0.95rem;color:var(--text);}
+        .options label:hover{background:var(--menu-item-hover);border-color:var(--accent);}
+        .options input{margin-right:10px;accent-color:var(--accent);}
+        .test-submit{background:var(--accent);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:0.95rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all 0.2s;width:100%;}
+        .test-submit:hover{background:#16a085;}
+        .test-submit:disabled{opacity:0.5;cursor:not-allowed;}
+        .test-result{margin-top:16px;padding:14px;border-radius:18px;text-align:center;font-weight:600;font-size:1rem;}
+        .test-result.excellent{background:#d1fae5;color:#065f46;}
+        .test-result.good{background:#fef3c7;color:#92400e;}
+        .test-result.poor{background:#fee2e2;color:#991b1b;}
+        .restart-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:0.9rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all 0.2s;width:100%;}
+        .restart-btn:hover{transform:translateY(-2px);}
+        @media (max-width:550px){body{padding:20px 14px 36px;}h1{font-size:1.3rem;}.menu-icon{width:40px;height:40px;font-size:20px;margin-right:12px;}.menu-item{padding:14px 16px;}.item-title{font-size:0.95rem;}.item-desc{font-size:0.7rem;}.arrow{font-size:20px;}.test-container{padding:16px;}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.05,displayAlign:'center'},startup:{ready:()=>{MathJax.startup.defaultReady();}}};
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header">
+        <h1>Многогранники</h1>
+        <div class="subtitle">Объём, площадь поверхности, свойства</div>
+    </div>
+    <div class="menu-card">
+        <a href="prism.html" class="menu-item"><div class="menu-icon">▭</div><div class="item-content"><div class="item-title">Призма</div><div class="item-desc">Два равных основания, боковые грани — параллелограммы</div></div><div class="arrow">›</div></a>
+        <a href="pyramid.html" class="menu-item"><div class="menu-icon">△</div><div class="item-content"><div class="item-title">Пирамида</div><div class="item-desc">Основание — многоугольник, боковые грани — треугольники</div></div><div class="arrow">›</div></a>
+        <a href="truncated-pyramid.html" class="menu-item"><div class="menu-icon">⏢</div><div class="item-content"><div class="item-title">Усечённая пирамида</div><div class="item-desc">Часть пирамиды между основанием и параллельным сечением</div></div><div class="arrow">›</div></a>
+        <a href="cuboid.html" class="menu-item"><div class="menu-icon">□</div><div class="item-content"><div class="item-title">Прямоугольный параллелепипед</div><div class="item-desc">Все грани — прямоугольники, все углы прямые</div></div><div class="arrow">›</div></a>
+        <a href="platonic.html" class="menu-item"><div class="menu-icon">⬟</div><div class="item-content"><div class="item-title">Правильные многогранники</div><div class="item-desc">Платоновы тела — тетраэдр, куб, октаэдр, додекаэдр, икосаэдр</div></div><div class="arrow">›</div></a>
+    </div>
+    <div class="test-section">
+        <button class="test-btn" onclick="startTest()">ПРОВЕРИТЬ ЗНАНИЯ ПО МНОГОГРАННИКАМ</button>
+        <div id="testContainer" class="test-container" style="display:none;"></div>
+    </div>
+    <div class="footer">
+        <a href="geometry.html" class="back-link">← Назад в геометрию</a>
+    </div>
+</div>
+
+<script>
+    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+
+    // Банк из 40 вопросов
+    const questionBank=[
+    // Объём призмы (5 вопросов)
+    {question:"Объём призмы равен:",options:["\\( V = S_{\\text{осн}} \\cdot h \\)","\\( V = \\frac{1}{3} S_{\\text{осн}} \\cdot h \\)","\\( V = S_{\\text{осн}} + S_{\\text{бок}} \\)","\\( V = a \\cdot b \\cdot c \\)"],correct:0},
+    {question:"Объём треугольной призмы с площадью основания 10 см² и высотой 6 см:",options:["30 см³","60 см³","20 см³","16 см³"],correct:1},
+    {question:"Объём прямой призмы вычисляется по формуле:",options:["\\( V = S_{\\text{бок}} \\cdot h \\)","\\( V = S_{\\text{осн}} \\cdot h \\)","\\( V = \\frac{1}{2} S_{\\text{осн}} \\cdot h \\)","\\( V = P_{\\text{осн}} \\cdot h \\)"],correct:1},
+    {question:"Если высота призмы увеличена в 2 раза, то её объём:",options:["Увеличится в 2 раза","Увеличится в 4 раза","Увеличится в 8 раз","Не изменится"],correct:0},
+    {question:"Объём призмы с площадью основания 15 м² и высотой 4 м равен:",options:["19 м³","60 м³","30 м³","45 м³"],correct:1},
+
+    // Площадь поверхности призмы (5 вопросов)
+    {question:"Площадь боковой поверхности призмы:",options:["\\( S_{\\text{бок}} = P_{\\text{осн}} \\cdot h \\)","\\( S_{\\text{бок}} = \\frac{1}{2} P_{\\text{осн}} \\cdot h \\)","\\( S_{\\text{бок}} = 2\\pi R h \\)","\\( S_{\\text{бок}} = S_{\\text{осн}} \\cdot h \\)"],correct:0},
+    {question:"Площадь полной поверхности призмы:",options:["\\( S_{\\text{полн}} = S_{\\text{бок}} + 2S_{\\text{осн}} \\)","\\( S_{\\text{полн}} = S_{\\text{бок}} + S_{\\text{осн}} \\)","\\( S_{\\text{полн}} = S_{\\text{бок}} \\cdot S_{\\text{осн}} \\)","\\( S_{\\text{полн}} = 2S_{\\text{бок}} + S_{\\text{осн}} \\)"],correct:0},
+    {question:"Боковая поверхность правильной треугольной призмы со стороной основания a и высотой h:",options:["\\( 3ah \\)","\\( 6ah \\)","\\( \\frac{3}{2}ah \\)","\\( ah \\)"],correct:0},
+    {question:"Периметр основания призмы равен 12 см, высота 5 см. Площадь боковой поверхности:",options:["60 см²","30 см²","17 см²","120 см²"],correct:0},
+    {question:"Полная поверхность куба с ребром 3 см:",options:["54 см²","27 см²","36 см²","9 см²"],correct:0},
+
+    // Объём пирамиды (5 вопросов)
+    {question:"Объём пирамиды равен:",options:["\\( V = \\frac{1}{3} S_{\\text{осн}} \\cdot h \\)","\\( V = S_{\\text{осн}} \\cdot h \\)","\\( V = \\frac{1}{2} S_{\\text{осн}} \\cdot h \\)","\\( V = \\frac{1}{4} S_{\\text{осн}} \\cdot h \\)"],correct:0},
+    {question:"Объём пирамиды с площадью основания 24 см² и высотой 9 см:",options:["72 см³","216 см³","108 см³","48 см³"],correct:0},
+    {question:"Если высоту пирамиды увеличить в 3 раза, её объём:",options:["Увеличится в 3 раза","Увеличится в 9 раз","Увеличится в 6 раз","Не изменится"],correct:0},
+    {question:"Объём пирамиды с основанием 30 м² и высотой 6 м равен:",options:["60 м³","180 м³","90 м³","30 м³"],correct:0},
+    {question:"Пирамида и призма имеют одинаковые основание и высоту. Объём пирамиды:",options:["В 3 раза меньше объёма призмы","В 2 раза меньше объёма призмы","Равен объёму призмы","В 4 раза меньше объёма призмы"],correct:0},
+
+    // Площадь поверхности пирамиды (4 вопроса)
+    {question:"Площадь боковой поверхности правильной пирамиды:",options:["\\( S_{\\text{бок}} = \\frac{1}{2} P_{\\text{осн}} \\cdot l \\)","\\( S_{\\text{бок}} = P_{\\text{осн}} \\cdot h \\)","\\( S_{\\text{бок}} = \\frac{1}{3} P_{\\text{осн}} \\cdot l \\)","\\( S_{\\text{бок}} = P_{\\text{осн}} \\cdot l \\)"],correct:0},
+    {question:"Площадь полной поверхности пирамиды:",options:["\\( S_{\\text{полн}} = S_{\\text{бок}} + S_{\\text{осн}} \\)","\\( S_{\\text{полн}} = S_{\\text{бок}} + 2S_{\\text{осн}} \\)","\\( S_{\\text{полн}} = 2S_{\\text{бок}} + S_{\\text{осн}} \\)","\\( S_{\\text{полн}} = S_{\\text{бок}} \\cdot S_{\\text{осн}} \\)"],correct:0},
+    {question:"В формуле \\( S_{\\text{бок}} = \\frac{1}{2} P_{\\text{осн}} \\cdot l \\) буква \\( l \\) обозначает:",options:["Апофему","Высоту пирамиды","Ребро основания","Боковое ребро"],correct:0},
+    {question:"Боковая поверхность правильной четырёхугольной пирамиды со стороной основания a и апофемой l:",options:["\\( 2al \\)","\\( 4al \\)","\\( al \\)","\\( \\frac{1}{2}al \\)"],correct:0},
+
+    // Прямоугольный параллелепипед (5 вопросов)
+    {question:"Объём прямоугольного параллелепипеда:",options:["\\( V = a \\cdot b \\cdot c \\)","\\( V = a^3 \\)","\\( V = \\frac{1}{3} a \\cdot b \\cdot c \\)","\\( V = 2(ab+bc+ac) \\)"],correct:0},
+    {question:"Диагональ прямоугольного параллелепипеда:",options:["\\( d = \\sqrt{a^2 + b^2 + c^2} \\)","\\( d = a + b + c \\)","\\( d = \\sqrt{a^2 + b^2} \\)","\\( d = \\sqrt{a \\cdot b \\cdot c} \\)"],correct:0},
+    {question:"Площадь полной поверхности прямоугольного параллелепипеда:",options:["\\( S = 2(ab + bc + ac) \\)","\\( S = a \\cdot b \\cdot c \\)","\\( S = 2(a + b + c) \\)","\\( S = ab + bc + ac \\)"],correct:0},
+    {question:"Объём куба с ребром 5 см:",options:["125 см³","25 см³","100 см³","75 см³"],correct:0},
+    {question:"Площадь поверхности куба с ребром a:",options:["\\( 6a^2 \\)","\\( a^3 \\)","\\( 4a^2 \\)","\\( 12a \\)"],correct:0},
+
+    // Теорема Эйлера (3 вопроса)
+    {question:"Теорема Эйлера для многогранников:",options:["\\( B - P + G = 2 \\)","\\( B + P - G = 2 \\)","\\( B + P + G = 2 \\)","\\( B - P - G = 2 \\)"],correct:0},
+    {question:"В теореме Эйлера \\( B \\) — это:",options:["Количество вершин","Количество рёбер","Количество граней","Объём"],correct:0},
+    {question:"В теореме Эйлера \\( G \\) — это:",options:["Количество граней","Количество вершин","Количество рёбер","Высота"],correct:0},
+
+    // Правильные многогранники — количество граней/рёбер/вершин (8 вопросов)
+    {question:"Сколько граней у тетраэдра?",options:["4","6","8","12"],correct:0},
+    {question:"Сколько вершин у тетраэдра?",options:["4","6","8","12"],correct:0},
+    {question:"Сколько рёбер у тетраэдра?",options:["6","4","8","12"],correct:0},
+    {question:"Сколько граней у куба (гексаэдра)?",options:["6","8","12","4"],correct:0},
+    {question:"Сколько вершин у куба?",options:["8","6","12","4"],correct:0},
+    {question:"Сколько рёбер у куба?",options:["12","6","8","16"],correct:0},
+    {question:"Сколько граней у октаэдра?",options:["8","6","12","20"],correct:0},
+    {question:"Сколько вершин у октаэдра?",options:["6","8","12","20"],correct:0},
+
+    // Правильные многогранники — дополнительные вопросы (5 вопросов)
+    {question:"Сколько граней у додекаэдра?",options:["12","20","8","6"],correct:0},
+    {question:"Сколько граней у икосаэдра?",options:["20","12","8","6"],correct:0},
+    {question:"Сколько рёбер у октаэдра?",options:["12","6","8","24"],correct:0},
+    {question:"Сколько вершин у додекаэдра?",options:["20","12","8","30"],correct:0},
+    {question:"Сколько рёбер у икосаэдра?",options:["30","20","12","24"],correct:0}
+    ];
+
+    let currentQuestions=[];
+    let timerInterval=null;
+    let timeLeft=0;
+    const TOTAL_TIME=600; // 10 минут
+
+    function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+    function formatTime(seconds){
+        const min=Math.floor(seconds/60);
+        const sec=seconds%60;
+        return `${min}:${sec.toString().padStart(2,'0')}`;
+    }
+
+    function updateTimerDisplay(){
+        const timerText=document.getElementById('timerText');
+        if(!timerText) return;
+        timerText.textContent=formatTime(timeLeft);
+        timerText.classList.remove('warning','danger');
+        if(timeLeft<=60) timerText.classList.add('danger');
+        else if(timeLeft<=180) timerText.classList.add('warning');
+    }
+
+    function updateProgress(){
+        const total=currentQuestions.length;
+        const answered=currentQuestions.filter((q,idx)=>{
+            const sel=document.querySelector(`input[name="q${idx}"]:checked`);
+            return sel!==null;
+        }).length;
+        const percent=Math.round((answered/total)*100);
+        const progressText=document.getElementById('progressText');
+        const progressPercent=document.getElementById('progressPercent');
+        const progressFill=document.getElementById('progressFill');
+        if(progressText) progressText.textContent=`Вопросов отвечено: ${answered} из ${total}`;
+        if(progressPercent) progressPercent.textContent=`${percent}%`;
+        if(progressFill) progressFill.style.width=`${percent}%`;
+    }
+
+    function timeExpired(){
+        const submitBtn=document.getElementById('submitBtn');
+        if(submitBtn) submitBtn.disabled=true;
+        const resultDiv=document.getElementById('testResult');
+        if(resultDiv){
+            resultDiv.innerHTML='⏰ Время вышло! Тест автоматически завершён.';
+            resultDiv.className='test-result poor';
+        }
+        checkAnswers(true);
+    }
+
+    function startTest(){
+        if(timerInterval) clearInterval(timerInterval);
+
+        const questionCount=10;
+        const shuffledBank=shuffleArray([...questionBank]);
+        const selectedQuestions=shuffledBank.slice(0, questionCount);
+
+        currentQuestions=selectedQuestions.map(q=>{
+            const opts=q.options.map((o,i)=>({text:o, idx:i}));
+            const shOpts=shuffleArray([...opts]);
+            const newCorrect=shOpts.findIndex(o=>o.idx===q.correct);
+            return {
+                question: q.question,
+                options: shOpts.map(o=>o.text),
+                correct: newCorrect
+            };
+        });
+
+        timeLeft=TOTAL_TIME;
+        updateTimerDisplay();
+
+        let html=`
+            <h3>Тест по многогранникам</h3>
+            <div class="test-info">${questionCount} случайных вопросов из 40</div>
+
+            <div class="timer-bar">
+                <span class="timer-icon">⏱️</span>
+                <span class="timer-text" id="timerText">${formatTime(timeLeft)}</span>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span id="progressText">Вопросов отвечено: 0 из ${questionCount}</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div id="questions"></div>
+            <button class="test-submit" id="submitBtn" onclick="checkAnswers(false)">ПРОВЕРИТЬ ОТВЕТЫ</button>
+            <div id="testResult" class="test-result"></div>
+        `;
+
+        document.getElementById('testContainer').innerHTML=html;
+        document.getElementById('testContainer').style.display='block';
+        renderQuestions();
+        updateProgress();
+
+        timerInterval=setInterval(()=>{
+            timeLeft--;
+            updateTimerDisplay();
+            if(timeLeft<=0){
+                clearInterval(timerInterval);
+                timeExpired();
+            }
+        }, 1000);
+
+        if(window.MathJax)MathJax.typesetPromise();
+        document.getElementById('testContainer').scrollIntoView({behavior:'smooth'});
+    }
+
+    function renderQuestions(){
+        let html='';
+        currentQuestions.forEach((q,idx)=>{
+            html+=`<div class="question"><p>${idx+1}. ${q.question}</p><div class="options">`;
+            q.options.forEach((opt,optIdx)=>{
+                html+=`<label><input type="radio" name="q${idx}" value="${optIdx}" onchange="updateProgress()"> ${opt}</label>`;
+            });
+            html+=`</div></div>`;
+        });
+        document.getElementById('questions').innerHTML=html;
+        if(window.MathJax)MathJax.typesetPromise();
+    }
+
+    function checkAnswers(timeUp=false){
+        if(timerInterval) clearInterval(timerInterval);
+
+        let correctCount=0;
+        currentQuestions.forEach((q,idx)=>{
+            const sel=document.querySelector(`input[name="q${idx}"]:checked`);
+            if(sel&&parseInt(sel.value)===q.correct) correctCount++;
+        });
+
+        const pct=correctCount/currentQuestions.length*100;
+        let msg='', cls='';
+        if(pct>=80){msg=`Отлично! ${correctCount}/${currentQuestions.length} (${Math.round(pct)}%)`;cls='excellent';}
+        else if(pct>=50){msg=`Хорошо! ${correctCount}/${currentQuestions.length} (${Math.round(pct)}%)`;cls='good';}
+        else{msg=`${correctCount}/${currentQuestions.length} (${Math.round(pct)}%). Повторите!`;cls='poor';}
+
+        if(timeUp) msg='⏰ ' + msg;
+
+        const rd=document.getElementById('testResult');
+        rd.innerHTML=msg;
+        rd.className=`test-result ${cls}`;
+
+        const submitBtn=document.getElementById('submitBtn');
+        if(submitBtn){
+            submitBtn.disabled=true;
+            submitBtn.textContent='ТЕСТ ЗАВЕРШЁН';
+        }
+
+        const restartHTML='<button class="restart-btn" onclick="startTest()">🔄 ПРОЙТИ ТЕСТ ЗАНОВО</button>';
+        if(!document.getElementById('restartBtn')){
+            rd.insertAdjacentHTML('afterend', `<div id="restartBtn">${restartHTML}</div>`);
+        }
+
+        document.querySelectorAll('input[type="radio"]').forEach(radio=>radio.disabled=true);
+        rd.scrollIntoView({behavior:'smooth'});
+    }
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

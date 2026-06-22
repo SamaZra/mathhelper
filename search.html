@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Поиск и избранное</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --menu-card-bg: #1e3545;
+            --menu-item-bg: #1e3545;
+            --menu-item-hover: #233e50;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #6a7e9c;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --menu-card-bg: white;
+            --menu-item-bg: white;
+            --menu-item-hover: linear-gradient(95deg, #f8fafd, #ffffff);
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            padding-top: 60px;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            z-index: 100;
+            color: var(--text);
+        }
+        .theme-toggle:hover { transform: scale(1.1); }
+
+        .favorite-toggle {
+            position: absolute;
+            top: 12px;
+            left: 60px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .favorite-toggle:hover { transform: scale(1.1); }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: var(--header-bg);
+            border-radius: 32px;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        /* Поисковая строка */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            font-size: 1rem;
+            color: var(--text);
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-btn, .clear-btn {
+            padding: 14px 24px;
+            background: var(--accent);
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .clear-btn {
+            background: var(--menu-item-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .clear-btn:hover, .search-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Категории */
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            padding: 8px 16px;
+            background: var(--menu-item-bg);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .category-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .category-btn:hover {
+            background: var(--menu-item-hover);
+        }
+
+        /* Табы */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--accent);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        /* Результаты */
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 16px 20px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .result-card:hover {
+            transform: translateX(5px);
+            background: var(--menu-item-hover);
+        }
+
+        .result-icon {
+            font-size: 32px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--info-bg);
+            border-radius: 16px;
+        }
+
+        .result-content {
+            flex: 1;
+        }
+
+        .result-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .result-category {
+            font-size: 0.7rem;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .result-description {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .result-fav {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.2s;
+        }
+
+        .result-fav:hover {
+            transform: scale(1.1);
+        }
+
+        .result-fav.fav-active {
+            color: #facc15;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .history-item {
+            padding: 6px 14px;
+            background: var(--menu-item-bg);
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 24px;
+            padding: 10px 24px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        @media (max-width: 550px) {
+            body { padding: 12px; }
+            .result-card { flex-wrap: wrap; }
+            .result-icon { width: 40px; height: 40px; font-size: 24px; }
+            .search-bar { flex-direction: column; }
+            .search-btn, .clear-btn { padding: 12px; }
+        }
+    </style>
+    <script src="js/favorites.js"></script>
+</head>
+<body>
+<div class="container">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="favorite-toggle" id="favoriteBtn" onclick="toggleFavoriteCurrent()" style="display: none;">☆</button>
+
+    <div class="header">
+        <h1>🔍 Поиск</h1>
+        <div class="subtitle">Найдите нужную тему или откройте избранное</div>
+    </div>
+
+    <!-- Поисковая строка -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" class="search-input" placeholder="Поиск... например: интеграл, sin, пирамида, производная" autocomplete="off">
+        <button class="search-btn" onclick="performSearch()">Найти</button>
+        <button class="clear-btn" onclick="clearSearch()">Очистить</button>
+    </div>
+
+    <!-- Фильтр по категориям -->
+    <div class="category-filters" id="categoryFilters"></div>
+
+    <!-- История поиска -->
+    <div id="historySection" style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="color: var(--text-secondary); font-size: 0.8rem;">📜 Недавние запросы</span>
+            <button onclick="clearHistory()" style="background: none; border: none; color: var(--text-secondary); font-size: 0.7rem; cursor: pointer;">Очистить</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+    </div>
+
+    <!-- Табы -->
+    <div class="tabs">
+        <button class="tab active" data-tab="search" onclick="switchTab('search')">📋 Результаты поиска</button>
+        <button class="tab" data-tab="favorites" onclick="switchTab('favorites')">⭐ Избранное</button>
+    </div>
+
+    <!-- Контейнер результатов -->
+    <div class="results-container" id="resultsContainer">
+        <div class="empty-state">Введите запрос для поиска</div>
+    </div>
+
+    <div style="text-align: center; margin-top: 24px;">
+        <a href="index.html" class="back-link">← Назад в меню</a>
+    </div>
+</div>
+
+<script>
+    // Данные страниц (загружаем из JSON)
+    let pagesData = [];
+    let currentCategory = 'all';
+    let currentTab = 'search';
+    let searchHistory = [];
+
+    // Ключи для localStorage
+    const HISTORY_KEY = 'search_history';
+
+    // Загрузка данных
+    async function loadPagesData() {
+        try {
+            const response = await fetch('data/pages.json');
+            pagesData = await response.json();
+            initCategoryFilters();
+            loadHistory();
+            // Если есть параметр поиска в URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('q');
+            if (query) {
+                document.getElementById('searchInput').value = query;
+                performSearch();
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки данных:', error);
+            document.getElementById('resultsContainer').innerHTML = '<div class="empty-state">Ошибка загрузки данных. Проверьте подключение.</div>';
+        }
+    }
+
+    // Инициализация фильтров категорий
+    function initCategoryFilters() {
+        const categories = [...new Set(pagesData.map(p => p.category))];
+        const container = document.getElementById('categoryFilters');
+        container.innerHTML = `
+            <button class="category-btn active" data-category="all" onclick="setCategory('all')">Все</button>
+            ${categories.map(cat => `<button class="category-btn" data-category="${cat}" onclick="setCategory('${cat}')">${cat}</button>`).join('')}
+        `;
+    }
+
+    // Установка категории
+    function setCategory(category) {
+        currentCategory = category;
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.category === category) btn.classList.add('active');
+        });
+        if (currentTab === 'search') {
+            performSearch();
+        } else {
+            showFavorites();
+        }
+    }
+
+    // Переключение табов
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+
+        if (tab === 'search') {
+            performSearch();
+        } else {
+            showFavorites();
+        }
+    }
+
+    // Сохранение истории поиска
+    function saveHistory() {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory.slice(0, 10)));
+    }
+
+    function loadHistory() {
+        const saved = localStorage.getItem(HISTORY_KEY);
+        if (saved) {
+            try {
+                searchHistory = JSON.parse(saved);
+            } catch(e) { searchHistory = []; }
+        }
+        renderHistory();
+    }
+
+    function addToHistory(query) {
+        if (!query.trim()) return;
+        query = query.toLowerCase().trim();
+        searchHistory = searchHistory.filter(h => h !== query);
+        searchHistory.unshift(query);
+        if (searchHistory.length > 10) searchHistory.pop();
+        saveHistory();
+        renderHistory();
+    }
+
+    function clearHistory() {
+        searchHistory = [];
+        saveHistory();
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const container = document.getElementById('historyList');
+        if (!container) return;
+        if (searchHistory.length === 0) {
+            container.innerHTML = '<span style="color: var(--text-secondary); font-size: 0.7rem;">Нет истории</span>';
+            return;
+        }
+        container.innerHTML = searchHistory.map(h => `<span class="history-item" onclick="setSearchQuery('${h.replace(/'/g, "\\'")}')">${h}</span>`).join('');
+    }
+
+    function setSearchQuery(query) {
+        document.getElementById('searchInput').value = query;
+        performSearch();
+    }
+
+    // Поиск
+    function performSearch() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+        if (query) {
+            addToHistory(query);
+        }
+
+        let results = pagesData;
+
+        // Фильтр по категории
+        if (currentCategory !== 'all') {
+            results = results.filter(p => p.category === currentCategory);
+        }
+
+        // Поиск по запросу
+        if (query) {
+            results = results.filter(page => {
+                return page.title.toLowerCase().includes(query) ||
+                       page.keywords.some(kw => kw.toLowerCase().includes(query)) ||
+                       page.category.toLowerCase().includes(query) ||
+                       (page.description && page.description.toLowerCase().includes(query));
+            });
+        } else if (!query && currentTab === 'search') {
+            // Если запрос пустой, показываем все страницы
+            results = results;
+        }
+
+        renderResults(results, query);
+    }
+
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        performSearch();
+    }
+
+    // Отображение результатов
+    function renderResults(results, query) {
+        const container = document.getElementById('resultsContainer');
+        const favorites = getFavorites();
+
+        if (results.length === 0) {
+            container.innerHTML = '<div class="empty-state">😕 Ничего не найдено</div>';
+            return;
+        }
+
+        container.innerHTML = results.map(page => `
+            <div class="result-card" onclick="openPage('${page.url}')">
+                <div class="result-icon">${page.icon || '📄'}</div>
+                <div class="result-content">
+                    <div class="result-title">${highlightText(page.title, query)}</div>
+                    <div class="result-category">${page.category}</div>
+                    <div class="result-description">${page.description || ''}</div>
+                </div>
+                <div class="result-fav ${favorites.includes(page.url) ? 'fav-active' : ''}"
+                     onclick="event.stopPropagation(); toggleFavoriteFromSearch('${page.url}', this)">
+                    ${favorites.includes(page.url) ? '★' : '☆'}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Подсветка текста поиска
+    function highlightText(text, query) {
+        if (!query) return text;
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.replace(regex, '<mark style="background: var(--accent); color: white; padding: 0 2px; border-radius: 4px;">$1</mark>');
+    }
+
+    // Отображение избранного
+    function showFavorites() {
+        const favorites = getFavorites();
+        const container = document.getElementById('resultsContainer');
+
+        if (favorites.length === 0) {
+            container.innerHTML = '<div class="empty-state">⭐ Нет избранных страниц. Добавьте их, нажав на звёздочку на любой странице или в результатах поиска.</div>';
+            return;
+        }
+
+        const favoritePages = pagesData.filter(page => favorites.includes(page.url));
+
+        container.innerHTML = favoritePages.map(page => `
+            <div class="result-card" onclick="openPage('${page.url}')">
+                <div class="result-icon">${page.icon || '📄'}</div>
+                <div class="result-content">
+                    <div class="result-title">${page.title}</div>
+                    <div class="result-category">${page.category}</div>
+                    <div class="result-description">${page.description || ''}</div>
+                </div>
+                <div class="result-fav fav-active" onclick="event.stopPropagation(); toggleFavoriteFromSearch('${page.url}', this)">
+                    ★
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Переключение избранного из результатов поиска
+    function toggleFavoriteFromSearch(url, element) {
+        const isFav = toggleFavorite(url);
+        if (element) {
+            element.textContent = isFav ? '★' : '☆';
+            if (isFav) {
+                element.classList.add('fav-active');
+            } else {
+                element.classList.remove('fav-active');
+            }
+        }
+        // Если мы во вкладке избранного, обновляем список
+        if (currentTab === 'favorites') {
+            showFavorites();
+        }
+    }
+
+    // Переключение избранного для текущей страницы
+    function toggleFavoriteCurrent() {
+        const currentUrl = window.location.pathname.split('/').pop();
+        toggleFavorite(currentUrl);
+        updateFavoriteButton();
+    }
+
+    // Открытие страницы
+    function openPage(url) {
+        window.location.href = url;
+    }
+
+    // Переключение темы
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        // Перерисовываем результаты, чтобы обновить цвета
+        if (currentTab === 'search') {
+            performSearch();
+        } else {
+            showFavorites();
+        }
+    }
+
+    // Инициализация
+    (function init() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+        loadPagesData();
+    })();
+</script>
+</body>
+</html>

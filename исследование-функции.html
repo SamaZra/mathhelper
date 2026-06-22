@@ -1,0 +1,314 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Исследование функции с помощью производной</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    :root {
+        --bg: #1a2d3c;
+        --card-bg: #1e3545;
+        --text: #ffffff;
+        --text-secondary: #8ba5b8;
+        --accent: #1abc9c;
+        --border: rgba(46, 204, 113, 0.1);
+        --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+        --formula-card-bg: #1e3545;
+        --example-bg: #1e3545;
+        --info-bg: #1e3545;
+        --info-border: #f39c12;
+        --svg-stroke: #ffffff;
+        --svg-fill: #ffffff;
+        --svg-text: #ffffff;
+        --svg-axis: #8ba5b8;
+    }
+
+    :root.light-mode {
+        --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+        --card-bg: white;
+        --text: #1a2a3f;
+        --text-secondary: #5a7a94;
+        --accent: #1abc9c;
+        --border: #eff3f8;
+        --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+        --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+        --example-bg: #f8fafc;
+        --info-bg: #f0fdf4;
+        --info-border: #f39c12;
+        --svg-stroke: #1a2a3f;
+        --svg-fill: #1a2a3f;
+        --svg-text: #1a2a3f;
+        --svg-axis: #5a7a94;
+    }
+
+    body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+    .container{max-width:1000px;margin:0 auto;position:relative;}
+
+    .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+    .theme-toggle:hover{transform:scale(1.1);}
+
+    .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+    h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+    .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+    .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+    .section{margin-bottom:14px;}
+    .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--info-border);padding-left:12px;cursor:pointer;user-select:none;}
+    .section-title:hover{opacity:0.8;}
+    .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+    .section.collapsed .section-title::after{transform:rotate(-90deg);}
+    .section-content{max-height:3000px;overflow:hidden;transition:max-height 0.4s ease;}
+    .section.collapsed .section-content{max-height:0;}
+
+    .algorithm-list{list-style:none;counter-reset:step;margin:12px 0;padding:0;}
+    .algorithm-list li{counter-increment:step;margin-bottom:8px;padding-left:26px;position:relative;font-size:0.95rem;line-height:1.35;color:var(--text);}
+    .algorithm-list li::before{content:counter(step) ".";position:absolute;left:0;font-weight:700;color:var(--info-border);}
+    .algorithm-list li strong{color:var(--text);}
+    .algorithm-list li p{margin-top:2px;color:var(--text-secondary);font-size:0.85rem;}
+
+    .example-block{background:var(--example-bg);border-radius:16px;padding:14px 16px;border:1px solid var(--border);margin:8px 0;}
+    .math-example{background:var(--card-bg);padding:10px 14px;border-radius:14px;margin:6px 0;font-size:0.9rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text);}
+    .math-example strong{color:var(--text);}
+    .math-example mjx-container{font-size:1rem!important;}
+
+    .image-no-gap {
+        background: transparent;
+        border-radius: 14px;
+        padding: 0;
+        text-align: center;
+        margin: 8px 0;
+    }
+    .image-no-gap svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .back-link{display:inline-block;margin-top:16px;padding:10px 24px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
+    .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
+
+    @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.algorithm-list li{font-size:0.9rem;}.math-example{font-size:0.85rem;padding:8px 12px;}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+    .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+  
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+  <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true
+        },
+        chtml: { scale: 1.05, displayAlign: 'center' },
+        startup: {
+            ready: function() {
+                MathJax.startup.defaultReady();
+                // После загрузки MathJax ждём и рисуем графики
+                setTimeout(function() {
+                    updateAllSVGs();
+                    MathJax.typesetPromise();
+                }, 300);
+            }
+        }
+    };
+  </script>
+  <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+  <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+  <div class="header"><h1>Исследование функции с помощью производной</h1><div class="subtitle">Алгоритм · Пояснения · Пример с графиком</div></div>
+  <div class="content-card">
+
+    <div class="section">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Алгоритм исследования функции</div>
+      <div class="section-content"><ol class="algorithm-list">
+        <li><strong>Найти область определения \(D(f)\).</strong><p>Исключаем точки, где знаменатель равен нулю, подкоренное выражение отрицательно.</p></li>
+        <li><strong>Найти производную \(f'(x)\).</strong><p>Используем таблицу производных и правила дифференцирования.</p></li>
+        <li><strong>Найти критические точки: \(f'(x) = 0\) или \(f'(x)\) не существует.</strong><p>Решаем уравнение, находим точки, принадлежащие области определения.</p></li>
+        <li><strong>Определить промежутки возрастания и убывания.</strong><p>Метод интервалов: если \(f'(x) > 0\) — возрастает, если \(f'(x) < 0\) — убывает.</p></li>
+        <li><strong>Найти точки экстремума и значения функции в них.</strong><p>Смена знака с «+» на «−» — максимум, с «−» на «+» — минимум.</p></li>
+        <li><strong>Найти точки пересечения с осями координат.</strong><p>С осью \(Oy\): \(x = 0\). С осью \(Ox\): \(f(x) = 0\).</p></li>
+        <li><strong>Построить график функции.</strong><p>На основе полученных данных строим эскиз графика.</p></li>
+      </ol></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Пример: исследовать \(f(x) = x^3 - 3x\)</div>
+      <div class="section-content"><div class="example-block"><div class="math-example">
+        <strong>1. Область определения:</strong> \(D(f) = \mathbb{R}\) (\(x\) — любое число).<br>
+        <strong>2. Найдём производную, используя таблицу и правила:</strong><br>
+        \(f'(x) = (x^3)' - (3x)' = 3x^2 - 3\).<br>
+        <strong>3. Приравняем производную к нулю и решим уравнение:</strong><br>
+        \(f'(x) = 0\)<br>
+        \(3x^2 - 3 = 0\)<br>
+        \(3(x^2 - 1) = 0\)<br>
+        \(x^2 = 1\)<br>
+        \(x = -1,\; x = 1\).<br>
+        <strong>4. Метод интервалов:</strong>
+      </div>
+        <div class="image-no-gap" id="sign-svg-container">
+          <!-- SVG будет вставлен динамически -->
+        </div>
+        <div class="math-example">
+          Определим знаки производной и промежутки монотонности:<br>
+          • На \((-\infty, -1)\): \(f'(x) > 0\) ⇒ функция <strong>возрастает</strong>.<br>
+          • На \((-1, 1)\): \(f'(x) < 0\) ⇒ функция <strong>убывает</strong>.<br>
+          • На \((1, +\infty)\): \(f'(x) > 0\) ⇒ функция <strong>возрастает</strong>.<br>
+          <strong>5. Точки экстремума и координаты:</strong><br>
+          \(x = -1\): знак с «+» на «−» ⇒ <strong>максимум</strong>.<br>
+          \(f(-1) = (-1)^3 - 3(-1) = -1 + 3 = 2\). Координаты: \((-1, 2)\).<br>
+          \(x = 1\): знак с «−» на «+» ⇒ <strong>минимум</strong>.<br>
+          \(f(1) = 1^3 - 3\cdot 1 = 1 - 3 = -2\). Координаты: \((1, -2)\).<br>
+          <strong>6. Точки пересечения с осями:</strong><br>
+          С \(Oy\): \(f(0) = 0\) ⇒ \((0, 0)\).<br>
+          С \(Ox\): \(x^3 - 3x = 0\)<br>
+          \(x(x^2 - 3) = 0\)<br>
+          \(x = 0,\; x = \pm\sqrt{3}\).<br>
+          Координаты: \((-\sqrt{3}, 0)\), \((0, 0)\), \((\sqrt{3}, 0)\).<br>
+          <strong>7. График функции:</strong>
+        </div>
+        <div class="image-no-gap" id="graph-svg-container">
+          <!-- SVG будет вставлен динамически -->
+        </div>
+        <div class="math-example">
+          График — кубическая парабола, проходит через \((-\sqrt{3}, 0)\), \((0,0)\), \((\sqrt{3}, 0)\), максимум \((-1, 2)\), минимум \((1, -2)\).
+        </div></div></div>
+    </div>
+
+    <a href="derivative.html" class="back-link">← Назад к производной</a>
+  </div>
+</div>
+
+<script>
+  // Функция для получения текущих цветов темы из CSS переменных
+  function getCurrentThemeColors() {
+      const isLight = document.documentElement.classList.contains('light-mode');
+      return {
+          stroke: isLight ? '#1a2a3f' : '#ffffff',
+          text: isLight ? '#1a2a3f' : '#ffffff',
+          axis: isLight ? '#5a7a94' : '#8ba5b8',
+          fill: isLight ? '#1a2a3f' : '#ffffff'
+      };
+  }
+
+  // SVG для метода интервалов (таблица знаков)
+  function renderSignSVG(colors) {
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="74.244 157.348 235.623 83.213">
+      <g>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="93.75 203.817 302.863 203.056"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="293.228 205.532 302.863 202.83 292.96 200.58"></polyline>
+        <path style="fill: none; stroke: ${colors.stroke};" d="M 91.846 171.441 C 83.724 167.249 156.903 175.974 158.884 203.056 C 173.181 173.229 224.695 170.011 242.681 203.056 C 243.388 182.085 302.148 166.458 297.911 168.775"></path>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="107.843 190.105 123.841 190.105"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="116.223 182.487 116.223 196.2"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="191.26 193.152 204.972 193.152"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="272.772 190.867 287.627 191.248"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="281.152 183.249 280.771 196.58"></polyline>
+        <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="135.649" y="105.165" transform="matrix(0.504781, 0, 0, 0.487948, 82.792793, 175.239182)">-1</text>
+        <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="288.008" y="104.784" transform="matrix(0.464534, 0, 0, 0.496824, 105.082504, 174.699203)">1</text>
+        <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="397.707" y="152.396" transform="matrix(0.464524, 0, 0, 0.470435, 111.305885, 147.498901)">x</text>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="104.035 228.576 141.743 214.167"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="181.357 211.055 213.353 229.513"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="256.394 226.29 287.627 214.167"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="134.39 214.078 141.743 214.077 136.751 220.229"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="209.938 224.465 213.353 229.339 207.577 229.339"></polyline>
+        <polyline style="fill: none; stroke: ${colors.axis};" points="280.291 214.314 287.627 214.077 283.832 220.229"></polyline>
+      </g>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="270.8680114746094 157.34800720214844"></polyline>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="144.30599975585938 227.2989959716797"></polyline>
+    </svg>`;
+  }
+
+  // SVG для графика функции y = x^3 - 3x
+  function renderGraphSVG(colors) {
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="91.624 51.981 275.287 275.972">
+      <polyline style="fill: none; stroke: ${colors.axis};" points="99.327 210.526 359.435 210.642"></polyline>
+      <polyline style="fill: none; stroke: ${colors.axis}; transform-box: fill-box; transform-origin: 50% 50%;" points="207.666 62.259 207.317 321.206"></polyline>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="205.392 132.221 215.019 132.221"></polyline>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="251.60499572753906 121.30899810791016"></polyline>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="203.466 284.981 211.635 284.894"></polyline>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="176.508 207.317 176.508 213.736"></polyline>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="241.321 206.675 241.321 215.019"></polyline>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="350.864 208.671 358.523 210.494 352.323 213.412"></polyline>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="205.238 68.897 207.791 62.333 209.979 69.262"></polyline>
+      <path style="fill: none; stroke: ${colors.stroke};" d="M 179.161 132.499 C 179.161 131.59 178.762 135.193 178.762 132.898"></path>
+      <path style="fill: none; stroke: ${colors.stroke};" d="M 135.627 249.524 C 166.829 122.508 182.326 85.795 207.78 211.179 C 217.853 260.795 228.49 280.257 238.164 282.707 C 256.641 287.387 272.729 228.477 281.408 188.415"></path>
+      <polyline style="fill: none; stroke: ${colors.axis};" points="333.7300109863281 250.322998046875"></polyline>
+      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="294.589" y="106.937" transform="matrix(0.589743, 0, 0, 0.448718, 61.745396, 182.076065)">1</text>
+      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="406.022" y="110.132" transform="matrix(0.486717, 0, 0, 0.424366, -30.438654, 181.879471)">-1</text>
+      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="412.412" y="144.88" transform="matrix(0.461538, 0, 0, 0.474359, 31.952198, 67.721321)">2</text>
+      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="410.016" y="190.812" transform="matrix(0.406516, 0, 0, 0.487179, 47.230976, 195.982529)">-2</text>
+      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="417.605" y="231.95" transform="matrix(0.372549, 0, 0, 0.397436, 191.731766, 131.792038)">х</text>
+      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="427.59" y="268.695" transform="matrix(0.34402, 0, 0, 0.344101, 53.629845, -15.183313)">y</text>
+      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="348.508" y="126.907" transform="matrix(0.410237, 0, 0, 0.487419, 56.559628, 165.175354)">0</text>
+    </svg>`;
+  }
+
+  function updateAllSVGs() {
+      const colors = getCurrentThemeColors();
+
+      const signContainer = document.getElementById('sign-svg-container');
+      if (signContainer) {
+          signContainer.innerHTML = renderSignSVG(colors);
+      }
+
+      const graphContainer = document.getElementById('graph-svg-container');
+      if (graphContainer) {
+          graphContainer.innerHTML = renderGraphSVG(colors);
+      }
+
+      // Принудительно обновляем MathJax после вставки SVG
+      if (window.MathJax) {
+          MathJax.typesetPromise().catch(function(err) {
+              console.log('MathJax error:', err);
+          });
+      }
+  }
+
+  function toggleTheme() {
+      const html = document.documentElement;
+      const btn = document.getElementById('themeBtn');
+      if (html.classList.contains('light-mode')) {
+          html.classList.remove('light-mode');
+          localStorage.setItem('mathTheme', 'dark');
+          if (btn) btn.textContent = '🌙';
+      } else {
+          html.classList.add('light-mode');
+          localStorage.setItem('mathTheme', 'light');
+          if (btn) btn.textContent = '☀️';
+      }
+      updateAllSVGs();
+      if (window.MathJax) {
+          MathJax.typesetPromise();
+      }
+  }
+
+  (function() {
+      const savedTheme = localStorage.getItem('mathTheme');
+      if (savedTheme === 'light') {
+          document.documentElement.classList.add('light-mode');
+          const btn = document.getElementById('themeBtn');
+          if (btn) btn.textContent = '☀️';
+      } else {
+          if (!savedTheme) {
+              localStorage.setItem('mathTheme', 'dark');
+          }
+          const btn = document.getElementById('themeBtn');
+          if (btn) btn.textContent = '🌙';
+      }
+      // Отрисовываем SVG после загрузки DOM
+      setTimeout(function() {
+          updateAllSVGs();
+      }, 200);
+  })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

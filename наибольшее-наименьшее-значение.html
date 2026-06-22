@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Наибольшее и наименьшее значение функции</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --formula-card-bg: #1e3545;
+            --example-bg: #1e3545;
+            --info-bg: #1e3545;
+            --info-border: #8b5cf6;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --example-bg: #f8fafc;
+            --info-bg: #f5f3ff;
+            --info-border: #8b5cf6;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:1000px;margin:0 auto;position:relative;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--info-border);padding-left:12px;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:3000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:14px 16px;border-radius:14px;margin:12px 0;}
+        .definition-block p{font-size:1rem;line-height:1.5;color:var(--text);}
+        .definition-block strong{color:var(--text);}
+        .algorithm-list{list-style:none;counter-reset:step;margin:12px 0;padding:0;}
+        .algorithm-list li{counter-increment:step;margin-bottom:10px;padding-left:30px;position:relative;font-size:1rem;line-height:1.5;color:var(--text);}
+        .algorithm-list li::before{content:counter(step) ".";position:absolute;left:0;font-weight:700;color:var(--info-border);font-size:1rem;}
+        .algorithm-list li strong{color:var(--text);}
+        .example-block{background:var(--example-bg);border-radius:16px;padding:16px 20px;border:1px solid var(--border);margin:8px 0;}
+        .math-example{background:var(--card-bg);padding:16px 20px;border-radius:14px;margin:8px 0;font-size:1.05rem;line-height:1.7;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text);}
+        .math-example strong{color:var(--text);font-size:1.05rem;}
+        .math-example mjx-container {font-size:1.1rem !important;}
+        .back-link{display:inline-block;margin-top:16px;padding:10px 24px;background:var(--accent);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+        .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
+        @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.definition-block p{font-size:0.95rem;}.algorithm-list li{font-size:0.95rem;}.math-example{font-size:0.95rem;padding:12px 16px;}.math-example mjx-container {font-size:1rem !important;}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { scale: 1.05, displayAlign: 'center' },
+            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' }
+        };
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header"><h1>📈 Наибольшее и наименьшее значение функции</h1><div class="subtitle">Определение · Алгоритм · Пример · Ошибки</div></div>
+    <div class="content-card">
+
+        <!-- ОПРЕДЕЛЕНИЕ -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Определение</div>
+            <div class="section-content"><div class="definition-block">
+                <p>Наибольшее значение функции \(f(x)\) на отрезке \([a, b]\) — это самое большое из всех значений функции на этом отрезке.</p>
+                <p style="margin-top:10px;">Наименьшее значение функции \(f(x)\) на отрезке \([a, b]\) — это самое маленькое из всех значений функции на этом отрезке.</p>
+                <p style="margin-top:10px;">Непрерывная на отрезке функция обязательно достигает своего наибольшего и наименьшего значений.</p>
+            </div></div>
+        </div>
+
+        <!-- АЛГОРИТМ -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Алгоритм нахождения</div>
+            <div class="section-content"><ol class="algorithm-list">
+                <li><strong>Найти производную \(f'(x)\).</strong></li>
+                <li><strong>Найти критические точки</strong> на отрезке \([a, b]\): решить \(f'(x) = 0\).</li>
+                <li><strong>Вычислить значения функции</strong> в критических точках и на концах отрезка \(a\) и \(b\).</li>
+                <li><strong>Выбрать наибольшее и наименьшее</strong> из полученных значений.</li>
+            </ol></div>
+        </div>
+
+        <!-- СВЯЗЬ С ПРОИЗВОДНОЙ -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📊 Таблица знаков производной</div>
+            <div class="section-content"><div class="definition-block">
+                <p>Знак производной показывает, возрастает или убывает функция на интервале:</p>
+                <p>✅ \(f'(x) > 0\) — функция возрастает</p>
+                <p>✅ \(f'(x) < 0\) — функция убывает</p>
+                <p>✅ \(f'(x) = 0\) — возможен экстремум (максимум или минимум)</p>
+                <p style="margin-top:10px;">Для поиска наибольшего/наименьшего значения достаточно сравнить значения в критических точках и на концах отрезка.</p>
+            </div></div>
+        </div>
+
+        <!-- ПРИМЕР 1 (основной) -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">💡 Пример 1: \(f(x) = x^3 - 3x\) на \([-2, 2]\)</div>
+            <div class="section-content"><div class="example-block"><div class="math-example">
+                <strong>1. Найдём производную:</strong><br>
+                $$ f'(x) = 3x^2 - 3 $$<br><br>
+                <strong>2. Найдём критические точки на отрезке \([-2, 2]\):</strong><br>
+                $$ f'(x) = 0 $$<br>
+                $$ 3x^2 - 3 = 0 $$<br>
+                $$ x^2 = 1 $$<br>
+                $$ x = -1,\; x = 1 $$ — обе точки принадлежат отрезку \([-2, 2]\).<br><br>
+                <strong>3. Вычислим значения функции в критических точках и на концах отрезка:</strong><br>
+                $$ f(-2) = (-2)^3 - 3(-2) = -8 + 6 = -2 $$<br>
+                $$ f(-1) = (-1)^3 - 3(-1) = -1 + 3 = 2 $$<br>
+                $$ f(1) = 1^3 - 3\cdot 1 = 1 - 3 = -2 $$<br>
+                $$ f(2) = 2^3 - 3\cdot 2 = 8 - 6 = 2 $$<br><br>
+                <strong>4. Выберем наибольшее и наименьшее:</strong><br>
+                Наибольшее значение: \(2\) (достигается при \(x = -1\) и \(x = 2\)).<br>
+                Наименьшее значение: \(-2\) (достигается при \(x = -2\) и \(x = 1\)).<br><br>
+                <strong>Ответ:</strong><br>
+                Наибольшее: \(y(-1) = 2,\; y(2) = 2\) <br>
+                Наименьшее: \(y(-2) = -2,\; y(1) = -2\)
+            </div></div></div>
+        </div>
+
+        <!-- ПРИМЕР 2 (с sin) -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">💡 Пример 2: \(f(x) = \sin x\) на \([0, \pi]\)</div>
+            <div class="section-content"><div class="example-block"><div class="math-example">
+                <strong>1. Найдём производную:</strong><br>
+                $$ f'(x) = \cos x $$<br><br>
+                <strong>2. Найдём критические точки на отрезке \([0, \pi]\):</strong><br>
+                $$ \cos x = 0 $$<br>
+                $$ x = \frac{\pi}{2} $$ — принадлежит отрезку.<br><br>
+                <strong>3. Вычислим значения функции:</strong><br>
+                $$ f(0) = \sin 0 = 0 $$<br>
+                $$ f\left(\frac{\pi}{2}\right) = \sin\frac{\pi}{2} = 1 $$<br>
+                $$ f(\pi) = \sin\pi = 0 $$<br><br>
+                <strong>4. Выберем наибольшее и наименьшее:</strong><br>
+                Наибольшее: \(1\) (при \(x = \pi/2\))<br>
+                Наименьшее: \(0\) (при \(x = 0\) и \(x = \pi\))
+            </div></div></div>
+        </div>
+
+        <!-- ПРИМЕР 3 (с квадратичной функцией) -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">💡 Пример 3: \(f(x) = x^2 + 2x + 1\) на \([-3, 1]\)</div>
+            <div class="section-content"><div class="example-block"><div class="math-example">
+                <strong>1. Найдём производную:</strong><br>
+                $$ f'(x) = 2x + 2 $$<br><br>
+                <strong>2. Найдём критические точки:</strong><br>
+                $$ 2x + 2 = 0 $$<br>
+                $$ x = -1 $$ — принадлежит отрезку \([-3, 1]\).<br><br>
+                <strong>3. Вычислим значения функции:</strong><br>
+                $$ f(-3) = 9 - 6 + 1 = 4 $$<br>
+                $$ f(-1) = 1 - 2 + 1 = 0 $$<br>
+                $$ f(1) = 1 + 2 + 1 = 4 $$<br><br>
+                <strong>4. Выберем наибольшее и наименьшее:</strong><br>
+                Наибольшее: \(4\) (при \(x = -3\) и \(x = 1\))<br>
+                Наименьшее: \(0\) (при \(x = -1\))
+            </div></div></div>
+        </div>
+
+        <!-- ЧАСТЫЕ ОШИБКИ -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚠️ Частые ошибки</div>
+            <div class="section-content"><div class="definition-block">
+                <p>❌ <strong>Забывают проверить концы отрезка</strong> — экстремум может быть на границе.</p>
+                <p>❌ <strong>Не учитывают разрывы функции</strong> — если функция не непрерывна, алгоритм не работает.</p>
+                <p>❌ <strong>Путают максимум/минимум с наибольшим/наименьшим</strong> — локальный экстремум ≠ глобальный.</p>
+                <p>❌ <strong>Не учитывают точки, где производная не существует</strong> — они тоже могут давать экстремум.</p>
+                <p>✅ <strong>Всегда проверяйте:</strong> критические точки (где \(f'(x)=0\) или не существует) + концы отрезка.</p>
+            </div></div>
+        </div>
+
+        <a href="derivative.html" class="back-link">← Назад к производной</a>
+    </div>
+</div>
+
+<script>
+    function toggleTheme() {
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    window.addEventListener('load', function() {
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    });
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

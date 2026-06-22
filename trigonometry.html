@@ -1,0 +1,503 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тригонометрия — все разделы</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --icon-color: #8ba5b8;
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --menu-card-bg: #1e3545;
+            --menu-item-bg: #1e3545;
+            --menu-item-hover: #233e50;
+            --footer-bg: rgba(30, 53, 69, 0.8);
+            --timer-bg: #2c5a77;
+            --timer-warning: #f39c12;
+            --timer-danger: #e74c3c;
+            --progress-bg: #2c5a77;
+            --progress-fill: #1abc9c;
+            --category-btn-bg: #1e3545;
+            --category-btn-active: #1abc9c;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #6a7e9c;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --icon-color: #1a2d3c;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --menu-card-bg: white;
+            --menu-item-bg: white;
+            --menu-item-hover: linear-gradient(95deg, #f8fafd, #ffffff);
+            --footer-bg: rgba(255, 255, 255, 0.8);
+            --timer-bg: #e2e8f0;
+            --progress-bg: #e2e8f0;
+            --progress-fill: #1abc9c;
+            --category-btn-bg: #f0f4f8;
+            --category-btn-active: #1abc9c;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:720px;margin:0 auto;position:relative;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:white;margin-bottom:6px;text-transform:uppercase;letter-spacing:2px;}
+        :root.light-mode h1{background:linear-gradient(135deg,#1a2a3f,#2c5a77);-webkit-background-clip:text;background-clip:text;color:transparent;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .menu-card{background:var(--menu-card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.04);margin-bottom:24px;animation:fadeInUp 0.4s ease-out;}
+        .menu-item{display:flex;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border);text-decoration:none;transition:all 0.2s;cursor:pointer;background:var(--menu-item-bg);}
+        .menu-item:hover{background:var(--menu-item-hover);transform:translateX(4px);}
+        .menu-item:last-child{border-bottom:none;}
+        .menu-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-right:16px;font-size:24px;font-weight:400;color:var(--icon-color);transition:all 0.2s;flex-shrink:0;}
+        .menu-item:hover .menu-icon{color:var(--accent);transform:scale(1.05);}
+        .item-content{flex:1;}
+        .item-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-0.2px;}
+        .item-desc{font-size:0.75rem;color:var(--text-secondary);line-height:1.4;}
+        .arrow{font-size:22px;color:var(--text-secondary);transition:all 0.2s;flex-shrink:0;}
+        .menu-item:hover .arrow{transform:translateX(5px);color:var(--accent);}
+        .footer{text-align:center;margin-top:20px;}
+        .back-link{display:inline-block;padding:12px 28px;background:var(--card-bg);border:1px solid var(--border);border-radius:40px;color:var(--text-secondary);text-decoration:none;font-weight:600;font-size:0.9rem;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+        .back-link:hover{background:var(--menu-item-hover);transform:translateY(-2px);border-color:var(--accent);}
+
+        /* Секция теста */
+        .test-section{margin-top:20px;text-align:center;}
+        .test-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);color:white;border:none;padding:14px 28px;border-radius:40px;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,0.1);transition:all 0.2s;border:1px solid rgba(255,255,255,0.1);margin:5px;}
+        .test-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,0.15);}
+
+        /* Выбор темы */
+        .category-selector{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;}
+        .category-btn{padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--category-btn-bg);color:var(--text);cursor:pointer;font-size:0.8rem;font-weight:500;transition:all 0.2s;}
+        .category-btn:hover{background:var(--menu-item-hover);border-color:var(--accent);}
+        .category-btn.active{background:var(--category-btn-active);color:white;border-color:var(--category-btn-active);}
+
+        /* Контейнер теста */
+        .test-container{margin-top:20px;background:var(--card-bg);border-radius:24px;padding:20px;border:1px solid var(--border);text-align:left;}
+        .test-container h3{font-size:1.2rem;color:var(--text);margin-bottom:6px;}
+
+        /* Таймер */
+        .timer-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--timer-bg);border-radius:14px;}
+        .timer-icon{font-size:1.2rem;}
+        .timer-text{font-weight:600;color:var(--text);font-size:0.9rem;}
+        .timer-text.warning{color:var(--timer-warning);}
+        .timer-text.danger{color:var(--timer-danger);animation:pulse 1s infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+
+        /* Прогресс-бар */
+        .progress-container{margin-bottom:16px;}
+        .progress-info{display:flex;justify-content:space-between;margin-bottom:6px;color:var(--text-secondary);font-size:0.8rem;}
+        .progress-bar{height:8px;background:var(--progress-bg);border-radius:10px;overflow:hidden;}
+        .progress-fill{height:100%;background:var(--progress-fill);border-radius:10px;transition:width 0.3s ease;}
+
+        .test-info{color:var(--text-secondary);margin-bottom:20px;font-size:0.85rem;}
+        .question{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+        .question:last-of-type{border-bottom:none;margin-bottom:12px;padding-bottom:0;}
+        .question p{font-weight:600;color:var(--text);margin-bottom:10px;font-size:1rem;}
+        .options{display:flex;flex-direction:column;gap:6px;}
+        .options label{display:block;padding:10px 14px;background:var(--menu-item-bg);border-radius:14px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;font-size:0.95rem;color:var(--text);}
+        .options label:hover{background:var(--menu-item-hover);border-color:var(--accent);}
+        .options input{margin-right:10px;accent-color:var(--accent);}
+
+        /* Кнопки навигации */
+        .nav-buttons{display:flex;gap:10px;margin-top:12px;}
+        .nav-btn{flex:1;padding:10px;border-radius:40px;border:1px solid var(--border);background:var(--menu-item-bg);color:var(--text);cursor:pointer;font-size:0.9rem;font-weight:500;transition:all 0.2s;}
+        .nav-btn:hover{background:var(--menu-item-hover);border-color:var(--accent);}
+        .nav-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+        .test-submit{background:var(--accent);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:0.95rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all 0.2s;width:100%;}
+        .test-submit:hover{background:#16a085;}
+        .test-submit:disabled{opacity:0.5;cursor:not-allowed;}
+
+        .test-result{margin-top:16px;padding:14px;border-radius:18px;text-align:center;font-weight:600;font-size:1rem;}
+        .test-result.excellent{background:#d1fae5;color:#065f46;}
+        .test-result.good{background:#fef3c7;color:#92400e;}
+        .test-result.poor{background:#fee2e2;color:#991b1b;}
+
+        /* Кнопка перезапуска */
+        .restart-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:0.9rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all 0.2s;width:100%;}
+        .restart-btn:hover{transform:translateY(-2px);}
+
+        @media (max-width:550px){body{padding:20px 14px 36px;}h1{font-size:1.3rem;}.menu-icon{width:40px;height:40px;font-size:20px;margin-right:12px;}.menu-item{padding:14px 16px;}.item-title{font-size:0.95rem;}.item-desc{font-size:0.7rem;}.arrow{font-size:20px;}.test-container{padding:16px;}.category-btn{font-size:0.7rem;padding:6px 12px;}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+
+        .time-up-message{text-align:center;padding:20px;color:var(--timer-danger);}
+        .time-up-message h3{font-size:1.3rem;margin-bottom:10px;}
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.05,displayAlign:'center'},startup:{ready:()=>{MathJax.startup.defaultReady();}}};
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header">
+        <h1>Тригонометрия</h1>
+        <div class="subtitle">Выберите раздел — откроется как отдельная страница</div>
+    </div>
+    <div class="menu-card">
+        <a href="Тождества.html" class="menu-item"><div class="menu-icon">≡</div><div class="item-content"><div class="item-title">Основные тождества</div><div class="item-desc">sin²α + cos²α = 1, tg α, ctg α</div></div><div class="arrow">›</div></a>
+        <a href="Сумма и разность углов.html" class="menu-item"><div class="menu-icon">+</div><div class="item-content"><div class="item-title">Сумма и разность углов</div><div class="item-desc">sin(α±β), cos(α±β), tg(α±β)</div></div><div class="arrow">›</div></a>
+        <a href="Двойной угол.html" class="menu-item"><div class="menu-icon" style="font-size:20px;">2α</div><div class="item-content"><div class="item-title">Двойной аргумент</div><div class="item-desc">sin 2α, cos 2α, tg 2α, ctg 2α</div></div><div class="arrow">›</div></a>
+        <a href="Половинный аргумент.html" class="menu-item"><div class="menu-icon" style="font-size:20px;">½α</div><div class="item-content"><div class="item-title">Половинный аргумент</div><div class="item-desc">sin²(α/2), cos²(α/2), tg(α/2)</div></div><div class="arrow">›</div></a>
+        <a href="Ссумма и разность функций.html" class="menu-item"><div class="menu-icon">±</div><div class="item-content"><div class="item-title">Сумма и разность функций</div><div class="item-desc">sin α ± sin β, cos α ± cos β</div></div><div class="arrow">›</div></a>
+        <a href="Произведение функций.html" class="menu-item"><div class="menu-icon">×</div><div class="item-content"><div class="item-title">Произведение функций</div><div class="item-desc">sin α·sin β, cos α·cos β, sin α·cos β</div></div><div class="arrow">›</div></a>
+        <a href="Знаки тригонометрических функций.html" class="menu-item"><div class="menu-icon">◉</div><div class="item-content"><div class="item-title">Знаки по четвертям</div><div class="item-desc">+, − для sin, cos, tg, ctg</div></div><div class="arrow">›</div></a>
+        <a href="Формулы приведения.html" class="menu-item"><div class="menu-icon">↻</div><div class="item-content"><div class="item-title">Формулы приведения</div><div class="item-desc">sin, cos, tg, ctg (90°, 180°, 270°, 360°)</div></div><div class="arrow">›</div></a>
+        <a href="Четность функции.html" class="menu-item"><div class="menu-icon">∓</div><div class="item-content"><div class="item-title">Чётность и нечётность</div><div class="item-desc">sin(−x), cos(−x), tg(−x), ctg(−x)</div></div><div class="arrow">›</div></a>
+        <a href="Значения тригонометрических функций.html" class="menu-item"><div class="menu-icon">⊞</div><div class="item-content"><div class="item-title">Таблица значений (0°–360°)</div><div class="item-desc">sin, cos, tg, ctg для всех основных углов</div></div><div class="arrow">›</div></a>
+        <a href="простейшие тригонометрические уравнения.html" class="menu-item"><div class="menu-icon" style="font-size:18px;">f(x)=a</div><div class="item-content"><div class="item-title">Простейшие уравнения</div><div class="item-desc">sin x = a, cos x = a, tg x = a, ctg x = a</div></div><div class="arrow">›</div></a>
+    </div>
+
+    <div class="test-section">
+        <h3 style="color:var(--text);margin-bottom:12px;">📝 Проверка знаний</h3>
+
+        <!-- Выбор темы -->
+        <div class="category-selector" id="categorySelector">
+            <button class="category-btn active" data-category="all">Все темы</button>
+            <button class="category-btn" data-category="identities">Основные тождества</button>
+            <button class="category-btn" data-category="sum_diff">Сумма и разность углов</button>
+            <button class="category-btn" data-category="double">Двойной аргумент</button>
+            <button class="category-btn" data-category="half">Половинный аргумент</button>
+            <button class="category-btn" data-category="func_sum">Сумма/разность функций</button>
+            <button class="category-btn" data-category="product">Произведение функций</button>
+            <button class="category-btn" data-category="signs">Знаки по четвертям</button>
+            <button class="category-btn" data-category="reduction">Формулы приведения</button>
+            <button class="category-btn" data-category="parity">Чётность/нечётность</button>
+            <button class="category-btn" data-category="values">Таблица значений</button>
+            <button class="category-btn" data-category="equations">Уравнения</button>
+        </div>
+
+        <button class="test-btn" onclick="startTest()">НАЧАТЬ ТЕСТ</button>
+        <div id="testContainer" class="test-container" style="display:none;"></div>
+    </div>
+
+    <div class="footer">
+        <a href="index.html" class="back-link">← Назад к главному меню</a>
+    </div>
+</div>
+
+<script>
+    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+
+    // Выбор категории
+    let selectedCategory = 'all';
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            selectedCategory = this.dataset.category;
+        });
+    });
+
+    // Банк вопросов с категориями
+    const questionBank = [
+        // Основные тождества
+        {category:"identities", question:"Основное тригонометрическое тождество:",options:["\\(\\sin^2\\alpha + \\cos^2\\alpha = 1\\)","\\(\\sin^2\\alpha - \\cos^2\\alpha = 1\\)","\\(\\sin\\alpha + \\cos\\alpha = 1\\)","\\(\\operatorname{tg}\\alpha + \\operatorname{ctg}\\alpha = 1\\)"],correct:0},
+        {category:"identities", question:"\\(\\operatorname{tg}\\alpha\\) выражается как:",options:["\\(\\frac{\\sin\\alpha}{\\cos\\alpha}\\)","\\(\\frac{\\cos\\alpha}{\\sin\\alpha}\\)","\\(\\sin\\alpha \\cdot \\cos\\alpha\\)","\\(\\sin^2\\alpha\\)"],correct:0},
+        {category:"identities", question:"\\(1 + \\operatorname{tg}^2\\alpha\\) равно:",options:["\\(\\frac{1}{\\cos^2\\alpha}\\)","\\(\\frac{1}{\\sin^2\\alpha}\\)","\\(\\cos^2\\alpha\\)","\\(\\sin^2\\alpha\\)"],correct:0},
+        {category:"identities", question:"\\(1 + \\operatorname{ctg}^2\\alpha\\) равно:",options:["\\(\\frac{1}{\\sin^2\\alpha}\\)","\\(\\frac{1}{\\cos^2\\alpha}\\)","\\(\\sin^2\\alpha\\)","\\(\\operatorname{tg}^2\\alpha\\)"],correct:0},
+        {category:"identities", question:"\\(\\operatorname{tg}\\alpha \\cdot \\operatorname{ctg}\\alpha\\) равно:",options:["1","0","\\(\\sin\\alpha\\)","\\(\\cos\\alpha\\)"],correct:0},
+        {category:"identities", question:"\\(\\operatorname{ctg}\\alpha\\) выражается как:",options:["\\(\\frac{\\cos\\alpha}{\\sin\\alpha}\\)","\\(\\frac{\\sin\\alpha}{\\cos\\alpha}\\)","\\(\\sin\\alpha \\cdot \\cos\\alpha\\)","\\(\\cos^2\\alpha\\)"],correct:0},
+        {category:"identities", question:"\\(\\sin^2\\alpha\\) через косинус:",options:["\\(1 - \\cos^2\\alpha\\)","\\(1 + \\cos^2\\alpha\\)","\\(\\cos^2\\alpha - 1\\)","\\(2\\cos^2\\alpha - 1\\)"],correct:0},
+        {category:"identities", question:"\\(\\cos^2\\alpha\\) через синус:",options:["\\(1 - \\sin^2\\alpha\\)","\\(1 + \\sin^2\\alpha\\)","\\(\\sin^2\\alpha - 1\\)","\\(2\\sin^2\\alpha - 1\\)"],correct:0},
+
+        // Сумма и разность углов
+        {category:"sum_diff", question:"\\(\\sin(\\alpha + \\beta)\\) равен:",options:["\\(\\sin\\alpha\\cos\\beta + \\cos\\alpha\\sin\\beta\\)","\\(\\sin\\alpha\\cos\\beta - \\cos\\alpha\\sin\\beta\\)","\\(\\cos\\alpha\\cos\\beta + \\sin\\alpha\\sin\\beta\\)","\\(\\cos\\alpha\\cos\\beta - \\sin\\alpha\\sin\\beta\\)"],correct:0},
+        {category:"sum_diff", question:"\\(\\cos(\\alpha + \\beta)\\) равен:",options:["\\(\\cos\\alpha\\cos\\beta - \\sin\\alpha\\sin\\beta\\)","\\(\\cos\\alpha\\cos\\beta + \\sin\\alpha\\sin\\beta\\)","\\(\\sin\\alpha\\cos\\beta + \\cos\\alpha\\sin\\beta\\)","\\(\\sin\\alpha\\cos\\beta - \\cos\\alpha\\sin\\beta\\)"],correct:0},
+        {category:"sum_diff", question:"\\(\\operatorname{tg}(\\alpha + \\beta)\\) равен:",options:["\\(\\frac{\\operatorname{tg}\\alpha + \\operatorname{tg}\\beta}{1 - \\operatorname{tg}\\alpha\\operatorname{tg}\\beta}\\)","\\(\\frac{\\operatorname{tg}\\alpha - \\operatorname{tg}\\beta}{1 + \\operatorname{tg}\\alpha\\operatorname{tg}\\beta}\\)","\\(\\operatorname{tg}\\alpha + \\operatorname{tg}\\beta\\)","\\(\\frac{\\operatorname{tg}\\alpha}{\\operatorname{tg}\\beta}\\)"],correct:0},
+        {category:"sum_diff", question:"\\(\\sin 75^\\circ\\) равен:",options:["\\(\\frac{\\sqrt{6}+\\sqrt{2}}{4}\\)","\\(\\frac{\\sqrt{6}-\\sqrt{2}}{4}\\)","\\(\\frac{\\sqrt{3}}{2}\\)","\\(\\frac{1}{2}\\)"],correct:0},
+        {category:"sum_diff", question:"\\(\\cos 15^\\circ\\) равен:",options:["\\(\\frac{\\sqrt{6}+\\sqrt{2}}{4}\\)","\\(\\frac{\\sqrt{6}-\\sqrt{2}}{4}\\)","\\(\\frac{\\sqrt{3}}{2}\\)","\\(\\frac{1}{2}\\)"],correct:0},
+
+        // Двойной аргумент
+        {category:"double", question:"\\(\\sin 2\\alpha\\) равен:",options:["\\(2\\sin\\alpha\\cos\\alpha\\)","\\(\\sin^2\\alpha + \\cos^2\\alpha\\)","\\(2\\sin\\alpha\\)","\\(\\sin\\alpha + \\cos\\alpha\\)"],correct:0},
+        {category:"double", question:"\\(\\cos 2\\alpha\\) равен:",options:["\\(\\cos^2\\alpha - \\sin^2\\alpha\\)","\\(\\sin^2\\alpha + \\cos^2\\alpha\\)","\\(2\\sin\\alpha\\cos\\alpha\\)","\\(1 + \\sin^2\\alpha\\)"],correct:0},
+        {category:"double", question:"\\(\\cos 2\\alpha\\) через косинус:",options:["\\(2\\cos^2\\alpha - 1\\)","\\(2\\sin^2\\alpha - 1\\)","\\(1 - 2\\cos^2\\alpha\\)","\\(\\cos^2\\alpha + 1\\)"],correct:0},
+        {category:"double", question:"\\(\\operatorname{tg} 2\\alpha\\) равен:",options:["\\(\\frac{2\\operatorname{tg}\\alpha}{1-\\operatorname{tg}^2\\alpha}\\)","\\(\\frac{\\operatorname{tg}\\alpha}{1+\\operatorname{tg}^2\\alpha}\\)","\\(2\\operatorname{tg}\\alpha\\)","\\(\\frac{1-\\operatorname{tg}^2\\alpha}{2\\operatorname{tg}\\alpha}\\)"],correct:0},
+        {category:"double", question:"\\(\\sin 2\\alpha\\) для \\(\\alpha = 45^\\circ\\):",options:["1","\\(\\frac{\\sqrt{2}}{2}\\)","\\(\\frac{1}{2}\\)","0"],correct:0},
+
+        // Половинный аргумент
+        {category:"half", question:"\\(\\sin^2\\frac{\\alpha}{2}\\) равен:",options:["\\(\\frac{1-\\cos\\alpha}{2}\\)","\\(\\frac{1+\\cos\\alpha}{2}\\)","\\(\\frac{\\sin\\alpha}{2}\\)","\\(\\frac{\\cos\\alpha}{2}\\)"],correct:0},
+        {category:"half", question:"\\(\\cos^2\\frac{\\alpha}{2}\\) равен:",options:["\\(\\frac{1+\\cos\\alpha}{2}\\)","\\(\\frac{1-\\cos\\alpha}{2}\\)","\\(\\frac{\\sin\\alpha}{2}\\)","\\(\\frac{\\cos\\alpha}{2}\\)"],correct:0},
+        {category:"half", question:"\\(\\operatorname{tg}\\frac{\\alpha}{2}\\) равен:",options:["\\(\\frac{\\sin\\alpha}{1+\\cos\\alpha}\\)","\\(\\frac{1+\\cos\\alpha}{\\sin\\alpha}\\)","\\(\\frac{\\sin\\alpha}{\\cos\\alpha}\\)","\\(\\frac{\\cos\\alpha}{\\sin\\alpha}\\)"],correct:0},
+
+        // Сумма и разность функций
+        {category:"func_sum", question:"\\(\\sin\\alpha + \\sin\\beta\\) равен:",options:["\\(2\\sin\\frac{\\alpha+\\beta}{2}\\cos\\frac{\\alpha-\\beta}{2}\\)","\\(2\\cos\\frac{\\alpha+\\beta}{2}\\sin\\frac{\\alpha-\\beta}{2}\\)","\\(\\sin(\\alpha+\\beta)\\)","\\(2\\sin\\alpha\\cos\\beta\\)"],correct:0},
+        {category:"func_sum", question:"\\(\\cos\\alpha + \\cos\\beta\\) равен:",options:["\\(2\\cos\\frac{\\alpha+\\beta}{2}\\cos\\frac{\\alpha-\\beta}{2}\\)","\\(2\\sin\\frac{\\alpha+\\beta}{2}\\cos\\frac{\\alpha-\\beta}{2}\\)","\\(\\cos(\\alpha+\\beta)\\)","\\(2\\sin\\alpha\\sin\\beta\\)"],correct:0},
+        {category:"func_sum", question:"\\(\\cos\\alpha - \\cos\\beta\\) равен:",options:["\\(-2\\sin\\frac{\\alpha+\\beta}{2}\\sin\\frac{\\alpha-\\beta}{2}\\)","\\(2\\sin\\frac{\\alpha+\\beta}{2}\\sin\\frac{\\alpha-\\beta}{2}\\)","\\(\\cos(\\alpha-\\beta)\\)","\\(2\\cos\\alpha\\cos\\beta\\)"],correct:0},
+        {category:"func_sum", question:"\\(\\sin 70^\\circ - \\sin 10^\\circ\\) равен:",options:["\\(2\\sin 30^\\circ\\cos 40^\\circ\\)","\\(2\\cos 30^\\circ\\sin 40^\\circ\\)","\\(\\sin 60^\\circ\\)","\\(\\sqrt{3}\\sin 30^\\circ\\)"],correct:0},
+
+        // Произведение функций
+        {category:"product", question:"\\(\\sin\\alpha\\sin\\beta\\) преобразуется в:",options:["Разность косинусов","Сумму косинусов","Разность синусов","Сумму синусов"],correct:0},
+        {category:"product", question:"\\(\\cos\\alpha\\cos\\beta\\) преобразуется в:",options:["Сумму косинусов","Разность косинусов","Сумму синусов","Разность синусов"],correct:0},
+        {category:"product", question:"\\(\\sin\\alpha\\cos\\beta\\) равен:",options:["\\(\\frac{\\sin(\\alpha+\\beta) + \\sin(\\alpha-\\beta)}{2}\\)","\\(\\frac{\\cos(\\alpha-\\beta) - \\cos(\\alpha+\\beta)}{2}\\)","\\(\\sin(\\alpha+\\beta)\\)","\\(\\cos(\\alpha+\\beta)\\)"],correct:0},
+
+        // Знаки по четвертям
+        {category:"signs", question:"В I четверти все функции имеют знак:",options:["+","−","0","Зависит от угла"],correct:0},
+        {category:"signs", question:"Во II четверти синус имеет знак:",options:["+","−","0","Не определён"],correct:0},
+        {category:"signs", question:"В III четверти тангенс имеет знак:",options:["+","−","0","Не определён"],correct:0},
+        {category:"signs", question:"Если \\(\\sin\\alpha > 0\\) и \\(\\cos\\alpha < 0\\), то угол в:",options:["II четверти","I четверти","III четверти","IV четверти"],correct:0},
+        {category:"signs", question:"В IV четверти косинус имеет знак:",options:["+","−","0","Не определён"],correct:0},
+        {category:"signs", question:"Если \\(\\operatorname{tg}\\alpha < 0\\) и \\(\\sin\\alpha > 0\\), то угол в:",options:["II четверти","I четверти","III четверти","IV четверти"],correct:0},
+
+        // Формулы приведения
+        {category:"reduction", question:"\\(\\sin(90^\\circ - \\alpha)\\) равен:",options:["\\(\\cos\\alpha\\)","\\(\\sin\\alpha\\)","\\(-\\cos\\alpha\\)","\\(-\\sin\\alpha\\)"],correct:0},
+        {category:"reduction", question:"\\(\\cos(180^\\circ - \\alpha)\\) равен:",options:["\\(-\\cos\\alpha\\)","\\(\\cos\\alpha\\)","\\(\\sin\\alpha\\)","\\(-\\sin\\alpha\\)"],correct:0},
+        {category:"reduction", question:"\\(\\operatorname{tg}(180^\\circ + \\alpha)\\) равен:",options:["\\(\\operatorname{tg}\\alpha\\)","\\(-\\operatorname{tg}\\alpha\\)","\\(\\operatorname{ctg}\\alpha\\)","\\(-\\operatorname{ctg}\\alpha\\)"],correct:0},
+        {category:"reduction", question:"\\(\\sin(270^\\circ + \\alpha)\\) равен:",options:["\\(-\\cos\\alpha\\)","\\(\\cos\\alpha\\)","\\(\\sin\\alpha\\)","\\(-\\sin\\alpha\\)"],correct:0},
+
+        // Чётность и нечётность
+        {category:"parity", question:"\\(\\sin(-\\alpha)\\) равен:",options:["\\(-\\sin\\alpha\\)","\\(\\sin\\alpha\\)","\\(\\cos\\alpha\\)","\\(-\\cos\\alpha\\)"],correct:0},
+        {category:"parity", question:"\\(\\cos(-\\alpha)\\) равен:",options:["\\(\\cos\\alpha\\)","\\(-\\cos\\alpha\\)","\\(\\sin\\alpha\\)","\\(-\\sin\\alpha\\)"],correct:0},
+        {category:"parity", question:"Какая функция чётная?",options:["Косинус","Синус","Тангенс","Котангенс"],correct:0},
+
+        // Таблица значений
+        {category:"values", question:"\\(\\sin 0^\\circ\\) равен:",options:["0","1","\\(\\frac{1}{2}\\)","\\(\\frac{\\sqrt{2}}{2}\\)"],correct:0},
+        {category:"values", question:"\\(\\sin 30^\\circ\\) равен:",options:["\\(\\frac{1}{2}\\)","\\(\\frac{\\sqrt{2}}{2}\\)","\\(\\frac{\\sqrt{3}}{2}\\)","1"],correct:0},
+        {category:"values", question:"\\(\\cos 60^\\circ\\) равен:",options:["\\(\\frac{1}{2}\\)","\\(\\frac{\\sqrt{2}}{2}\\)","\\(\\frac{\\sqrt{3}}{2}\\)","1"],correct:0},
+        {category:"values", question:"\\(\\operatorname{tg} 45^\\circ\\) равен:",options:["1","0","\\(\\sqrt{3}\\)","\\(\\frac{\\sqrt{3}}{3}\\)"],correct:0},
+        {category:"values", question:"\\(\\sin 90^\\circ\\) равен:",options:["1","0","\\(\\frac{1}{2}\\)","\\(\\frac{\\sqrt{2}}{2}\\)"],correct:0},
+        {category:"values", question:"\\(\\operatorname{tg} 60^\\circ\\) равен:",options:["\\(\\sqrt{3}\\)","\\(\\frac{\\sqrt{3}}{3}\\)","1","0"],correct:0},
+
+        // Уравнения
+        {category:"equations", question:"\\(\\sin x = a\\) при \\(|a| \\le 1\\) решается как:",options:["\\(x = (-1)^n\\arcsin a + \\pi n\\)","\\(x = \\arcsin a + 2\\pi n\\)","\\(x = \\arcsin a + \\pi n\\)","\\(x = (-1)^n a + \\pi n\\)"],correct:0},
+        {category:"equations", question:"\\(\\cos x = 0\\) имеет решение:",options:["\\(x = \\frac{\\pi}{2} + \\pi n\\)","\\(x = 2\\pi n\\)","\\(x = \\pi n\\)","\\(x = \\frac{\\pi}{2} + 2\\pi n\\)"],correct:0},
+        {category:"equations", question:"\\(\\sin x = 0\\) имеет решение:",options:["\\(x = \\pi n\\)","\\(x = 2\\pi n\\)","\\(x = \\frac{\\pi}{2} + \\pi n\\)","\\(x = \\frac{\\pi}{2} + 2\\pi n\\)"],correct:0}
+    ];
+
+    let currentQuestions=[];
+    let timerInterval=null;
+    let timeLeft=0;
+    const TOTAL_TIME=600; // 10 минут в секундах
+
+    function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+    function getFilteredQuestions(){
+        if(selectedCategory==='all') return [...questionBank];
+        return questionBank.filter(q=>q.category===selectedCategory);
+    }
+
+    function startTest(){
+        // Очищаем предыдущий таймер
+        if(timerInterval) clearInterval(timerInterval);
+
+        const filteredBank=getFilteredQuestions();
+        if(filteredBank.length===0){
+            alert('Нет вопросов в выбранной категории');
+            return;
+        }
+
+        const questionCount=Math.min(10, filteredBank.length);
+        const shuffledBank=shuffleArray([...filteredBank]);
+        const selectedQuestions=shuffledBank.slice(0, questionCount);
+
+        currentQuestions=selectedQuestions.map(q=>{
+            const opts=q.options.map((o,i)=>({text:o, idx:i}));
+            const shOpts=shuffleArray([...opts]);
+            const newCorrect=shOpts.findIndex(o=>o.idx===q.correct);
+            return {
+                question: q.question,
+                options: shOpts.map(o=>o.text),
+                correct: newCorrect
+            };
+        });
+
+        // Сбрасываем таймер
+        timeLeft=TOTAL_TIME;
+        updateTimerDisplay();
+
+        let html=`
+            <h3>Тест по тригонометрии</h3>
+            <div class="test-info">${questionCount} вопросов | Категория: ${getCategoryName(selectedCategory)}</div>
+
+            <!-- Таймер -->
+            <div class="timer-bar">
+                <span class="timer-icon">⏱️</span>
+                <span class="timer-text" id="timerText">${formatTime(timeLeft)}</span>
+            </div>
+
+            <!-- Прогресс-бар -->
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span id="progressText">Вопрос 1 из ${questionCount}</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div id="questions"></div>
+
+            <button class="test-submit" id="submitBtn" onclick="checkAnswers()">ПРОВЕРИТЬ ОТВЕТЫ</button>
+            <div id="testResult" class="test-result"></div>
+        `;
+
+        document.getElementById('testContainer').innerHTML=html;
+        document.getElementById('testContainer').style.display='block';
+        renderQuestions();
+        updateProgress();
+
+        // Запускаем таймер
+        timerInterval=setInterval(()=>{
+            timeLeft--;
+            updateTimerDisplay();
+            if(timeLeft<=0){
+                clearInterval(timerInterval);
+                timeExpired();
+            }
+        }, 1000);
+
+        if(window.MathJax)MathJax.typesetPromise();
+
+        // Прокрутка к тесту
+        document.getElementById('testContainer').scrollIntoView({behavior:'smooth'});
+    }
+
+    function getCategoryName(cat){
+        const names={
+            'all':'Все темы',
+            'identities':'Основные тождества',
+            'sum_diff':'Сумма и разность углов',
+            'double':'Двойной аргумент',
+            'half':'Половинный аргумент',
+            'func_sum':'Сумма/разность функций',
+            'product':'Произведение функций',
+            'signs':'Знаки по четвертям',
+            'reduction':'Формулы приведения',
+            'parity':'Чётность/нечётность',
+            'values':'Таблица значений',
+            'equations':'Уравнения'
+        };
+        return names[cat] || cat;
+    }
+
+    function formatTime(seconds){
+        const min=Math.floor(seconds/60);
+        const sec=seconds%60;
+        return `${min}:${sec.toString().padStart(2,'0')}`;
+    }
+
+    function updateTimerDisplay(){
+        const timerText=document.getElementById('timerText');
+        if(!timerText) return;
+
+        timerText.textContent=formatTime(timeLeft);
+        timerText.classList.remove('warning','danger');
+
+        if(timeLeft<=60){
+            timerText.classList.add('danger');
+        } else if(timeLeft<=180){
+            timerText.classList.add('warning');
+        }
+    }
+
+    function timeExpired(){
+        const submitBtn=document.getElementById('submitBtn');
+        if(submitBtn) submitBtn.disabled=true;
+
+        const resultDiv=document.getElementById('testResult');
+        if(resultDiv){
+            resultDiv.innerHTML='⏰ Время вышло! Тест автоматически завершён.';
+            resultDiv.className='test-result poor';
+        }
+        checkAnswers(true);
+    }
+
+    function updateProgress(){
+        const total=currentQuestions.length;
+        const answered=currentQuestions.filter((q,idx)=>{
+            const sel=document.querySelector(`input[name="q${idx}"]:checked`);
+            return sel!==null;
+        }).length;
+
+        const percent=Math.round((answered/total)*100);
+
+        const progressText=document.getElementById('progressText');
+        const progressPercent=document.getElementById('progressPercent');
+        const progressFill=document.getElementById('progressFill');
+
+        if(progressText) progressText.textContent=`Вопросов отвечено: ${answered} из ${total}`;
+        if(progressPercent) progressPercent.textContent=`${percent}%`;
+        if(progressFill) progressFill.style.width=`${percent}%`;
+    }
+
+    function renderQuestions(){
+        let html='';
+        currentQuestions.forEach((q,idx)=>{
+            html+=`<div class="question"><p>${idx+1}. ${q.question}</p><div class="options">`;
+            q.options.forEach((opt,optIdx)=>{
+                html+=`<label><input type="radio" name="q${idx}" value="${optIdx}" onchange="updateProgress()"> ${opt}</label>`;
+            });
+            html+=`</div></div>`;
+        });
+        document.getElementById('questions').innerHTML=html;
+        if(window.MathJax)MathJax.typesetPromise();
+    }
+
+    function checkAnswers(timeUp=false){
+        if(timerInterval) clearInterval(timerInterval);
+
+        let correctCount=0;
+        currentQuestions.forEach((q,idx)=>{
+            const sel=document.querySelector(`input[name="q${idx}"]:checked`);
+            if(sel&&parseInt(sel.value)===q.correct) correctCount++;
+        });
+
+        const pct=correctCount/currentQuestions.length*100;
+        let msg='', cls='';
+        if(pct>=80){msg=`Отлично! ${correctCount}/${currentQuestions.length} (${Math.round(pct)}%)`;cls='excellent';}
+        else if(pct>=50){msg=`Хорошо! ${correctCount}/${currentQuestions.length} (${Math.round(pct)}%)`;cls='good';}
+        else{msg=`${correctCount}/${currentQuestions.length} (${Math.round(pct)}%). Повторите!`;cls='poor';}
+
+        if(timeUp) msg='⏰ ' + msg;
+
+        const rd=document.getElementById('testResult');
+        rd.innerHTML=msg;
+        rd.className=`test-result ${cls}`;
+
+        // Блокируем кнопку отправки
+        const submitBtn=document.getElementById('submitBtn');
+        if(submitBtn){
+            submitBtn.disabled=true;
+            submitBtn.textContent='ТЕСТ ЗАВЕРШЁН';
+        }
+
+        // Добавляем кнопку перезапуска
+        const restartHTML='<button class="restart-btn" onclick="startTest()">🔄 ПРОЙТИ ТЕСТ ЗАНОВО</button>';
+        if(!document.getElementById('restartBtn')){
+            rd.insertAdjacentHTML('afterend', `<div id="restartBtn">${restartHTML}</div>`);
+        }
+
+        // Блокируем радио-кнопки
+        document.querySelectorAll('input[type="radio"]').forEach(radio=>radio.disabled=true);
+
+        // Прокрутка к результату
+        rd.scrollIntoView({behavior:'smooth'});
+    }
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

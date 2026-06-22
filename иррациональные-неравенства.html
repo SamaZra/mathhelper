@@ -1,0 +1,258 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <title>Иррациональные неравенства — 10-11 класс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(239,68,68,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #ef4444; --example-bg: #162a38;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #ef4444; --example-bg: #e8f0fe;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: #f87171; margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: #4ade80; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #dc2626; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Иррациональные неравенства</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое иррациональное неравенство</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Иррациональное неравенство</strong> — неравенство, в котором переменная содержится под знаком корня (радикала).</p>
+            <div class="formula-block">
+                $\sqrt{x+1} > 3$<br>
+                $\sqrt{x+5} < x-1$<br>
+                $\sqrt{x^2-4} \geq x+2$<br>
+                $\sqrt{x} + \sqrt{x-1} \leq 3$
+            </div>
+            <div class="important">
+                <strong>⚠️ Основной принцип:</strong> Иррациональные неравенства решаются методом <strong>равносильных переходов</strong> — переходом к системе (или совокупности) неравенств без корня с учётом ОДЗ.
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Корень меньше функции</span>
+            <span class="sub-title">$\sqrt{f(x)} < g(x)$</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                $\sqrt{f(x)} < g(x) \Leftrightarrow \begin{cases} f(x) \geq 0 \\ g(x) > 0 \\ f(x) < g^2(x) \end{cases}$
+            </div>
+
+            <div class="example">
+                <strong>Пример 1.</strong> $\sqrt{x+3} < x-1$<br><br>
+                <span class="step">Шаг 1. Записываем равносильную систему.</span>
+                $\begin{cases} x+3 \geq 0 \\ x-1 > 0 \\ x+3 < (x-1)^2 \end{cases}$<br><br>
+                <span class="step">Шаг 2. Решаем первые два неравенства.</span>
+                $x \geq -3$, $x > 1$. Итого: $x > 1$.<br><br>
+                <span class="step">Шаг 3. Решаем третье неравенство.</span>
+                $x+3 < x^2-2x+1 \Rightarrow x^2-3x-2 > 0$.<br>
+                Корни: $x = \dfrac{3 \pm \sqrt{17}}{2}$. Решение: $x < \dfrac{3-\sqrt{17}}{2}$ или $x > \dfrac{3+\sqrt{17}}{2}$.<br><br>
+                <span class="step">Шаг 4. Пересекаем с $x > 1$.</span>
+                $x > \dfrac{3+\sqrt{17}}{2} \approx 3{,}56$.<br><br>
+                <span class="result">Ответ: $x \in \left(\dfrac{3+\sqrt{17}}{2}; +\infty\right)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Корень больше функции</span>
+            <span class="sub-title">$\sqrt{f(x)} > g(x)$</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                $\sqrt{f(x)} > g(x) \Leftrightarrow \left[\begin{array}{l} \begin{cases} f(x) \geq 0 \\ g(x) < 0 \end{cases} \\ \begin{cases} g(x) \geq 0 \\ f(x) > g^2(x) \end{cases} \end{array}\right.$
+            </div>
+
+            <div class="example">
+                <strong>Пример 2.</strong> $\sqrt{x^2-4} \geq x-2$<br><br>
+                <span class="step">Шаг 1. Записываем равносильную совокупность.</span>
+                $\left[\begin{array}{l} \begin{cases} x^2-4 \geq 0 \\ x-2 < 0 \end{cases} \\ \begin{cases} x-2 \geq 0 \\ x^2-4 \geq (x-2)^2 \end{cases} \end{array}\right.$<br><br>
+                <span class="step">Шаг 2. Первая система.</span>
+                $x \leq -2$ или $x \geq 2$, и $x < 2$. Пересечение: $x \leq -2$.<br><br>
+                <span class="step">Шаг 3. Вторая система.</span>
+                $x \geq 2$, и $x^2-4 \geq x^2-4x+4 \Rightarrow 4x \geq 8 \Rightarrow x \geq 2$.<br>
+                Пересечение: $x \geq 2$.<br><br>
+                <span class="step">Шаг 4. Объединяем.</span> $x \leq -2$ или $x \geq 2$.<br><br>
+                <span class="result">Ответ: $x \in (-\infty; -2] \cup [2; +\infty)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Нестрогое неравенство</span>
+            <span class="sub-title">$\sqrt{f(x)} \geq g(x)$</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                $\sqrt{f(x)} \geq g(x) \Leftrightarrow \left[\begin{array}{l} \begin{cases} f(x) \geq 0 \\ g(x) \leq 0 \end{cases} \\ \begin{cases} g(x) \geq 0 \\ f(x) \geq g^2(x) \end{cases} \end{array}\right.$
+            </div>
+
+            <div class="example">
+                <strong>Пример 3.</strong> $\sqrt{2x+1} \geq x-1$<br><br>
+                <span class="step">Шаг 1. Записываем совокупность.</span>
+                $\left[\begin{array}{l} \begin{cases} 2x+1 \geq 0 \\ x-1 \leq 0 \end{cases} \\ \begin{cases} x-1 \geq 0 \\ 2x+1 \geq (x-1)^2 \end{cases} \end{array}\right.$<br><br>
+                <span class="step">Шаг 2. Первая система.</span>
+                $x \geq -\dfrac{1}{2}$, $x \leq 1$. Пересечение: $-\dfrac{1}{2} \leq x \leq 1$.<br><br>
+                <span class="step">Шаг 3. Вторая система.</span>
+                $x \geq 1$, и $2x+1 \geq x^2-2x+1 \Rightarrow x^2-4x \leq 0 \Rightarrow 0 \leq x \leq 4$.<br>
+                Пересечение: $1 \leq x \leq 4$.<br><br>
+                <span class="step">Шаг 4. Объединяем.</span> $-\dfrac{1}{2} \leq x \leq 4$.<br><br>
+                <span class="result">Ответ: $x \in \left[-\dfrac{1}{2}; 4\right]$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Неравенства с несколькими корнями</span>
+            <span class="sub-title">уединение радикала и возведение в степень</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 4.</strong> $\sqrt{x+8} > \sqrt{x} + 2$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x \geq 0$.<br><br>
+                <span class="step">Шаг 2. Возводим в квадрат.</span>
+                $x+8 > x + 4\sqrt{x} + 4 \Rightarrow 4 > 4\sqrt{x} \Rightarrow \sqrt{x} < 1 \Rightarrow x < 1$.<br><br>
+                <span class="step">Шаг 3. Учитываем ОДЗ.</span> $0 \leq x < 1$.<br><br>
+                <span class="result">Ответ: $x \in [0; 1)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Неравенства с кубическими корнями</span>
+            <span class="sub-title">корень нечётной степени — ОДЗ не нужен</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 5.</strong> $\sqrt[3]{x-2} > 1$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> Корень кубический определён при любом $x$.<br><br>
+                <span class="step">Шаг 2. Возводим в куб (знак сохраняется).</span> $x-2 > 1 \Rightarrow x > 3$.<br><br>
+                <span class="result">Ответ: $x \in (3; +\infty)$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 6.</strong> $\sqrt[3]{x+1} \leq \sqrt[3]{2x-3}$<br><br>
+                <span class="step">Шаг 1.</span> Возводим в куб: $x+1 \leq 2x-3 \Rightarrow x \geq 4$.<br><br>
+                <span class="result">Ответ: $x \in [4; +\infty)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Системы иррациональных неравенств</span>
+            <span class="sub-title">пересечение решений</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 7.</strong> $\begin{cases} \sqrt{x-1} \leq 2 \\ \sqrt{5-x} > 1 \end{cases}$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x \geq 1$, $x \leq 5$. Общая ОДЗ: $1 \leq x \leq 5$.<br><br>
+                <span class="step">Шаг 2. Первое неравенство.</span> $x-1 \leq 4 \Rightarrow x \leq 5$. С учётом ОДЗ: $1 \leq x \leq 5$.<br><br>
+                <span class="step">Шаг 3. Второе неравенство.</span> $5-x > 1 \Rightarrow x < 4$. С учётом ОДЗ: $1 \leq x < 4$.<br><br>
+                <span class="step">Шаг 4. Пересекаем.</span> $1 \leq x < 4$.<br><br>
+                <span class="result">Ответ: $x \in [1; 4)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📊 Сводная таблица</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>$\sqrt{f(x)} < g(x)$</strong> $\Leftrightarrow \begin{cases} f(x) \geq 0 \\ g(x) > 0 \\ f(x) < g^2(x) \end{cases}$<br><br>
+                <strong>$\sqrt{f(x)} > g(x)$</strong> $\Leftrightarrow \left[\begin{array}{l} \begin{cases} f(x) \geq 0 \\ g(x) < 0 \end{cases} \\ \begin{cases} g(x) \geq 0 \\ f(x) > g^2(x) \end{cases} \end{array}\right.$<br><br>
+                <strong>$\sqrt{f(x)} \geq g(x)$</strong> $\Leftrightarrow \left[\begin{array}{l} \begin{cases} f(x) \geq 0 \\ g(x) \leq 0 \end{cases} \\ \begin{cases} g(x) \geq 0 \\ f(x) \geq g^2(x) \end{cases} \end{array}\right.$<br><br>
+                <strong>Несколько корней:</strong> найти ОДЗ, уединить, возвести в степень.
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>Плоские фигуры: многоугольники и формулы</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --formula-bg: #1a2d3c;
+            --details-bg: rgba(30, 53, 69, 0.8);
+            --details-border: rgba(255, 255, 255, 0.08);
+            --summary-bg: rgba(24, 40, 56, 0.8);
+            --img-bg: #243848;
+            --svg-stroke: #ffffff;
+            --svg-fill: #4a9fd4;
+            --svg-dimension: #f59e0b;
+            --svg-height: #10b981;
+            --orange: #f0a04b;
+            --blue: #60a5fa;
+            --purple: #c084fc;
+            --green: #4ade80;
+            --red: #ef4444;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #e0eafc 0%, #cfdef3 100%);
+            --card-bg: rgba(255, 255, 255, 0.96);
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --formula-bg: #f8fafc;
+            --details-bg: rgba(255, 255, 255, 0.8);
+            --details-border: rgba(0, 0, 0, 0.05);
+            --summary-bg: rgba(248, 250, 252, 0.8);
+            --img-bg: #ffffff;
+            --svg-stroke: #1a2a3f;
+            --svg-fill: #1e3c72;
+            --svg-dimension: #d97706;
+            --svg-height: #059669;
+            --orange: #e67e22;
+            --blue: #3b82f6;
+            --purple: #8e44ad;
+            --green: #2e8b57;
+            --red: #dc2626;
+        }
+
+        body{font-family:'Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif;background:var(--bg);padding:24px 16px;color:var(--text);}
+        .container{max-width:1400px;margin:0 auto;position:relative;padding-top:50px;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        h1.main-title{font-size:1.5rem;text-align:center;margin-bottom:24px;color:var(--text);padding-bottom:8px;border-bottom:4px solid var(--blue);}
+
+        .cards-grid{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;}
+
+        .geom-card{flex:1;min-width:300px;background:var(--card-bg);border-radius:36px;box-shadow:0 12px 28px -8px rgba(0,0,0,0.15);transition:0.2s;border:1px solid var(--border);overflow:hidden;}
+        .triangle-card{border-top:6px solid var(--orange);}
+        .quadrilateral-card{border-top:6px solid var(--blue);}
+        .pentagon-card{border-top:6px solid var(--purple);}
+        .hexagon-card{border-top:6px solid var(--green);}
+
+        .card-header{padding:20px 20px 8px 20px;cursor:pointer;transition:background 0.2s;}
+        .card-header:hover{background:rgba(255,255,255,0.05);}
+        h2{font-size:1.7rem;font-weight:700;color:var(--text);margin-bottom:6px;text-align:center;}
+        .sub{color:var(--text-secondary);text-align:center;font-weight:500;font-size:0.85rem;margin-top:4px;}
+
+        .card-content{display:none;padding:0 20px 24px 20px;}
+        .geom-card.open .card-content{display:block;}
+
+        .card-header .arrow{display:inline-block;transition:transform 0.3s;font-size:1.2rem;margin-right:8px;color:var(--text-secondary);}
+        .geom-card.open .card-header .arrow{transform:rotate(90deg);}
+        .title-wrapper{display:flex;align-items:center;justify-content:center;gap:8px;}
+
+        .img-container{text-align:center;margin:8px 0;}
+        .figure-svg{max-width:100%;height:auto;display:inline-block;}
+
+        details{background:var(--details-bg);border-radius:20px;margin:14px 0 10px;border:1px solid var(--details-border);}
+        summary{font-weight:700;font-size:1rem;padding:10px 16px;cursor:pointer;border-radius:20px;background:var(--summary-bg);list-style:none;display:flex;align-items:center;gap:8px;color:var(--text);}
+        summary::-webkit-details-marker{display:none;}
+        summary::before{content:"▶";font-size:0.9rem;transition:transform 0.2s;display:inline-block;margin-right:8px;color:var(--text-secondary);}
+        details[open] summary::before{transform:rotate(90deg);}
+        .details-content{padding:6px 16px 16px;border-top:1px solid var(--border);}
+
+        .comp-list{list-style:none;margin:6px 0;}
+        .comp-list li{padding-left:26px;margin-bottom:10px;line-height:1.4;font-size:0.9rem;color:var(--text);background-size:18px;background-repeat:no-repeat;background-position:left center;}
+        .triangle-card .comp-list li{background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%23e67e22"><circle cx="12" cy="12" r="6"/></svg>');}
+        .quadrilateral-card .comp-list li{background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%233b82f6"><circle cx="12" cy="12" r="6"/></svg>');}
+        .pentagon-card .comp-list li{background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%238e44ad"><circle cx="12" cy="12" r="6"/></svg>');}
+        .hexagon-card .comp-list li{background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%232e8b57"><circle cx="12" cy="12" r="6"/></svg>');}
+
+        .formula-block{background:var(--formula-bg);padding:10px 14px;border-radius:18px;font-family:monospace;font-size:0.95rem;margin:12px 0;border-left:4px solid;color:var(--text);}
+        .triangle-card .formula-block{border-left-color:var(--orange);}
+        .quadrilateral-card .formula-block{border-left-color:var(--blue);}
+        .pentagon-card .formula-block{border-left-color:var(--purple);}
+        .hexagon-card .formula-block{border-left-color:var(--green);}
+        .formula{font-weight:700;word-break:break-word;}
+
+        .footer-note{text-align:center;font-size:0.7rem;margin-top:18px;opacity:0.7;color:var(--text-secondary);}
+
+        .back-link{display:inline-block;margin-top:30px;padding:10px 24px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
+        .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
+
+        @media (max-width:700px){h1.main-title{font-size:1.5rem;}h2{font-size:1.5rem;}.card-header{padding:16px 16px 8px 16px;}}
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:0.95}};</script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <h1 class="main-title">Многоугольники</h1>
+
+    <div class="cards-grid">
+
+        <!-- ТРЕУГОЛЬНИК -->
+        <div class="geom-card triangle-card" id="card-triangle">
+            <div class="card-header" onclick="toggleCard('card-triangle')">
+                <div class="title-wrapper"><span class="arrow">▶</span><h2>Треугольник</h2></div>
+                <div class="sub">Три стороны, три угла, сумма углов 180°</div>
+            </div>
+            <div class="card-content">
+                <details open>
+                    <summary>Элементы и виды</summary>
+                    <div class="details-content">
+                        <div class="img-container">
+                            <svg class="figure-svg" width="260" height="200" viewBox="0 0 260 200">
+                                <polygon points="130,20 230,170 30,170" fill="var(--img-bg)" stroke="var(--orange)" stroke-width="2.5" stroke-linejoin="round"/>
+                                <circle cx="130" cy="20" r="4" fill="var(--orange)"/>
+                                <circle cx="230" cy="170" r="4" fill="var(--orange)"/>
+                                <circle cx="30" cy="170" r="4" fill="var(--orange)"/>
+                                <text x="135" y="15" font-size="14" fill="var(--svg-fill)" font-weight="bold">A</text>
+                                <text x="240" y="175" font-size="14" fill="var(--svg-fill)" font-weight="bold">B</text>
+                                <text x="15" y="175" font-size="14" fill="var(--svg-fill)" font-weight="bold">C</text>
+                                <text x="185" y="105" font-size="13" fill="var(--svg-dimension)">c</text>
+                                <text x="80" y="105" font-size="13" fill="var(--svg-dimension)">b</text>
+                                <text x="125" y="185" font-size="13" fill="var(--svg-dimension)">a</text>
+                                <line x1="130" y1="20" x2="130" y2="170" stroke="var(--svg-height)" stroke-width="2" stroke-dasharray="6,3"/>
+                                <text x="135" y="100" font-size="13" fill="var(--svg-height)">h</text>
+                            </svg>
+                        </div>
+                        <ul class="comp-list"><li><strong>Вершины:</strong> \(A, B, C\). <strong>Стороны:</strong> \(a = BC\) (против A), \(b = AC\) (против B), \(c = AB\) (против C).</li><li><strong>Углы:</strong> \(\alpha = \angle A\), \(\beta = \angle B\), \(\gamma = \angle C\), \(\alpha+\beta+\gamma = 180^\circ\).</li><li><strong>Высота \(h\)</strong> — перпендикуляр из вершины на противоположную сторону.</li></ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Периметр и площадь</summary>
+                    <div class="details-content">
+                        <div class="formula-block"><strong>\(P = a + b + c\)</strong></div>
+                        <div class="formula-block"><strong>\(S = \frac{1}{2} a \cdot h_a\)</strong></div>
+                        <div class="formula-block"><strong>\(S = \frac{1}{2} ab \sin\gamma\)</strong></div>
+                        <div class="formula-block"><strong>Формула Герона:</strong> \(S = \sqrt{p(p-a)(p-b)(p-c)}\), \(p = \frac{P}{2}\)</div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Прямоугольный треугольник</summary>
+                    <div class="details-content">
+                        <div class="img-container">
+                            <svg class="figure-svg" width="260" height="200" viewBox="0 0 260 200">
+                                <polygon points="30,170 230,170 30,30" fill="var(--img-bg)" stroke="var(--orange)" stroke-width="2.5" stroke-linejoin="round"/>
+                                <circle cx="30" cy="170" r="4" fill="var(--orange)"/>
+                                <circle cx="230" cy="170" r="4" fill="var(--orange)"/>
+                                <circle cx="30" cy="30" r="4" fill="var(--orange)"/>
+                                <text x="15" y="185" font-size="14" fill="var(--svg-fill)" font-weight="bold">C</text>
+                                <text x="240" y="185" font-size="14" fill="var(--svg-fill)" font-weight="bold">B</text>
+                                <text x="15" y="25" font-size="14" fill="var(--svg-fill)" font-weight="bold">A</text>
+                                <text x="135" y="185" font-size="13" fill="var(--svg-dimension)">a</text>
+                                <text x="20" y="105" font-size="13" fill="var(--svg-dimension)">b</text>
+                                <text x="130" y="90" font-size="13" fill="var(--svg-dimension)">c</text>
+                                <polyline points="30,170 30,145 55,170" fill="none" stroke="var(--orange)" stroke-width="1.5"/>
+                                <text x="35" y="55" font-size="16" fill="var(--orange)" font-weight="bold">α</text>
+                            </svg>
+                        </div>
+                        <div class="formula-block"><strong>Теорема Пифагора:</strong> \(a^2 + b^2 = c^2\)</div>
+                        <div class="formula-block"><strong>Тригонометрические соотношения (угол \(\alpha = \angle A\)):</strong></div>
+                        <ul class="comp-list"><li><strong>Синус:</strong> \(\sin\alpha = \dfrac{a}{c}\)</li><li><strong>Косинус:</strong> \(\cos\alpha = \dfrac{b}{c}\)</li><li><strong>Тангенс:</strong> \(\operatorname{tg}\alpha = \dfrac{a}{b}\)</li><li><strong>Котангенс:</strong> \(\operatorname{ctg}\alpha = \dfrac{b}{a}\)</li></ul>
+                        <div class="formula-block"><strong>Площадь:</strong> \(S = \frac{1}{2}ab\)</div>
+                        <div class="formula-block"><strong>Выражение сторон через угол \(\alpha\):</strong> \(a = c\sin\alpha,\; b = c\cos\alpha,\; a = b\operatorname{tg}\alpha,\; b = a\operatorname{ctg}\alpha\)</div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Свойства</summary>
+                    <div class="details-content">
+                        <ul class="comp-list"><li>Сумма углов всегда \(180^\circ\).</li><li>Неравенство треугольника: любая сторона меньше суммы двух других.</li><li>Против большей стороны лежит больший угол.</li><li>Средняя линия параллельна основанию и равна его половине.</li><li>Биссектриса делит противоположную сторону пропорционально прилежащим сторонам.</li><li>Медианы пересекаются в одной точке (центроид), делятся в отношении \(2:1\).</li></ul>
+                    </div>
+                </details>
+
+                <div class="footer-note">Треугольник — жёсткая фигура</div>
+            </div>
+        </div>
+
+        <!-- КВАДРАТ -->
+        <div class="geom-card quadrilateral-card" id="card-square">
+            <div class="card-header" onclick="toggleCard('card-square')">
+                <div class="title-wrapper"><span class="arrow">▶</span><h2>Квадрат</h2></div>
+                <div class="sub">Все стороны равны, все углы прямые</div>
+            </div>
+            <div class="card-content">
+                <details open>
+                    <summary>Элементы</summary>
+                    <div class="details-content">
+                        <div class="img-container">
+                            <svg class="figure-svg" width="200" height="200" viewBox="0 0 200 200">
+                                <rect x="30" y="30" width="140" height="140" fill="var(--img-bg)" stroke="var(--blue)" stroke-width="2.5" rx="3"/>
+                                <circle cx="30" cy="30" r="4" fill="var(--blue)"/>
+                                <circle cx="170" cy="30" r="4" fill="var(--blue)"/>
+                                <circle cx="170" cy="170" r="4" fill="var(--blue)"/>
+                                <circle cx="30" cy="170" r="4" fill="var(--blue)"/>
+                                <text x="18" y="25" font-size="14" fill="var(--svg-fill)" font-weight="bold">A</text>
+                                <text x="178" y="25" font-size="14" fill="var(--svg-fill)" font-weight="bold">B</text>
+                                <text x="178" y="185" font-size="14" fill="var(--svg-fill)" font-weight="bold">C</text>
+                                <text x="18" y="185" font-size="14" fill="var(--svg-fill)" font-weight="bold">D</text>
+                                <text x="95" y="185" font-size="13" fill="var(--svg-dimension)">a</text>
+                                <text x="185" y="105" font-size="13" fill="var(--svg-dimension)">a</text>
+                                <line x1="30" y1="30" x2="170" y2="170" stroke="var(--svg-height)" stroke-width="2" stroke-dasharray="6,3"/>
+                                <text x="105" y="105" font-size="13" fill="var(--svg-height)">d</text>
+                            </svg>
+                        </div>
+                        <ul class="comp-list"><li>Вершины: A, B, C, D.</li><li>Сторона \(a\).</li><li>Диагональ \(d = a\sqrt{2}\).</li></ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Формулы</summary>
+                    <div class="details-content">
+                        <div class="formula-block"><strong>\(P = 4a\)</strong></div>
+                        <div class="formula-block"><strong>\(S = a^2\)</strong></div>
+                        <div class="formula-block"><strong>\(d = a\sqrt{2}\)</strong></div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Свойства</summary>
+                    <div class="details-content">
+                        <ul class="comp-list"><li>Все углы прямые (\(90^\circ\)).</li><li>Диагонали равны, перпендикулярны и делятся пополам.</li><li>Диагонали являются биссектрисами углов.</li><li>Вписанная и описанная окружности существуют, центр — точка пересечения диагоналей.</li><li>Квадрат — правильный четырёхугольник.</li></ul>
+                    </div>
+                </details>
+
+                <div class="footer-note">Частный случай ромба и прямоугольника</div>
+            </div>
+        </div>
+
+        <!-- ПРЯМОУГОЛЬНИК -->
+        <div class="geom-card quadrilateral-card" id="card-rectangle">
+            <div class="card-header" onclick="toggleCard('card-rectangle')">
+                <div class="title-wrapper"><span class="arrow">▶</span><h2>Прямоугольник</h2></div>
+                <div class="sub">Противоположные стороны равны, все углы 90°</div>
+            </div>
+            <div class="card-content">
+                <details open>
+                    <summary>Элементы</summary>
+                    <div class="details-content">
+                        <div class="img-container">
+                            <svg class="figure-svg" width="260" height="180" viewBox="0 0 260 180">
+                                <rect x="30" y="30" width="200" height="120" fill="var(--img-bg)" stroke="var(--blue)" stroke-width="2.5" rx="3"/>
+                                <circle cx="30" cy="30" r="4" fill="var(--blue)"/>
+                                <circle cx="230" cy="30" r="4" fill="var(--blue)"/>
+                                <circle cx="230" cy="150" r="4" fill="var(--blue)"/>
+                                <circle cx="30" cy="150" r="4" fill="var(--blue)"/>
+                                <text x="18" y="25" font-size="14" fill="var(--svg-fill)" font-weight="bold">A</text>
+                                <text x="240" y="25" font-size="14" fill="var(--svg-fill)" font-weight="bold">B</text>
+                                <text x="240" y="165" font-size="14" fill="var(--svg-fill)" font-weight="bold">C</text>
+                                <text x="18" y="165" font-size="14" fill="var(--svg-fill)" font-weight="bold">D</text>
+                                <text x="125" y="165" font-size="13" fill="var(--svg-dimension)">b</text>
+                                <text x="245" y="95" font-size="13" fill="var(--svg-dimension)">a</text>
+                                <line x1="30" y1="30" x2="230" y2="150" stroke="var(--svg-height)" stroke-width="2" stroke-dasharray="6,3"/>
+                                <text x="135" y="95" font-size="13" fill="var(--svg-height)">d</text>
+                            </svg>
+                        </div>
+                        <ul class="comp-list"><li>Длина \(a\), ширина \(b\).</li><li>Диагональ \(d = \sqrt{a^2 + b^2}\).</li></ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Формулы</summary>
+                    <div class="details-content">
+                        <div class="formula-block"><strong>\(P = 2(a+b)\)</strong></div>
+                        <div class="formula-block"><strong>\(S = a \cdot b\)</strong></div>
+                        <div class="formula-block"><strong>\(d = \sqrt{a^2 + b^2}\)</strong></div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Свойства</summary>
+                    <div class="details-content">
+                        <ul class="comp-list"><li>Противоположные стороны равны и параллельны.</li><li>Все углы прямые.</li><li>Диагонали равны и точкой пересечения делятся пополам.</li><li>Около любого прямоугольника можно описать окружность (центр — пересечение диагоналей).</li><li>Квадрат диагонали равен сумме квадратов смежных сторон.</li></ul>
+                    </div>
+                </details>
+
+                <div class="footer-note">Диагонали равны</div>
+            </div>
+        </div>
+
+        <!-- ПАРАЛЛЕЛОГРАММ -->
+        <div class="geom-card quadrilateral-card" id="card-parallelogram">
+            <div class="card-header" onclick="toggleCard('card-parallelogram')">
+                <div class="title-wrapper"><span class="arrow">▶</span><h2>Параллелограмм</h2></div>
+                <div class="sub">Противоположные стороны параллельны и равны</div>
+            </div>
+            <div class="card-content">
+                <details open>
+                    <summary>Элементы</summary>
+                    <div class="details-content">
+                        <div class="img-container">
+                            <svg class="figure-svg" width="260" height="180" viewBox="0 0 260 180">
+                                <polygon points="50,30 210,30 180,150 20,150" fill="var(--img-bg)" stroke="var(--blue)" stroke-width="2.5" stroke-linejoin="round"/>
+                                <circle cx="50" cy="30" r="4" fill="var(--blue)"/>
+                                <circle cx="210" cy="30" r="4" fill="var(--blue)"/>
+                                <circle cx="180" cy="150" r="4" fill="var(--blue)"/>
+                                <circle cx="20" cy="150" r="4" fill="var(--blue)"/>
+                                <text x="38" y="25" font-size="14" fill="var(--svg-fill)" font-weight="bold">A</text>
+                                <text x="218" y="25" font-size="14" fill="var(--svg-fill)" font-weight="bold">B</text>
+                                <text x="188" y="165" font-size="14" fill="var(--svg-fill)" font-weight="bold">C</text>
+                                <text x="8" y="165" font-size="14" fill="var(--svg-fill)" font-weight="bold">D</text>
+                                <text x="125" y="165" font-size="13" fill="var(--svg-dimension)">b</text>
+                                <text x="235" y="95" font-size="13" fill="var(--svg-dimension)">a</text>
+                                <line x1="50" y1="30" x2="50" y2="150" stroke="var(--svg-height)" stroke-width="2" stroke-dasharray="6,3"/>
+                                <text x="55" y="95" font-size="13" fill="var(--svg-height)">h</text>
+                                <line x1="50" y1="30" x2="180" y2="150" stroke="var(--svg-dimension)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <line x1="210" y1="30" x2="20" y2="150" stroke="var(--svg-dimension)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                            </svg>
+                        </div>
+                        <ul class="comp-list"><li>Стороны \(a, b\); угол между ними \(\alpha\).</li><li>Высота \(h_a\).</li><li>Диагонали \(d_1, d_2\).</li></ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Формулы</summary>
+                    <div class="details-content">
+                        <div class="formula-block"><strong>\(P = 2(a+b)\)</strong></div>
+                        <div class="formula-block"><strong>\(S = a \cdot h_a = a b \sin\alpha\)</strong></div>
+                        <div class="formula-block"><strong>\(d_1^2 + d_2^2 = 2(a^2 + b^2)\)</strong></div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Свойства</summary>
+                    <div class="details-content">
+                        <ul class="comp-list"><li>Противоположные стороны попарно равны и параллельны.</li><li>Противоположные углы равны.</li><li>Диагонали пересекаются и точкой пересечения делятся пополам.</li><li>Сумма углов, прилежащих к одной стороне, равна \(180^\circ\).</li><li>Биссектрисы противоположных углов параллельны или совпадают.</li></ul>
+                    </div>
+                </details>
+
+                <div class="footer-note">Противоположные углы равны</div>
+            </div>
+        </div>
+
+        <!-- РОМБ -->
+        <div class="geom-card quadrilateral-card" id="card-rhombus">
+            <div class="card-header" onclick="toggleCard('card-rhombus')">
+                <div class="title-wrapper"><span class="arrow">▶</span><h2>Ромб</h2></div>
+                <div class="sub">Все стороны равны, противоположные углы равны</div>
+            </div>
+            <div class="card-content">
+                <details open>
+                    <summary>Элементы</summary>
+                    <div class="details-content">
+                        <div class="img-container">
+                            <svg class="figure-svg" width="220" height="200" viewBox="0 0 220 200">
+                                <polygon points="110,20 190,100 110,180 30,100" fill="var(--img-bg)" stroke="var(--blue)" stroke-width="2.5" stroke-linejoin="round"/>
+                                <circle cx="110" cy="20" r="4" fill="var(--blue)"/>
+                                <circle cx="190" cy="100" r="4" fill="var(--blue)"/>
+                                <circle cx="110" cy="180" r="4" fill="var(--blue)"/>
+                                <circle cx="30" cy="100" r="4" fill="var(--blue)"/>
+                                <text x="105" y="15" font-size="14" fill="var(--svg-fill)" font-weight="bold">A</text>
+                                <text x="198" y="105" font-size="14" fill="var(--svg-fill)" font-weight="bold">B</text>
+                                <text x="105" y="195" font-size="14" fill="var(--svg-fill)" font-weight="bold">C</text>
+                                <text x="18" y="105" font-size="14" fill="var(--svg-fill)" font-weight="bold">D</text>
+                                <text x="145" y="65" font-size="13" fill="var(--svg-dimension)">a</text>
+                                <line x1="110" y1="20" x2="110" y2="180" stroke="var(--svg-height)" stroke-width="2" stroke-dasharray="6,3"/>
+                                <line x1="30" y1="100" x2="190" y2="100" stroke="var(--svg-height)" stroke-width="2" stroke-dasharray="6,3"/>
+                                <text x="115" y="105" font-size="13" fill="var(--svg-height)">d₁</text>
+                                <text x="105" y="55" font-size="13" fill="var(--svg-height)">d₂</text>
+                            </svg>
+                        </div>
+                        <ul class="comp-list"><li>Сторона \(a\), диагонали \(d_1, d_2\) (перпендикулярны).</li><li>Высота \(h\).</li></ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Формулы</summary>
+                    <div class="details-content">
+                        <div class="formula-block"><strong>\(P = 4a\)</strong></div>
+                        <div class="formula-block"><strong>\(S = a h = \frac{1}{2} d_1 d_2\)</strong></div>
+                        <div class="formula-block"><strong>\(a = \frac{1}{2}\sqrt{d_1^2 + d_2^2}\)</strong></div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Свойства</summary>
+                    <div class="details-content">
+                        <ul class="comp-list"><li>Все стороны равны.</li><li>Диагонали взаимно перпендикулярны и делят углы пополам.</li><li>Диагонали точкой пересечения делятся пополам.</li><li>В любой ромб можно вписать окружность.</li><li>Противоположные углы равны, сумма соседних \(180^\circ\).</li></ul>
+                    </div>
+                </details>
+
+                <div class="footer-note">Диагонали — биссектрисы углов</div>
+            </div>
+        </div>
+
+        <!-- ТРАПЕЦИЯ с точкой H -->
+        <div class="geom-card quadrilateral-card" id="card-trapezoid">
+            <div class="card-header" onclick="toggleCard('card-trapezoid')">
+                <div class="title-wrapper"><span class="arrow">▶</span><h2>Трапеция</h2></div>
+                <div class="sub">Две стороны параллельны (основания), высота \(h\)</div>
+            </div>
+            <div class="card-content">
+                <details open>
+                    <summary>Элементы</summary>
+                    <div class="details-content">
+                        <div class="img-container">
+                            <svg class="figure-svg" width="260" height="200" viewBox="0 0 260 200">
+                                <polygon points="70,40 190,40 220,170 40,170" fill="var(--img-bg)" stroke="var(--blue)" stroke-width="2.5" stroke-linejoin="round"/>
+                                <circle cx="70" cy="40" r="4" fill="var(--blue)"/>
+                                <circle cx="190" cy="40" r="4" fill="var(--blue)"/>
+                                <circle cx="220" cy="170" r="4" fill="var(--blue)"/>
+                                <circle cx="40" cy="170" r="4" fill="var(--blue)"/>
+                                <text x="58" y="35" font-size="14" fill="var(--svg-fill)" font-weight="bold">A</text>
+                                <text x="198" y="35" font-size="14" fill="var(--svg-fill)" font-weight="bold">B</text>
+                                <text x="228" y="185" font-size="14" fill="var(--svg-fill)" font-weight="bold">C</text>
+                                <text x="28" y="185" font-size="14" fill="var(--svg-fill)" font-weight="bold">D</text>
+                                <text x="125" y="185" font-size="13" fill="var(--svg-dimension)">b</text>
+                                <text x="125" y="32" font-size="13" fill="var(--svg-dimension)">a</text>
+                                <text x="225" y="110" font-size="13" fill="var(--svg-dimension)">c</text>
+                                <text x="55" y="110" font-size="13" fill="var(--svg-dimension)">d</text>
+                                <line x1="70" y1="40" x2="70" y2="170" stroke="var(--svg-height)" stroke-width="2" stroke-dasharray="6,3"/>
+                                <text x="75" y="110" font-size="13" fill="var(--svg-height)">h</text>
+                                <circle cx="70" cy="170" r="4" fill="var(--green)"/>
+                                <text x="75" y="185" font-size="14" fill="var(--green)" font-weight="bold">H</text>
+                            </svg>
+                        </div>
+                        <ul class="comp-list"><li>Основания \(a\) (верхнее) и \(b\) (нижнее).</li><li>Боковые стороны \(c, d\), высота \(h\) (перпендикуляр между основаниями).</li><li>Точка \(H\) — основание высоты на нижнем основании.</li><li>Средняя линия \(m = \dfrac{a+b}{2}\).</li></ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Формулы</summary>
+                    <div class="details-content">
+                        <div class="formula-block"><strong>\(P = a + b + c + d\)</strong></div>
+                        <div class="formula-block"><strong>\(S = \frac{1}{2}(a+b)h = m \cdot h\)</strong></div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Свойства</summary>
+                    <div class="details-content">
+                        <ul class="comp-list"><li>Две стороны параллельны (основания).</li><li>Средняя линия параллельна основаниям и равна их полусумме.</li><li>В равнобедренной трапеции углы при каждом основании равны и диагонали равны.</li><li>Сумма углов, прилежащих к боковой стороне, равна \(180^\circ\).</li></ul>
+                    </div>
+                </details>
+
+                <div class="footer-note">Средняя линия — ключ к площади</div>
+            </div>
+        </div>
+
+        <!-- ПРАВИЛЬНЫЙ ПЯТИУГОЛЬНИК -->
+        <div class="geom-card pentagon-card" id="card-pentagon">
+            <div class="card-header" onclick="toggleCard('card-pentagon')">
+                <div class="title-wrapper"><span class="arrow">▶</span><h2>Правильный пятиугольник</h2></div>
+                <div class="sub">Все стороны равны, все углы равны 108°</div>
+            </div>
+            <div class="card-content">
+                <details open>
+                    <summary>Элементы</summary>
+                    <div class="details-content">
+                        <div class="img-container">
+                            <svg class="figure-svg" width="240" height="220" viewBox="0 0 240 220">
+                                <polygon points="120,30 198,76 178,164 62,164 42,76" fill="var(--img-bg)" stroke="var(--purple)" stroke-width="2.5" stroke-linejoin="round"/>
+                                <circle cx="120" cy="30" r="4" fill="var(--purple)"/>
+                                <circle cx="198" cy="76" r="4" fill="var(--purple)"/>
+                                <circle cx="178" cy="164" r="4" fill="var(--purple)"/>
+                                <circle cx="62" cy="164" r="4" fill="var(--purple)"/>
+                                <circle cx="42" cy="76" r="4" fill="var(--purple)"/>
+                                <text x="115" y="25" font-size="14" fill="var(--svg-fill)" font-weight="bold">A</text>
+                                <text x="206" y="80" font-size="14" fill="var(--svg-fill)" font-weight="bold">B</text>
+                                <text x="186" y="180" font-size="14" fill="var(--svg-fill)" font-weight="bold">C</text>
+                                <text x="50" y="180" font-size="14" fill="var(--svg-fill)" font-weight="bold">D</text>
+                                <text x="30" y="80" font-size="14" fill="var(--svg-fill)" font-weight="bold">E</text>
+                                <text x="165" y="55" font-size="13" fill="var(--svg-dimension)">a</text>
+                                <circle cx="120" cy="110" r="3" fill="var(--red)"/>
+                                <text x="120" y="105" font-size="12" fill="var(--red)" font-weight="bold">O</text>
+                                <line x1="120" y1="110" x2="120" y2="30" stroke="var(--svg-height)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <text x="125" y="75" font-size="12" fill="var(--svg-height)">R</text>
+                                <line x1="120" y1="110" x2="120" y2="164" stroke="var(--svg-dimension)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <text x="125" y="140" font-size="12" fill="var(--svg-dimension)">r</text>
+                                <line x1="120" y1="30" x2="62" y2="164" stroke="var(--svg-dimension)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <text x="95" y="105" font-size="12" fill="var(--svg-dimension)">d</text>
+                            </svg>
+                        </div>
+                        <ul class="comp-list"><li>Сторона \(a\).</li><li>Количество сторон \(n = 5\).</li><li>Угол при вершине: \(108^\circ\).</li><li>Центральный угол: \(72^\circ\).</li><li>Радиус описанной окружности: \(R = \dfrac{a}{2\sin 36^\circ}\).</li><li>Радиус вписанной окружности (апофема): \(r = \dfrac{a}{2\operatorname{tg} 36^\circ}\).</li><li>Диагональ: \(d = a \cdot \varphi\), где \(\varphi = \frac{1+\sqrt{5}}{2}\) — золотое сечение.</li></ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Формулы</summary>
+                    <div class="details-content">
+                        <div class="formula-block"><strong>\(P = 5a\)</strong></div>
+                        <div class="formula-block"><strong>\(S = \frac{5}{4} a^2 \operatorname{ctg} \frac{\pi}{5} = \frac{5}{4} a^2 \operatorname{ctg} 36^\circ\)</strong></div>
+                        <div class="formula-block"><strong>\(S = \frac{1}{2} P \cdot r = \frac{5}{2} a \cdot r\)</strong></div>
+                        <div class="formula-block"><strong>\(S \approx 1.720477 a^2\)</strong></div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Свойства</summary>
+                    <div class="details-content">
+                        <ul class="comp-list"><li>Все стороны равны, все углы равны.</li><li>Имеет 5 осей симметрии.</li><li>Отношение диагонали к стороне равно золотому сечению \(\varphi = \frac{1+\sqrt{5}}{2} \approx 1.618\).</li><li>Площадь: \(S = \frac{5}{2} R^2 \sin 72^\circ\).</li><li>Вписанная окружность касается всех сторон.</li></ul>
+                    </div>
+                </details>
+
+                <div class="footer-note">Симметрия золотого сечения</div>
+            </div>
+        </div>
+
+        <!-- ПРАВИЛЬНЫЙ ШЕСТИУГОЛЬНИК -->
+        <div class="geom-card hexagon-card" id="card-hexagon">
+            <div class="card-header" onclick="toggleCard('card-hexagon')">
+                <div class="title-wrapper"><span class="arrow">▶</span><h2>Правильный шестиугольник</h2></div>
+                <div class="sub">Все стороны равны, все углы равны 120°</div>
+            </div>
+            <div class="card-content">
+                <details open>
+                    <summary>Элементы</summary>
+                    <div class="details-content">
+                        <div class="img-container">
+                            <svg class="figure-svg" width="260" height="240" viewBox="0 0 260 240">
+                                <polygon points="130,40 200,80 200,160 130,200 60,160 60,80" fill="var(--img-bg)" stroke="var(--green)" stroke-width="2.5" stroke-linejoin="round"/>
+                                <circle cx="130" cy="40" r="4" fill="var(--green)"/>
+                                <circle cx="200" cy="80" r="4" fill="var(--green)"/>
+                                <circle cx="200" cy="160" r="4" fill="var(--green)"/>
+                                <circle cx="130" cy="200" r="4" fill="var(--green)"/>
+                                <circle cx="60" cy="160" r="4" fill="var(--green)"/>
+                                <circle cx="60" cy="80" r="4" fill="var(--green)"/>
+                                <text x="125" y="35" font-size="14" fill="var(--svg-fill)" font-weight="bold">A</text>
+                                <text x="208" y="85" font-size="14" fill="var(--svg-fill)" font-weight="bold">B</text>
+                                <text x="208" y="165" font-size="14" fill="var(--svg-fill)" font-weight="bold">C</text>
+                                <text x="125" y="215" font-size="14" fill="var(--svg-fill)" font-weight="bold">D</text>
+                                <text x="45" y="165" font-size="14" fill="var(--svg-fill)" font-weight="bold">E</text>
+                                <text x="45" y="85" font-size="14" fill="var(--svg-fill)" font-weight="bold">F</text>
+                                <text x="170" y="65" font-size="13" fill="var(--svg-dimension)">a</text>
+                                <circle cx="130" cy="120" r="3" fill="var(--red)"/>
+                                <text x="130" y="115" font-size="12" fill="var(--red)" font-weight="bold">O</text>
+                                <polygon points="130,120 130,200 200,160" fill="none" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <text x="150" y="165" font-size="11" fill="var(--orange)">DOC</text>
+                                <line x1="130" y1="120" x2="130" y2="40" stroke="var(--svg-height)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <text x="135" y="85" font-size="12" fill="var(--svg-height)">R</text>
+                                <line x1="130" y1="120" x2="165" y2="60" stroke="var(--svg-dimension)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <text x="155" y="95" font-size="12" fill="var(--svg-dimension)">r</text>
+                                <polyline points="165,60 160,65 155,55" fill="none" stroke="var(--svg-dimension)" stroke-width="1.2"/>
+                            </svg>
+                        </div>
+                        <ul class="comp-list"><li>Сторона \(a\).</li><li>Количество сторон \(n = 6\).</li><li>Угол при вершине: \(120^\circ\).</li><li>Центральный угол: \(60^\circ\).</li><li>Радиус описанной окружности: \(R = a\).</li><li>Радиус вписанной окружности (апофема): \(r = \dfrac{a\sqrt{3}}{2}\).</li><li>Треугольник \(DOC\) — равносторонний (правильный).</li></ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Формулы</summary>
+                    <div class="details-content">
+                        <div class="formula-block"><strong>\(P = 6a\)</strong></div>
+                        <div class="formula-block"><strong>\(S = \frac{3\sqrt{3}}{2} a^2 \approx 2.598076 a^2\)</strong></div>
+                        <div class="formula-block"><strong>\(S = \frac{1}{2} P \cdot r = 3a \cdot r\)</strong></div>
+                        <div class="formula-block"><strong>\(R = a\)</strong></div>
+                        <div class="formula-block"><strong>\(r = \frac{\sqrt{3}}{2} a \approx 0.866025 a\)</strong></div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Свойства</summary>
+                    <div class="details-content">
+                        <ul class="comp-list"><li>Все стороны равны, все углы равны.</li><li>Имеет 6 осей симметрии.</li><li>Радиус описанной окружности равен стороне: \(R = a\).</li><li>Шестиугольник можно разбить на 6 равносторонних треугольников.</li><li>Площадь: \(S = 6 \cdot \frac{\sqrt{3}}{4} a^2 = \frac{3\sqrt{3}}{2} a^2\).</li><li>Вписанная окружность касается всех сторон.</li></ul>
+                    </div>
+                </details>
+
+                <div class="footer-note">Соты — пример из природы</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+        <a href="index.html" class="back-link">Назад в меню</a>
+    </div>
+
+</div>
+
+<script>
+    function toggleCard(cardId) {
+        var card = document.getElementById(cardId);
+        card.classList.toggle('open');
+    }
+
+    (function(){
+        var t = localStorage.getItem('mathTheme');
+        if(t === 'light'){
+            document.documentElement.classList.add('light-mode');
+            var b = document.getElementById('themeBtn');
+            if(b) b.textContent = '☀️';
+        }
+    })();
+
+    function toggleTheme(){
+        var h = document.documentElement;
+        var b = document.getElementById('themeBtn');
+        if(h.classList.contains('light-mode')){
+            h.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            if(b) b.textContent = '🌙';
+        } else {
+            h.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            if(b) b.textContent = '☀️';
+        }
+    }
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

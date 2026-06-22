@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <title>Логарифмические уравнения — 10-11 класс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(139,92,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #8b5cf6; --example-bg: #162a38;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #8b5cf6; --example-bg: #e8f0fe;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: #a78bfa; margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #7c3aed; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Логарифмические уравнения</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое логарифмическое уравнение</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Логарифмическое уравнение</strong> — уравнение, в котором переменная содержится под знаком логарифма.</p>
+            <div class="formula-block">
+                $\log_2 x = 3$<br>
+                $\log_3(x+1) = \log_3(2x-5)$<br>
+                $\log_2^2 x - 3\log_2 x + 2 = 0$<br>
+                $\lg(x^2-2x) = \lg(x+4)$
+            </div>
+            <div class="important">
+                <strong>⚠️ Важно:</strong> При решении логарифмических уравнений обязательна проверка <strong>ОДЗ</strong> или подстановка в исходное уравнение! Под знаком логарифма может находиться только <strong>положительное</strong> число.
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Метод потенцирования</span>
+            <span class="sub-title">$\log_a f(x) = \log_a g(x) \Rightarrow f(x) = g(x)$</span>
+        </div>
+        <div class="section-content">
+            <p>Если логарифмы с одинаковым основанием равны, то равны и их аргументы.</p>
+
+            <div class="example">
+                <strong>Пример 1.</strong> $\log_3(x+1) = \log_3(2x-5)$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                $x+1 > 0 \Rightarrow x > -1$<br>
+                $2x-5 > 0 \Rightarrow x > 2{,}5$<br>
+                Общая ОДЗ: $x > 2{,}5$.<br><br>
+                <span class="step">Шаг 2. Потенцируем (убираем логарифмы).</span>
+                $x+1 = 2x-5$<br>
+                $x = 6$.<br><br>
+                <span class="step">Шаг 3. Проверка ОДЗ.</span>
+                $6 > 2{,}5$ — подходит.<br><br>
+                <span class="result">Ответ: $x = 6$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2.</strong> $\lg(x^2-2x) = \lg(x+4)$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                $x^2-2x > 0 \Rightarrow x < 0$ или $x > 2$<br>
+                $x+4 > 0 \Rightarrow x > -4$<br>
+                Общая ОДЗ: $-4 < x < 0$ или $x > 2$.<br><br>
+                <span class="step">Шаг 2. Потенцируем.</span>
+                $x^2-2x = x+4 \Rightarrow x^2-3x-4=0$.<br>
+                Корни: $x_1 = -1$, $x_2 = 4$.<br><br>
+                <span class="step">Шаг 3. Проверка ОДЗ.</span>
+                $x = -1$: $-4 < -1 < 0$ — подходит.<br>
+                $x = 4$: $4 > 2$ — подходит.<br><br>
+                <span class="result">Ответ: $x = -1$ или $x = 4$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Метод замены переменной</span>
+            <span class="sub-title">сведение к квадратному уравнению</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 3.</strong> $\log_2^2 x - 3\log_2 x + 2 = 0$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$.<br><br>
+                <span class="step">Шаг 2. Замена $t = \log_2 x$.</span>
+                $t^2 - 3t + 2 = 0$.<br>
+                Корни: $t_1 = 1$, $t_2 = 2$.<br><br>
+                <span class="step">Шаг 3. Возврат.</span>
+                $\log_2 x = 1 \Rightarrow x = 2$<br>
+                $\log_2 x = 2 \Rightarrow x = 4$<br>
+                Оба подходят по ОДЗ.<br><br>
+                <span class="result">Ответ: $x = 2$ или $x = 4$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 4.</strong> $\log_3^2 x + \log_3 x - 6 = 0$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$. Замена $t = \log_3 x$.<br><br>
+                <span class="step">Шаг 2.</span> $t^2 + t - 6 = 0$. Корни: $t_1 = 2$, $t_2 = -3$.<br><br>
+                <span class="step">Шаг 3.</span> $\log_3 x = 2 \Rightarrow x = 9$. $\log_3 x = -3 \Rightarrow x = 3^{-3} = \dfrac{1}{27}$.<br>
+                Оба подходят по ОДЗ.<br><br>
+                <span class="result">Ответ: $x = \dfrac{1}{27}$ или $x = 9$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Метод приведения к одному основанию</span>
+            <span class="sub-title">использование свойств логарифмов</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 5.</strong> $\log_2 x + \log_4 x = 6$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$.<br><br>
+                <span class="step">Шаг 2. Приводим к основанию $2$.</span>
+                $\log_4 x = \dfrac{\log_2 x}{\log_2 4} = \dfrac{\log_2 x}{2}$.<br>
+                Уравнение: $\log_2 x + \dfrac{1}{2}\log_2 x = 6$, то есть $\dfrac{3}{2}\log_2 x = 6$.<br><br>
+                <span class="step">Шаг 3.</span> $\log_2 x = 4 \Rightarrow x = 16$.<br><br>
+                <span class="result">Ответ: $x = 16$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 6.</strong> $\log_3 x - \log_9 x = 2$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$.<br><br>
+                <span class="step">Шаг 2.</span> $\log_9 x = \dfrac{\log_3 x}{\log_3 9} = \dfrac{\log_3 x}{2}$.<br>
+                $\log_3 x - \dfrac{1}{2}\log_3 x = 2 \Rightarrow \dfrac{1}{2}\log_3 x = 2$.<br><br>
+                <span class="step">Шаг 3.</span> $\log_3 x = 4 \Rightarrow x = 81$.<br><br>
+                <span class="result">Ответ: $x = 81$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Логарифмирование показательных уравнений</span>
+            <span class="sub-title">когда переменная и в основании, и в показателе</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 7.</strong> $x^{\log_2 x} = 16$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$, $x \neq 1$.<br><br>
+                <span class="step">Шаг 2. Логарифмируем по основанию $2$.</span>
+                $\log_2(x^{\log_2 x}) = \log_2 16$<br>
+                $\log_2 x \cdot \log_2 x = 4$<br>
+                $(\log_2 x)^2 = 4$.<br><br>
+                <span class="step">Шаг 3.</span> $\log_2 x = 2 \Rightarrow x = 4$, или $\log_2 x = -2 \Rightarrow x = \dfrac{1}{4}$.<br>
+                Оба подходят по ОДЗ.<br><br>
+                <span class="result">Ответ: $x = \dfrac{1}{4}$ или $x = 4$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🎯 Задачи с параметром ★</span>
+            <span class="sub-title">логарифмические уравнения с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 8.</strong> При каких $a$ уравнение $\log_2(x+a) = \log_2(x-1)$ имеет решение?<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                $x+a > 0$, $x-1 > 0 \Rightarrow x > 1$, $x > -a$.<br><br>
+                <span class="step">Шаг 2. Потенцируем.</span>
+                $x+a = x-1 \Rightarrow a = -1$.<br><br>
+                <span class="step">Шаг 3.</span> При $a = -1$ уравнение имеет вид $\log_2(x-1) = \log_2(x-1)$ — верно при любом $x > 1$.<br>
+                Значит, решений бесконечно много при $a = -1$. При других $a$ решений нет.<br><br>
+                <span class="result">Ответ: $a = -1$ (бесконечно много решений).</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

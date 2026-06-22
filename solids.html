@@ -1,0 +1,371 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тела вращения — справочник</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --icon-color: #8ba5b8;
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --menu-card-bg: #1e3545;
+            --menu-item-bg: #1e3545;
+            --menu-item-hover: #233e50;
+            --timer-bg: #2c5a77;
+            --timer-warning: #f39c12;
+            --timer-danger: #e74c3c;
+            --progress-bg: #2c5a77;
+            --progress-fill: #1abc9c;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #6a7e9c;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --icon-color: #1a2d3c;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --menu-card-bg: white;
+            --menu-item-bg: white;
+            --menu-item-hover: linear-gradient(95deg, #f8fafd, #ffffff);
+            --timer-bg: #e2e8f0;
+            --progress-bg: #e2e8f0;
+            --progress-fill: #1abc9c;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:720px;margin:0 auto;position:relative;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:white;margin-bottom:6px;text-transform:uppercase;letter-spacing:2px;}
+        :root.light-mode h1{background:linear-gradient(135deg,#1a2a3f,#2c5a77);-webkit-background-clip:text;background-clip:text;color:transparent;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .menu-card{background:var(--menu-card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.04);animation:fadeInUp 0.4s ease-out;}
+        .menu-item{display:flex;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border);text-decoration:none;transition:all 0.2s;cursor:pointer;background:var(--menu-item-bg);}
+        .menu-item:hover{background:var(--menu-item-hover);transform:translateX(4px);}
+        .menu-item:last-child{border-bottom:none;}
+        .menu-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-right:16px;font-size:24px;font-weight:400;color:var(--icon-color);transition:all 0.2s;flex-shrink:0;}
+        .menu-item:hover .menu-icon{color:var(--accent);transform:scale(1.05);}
+        .item-content{flex:1;}
+        .item-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-0.2px;}
+        .item-desc{font-size:0.75rem;color:var(--text-secondary);line-height:1.4;}
+        .arrow{font-size:22px;color:var(--text-secondary);transition:all 0.2s;flex-shrink:0;}
+        .menu-item:hover .arrow{transform:translateX(5px);color:var(--accent);}
+        .footer{text-align:center;margin-top:28px;}
+        .back-link{display:inline-block;padding:12px 28px;background:var(--card-bg);border:1px solid var(--border);border-radius:40px;color:var(--text-secondary);text-decoration:none;font-weight:600;font-size:0.9rem;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+        .back-link:hover{background:var(--menu-item-hover);transform:translateY(-2px);border-color:var(--accent);}
+
+        /* Секция теста */
+        .test-section{margin-top:20px;text-align:center;}
+        .test-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);color:white;border:none;padding:14px 28px;border-radius:40px;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,0.1);transition:all 0.2s;border:1px solid rgba(255,255,255,0.1);}
+        .test-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,0.15);}
+
+        /* Таймер */
+        .timer-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--timer-bg);border-radius:14px;}
+        .timer-icon{font-size:1.2rem;}
+        .timer-text{font-weight:600;color:var(--text);font-size:0.9rem;}
+        .timer-text.warning{color:var(--timer-warning);}
+        .timer-text.danger{color:var(--timer-danger);animation:pulse 1s infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+
+        /* Прогресс-бар */
+        .progress-container{margin-bottom:16px;}
+        .progress-info{display:flex;justify-content:space-between;margin-bottom:6px;color:var(--text-secondary);font-size:0.8rem;}
+        .progress-bar{height:8px;background:var(--progress-bg);border-radius:10px;overflow:hidden;}
+        .progress-fill{height:100%;background:var(--progress-fill);border-radius:10px;transition:width 0.3s ease;}
+
+        .test-container{margin-top:20px;background:var(--card-bg);border-radius:24px;padding:20px;border:1px solid var(--border);text-align:left;}
+        .test-container h3{font-size:1.2rem;color:var(--text);margin-bottom:6px;}
+        .test-info{color:var(--text-secondary);margin-bottom:20px;font-size:0.85rem;}
+        .question{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+        .question:last-of-type{border-bottom:none;margin-bottom:12px;padding-bottom:0;}
+        .question p{font-weight:600;color:var(--text);margin-bottom:10px;font-size:1rem;}
+        .options{display:flex;flex-direction:column;gap:6px;}
+        .options label{display:block;padding:10px 14px;background:var(--menu-item-bg);border-radius:14px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;font-size:0.95rem;color:var(--text);}
+        .options label:hover{background:var(--menu-item-hover);border-color:var(--accent);}
+        .options input{margin-right:10px;accent-color:var(--accent);}
+        .test-submit{background:var(--accent);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:0.95rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all 0.2s;width:100%;}
+        .test-submit:hover{background:#16a085;}
+        .test-submit:disabled{opacity:0.5;cursor:not-allowed;}
+        .test-result{margin-top:16px;padding:14px;border-radius:18px;text-align:center;font-weight:600;font-size:1rem;}
+        .test-result.excellent{background:#d1fae5;color:#065f46;}
+        .test-result.good{background:#fef3c7;color:#92400e;}
+        .test-result.poor{background:#fee2e2;color:#991b1b;}
+        .restart-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:0.9rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all 0.2s;width:100%;}
+        .restart-btn:hover{transform:translateY(-2px);}
+        @media (max-width:550px){body{padding:20px 14px 36px;}h1{font-size:1.3rem;}.menu-icon{width:40px;height:40px;font-size:20px;margin-right:12px;}.menu-item{padding:14px 16px;}.item-title{font-size:0.95rem;}.item-desc{font-size:0.7rem;}.arrow{font-size:20px;}.test-container{padding:16px;}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.05,displayAlign:'center'},startup:{ready:()=>{MathJax.startup.defaultReady();}}};
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header">
+        <h1>Тела вращения</h1>
+        <div class="subtitle">Объём, площадь поверхности, свойства</div>
+    </div>
+    <div class="menu-card">
+        <a href="cylinder.html" class="menu-item"><div class="menu-icon">⊡</div><div class="item-content"><div class="item-title">Цилиндр</div><div class="item-desc">Два параллельных основания, боковая поверхность — формулы объёма и площади</div></div><div class="arrow">›</div></a>
+        <a href="cone.html" class="menu-item"><div class="menu-icon">△</div><div class="item-content"><div class="item-title">Конус</div><div class="item-desc">Круглое основание, вершина, образующая — формулы и свойства</div></div><div class="arrow">›</div></a>
+        <a href="truncated-cone.html" class="menu-item"><div class="menu-icon">⏢</div><div class="item-content"><div class="item-title">Усечённый конус</div><div class="item-desc">Два параллельных основания, боковая поверхность — формулы объёма и площади</div></div><div class="arrow">›</div></a>
+        <a href="sphere.html" class="menu-item"><div class="menu-icon">○</div><div class="item-content"><div class="item-title">Сфера / Шар</div><div class="item-desc">Поверхность и тело вращения, формулы объёма и площади</div></div><div class="arrow">›</div></a>
+    </div>
+    <div class="test-section">
+        <button class="test-btn" onclick="startTest()">ПРОВЕРИТЬ ЗНАНИЯ ПО ТЕЛАМ ВРАЩЕНИЯ</button>
+        <div id="testContainer" class="test-container" style="display:none;"></div>
+    </div>
+    <div class="footer">
+        <a href="geometry.html" class="back-link">← Назад в геометрию</a>
+    </div>
+</div>
+
+<script>
+    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+
+    // Банк из 40 вопросов
+    const questionBank=[
+    // Цилиндр — объём (5 вопросов)
+    {question:"Объём цилиндра равен:",options:["\\( V = \\pi R^2 h \\)","\\( V = 2\\pi R h \\)","\\( V = \\frac{1}{3}\\pi R^2 h \\)","\\( V = \\pi R h \\)"],correct:0},
+    {question:"Объём цилиндра с радиусом 3 см и высотой 5 см:",options:["\\( 45\\pi \\) см³","\\( 30\\pi \\) см³","\\( 15\\pi \\) см³","\\( 75\\pi \\) см³"],correct:0},
+    {question:"Если высоту цилиндра увеличить в 2 раза, его объём:",options:["Увеличится в 2 раза","Увеличится в 4 раза","Увеличится в 8 раз","Не изменится"],correct:0},
+    {question:"Если радиус цилиндра увеличить в 2 раза, его объём:",options:["Увеличится в 4 раза","Увеличится в 2 раза","Увеличится в 8 раз","Не изменится"],correct:0},
+    {question:"Объём цилиндра с диаметром 10 см и высотой 4 см:",options:["\\( 100\\pi \\) см³","\\( 40\\pi \\) см³","\\( 200\\pi \\) см³","\\( 50\\pi \\) см³"],correct:0},
+
+    // Цилиндр — площадь поверхности (5 вопросов)
+    {question:"Площадь боковой поверхности цилиндра:",options:["\\( S_{\\text{бок}} = 2\\pi R h \\)","\\( S_{\\text{бок}} = \\pi R^2 h \\)","\\( S_{\\text{бок}} = \\pi R h \\)","\\( S_{\\text{бок}} = 2\\pi R^2 \\)"],correct:0},
+    {question:"Площадь полной поверхности цилиндра:",options:["\\( S = 2\\pi R (R + h) \\)","\\( S = 2\\pi R h \\)","\\( S = \\pi R^2 + 2\\pi R h \\)","\\( S = 2\\pi R^2 + \\pi R h \\)"],correct:0},
+    {question:"Площадь основания цилиндра:",options:["\\( \\pi R^2 \\)","\\( 2\\pi R \\)","\\( \\pi R^2 h \\)","\\( 2\\pi R^2 \\)"],correct:0},
+    {question:"Боковая поверхность цилиндра с R=2 см и h=5 см:",options:["\\( 20\\pi \\) см²","\\( 10\\pi \\) см²","\\( 40\\pi \\) см²","\\( 4\\pi \\) см²"],correct:0},
+    {question:"Полная поверхность цилиндра с R=3 см и h=4 см:",options:["\\( 42\\pi \\) см²","\\( 24\\pi \\) см²","\\( 54\\pi \\) см²","\\( 36\\pi \\) см²"],correct:0},
+
+    // Конус — объём (5 вопросов)
+    {question:"Объём конуса равен:",options:["\\( V = \\frac{1}{3}\\pi R^2 h \\)","\\( V = \\pi R^2 h \\)","\\( V = \\frac{1}{2}\\pi R^2 h \\)","\\( V = \\frac{1}{3}\\pi R h \\)"],correct:0},
+    {question:"Объём конуса с R=3 см и h=6 см:",options:["\\( 18\\pi \\) см³","\\( 54\\pi \\) см³","\\( 36\\pi \\) см³","\\( 9\\pi \\) см³"],correct:0},
+    {question:"Если высоту конуса увеличить в 3 раза, его объём:",options:["Увеличится в 3 раза","Увеличится в 9 раз","Увеличится в 6 раз","Увеличится в 27 раз"],correct:0},
+    {question:"Конус и цилиндр имеют равные R и h. Объём конуса:",options:["В 3 раза меньше объёма цилиндра","В 2 раза меньше","Равен объёму цилиндра","В 4 раза меньше"],correct:0},
+    {question:"Объём конуса с диаметром 8 см и высотой 9 см:",options:["\\( 48\\pi \\) см³","\\( 192\\pi \\) см³","\\( 144\\pi \\) см³","\\( 96\\pi \\) см³"],correct:0},
+
+    // Конус — площадь поверхности (5 вопросов)
+    {question:"Площадь боковой поверхности конуса:",options:["\\( S_{\\text{бок}} = \\pi R \\ell \\)","\\( S_{\\text{бок}} = 2\\pi R \\ell \\)","\\( S_{\\text{бок}} = \\pi R^2 \\)","\\( S_{\\text{бок}} = \\frac{1}{2}\\pi R \\ell \\)"],correct:0},
+    {question:"Площадь полной поверхности конуса:",options:["\\( S = \\pi R (R + \\ell) \\)","\\( S = \\pi R \\ell \\)","\\( S = \\pi R^2 + \\pi R \\ell \\)","\\( S = 2\\pi R (R + \\ell) \\)"],correct:0},
+    {question:"Образующая конуса \\( \\ell \\) через R и h:",options:["\\( \\ell = \\sqrt{R^2 + h^2} \\)","\\( \\ell = R + h \\)","\\( \\ell = \\sqrt{R^2 - h^2} \\)","\\( \\ell = \\sqrt{Rh} \\)"],correct:0},
+    {question:"Боковая поверхность конуса с R=4 см и ℓ=5 см:",options:["\\( 20\\pi \\) см²","\\( 40\\pi \\) см²","\\( 10\\pi \\) см²","\\( 16\\pi \\) см²"],correct:0},
+    {question:"Полная поверхность конуса с R=3 см и ℓ=5 см:",options:["\\( 24\\pi \\) см²","\\( 15\\pi \\) см²","\\( 30\\pi \\) см²","\\( 39\\pi \\) см²"],correct:0},
+
+    // Усечённый конус (5 вопросов)
+    {question:"Объём усечённого конуса:",options:["\\( V = \\frac{1}{3}\\pi h (R^2 + Rr + r^2) \\)","\\( V = \\frac{1}{3}\\pi h (R^2 + r^2) \\)","\\( V = \\pi h (R^2 - r^2) \\)","\\( V = \\frac{1}{3}\\pi h (R^2 - r^2) \\)"],correct:0},
+    {question:"Боковая поверхность усечённого конуса:",options:["\\( S_{\\text{бок}} = \\pi \\ell (R + r) \\)","\\( S_{\\text{бок}} = 2\\pi \\ell (R + r) \\)","\\( S_{\\text{бок}} = \\pi \\ell (R - r) \\)","\\( S_{\\text{бок}} = \\pi \\ell R r \\)"],correct:0},
+    {question:"Образующая усечённого конуса:",options:["\\( \\ell = \\sqrt{h^2 + (R - r)^2} \\)","\\( \\ell = \\sqrt{h^2 + (R + r)^2} \\)","\\( \\ell = \\sqrt{h^2 - (R - r)^2} \\)","\\( \\ell = h + R - r \\)"],correct:0},
+    {question:"Полная поверхность усечённого конуса:",options:["\\( S = \\pi \\ell (R + r) + \\pi R^2 + \\pi r^2 \\)","\\( S = 2\\pi \\ell (R + r) \\)","\\( S = \\pi \\ell (R + r) + \\pi R^2 \\)","\\( S = \\pi \\ell (R - r) + \\pi R^2 + \\pi r^2 \\)"],correct:0},
+    {question:"Объём усечённого конуса с R=5, r=3, h=6:",options:["\\( 98\\pi \\)","\\( 49\\pi \\)","\\( 196\\pi \\)","\\( 147\\pi \\)"],correct:0},
+
+    // Шар и сфера — объём (5 вопросов)
+    {question:"Объём шара равен:",options:["\\( V = \\frac{4}{3}\\pi R^3 \\)","\\( V = 4\\pi R^2 \\)","\\( V = \\frac{1}{3}\\pi R^3 \\)","\\( V = \\pi R^2 h \\)"],correct:0},
+    {question:"Объём шара с радиусом 3 см:",options:["\\( 36\\pi \\) см³","\\( 27\\pi \\) см³","\\( 108\\pi \\) см³","\\( 12\\pi \\) см³"],correct:0},
+    {question:"Если радиус шара увеличить в 2 раза, его объём:",options:["Увеличится в 8 раз","Увеличится в 4 раза","Увеличится в 2 раза","Увеличится в 6 раз"],correct:0},
+    {question:"Объём шара с диаметром 6 см:",options:["\\( 36\\pi \\) см³","\\( 288\\pi \\) см³","\\( 72\\pi \\) см³","\\( 108\\pi \\) см³"],correct:0},
+    {question:"Объём полушара с радиусом R:",options:["\\( \\frac{2}{3}\\pi R^3 \\)","\\( \\frac{4}{3}\\pi R^3 \\)","\\( \\frac{1}{3}\\pi R^3 \\)","\\( \\frac{1}{2}\\pi R^3 \\)"],correct:0},
+
+    // Шар и сфера — площадь поверхности (5 вопросов)
+    {question:"Площадь поверхности сферы:",options:["\\( S = 4\\pi R^2 \\)","\\( S = \\frac{4}{3}\\pi R^2 \\)","\\( S = 2\\pi R^2 \\)","\\( S = \\pi R^2 \\)"],correct:0},
+    {question:"Площадь поверхности сферы с R=5 см:",options:["\\( 100\\pi \\) см²","\\( 50\\pi \\) см²","\\( 25\\pi \\) см²","\\( 200\\pi \\) см²"],correct:0},
+    {question:"Если радиус сферы увеличить в 3 раза, площадь поверхности:",options:["Увеличится в 9 раз","Увеличится в 6 раз","Увеличится в 3 раза","Увеличится в 27 раз"],correct:0},
+    {question:"Площадь полной поверхности полушара с радиусом R:",options:["\\( 3\\pi R^2 \\)","\\( 2\\pi R^2 \\)","\\( 4\\pi R^2 \\)","\\( \\pi R^2 \\)"],correct:0},
+    {question:"Площадь поверхности шара с диаметром 10 см:",options:["\\( 100\\pi \\) см²","\\( 400\\pi \\) см²","\\( 200\\pi \\) см²","\\( 50\\pi \\) см²"],correct:0},
+
+    // Смешанные и сравнительные вопросы (5 вопросов)
+    {question:"Какая фигура имеет объём \\( V = \\frac{1}{3}\\pi R^2 h \\)?",options:["Конус","Цилиндр","Шар","Усечённый конус"],correct:0},
+    {question:"Какая фигура имеет боковую поверхность \\( 2\\pi R h \\)?",options:["Цилиндр","Конус","Шар","Усечённый конус"],correct:0},
+    {question:"Какая фигура имеет площадь поверхности \\( 4\\pi R^2 \\)?",options:["Сфера","Цилиндр","Конус","Усечённый конус"],correct:0},
+    {question:"В формулу объёма цилиндра входит:",options:["Квадрат радиуса","Куб радиуса","Корень из радиуса","Радиус в первой степени"],correct:0},
+    {question:"В формулу объёма шара радиус входит в степени:",options:["3","2","1","4"],correct:0}
+    ];
+
+    let currentQuestions=[];
+    let timerInterval=null;
+    let timeLeft=0;
+    const TOTAL_TIME=600; // 10 минут
+
+    function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+    function formatTime(seconds){
+        const min=Math.floor(seconds/60);
+        const sec=seconds%60;
+        return `${min}:${sec.toString().padStart(2,'0')}`;
+    }
+
+    function updateTimerDisplay(){
+        const timerText=document.getElementById('timerText');
+        if(!timerText) return;
+        timerText.textContent=formatTime(timeLeft);
+        timerText.classList.remove('warning','danger');
+        if(timeLeft<=60) timerText.classList.add('danger');
+        else if(timeLeft<=180) timerText.classList.add('warning');
+    }
+
+    function updateProgress(){
+        const total=currentQuestions.length;
+        const answered=currentQuestions.filter((q,idx)=>{
+            const sel=document.querySelector(`input[name="q${idx}"]:checked`);
+            return sel!==null;
+        }).length;
+        const percent=Math.round((answered/total)*100);
+        const progressText=document.getElementById('progressText');
+        const progressPercent=document.getElementById('progressPercent');
+        const progressFill=document.getElementById('progressFill');
+        if(progressText) progressText.textContent=`Вопросов отвечено: ${answered} из ${total}`;
+        if(progressPercent) progressPercent.textContent=`${percent}%`;
+        if(progressFill) progressFill.style.width=`${percent}%`;
+    }
+
+    function timeExpired(){
+        const submitBtn=document.getElementById('submitBtn');
+        if(submitBtn) submitBtn.disabled=true;
+        const resultDiv=document.getElementById('testResult');
+        if(resultDiv){
+            resultDiv.innerHTML='⏰ Время вышло! Тест автоматически завершён.';
+            resultDiv.className='test-result poor';
+        }
+        checkAnswers(true);
+    }
+
+    function startTest(){
+        if(timerInterval) clearInterval(timerInterval);
+
+        const questionCount=10;
+        const shuffledBank=shuffleArray([...questionBank]);
+        const selectedQuestions=shuffledBank.slice(0, questionCount);
+
+        currentQuestions=selectedQuestions.map(q=>{
+            const opts=q.options.map((o,i)=>({text:o, idx:i}));
+            const shOpts=shuffleArray([...opts]);
+            const newCorrect=shOpts.findIndex(o=>o.idx===q.correct);
+            return {
+                question: q.question,
+                options: shOpts.map(o=>o.text),
+                correct: newCorrect
+            };
+        });
+
+        timeLeft=TOTAL_TIME;
+        updateTimerDisplay();
+
+        let html=`
+            <h3>Тест по телам вращения</h3>
+            <div class="test-info">${questionCount} случайных вопросов из 40</div>
+
+            <div class="timer-bar">
+                <span class="timer-icon">⏱️</span>
+                <span class="timer-text" id="timerText">${formatTime(timeLeft)}</span>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span id="progressText">Вопросов отвечено: 0 из ${questionCount}</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div id="questions"></div>
+            <button class="test-submit" id="submitBtn" onclick="checkAnswers(false)">ПРОВЕРИТЬ ОТВЕТЫ</button>
+            <div id="testResult" class="test-result"></div>
+        `;
+
+        document.getElementById('testContainer').innerHTML=html;
+        document.getElementById('testContainer').style.display='block';
+        renderQuestions();
+        updateProgress();
+
+        timerInterval=setInterval(()=>{
+            timeLeft--;
+            updateTimerDisplay();
+            if(timeLeft<=0){
+                clearInterval(timerInterval);
+                timeExpired();
+            }
+        }, 1000);
+
+        if(window.MathJax)MathJax.typesetPromise();
+        document.getElementById('testContainer').scrollIntoView({behavior:'smooth'});
+    }
+
+    function renderQuestions(){
+        let html='';
+        currentQuestions.forEach((q,idx)=>{
+            html+=`<div class="question"><p>${idx+1}. ${q.question}</p><div class="options">`;
+            q.options.forEach((opt,optIdx)=>{
+                html+=`<label><input type="radio" name="q${idx}" value="${optIdx}" onchange="updateProgress()"> ${opt}</label>`;
+            });
+            html+=`</div></div>`;
+        });
+        document.getElementById('questions').innerHTML=html;
+        if(window.MathJax)MathJax.typesetPromise();
+    }
+
+    function checkAnswers(timeUp=false){
+        if(timerInterval) clearInterval(timerInterval);
+
+        let correctCount=0;
+        currentQuestions.forEach((q,idx)=>{
+            const sel=document.querySelector(`input[name="q${idx}"]:checked`);
+            if(sel&&parseInt(sel.value)===q.correct) correctCount++;
+        });
+
+        const pct=correctCount/currentQuestions.length*100;
+        let msg='', cls='';
+        if(pct>=80){msg=`Отлично! ${correctCount}/${currentQuestions.length} (${Math.round(pct)}%)`;cls='excellent';}
+        else if(pct>=50){msg=`Хорошо! ${correctCount}/${currentQuestions.length} (${Math.round(pct)}%)`;cls='good';}
+        else{msg=`${correctCount}/${currentQuestions.length} (${Math.round(pct)}%). Повторите!`;cls='poor';}
+
+        if(timeUp) msg='⏰ ' + msg;
+
+        const rd=document.getElementById('testResult');
+        rd.innerHTML=msg;
+        rd.className=`test-result ${cls}`;
+
+        const submitBtn=document.getElementById('submitBtn');
+        if(submitBtn){
+            submitBtn.disabled=true;
+            submitBtn.textContent='ТЕСТ ЗАВЕРШЁН';
+        }
+
+        const restartHTML='<button class="restart-btn" onclick="startTest()">🔄 ПРОЙТИ ТЕСТ ЗАНОВО</button>';
+        if(!document.getElementById('restartBtn')){
+            rd.insertAdjacentHTML('afterend', `<div id="restartBtn">${restartHTML}</div>`);
+        }
+
+        document.querySelectorAll('input[type="radio"]').forEach(radio=>radio.disabled=true);
+        rd.scrollIntoView({behavior:'smooth'});
+    }
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

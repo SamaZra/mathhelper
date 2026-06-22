@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Первообразная · таблица и правила</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root {
+    --bg: #1a2d3c;
+    --card-bg: #1e3545;
+    --text: #ffffff;
+    --text-secondary: #8ba5b8;
+    --accent: #1abc9c;
+    --border: rgba(46, 204, 113, 0.1);
+    --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+    --formula-card-bg: #1e3545;
+    --example-bg: #1e3545;
+    --info-bg: #1e3545;
+}
+
+:root.light-mode {
+    --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+    --card-bg: white;
+    --text: #1a2a3f;
+    --text-secondary: #5a7a94;
+    --accent: #1abc9c;
+    --border: #eff3f8;
+    --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+    --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+    --example-bg: #f8fafc;
+    --info-bg: #e8f0fe;
+}
+
+body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+.container{max-width:1000px;margin:0 auto;position:relative;}
+
+.theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+.theme-toggle:hover{transform:scale(1.1);}
+
+.header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+.subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+.content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+.section{margin-bottom:20px;}
+.section-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;border-left:4px solid #ec489a;padding-left:12px;cursor:pointer;user-select:none;}
+.section-title:hover{opacity:0.8;}
+.section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+.section.collapsed .section-title::after{transform:rotate(-90deg);}
+.section-content{max-height:3000px;overflow:hidden;transition:max-height 0.4s ease;}
+.section.collapsed .section-content{max-height:0;}
+
+.definition-block{background:var(--info-bg);border-left:4px solid #ec489a;border-radius:14px;padding:14px 16px;margin:12px 0;}
+.definition-block p{font-size:0.95rem;line-height:1.4;color:var(--text);}
+.definition-block strong{color:var(--text);}
+
+.table-wrapper{overflow-x:auto;border-radius:20px;border:1px solid var(--border);background:var(--card-bg);margin-bottom:10px;}
+table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+th{background:#103956;color:white;font-weight:700;padding:10px 8px;text-align:center;border:1px solid #265d84;}
+td{padding:10px 8px;border:1px solid var(--border);vertical-align:middle;text-align:center;color:var(--text);}
+.col-func{background:var(--formula-card-bg);font-weight:600;}
+.col-antideriv{background:var(--card-bg);}
+
+.examples-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.example-card{background:var(--example-bg);border-radius:14px;padding:8px 12px;box-shadow:0 2px 6px rgba(0,0,0,0.04);border-left:4px solid #ec489a;flex:1 1 250px;font-size:0.9rem;color:var(--text);word-wrap:break-word;overflow-wrap:break-word;}
+
+.rule-card{background:var(--formula-card-bg);border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);border-left:4px solid #ec489a;text-align:center;}
+.rule-label{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);margin-bottom:6px;font-weight:500;}
+.rule-formula{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:8px;word-wrap:break-word;overflow-wrap:break-word;}
+.rule-example{background:var(--card-bg);padding:8px 12px;border-radius:12px;font-size:0.9rem;color:var(--text);word-wrap:break-word;overflow-wrap:break-word;}
+
+.back-link{display:inline-block;margin-top:24px;padding:10px 24px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
+.back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
+@media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:18px;}.section-title{font-size:1.1rem;}.example-card{flex:1 1 100%;}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+.header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.05,displayAlign:'center'}};</script>
+<script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+<button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+<div class="header"><h1>Первообразная</h1><div class="subtitle">F'(x) = f(x) · множество функций + C</div></div>
+<div class="content-card">
+
+<div class="section">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📘 Определение</div>
+<div class="section-content"><div class="definition-block">
+<p><strong>Первообразная</strong> функции \(f(x)\) — такая функция \(F(x)\), что \(F'(x) = f(x)\).</p>
+<p style="margin-top:8px;">Если \(F(x)\) — первообразная, то \(F(x) + C\) — тоже первообразная (общее решение).</p>
+<p style="margin-top:8px;"><strong>+C</strong> означает семейство функций, сдвинутых по вертикали.</p>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Таблица первообразных</div>
+<div class="section-content"><div class="table-wrapper"><table>
+<thead><tr><th>\(f(x)\)</th><th>\(F(x) + C\)</th></tr></thead>
+<tbody>
+<tr><td class="col-func">\(1\)</td><td class="col-antideriv">\(x + C\)</td></tr>
+<tr><td class="col-func">\(x^n\;(n \neq -1)\)</td><td class="col-antideriv">\(\frac{x^{n+1}}{n+1} + C\)</td></tr>
+<tr><td class="col-func">\(\frac{1}{x}\)</td><td class="col-antideriv">\(\ln|x| + C\)</td></tr>
+<tr><td class="col-func">\(\sin x\)</td><td class="col-antideriv">\(-\cos x + C\)</td></tr>
+<tr><td class="col-func">\(\cos x\)</td><td class="col-antideriv">\(\sin x + C\)</td></tr>
+<tr><td class="col-func">\(\frac{1}{\sin^2 x}\)</td><td class="col-antideriv">\(-\operatorname{ctg} x + C\)</td></tr>
+<tr><td class="col-func">\(\frac{1}{\cos^2 x}\)</td><td class="col-antideriv">\(\operatorname{tg} x + C\)</td></tr>
+<tr><td class="col-func">\(e^x\)</td><td class="col-antideriv">\(e^x + C\)</td></tr>
+<tr><td class="col-func">\(a^x\)</td><td class="col-antideriv">\(\frac{a^x}{\ln a} + C\)</td></tr>
+</tbody></table></div></div>
+</div>
+
+<div class="section collapsed">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Примеры</div>
+<div class="section-content"><div class="examples-grid">
+<div class="example-card">\(f(x)=5 \;\Rightarrow\; F(x)=5x + C\)</div>
+<div class="example-card">\(f(x)=x^4 \;\Rightarrow\; F(x)=\frac{x^5}{5} + C\)</div>
+<div class="example-card">\(f(x)=\frac{2}{x} \;\Rightarrow\; F(x)=2\ln|x| + C\)</div>
+<div class="example-card">\(f(x)=2\sin x \;\Rightarrow\; F(x)=-2\cos x + C\)</div>
+<div class="example-card">\(f(x)=3\cos x \;\Rightarrow\; F(x)=3\sin x + C\)</div>
+<div class="example-card">\(f(x)=\frac{4}{\sin^2 x} \;\Rightarrow\; F(x)=-4\operatorname{ctg} x + C\)</div>
+<div class="example-card">\(f(x)=\frac{5}{\cos^2 x} \;\Rightarrow\; F(x)=5\operatorname{tg} x + C\)</div>
+<div class="example-card">\(f(x)=3e^x \;\Rightarrow\; F(x)=3e^x + C\)</div>
+<div class="example-card">\(f(x)=4\cdot 2^x \;\Rightarrow\; F(x)=4\cdot\frac{2^x}{\ln 2} + C\)</div>
+</div></div>
+</div>
+
+<div class="section collapsed">
+<div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚙️ Правила</div>
+<div class="section-content">
+<div class="rule-card"><div class="rule-label">Правило 1 · сумма / разность</div><div class="rule-formula">\(F(x) \pm G(x)\) — первообразная для \(f(x) \pm g(x)\)</div><div class="rule-example">\(f(x)=x^2+\sin x\)<br>\(F(x)=\frac{x^3}{3}-\cos x + C\)</div></div>
+<div class="rule-card"><div class="rule-label">Правило 2 · постоянный множитель</div><div class="rule-formula">\(a\cdot F(x)\) — первообразная для \(a\cdot f(x)\)</div><div class="rule-example">\(f(x)=5\cos x\)<br>\(F(x)=5\sin x + C\)</div></div>
+<div class="rule-card"><div class="rule-label">Правило 3 · сложная функция</div><div class="rule-formula">\(\frac{1}{k}F(kx+b)\) — первообразная для \(f(kx+b)\)</div><div class="rule-example">\(f(x)=\sin(5x)\)<br>\(F(x)=-\frac{\cos(5x)}{5} + C\)</div></div>
+</div>
+</div>
+
+<a href="integral.html" class="back-link">← Назад к интегралам</a>
+</div>
+</div>
+<script>
+function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
+(function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

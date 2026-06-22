@@ -1,0 +1,627 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Сфера и шар — тело вращения (3D с полноэкранным режимом)</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --accent: #1abc9c; --border: rgba(46,204,113,0.1); --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --formula-card-bg: #1e3545; --info-bg: #1e3545; --special-border: #ec489a;
+            --property-bg: #1a2d3c; --canvas-bg: #1a2d3c; --formula-color: #ffffff; --formula-bg: #1e3545;
+            --cut-plane-color: #14b8a6;
+            --slider-bg: rgba(0,0,0,0.4);
+            --slider-text: #ffffff;
+            --img-bg: #1e3545;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --accent: #1abc9c; --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc); --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --info-bg: #e8f0fe; --special-border: #ec489a; --property-bg: white;
+            --canvas-bg: #eef2f8; --formula-color: #1a2a3f; --formula-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --cut-plane-color: #14b8a6;
+            --slider-bg: rgba(0,0,0,0.08);
+            --slider-text: #1a2a3f;
+            --img-bg: #ffffff;
+        }
+        body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);padding:8px;}
+        .container{max-width:1200px;margin:0 auto;background:var(--card-bg);border-radius:24px;padding:16px;padding-top:50px;position:relative;}
+        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+        h1{font-size:1.5rem;color:var(--text);margin:0 auto 16px auto;padding-bottom:8px;border-bottom:4px solid #ec489a;text-align:center;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--special-border);padding-left:12px;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:5000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .def-card{background:var(--info-bg);border-left:4px solid #ec489a;border-radius:14px;padding:12px 14px;margin:8px 0;}
+        .def-card p{margin:4px 0;font-size:0.95rem;line-height:1.4;color:var(--text);}
+        .def-card strong{color:var(--text);}
+
+        .img-container{text-align:center;margin:16px 0;position:relative;border-radius:24px;overflow:hidden;background:var(--canvas-bg);box-shadow:0 4px 12px rgba(0,0,0,0.15);min-height:400px;width:100%;aspect-ratio:16/9;}
+        .canvas-3d{display:block;width:100%;height:100%;background:transparent;border-radius:20px;cursor:grab;}
+        .canvas-3d:active{cursor:grabbing;}
+        .fullscreen-overlay-btn{position:absolute;bottom:15px;right:15px;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.3);cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:20;color:white;box-shadow:0 2px 10px rgba(0,0,0,0.3);}
+        .fullscreen-overlay-btn:hover{background:var(--special-border);transform:scale(1.05);}
+
+        .legend-3d{position:absolute;bottom:15px;left:15px;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);padding:8px 14px;border-radius:28px;font-size:11px;font-family:monospace;color:#ddd;pointer-events:none;z-index:10;display:flex;gap:16px;flex-wrap:wrap;}
+        .legend-3d span{display:inline-flex;align-items:center;gap:6px;}
+        .legend-3d .r-color{color:#f59e0b;font-weight:bold;}
+        .legend-3d .d-color{color:#60a5fa;font-weight:bold;}
+
+        .comp-list{list-style:none;}
+        .comp-list li{padding-left:26px;margin-bottom:10px;line-height:1.4;font-size:0.95rem;color:var(--text);background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%23ec489a"><circle cx="12" cy="12" r="6"/></svg>') left center no-repeat;background-size:16px;}
+
+        .formula-block{background:var(--formula-bg);padding:18px 20px;border-radius:24px;font-family:monospace;margin:16px 0;border-left:5px solid #ec489a;overflow-x:auto;text-align:center;font-size:1.4rem;font-weight:500;letter-spacing:0.5px;color:var(--formula-color);}
+        .formula-block mjx-container{font-size:1.5rem!important;color:var(--formula-color)!important;}
+
+        .property-card{background:var(--property-bg);border-radius:16px;padding:14px 12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);border:1px solid var(--border);text-align:center;border-left:5px solid var(--special-border);margin-bottom:10px;}
+        .property-name{font-size:0.9rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);margin-bottom:8px;font-weight:600;}
+        .property-formula{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:8px;word-wrap:break-word;}
+
+        .back-link{display:inline-block;margin:20px 0 10px;padding:10px 20px;background:#ec489a;color:white;text-decoration:none;font-weight:bold;border-radius:20px;transition:transform 0.2s;}
+        .back-link:hover{transform:scale(1.02);}
+        mjx-container{font-size:1.1em!important;overflow-x:auto!important;max-width:100%!important;}
+
+        .img-container:fullscreen{width:100vw;height:100vh;max-width:none;max-height:none;margin:0;border-radius:0;aspect-ratio:auto;}
+        .img-container:fullscreen .canvas-3d{width:100vw;height:100vh;border-radius:0;}
+
+        .schema-img{max-width:100%;border-radius:24px;background:var(--img-bg);padding:6px;box-shadow:0 4px 12px rgba(0,0,0,0.08);margin:10px auto;display:block;}
+
+        @media(max-width:700px){.img-container{min-height:280px;}.legend-3d{font-size:8px;gap:6px;padding:5px 8px;}.fullscreen-overlay-btn{width:38px;height:38px;font-size:18px;bottom:12px;right:12px;}.formula-block{padding:14px 16px;font-size:1.2rem;}}
+
+        .slider-wrapper{background:var(--slider-bg);border-radius:20px;padding:12px 16px;margin-top:12px;backdrop-filter:blur(4px);}
+        .slider-label{display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.85rem;color:var(--slider-text);flex-wrap:wrap;gap:8px;font-weight:500;}
+        input[type="range"]{width:100%;cursor:pointer;background:#14b8a6;height:5px;border-radius:5px;}
+        .case-indicator{text-align:center;margin-top:12px;padding:8px;border-radius:16px;font-weight:bold;font-size:0.85rem;}
+        .case-indicator.intersect{background:rgba(20,184,166,0.2);color:#14b8a6;}
+        .case-indicator.tangent{background:rgba(245,158,11,0.2);color:#f59e0b;}
+        .case-indicator.none{background:rgba(236,72,154,0.2);color:#ec489a;}
+        .light-mode .case-indicator.intersect{background:rgba(20,184,166,0.15);color:#0d9488;}
+        .light-mode .case-indicator.tangent{background:rgba(245,158,11,0.12);color:#d97706;}
+        .light-mode .case-indicator.none{background:rgba(236,72,154,0.12);color:#db2777;}
+    
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.2},startup:{ready:()=>{MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>{const f=()=>{const l=document.documentElement.classList.contains('light-mode');document.querySelectorAll('mjx-container').forEach(e=>e.style.color=l?'#1a2a3f':'#ffffff');};f();new MutationObserver(f).observe(document.documentElement,{attributes:true,attributeFilter:['class']});});}}};
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+    <script type="importmap">
+        {"imports":{"three":"https://unpkg.com/three@0.128.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.128.0/examples/jsm/"}}
+    </script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>○ Сфера / Шар</h1>
+
+    <!-- 3D-модель сферы -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 3D-модель сферы</div>
+        <div class="section-content">
+            <div class="img-container" id="canvas-container">
+                <canvas id="sphere-canvas" class="canvas-3d"></canvas>
+                <button class="fullscreen-overlay-btn" id="fullscreenBtn" title="Во весь экран">⛶</button>
+                <div class="legend-3d">
+                    <span>🟠 <span class="r-color">Радиус (R) = OA</span></span>
+                    <span>🔵 <span class="d-color">Диаметр (D) = AB</span></span>
+                </div>
+            </div>
+            <div class="def-card"><p><strong>Интерактивная модель:</strong> вращайте и масштабируйте. <strong>Шар</strong> — тело вращения полукруга вокруг диаметра. Синие линии — меридиан и параллель (экватор).</p></div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Определение</div>
+        <div class="section-content"><div class="def-card"><ul class="comp-list"><li><strong>Сфера</strong> — поверхность всех точек пространства на расстоянии \(R\) от центра.</li><li><strong>Шар</strong> — тело, ограниченное сферой.</li><li>Шар — тело вращения полукруга вокруг диаметра.</li></ul></div></div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🔷 Элементы</div>
+        <div class="section-content"><div class="def-card"><ul class="comp-list"><li>Центр O, радиус \(R = OA\), диаметр \(D = AB = 2R\)</li><li>Поверхность — сфера, объём — шар</li></ul></div></div>
+    </div>
+
+    <!-- Взаимное расположение сферы и плоскости с 3D-моделью и рамкой плоскости -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Взаимное расположение сферы и плоскости</div>
+        <div class="section-content">
+            <div class="def-card">
+                <ul class="comp-list">
+                    <li>\(d < R\) — сечение по окружности радиуса \(r = \sqrt{R^2 - d^2}\).</li>
+                    <li>\(d = R\) — касание.</li>
+                    <li>\(d > R\) — нет общих точек.</li>
+                </ul>
+            </div>
+
+            <div class="img-container" id="cut-container">
+                <canvas id="cut-canvas" class="canvas-3d"></canvas>
+                <button class="fullscreen-overlay-btn" id="cutFullscreenBtn" title="Во весь экран">⛶</button>
+                <div class="legend-3d">
+                    <span>🟠 Радиус сферы R</span>
+                    <span>🔴 Расстояние до плоскости d</span>
+                    <span>🔵 Радиус сечения r = √(R²−d²)</span>
+                </div>
+            </div>
+
+            <div class="slider-wrapper">
+                <div class="slider-label">
+                    <span>📏 Расстояние от центра до плоскости: <strong id="dValue">0.70·R</strong></span>
+                    <span>📐 Радиус сечения: <strong id="rValue">0.857·R</strong></span>
+                </div>
+                <input type="range" id="distSlider" min="0" max="1.5" step="0.01" value="0.70">
+                <div id="caseDisplay" class="case-indicator intersect">📊 d &lt; R — плоскость пересекает сферу, сечение — окружность</div>
+                <p style="font-size:0.7rem; text-align:center; margin-top:10px; color:var(--text-secondary);">💡 Вращайте сцену мышью (или пальцем). Плоскость (бирюзовая с рамкой) пересекает сферу — образуется синяя окружность.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧮 Формулы</div>
+        <div class="section-content">
+            <div class="formula-block">\[ S_{\text{сферы}} = 4\pi R^{2} \]</div>
+            <div class="formula-block">\[ V_{\text{шара}} = \frac{4}{3}\pi R^{3} \]</div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Шаровой сегмент, сектор, слой</div>
+        <div class="section-content">
+            <div class="property-card">
+                <div class="property-name">ШАРОВОЙ СЕГМЕНТ</div>
+                <img class="schema-img" src="segment.jpg" alt="Шаровой сегмент" style="max-width:220px; margin:0 auto 12px auto; display:block;">
+                <div class="property-formula" style="text-align:left;font-size:0.95rem;">
+                    • Объём: \(V = \pi h^2\left(R - \frac{h}{3}\right)\)<br>
+                    • Площадь сферической поверхности: \(S = 2\pi R h\)<br>
+                    • Полная поверхность (с основанием): \(S_{\text{полн}} = \pi(2Rh + r^2)\), где \(r = \sqrt{h(2R-h)}\)
+                </div>
+            </div>
+            <div class="property-card">
+                <div class="property-name">ШАРОВОЙ СЕКТОР</div>
+                <img class="schema-img" src="sektor.jpg" alt="Шаровой сектор" style="max-width:220px; margin:0 auto 12px auto; display:block;">
+                <div class="property-formula" style="text-align:left;font-size:0.95rem;">
+                    • Объём: \(V = \frac{2}{3}\pi R^2 h\)<br>
+                    • Площадь полной поверхности: \(S = \pi R(2h + r)\)
+                </div>
+            </div>
+            <div class="property-card">
+                <div class="property-name">ШАРОВОЙ СЛОЙ</div>
+                <img class="schema-img" src="sloy.jpg" alt="Шаровой слой" style="max-width:220px; margin:0 auto 12px auto; display:block;">
+                <div class="property-formula" style="text-align:left;font-size:0.95rem;">
+                    • Объём: \(V = \frac{\pi h}{6}\left(3r_1^2 + 3r_2^2 + h^2\right)\)<br>
+                    • Площадь сферической поверхности: \(S = 2\pi R h\)<br>
+                    • Высота слоя \(h\), радиусы оснований \(r_1, r_2\)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Уравнение сферы</div>
+        <div class="section-content"><div class="formula-block">\[ (x - x_0)^2 + (y - y_0)^2 + (z - z_0)^2 = R^2 \]</div></div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Свойства</div>
+        <div class="section-content"><div class="def-card"><ul class="comp-list"><li>Любое сечение шара плоскостью — круг.</li><li>Касательная плоскость ⟂ радиусу в точке касания.</li><li>Сфера имеет наименьшую площадь среди тел заданного объёма.</li></ul></div></div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    // ========== ОПРЕДЕЛЕНИЕ КАЧЕСТВА 3D (ДЛЯ ОБЕИХ МОДЕЛЕЙ) ==========
+    let quality3D = 'high';
+    if (window.Android && window.Android.getQuality3D) {
+        quality3D = window.Android.getQuality3D();
+    } else {
+        const saved = localStorage.getItem('quality3d');
+        if (saved) quality3D = saved;
+    }
+
+    const qualitySettings = {
+        low: {
+            segments: 6,
+            opacity: 1.0,
+            transparent: false
+        },
+        medium: {
+            segments: 16,
+            opacity: 0.8,
+            transparent: true
+        },
+        high: {
+            segments: 64,
+            opacity: 0.55,
+            transparent: true
+        }
+    };
+
+    const settings = qualitySettings[quality3D];
+    // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
+
+    (function(){
+        var t=localStorage.getItem('mathTheme');
+        if(t==='light'){
+            document.documentElement.classList.add('light-mode');
+            var b=document.getElementById('themeBtn');
+            if(b)b.textContent='☀️';
+        }
+    })();
+
+    let sphereScene = null;
+    let cutScene = null, cutCamera = null, cutRenderer = null, cutControls = null;
+    let cutPlaneMesh = null, cutPlaneBorder = null;
+    let cutCircleLine = null;
+    let cutLineR = null, cutLineD = null, cutLineRadius = null;
+    const R_SPHERE = 1.2;
+    let currentDNorm = 0.70;
+
+    function toggleTheme(){
+        var h=document.documentElement;
+        var b=document.getElementById('themeBtn');
+        if(h.classList.contains('light-mode')){
+            h.classList.remove('light-mode');
+            localStorage.setItem('mathTheme','dark');
+            if(b)b.textContent='🌙';
+        }else{
+            h.classList.add('light-mode');
+            localStorage.setItem('mathTheme','light');
+            if(b)b.textContent='☀️';
+        }
+        updateCanvasBg();
+        updateCutSceneTheme();
+    }
+
+    function updateCanvasBg(){
+        if(sphereScene){
+            const isLight=document.documentElement.classList.contains('light-mode');
+            sphereScene.background=new THREE.Color(isLight?'#eef2f8':'#1a2d3c');
+        }
+    }
+
+    function updateCutSceneTheme(){
+        if(!cutScene) return;
+        const isLight=document.documentElement.classList.contains('light-mode');
+        cutScene.background=new THREE.Color(isLight?'#eef2f8':'#1a2d3c');
+        if(cutRenderer) cutRenderer.render(cutScene, cutCamera);
+    }
+
+    // ========== ОСНОВНАЯ СФЕРА (С УЧЁТОМ КАЧЕСТВА) ==========
+    (async function(){
+        const THREE=await import('three');
+        const{OrbitControls}=await import('three/addons/controls/OrbitControls.js');
+        const{CSS2DRenderer,CSS2DObject}=await import('three/addons/renderers/CSS2DRenderer.js');
+
+        window.THREE = THREE;
+
+        const canvasElem=document.getElementById('sphere-canvas');
+        const containerElem=document.getElementById('canvas-container');
+        if(!canvasElem||!containerElem)return;
+
+        const radius=1.4;
+        const scene=new THREE.Scene();
+        const isLight=document.documentElement.classList.contains('light-mode');
+        scene.background=new THREE.Color(isLight?'#eef2f8':'#1a2d3c');
+        sphereScene=scene;
+        window._sphereScene=scene;
+
+        const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
+        camera.position.set(4,3,4.5);camera.lookAt(0,0,0);
+
+        const renderer=new THREE.WebGLRenderer({canvas:canvasElem,alpha:true,antialias:true});
+        const labelRenderer=new CSS2DRenderer();
+        labelRenderer.domElement.style.position='absolute';labelRenderer.domElement.style.top='0px';labelRenderer.domElement.style.left='0px';labelRenderer.domElement.style.pointerEvents='none';
+        containerElem.style.position='relative';containerElem.appendChild(labelRenderer.domElement);
+
+        function updateSize(){
+            const rect=containerElem.getBoundingClientRect();
+            let w=rect.width,h=rect.height;
+            if(document.fullscreenElement===containerElem||document.webkitFullscreenElement===containerElem){w=window.innerWidth;h=window.innerHeight;}
+            if(w<10)w=800;if(h<10)h=450;
+            renderer.setSize(w,h);labelRenderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();
+        }
+        function forceResize(){setTimeout(()=>{updateSize();requestAnimationFrame(()=>updateSize());},50);}
+        new ResizeObserver(()=>updateSize()).observe(containerElem);
+        setTimeout(()=>updateSize(),100);
+
+        scene.add(new THREE.AmbientLight(0x40486c,0.6));
+        const kl=new THREE.DirectionalLight(0xfff5e0,1.2);kl.position.set(2,3,2);scene.add(kl);
+        scene.add(new THREE.PointLight(0xccaa77,0.5).position.copy(new THREE.Vector3(-1.5,1,2)));
+        scene.add(new THREE.PointLight(0x88aaff,0.5).position.copy(new THREE.Vector3(1,1.5,-3)));
+        scene.add(new THREE.PointLight(0xffaa88,0.4).position.copy(new THREE.Vector3(-1,-1,-2.5)));
+
+        const gridHelper=new THREE.GridHelper(5,16,0x5f7f9e,0x2c4258);
+        gridHelper.position.y=-1.5;gridHelper.material.transparent=true;gridHelper.material.opacity=0.2;scene.add(gridHelper);
+
+        // СОЗДАНИЕ СФЕРЫ С УЧЁТОМ КАЧЕСТВА
+        const sphereGeo=new THREE.SphereGeometry(radius, settings.segments, settings.segments);
+        const sphereMaterial=new THREE.MeshPhysicalMaterial({
+            color:0x60a5fa,metalness:0.1,roughness:0.2,
+            transparent:settings.transparent,opacity:settings.opacity,
+            emissive:0x2a4a7a,clearcoat:0.9,side:THREE.DoubleSide
+        });
+        const sphereMesh=new THREE.Mesh(sphereGeo,sphereMaterial);sphereMesh.renderOrder=1;scene.add(sphereMesh);
+
+        const wireframeGeo=new THREE.SphereGeometry(radius, settings.segments, settings.segments);
+        const wireframeMat=new THREE.MeshBasicMaterial({color:0x93c5fd,wireframe:true,transparent:true,opacity:0.15});
+        const wireframeSphere=new THREE.Mesh(wireframeGeo,wireframeMat);wireframeSphere.renderOrder=2;scene.add(wireframeSphere);
+
+        const seg=150;
+        const frontMat=new THREE.LineBasicMaterial({color:0x60a5fa,linewidth:2,transparent:true,opacity:0.9,depthTest:true,depthWrite:true});
+        const backMat=new THREE.LineBasicMaterial({color:0x60a5fa,linewidth:2,transparent:true,opacity:0.25,depthTest:false,depthWrite:false});
+
+        function makeCircle(getPoint){
+            const pts=[];
+            for(let i=0;i<=seg;i++)pts.push(getPoint(i/seg));
+            const geo=new THREE.BufferGeometry().setFromPoints(pts);
+            const front=new THREE.LineLoop(geo,frontMat);front.renderOrder=5;scene.add(front);
+            const back=new THREE.LineLoop(geo,backMat);back.renderOrder=0;scene.add(back);
+        }
+        makeCircle(t=>new THREE.Vector3(radius*Math.cos(t*Math.PI*2),0,radius*Math.sin(t*Math.PI*2)));
+        makeCircle(t=>new THREE.Vector3(radius*Math.cos(t*Math.PI*2),radius*Math.sin(t*Math.PI*2),0));
+
+        const O=new THREE.Vector3(0,0,0);
+        const A=new THREE.Vector3(radius,0,0);
+        const B=new THREE.Vector3(-radius,0,0);
+
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([B,A]),new THREE.LineBasicMaterial({color:0x60a5fa,linewidth:2})));
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([O,A]),new THREE.LineBasicMaterial({color:0xf59e0b,linewidth:3})));
+
+        const dotMatO=new THREE.MeshStandardMaterial({color:0xfacc15,emissive:0x442200});
+        const dotO=new THREE.Mesh(new THREE.SphereGeometry(0.05,16,16),dotMatO);dotO.position.copy(O);scene.add(dotO);
+        const dotMatA=new THREE.MeshStandardMaterial({color:0xf59e0b,emissive:0x442200});
+        const dotA=new THREE.Mesh(new THREE.SphereGeometry(0.05,16,16),dotMatA);dotA.position.copy(A);scene.add(dotA);
+        const dotMatB=new THREE.MeshStandardMaterial({color:0x60a5fa,emissive:0x112244});
+        const dotB=new THREE.Mesh(new THREE.SphereGeometry(0.05,16,16),dotMatB);dotB.position.copy(B);scene.add(dotB);
+
+        function makeLabel(text,color,position,fontSize='0.7rem'){
+            const div=document.createElement('div');
+            div.textContent=text;div.style.color=color;div.style.fontSize=fontSize;div.style.fontWeight='bold';
+            div.style.fontFamily="'JetBrains Mono',monospace";div.style.background='rgba(10,15,26,0.8)';div.style.padding='2px 8px';
+            div.style.borderRadius='20px';div.style.border=`1px solid ${color}`;div.style.backdropFilter='blur(6px)';div.style.whiteSpace='nowrap';
+            const label=new CSS2DObject(div);label.position.copy(position);scene.add(label);return label;
+        }
+        makeLabel('O','#facc15',new THREE.Vector3(-0.15,-0.15,0.15),'0.7rem');
+        makeLabel('A','#f59e0b',A.clone().add(new THREE.Vector3(0.12,0.12,0.1)),'0.7rem');
+        makeLabel('B','#60a5fa',B.clone().add(new THREE.Vector3(-0.12,0.12,0.1)),'0.7rem');
+        makeLabel('R = OA','#f59e0b',new THREE.Vector3(radius/2,0.15,0.45),'0.7rem');
+        makeLabel('D = AB','#60a5fa',new THREE.Vector3(0,-0.35,0.5),'0.65rem');
+
+        const controls=new OrbitControls(camera,renderer.domElement);
+        controls.enableDamping=true;controls.dampingFactor=0.06;controls.target.set(0,0,0);
+
+        const fullscreenBtn=document.getElementById('fullscreenBtn');
+        async function toggleFullscreen(){
+            if(!document.fullscreenElement&&!document.webkitFullscreenElement){
+                try{await containerElem.requestFullscreen();fullscreenBtn.textContent='✖';}catch(err){}
+            }else{
+                if(document.exitFullscreen)await document.exitFullscreen();
+                else if(document.webkitExitFullscreen)await document.webkitExitFullscreen();
+                fullscreenBtn.textContent='⛶';forceResize();
+            }
+        }
+        fullscreenBtn.addEventListener('click',toggleFullscreen);
+        document.addEventListener('fullscreenchange',()=>{
+            if(document.fullscreenElement===containerElem||document.webkitFullscreenElement===containerElem){fullscreenBtn.textContent='✖';updateSize();}
+            else{fullscreenBtn.textContent='⛶';forceResize();}
+        });
+
+        function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);labelRenderer.render(scene,camera);}
+        animate();
+        window.addEventListener('resize',()=>forceResize());
+    })();
+
+    // ========== МОДЕЛЬ СЕЧЕНИЯ (С УЧЁТОМ КАЧЕСТВА) ==========
+    (async function(){
+        const THREE=await import('three');
+        const{OrbitControls}=await import('three/addons/controls/OrbitControls.js');
+        const{CSS2DRenderer,CSS2DObject}=await import('three/addons/renderers/CSS2DRenderer.js');
+
+        const canvas=document.getElementById('cut-canvas');
+        const container=document.getElementById('cut-container');
+        if(!canvas) return;
+
+        const scene=new THREE.Scene();
+        const isLight=document.documentElement.classList.contains('light-mode');
+        scene.background=new THREE.Color(isLight?'#eef2f8':'#1a2d3c');
+        cutScene=scene;
+
+        const camera=new THREE.PerspectiveCamera(45,1,0.1,10);
+        camera.position.set(2.5,2.2,3.0);
+        camera.lookAt(0,0,0);
+        cutCamera=camera;
+
+        const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+        cutRenderer=renderer;
+        const labelRenderer=new CSS2DRenderer();
+        labelRenderer.domElement.style.position='absolute';
+        labelRenderer.domElement.style.top='0px';
+        labelRenderer.domElement.style.left='0px';
+        labelRenderer.domElement.style.pointerEvents='none';
+        container.style.position='relative';
+        container.appendChild(labelRenderer.domElement);
+
+        function updateSize(){
+            const rect=container.getBoundingClientRect();
+            let w=rect.width,h=rect.height;
+            if(document.fullscreenElement===container){w=window.innerWidth;h=window.innerHeight;}
+            if(w<10)w=800;if(h<10)h=450;
+            renderer.setSize(w,h);labelRenderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();
+        }
+        new ResizeObserver(()=>updateSize()).observe(container);
+        updateSize();
+
+        scene.add(new THREE.AmbientLight(0x40486c,0.65));
+        const dirLight=new THREE.DirectionalLight(0xfff5e0,1);dirLight.position.set(2,3,1.5);scene.add(dirLight);
+        scene.add(new THREE.PointLight(0x88aaff,0.4).position.set(-1,1,1.5));
+
+        // СОЗДАНИЕ СФЕРЫ ДЛЯ СЕЧЕНИЯ С УЧЁТОМ КАЧЕСТВА
+        const sphereMat = new THREE.MeshPhongMaterial({
+            color: 0x60a5fa,
+            transparent: settings.transparent,
+            opacity: settings.opacity * 0.6,
+            side: THREE.DoubleSide
+        });
+        const sphere = new THREE.Mesh(new THREE.SphereGeometry(R_SPHERE, settings.segments, settings.segments), sphereMat);
+        scene.add(sphere);
+
+        const wireMat=new THREE.MeshBasicMaterial({color:0x93c5fd,wireframe:true,transparent:true,opacity:0.2});
+        const wireframe=new THREE.Mesh(new THREE.SphereGeometry(R_SPHERE, settings.segments, settings.segments), wireMat);
+        scene.add(wireframe);
+
+        const planeGeo=new THREE.PlaneGeometry(2.6,2.6);
+        const planeMat=new THREE.MeshPhongMaterial({color:0x14b8a6,side:THREE.DoubleSide,transparent:true,opacity:0.45});
+        const plane=new THREE.Mesh(planeGeo,planeMat);
+        plane.rotation.x=-Math.PI/2;
+        scene.add(plane);
+        cutPlaneMesh=plane;
+
+        const borderPoints = [
+            new THREE.Vector3(-1.3, 0, -1.3),
+            new THREE.Vector3( 1.3, 0, -1.3),
+            new THREE.Vector3( 1.3, 0,  1.3),
+            new THREE.Vector3(-1.3, 0,  1.3),
+            new THREE.Vector3(-1.3, 0, -1.3)
+        ];
+        const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
+        const borderMatLine = new THREE.LineBasicMaterial({ color: 0xf59e0b, linewidth: 2 });
+        const borderLine = new THREE.Line(borderGeo, borderMatLine);
+        scene.add(borderLine);
+        cutPlaneBorder = borderLine;
+
+        function makeLabel(text,color,position,fontSize='0.7rem'){
+            const div=document.createElement('div');
+            div.textContent=text;div.style.color=color;div.style.fontSize=fontSize;div.style.fontWeight='bold';
+            div.style.fontFamily="'JetBrains Mono',monospace";div.style.background='rgba(10,15,26,0.8)';
+            div.style.padding='2px 8px';div.style.borderRadius='20px';div.style.border=`1px solid ${color}`;
+            div.style.backdropFilter='blur(6px)';div.style.whiteSpace='nowrap';
+            const label=new CSS2DObject(div);label.position.copy(position);scene.add(label);return label;
+        }
+
+        makeLabel('Плоскость α','#f59e0b',new THREE.Vector3(1.8,0.15,1.5),'0.7rem');
+        makeLabel('O (центр)','#facc15',new THREE.Vector3(-0.25,-0.2,0.2),'0.65rem');
+
+        function updateGeometry(dNorm){
+            const dAbs=dNorm*R_SPHERE;
+            plane.position.y=dAbs;
+            borderLine.position.y=dAbs;
+
+            if(cutCircleLine) scene.remove(cutCircleLine);
+            if(cutLineR) scene.remove(cutLineR);
+            if(cutLineD) scene.remove(cutLineD);
+            if(cutLineRadius) scene.remove(cutLineRadius);
+            if(window.dynLabelR) scene.remove(window.dynLabelR);
+            if(window.dynLabelD) scene.remove(window.dynLabelD);
+            if(window.dynLabelRsmall) scene.remove(window.dynLabelRsmall);
+
+            const caseDiv=document.getElementById('caseDisplay');
+            const dSpan=document.getElementById('dValue');
+            const rSpan=document.getElementById('rValue');
+
+            dSpan.innerText=dNorm.toFixed(2)+'·R';
+
+            if(dNorm<0.99){
+                const rVal=Math.sqrt(R_SPHERE*R_SPHERE-dAbs*dAbs);
+                rSpan.innerText=rVal.toFixed(3)+'·R';
+                caseDiv.innerHTML='📗 d &lt; R — плоскость ПЕРЕСЕКАЕТ сферу, сечение — окружность радиуса r = √(R²−d²)';
+                caseDiv.className='case-indicator intersect';
+
+                const pts=[];
+                for(let i=0;i<=100;i++){
+                    const ang=(i/100)*Math.PI*2;
+                    const x=rVal*Math.cos(ang);
+                    const z=rVal*Math.sin(ang);
+                    pts.push(new THREE.Vector3(x,dAbs,z));
+                }
+                const circleGeo=new THREE.BufferGeometry().setFromPoints(pts);
+                cutCircleLine=new THREE.LineLoop(circleGeo,new THREE.LineBasicMaterial({color:0x3b82f6,linewidth:2}));
+                scene.add(cutCircleLine);
+
+                const center=new THREE.Vector3(0,0,0);
+                const planePoint=new THREE.Vector3(0,dAbs,0);
+                const edgePoint=new THREE.Vector3(rVal,dAbs,0);
+
+                cutLineRadius=new THREE.Line(new THREE.BufferGeometry().setFromPoints([center,edgePoint]),new THREE.LineBasicMaterial({color:0xf59e0b,linewidth:3}));
+                scene.add(cutLineRadius);
+                cutLineD=new THREE.Line(new THREE.BufferGeometry().setFromPoints([center,planePoint]),new THREE.LineBasicMaterial({color:0xec489a,linewidth:2}));
+                scene.add(cutLineD);
+                cutLineR=new THREE.Line(new THREE.BufferGeometry().setFromPoints([planePoint,edgePoint]),new THREE.LineBasicMaterial({color:0x3b82f6,linewidth:2}));
+                scene.add(cutLineR);
+
+                const divR=document.createElement('div');divR.textContent=`R = ${R_SPHERE.toFixed(2)}`;divR.style.cssText='color:#f59e0b;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
+                const divD=document.createElement('div');divD.textContent=`d = ${dAbs.toFixed(2)}`;divD.style.cssText='color:#ec489a;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
+                const divr=document.createElement('div');divr.textContent=`r = ${rVal.toFixed(2)}`;divr.style.cssText='color:#3b82f6;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
+                window.dynLabelR=new CSS2DObject(divR);window.dynLabelR.position.copy(new THREE.Vector3((0+rVal)/2,dAbs/2,0));scene.add(window.dynLabelR);
+                window.dynLabelD=new CSS2DObject(divD);window.dynLabelD.position.copy(new THREE.Vector3(0,dAbs/2,0.3));scene.add(window.dynLabelD);
+                window.dynLabelRsmall=new CSS2DObject(divr);window.dynLabelRsmall.position.copy(new THREE.Vector3(rVal/2,dAbs,0.2));scene.add(window.dynLabelRsmall);
+            }
+            else if(Math.abs(dNorm-1.0)<0.01){
+                rSpan.innerText='0 (касание)';
+                caseDiv.innerHTML='📙 d = R — плоскость КАСАЕТСЯ сферы в одной точке';
+                caseDiv.className='case-indicator tangent';
+                const center=new THREE.Vector3(0,0,0);
+                const planePoint=new THREE.Vector3(0,dAbs,0);
+                cutLineD=new THREE.Line(new THREE.BufferGeometry().setFromPoints([center,planePoint]),new THREE.LineBasicMaterial({color:0xec489a,linewidth:2}));
+                scene.add(cutLineD);
+                const divD=document.createElement('div');divD.textContent=`d = ${dAbs.toFixed(2)} (касание)`;divD.style.cssText='color:#f59e0b;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
+                window.dynLabelD=new CSS2DObject(divD);window.dynLabelD.position.copy(new THREE.Vector3(0,dAbs/2,0.3));scene.add(window.dynLabelD);
+            }
+            else{
+                rSpan.innerText='— (нет пересечения)';
+                caseDiv.innerHTML='📕 d > R — плоскость НЕ ПЕРЕСЕКАЕТ сферу, общих точек нет';
+                caseDiv.className='case-indicator none';
+                const center=new THREE.Vector3(0,0,0);
+                const planePoint=new THREE.Vector3(0,dAbs,0);
+                cutLineD=new THREE.Line(new THREE.BufferGeometry().setFromPoints([center,planePoint]),new THREE.LineBasicMaterial({color:0xec489a,linewidth:2,transparent:true,opacity:0.7}));
+                scene.add(cutLineD);
+                const divD=document.createElement('div');divD.textContent=`d = ${dAbs.toFixed(2)} (нет пересеч.)`;divD.style.cssText='color:#ec489a;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
+                window.dynLabelD=new CSS2DObject(divD);window.dynLabelD.position.copy(new THREE.Vector3(0,dAbs/2,0.3));scene.add(window.dynLabelD);
+            }
+        }
+
+        const slider=document.getElementById('distSlider');
+        slider.addEventListener('input',(e)=>{
+            currentDNorm=parseFloat(e.target.value);
+            updateGeometry(currentDNorm);
+        });
+        updateGeometry(0.70);
+
+        const controls=new OrbitControls(camera,renderer.domElement);
+        controls.enableDamping=true;
+        controls.dampingFactor=0.06;
+        controls.target.set(0,0,0);
+        cutControls=controls;
+
+        const fullBtn=document.getElementById('cutFullscreenBtn');
+        fullBtn.addEventListener('click',async()=>{
+            if(!document.fullscreenElement) await container.requestFullscreen();
+            else await document.exitFullscreen();
+        });
+        document.addEventListener('fullscreenchange',()=>updateSize());
+
+        function animate(){
+            requestAnimationFrame(animate);
+            if(cutControls) cutControls.update();
+            if(cutRenderer && cutScene && cutCamera){
+                cutRenderer.render(cutScene,cutCamera);
+                labelRenderer.render(cutScene,cutCamera);
+            }
+        }
+        animate();
+        window.addEventListener('resize',()=>updateSize());
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

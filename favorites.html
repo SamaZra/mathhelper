@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Избранное — Математический справочник</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --icon-color: #8ba5b8;
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --menu-card-bg: #1e3545;
+            --menu-item-bg: #1e3545;
+            --menu-item-hover: #233e50;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #6a7e9c;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --icon-color: #1a2d3c;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --menu-card-bg: white;
+            --menu-item-bg: white;
+            --menu-item-hover: linear-gradient(95deg, #f8fafd, #ffffff);
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 32px 20px 48px;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: var(--text);
+        }
+        .theme-toggle:hover { transform: scale(1.1); }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 24px 24px;
+            background: var(--header-bg);
+            border-radius: 40px;
+        }
+        h1 { font-size: 1.8rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+        .subtitle { color: var(--text-secondary); font-size: 0.85rem; }
+
+        .content-card {
+            background: var(--menu-card-bg);
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .favorites-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .favorites-count {
+            background: var(--accent);
+            padding: 6px 14px;
+            border-radius: 30px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .clear-all-btn {
+            background: var(--menu-item-bg);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .clear-all-btn:hover { background: #e74c3c; color: white; border-color: #e74c3c; }
+
+        .favorites-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .favorite-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: var(--menu-item-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            transition: all 0.2s;
+            gap: 16px;
+            cursor: pointer;
+        }
+        .favorite-item:hover {
+            background: var(--menu-item-hover);
+            transform: translateX(5px);
+        }
+        .favorite-icon {
+            font-size: 32px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            border-radius: 16px;
+            color: var(--text);
+        }
+        .favorite-content { flex: 1; }
+        .favorite-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .favorite-category { font-size: 0.7rem; color: var(--accent); }
+        .favorite-desc { font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; }
+        .remove-fav {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: 40px;
+            transition: all 0.2s;
+        }
+        .remove-fav:hover { color: #e74c3c; transform: scale(1.1); }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        .empty-state .empty-icon { font-size: 64px; margin-bottom: 16px; display: block; }
+        .empty-state p { margin-bottom: 20px; }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 24px;
+            padding: 10px 24px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        @media (max-width: 550px) {
+            body { padding: 20px 14px 36px; }
+            h1 { font-size: 1.4rem; }
+            .favorite-icon { width: 40px; height: 40px; font-size: 24px; }
+            .favorite-item { padding: 12px 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+
+    <div class="header">
+        <h1>⭐ Избранное</h1>
+        <div class="subtitle">Ваши сохранённые страницы</div>
+    </div>
+
+    <div class="content-card">
+        <div class="favorites-header">
+            <span class="favorites-count" id="favCount">0</span>
+            <button class="clear-all-btn" onclick="clearAllFavorites()">Очистить всё</button>
+        </div>
+        <div class="favorites-list" id="favoritesList">
+            <div class="empty-state">Загрузка...</div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 24px;">
+        <a href="index.html" class="back-link">← Назад в меню</a>
+    </div>
+</div>
+
+<script>
+    const FAV_KEY = 'math_favorites';
+
+    // ========== ПОЛНАЯ БАЗА ДАННЫХ ВСЕХ СТРАНИЦ ==========
+    const pagesDB = [
+        // Стереометрия
+        { url: "01-basic.html", title: "Основные понятия стереометрии", category: "Стереометрия", icon: "📐", desc: "Аксиомы, следствия" },
+        { url: "02-lines.html", title: "Параллельные, пересекающиеся, скрещивающиеся", category: "Стереометрия", icon: "📏", desc: "Классификация прямых" },
+        { url: "03-positions.html", title: "Расположение прямых и плоскостей", category: "Стереометрия", icon: "📐", desc: "Все случаи расположения" },
+        { url: "04-parallel-line-plane.html", title: "Параллельность прямых, прямой и плоскости", category: "Стереометрия", icon: "∥", desc: "Признаки параллельности" },
+        { url: "05-parallel-planes.html", title: "Параллельность плоскостей", category: "Стереометрия", icon: "∥", desc: "Признак и свойства" },
+        { url: "06-perpendicular-line-plane.html", title: "Перпендикулярность прямой и плоскости", category: "Стереометрия", icon: "⟂", desc: "Определение и свойства" },
+        { url: "07-perpendicular-lines.html", title: "Перпендикулярные прямые в пространстве", category: "Стереометрия", icon: "⟂", desc: "Лемма и теоремы" },
+        { url: "08-sign-perpendicular.html", title: "Признак перпендикулярности", category: "Стереометрия", icon: "✅", desc: "Теорема и следствия" },
+        { url: "09-three-perpendiculars.html", title: "Теорема о трёх перпендикулярах", category: "Стереометрия", icon: "📐", desc: "Прямая и обратная теоремы" },
+        { url: "10-dihedral-angle.html", title: "Двугранный угол", category: "Стереометрия", icon: "📐", desc: "Линейный угол" },
+        { url: "11-perpendicular-planes.html", title: "Перпендикулярность плоскостей", category: "Стереометрия", icon: "⟂", desc: "Признак и свойства" },
+
+        // Векторы
+        { url: "vectors.html", title: "Векторы в пространстве", category: "Векторы", icon: "→", desc: "Полный справочник" },
+        { url: "block1.html", title: "Вектор и действия над векторами", category: "Векторы", icon: "→", desc: "Сложение, вычитание, умножение" },
+        { url: "block2.html", title: "Декартовы координаты в пространстве", category: "Векторы", icon: "⌖", desc: "Система координат" },
+        { url: "block3.html", title: "Простейшие задачи в координатах", category: "Векторы", icon: "⊙", desc: "Середина, расстояние" },
+        { url: "block4.html", title: "Скалярное произведение векторов", category: "Векторы", icon: "⋅", desc: "Угол между векторами" },
+
+        // Тела вращения
+        { url: "cone.html", title: "Конус", category: "Тела вращения", icon: "△", desc: "Объём и площадь" },
+        { url: "cylinder.html", title: "Цилиндр", category: "Тела вращения", icon: "⊡", desc: "Объём и площадь" },
+        { url: "truncated-cone.html", title: "Усечённый конус", category: "Тела вращения", icon: "⏢", desc: "Объём и площадь" },
+        { url: "sphere.html", title: "Сфера и шар", category: "Тела вращения", icon: "○", desc: "Объём и площадь" },
+
+        // Многогранники
+        { url: "cuboid.html", title: "Прямоугольный параллелепипед", category: "Многогранники", icon: "□", desc: "Объём, диагональ" },
+        { url: "prism.html", title: "Пятиугольная призма", category: "Многогранники", icon: "▭", desc: "Объём, площадь" },
+        { url: "pyramid.html", title: "Правильная четырёхугольная пирамида", category: "Многогранники", icon: "△", desc: "Объём, апофема" },
+        { url: "truncated-pyramid.html", title: "Усечённая пирамида", category: "Многогранники", icon: "⏢", desc: "Объём" },
+        { url: "platonic.html", title: "Правильные многогранники", category: "Многогранники", icon: "⬟", desc: "Платоновы тела" },
+
+        // Алгебра
+        { url: "formulas.html", title: "Формулы сокращённого умножения", category: "Алгебра", icon: "×", desc: "ФСУ, дискриминант" },
+        { url: "powers.html", title: "Степени и корни", category: "Алгебра", icon: "√", desc: "Свойства" },
+        { url: "powers-menu.html", title: "Степени, корни и степенная функция", category: "Алгебра", icon: "√", desc: "Навигация" },
+        { url: "степенная-функция.html", title: "Степенная функция y = x^p", category: "Алгебра", icon: "↗", desc: "Свойства, графики" },
+        { url: "logarithms.html", title: "Логарифмы", category: "Алгебра", icon: "log", desc: "Определение, свойства" },
+        { url: "logarithms-menu.html", title: "Логарифмы и логарифмическая функция", category: "Алгебра", icon: "log", desc: "Навигация" },
+        { url: "логарифмическая-функция.html", title: "Логарифмическая функция y = logₐ x", category: "Алгебра", icon: "↗", desc: "Свойства, графики" },
+        { url: "exponential-menu.html", title: "Показательная функция", category: "Алгебра", icon: "aˣ", desc: "Навигация" },
+        { url: "показательная-функция.html", title: "Показательная функция y = aˣ", category: "Алгебра", icon: "↗", desc: "Свойства, графики" },
+        { url: "показательные-уравнения.html", title: "Показательные уравнения", category: "Алгебра", icon: "=", desc: "Методы решения" },
+        { url: "показательные-неравенства.html", title: "Показательные неравенства", category: "Алгебра", icon: "≠", desc: "Решение" },
+        { url: "логарифмические-уравнения.html", title: "Логарифмические уравнения", category: "Алгебра", icon: "=", desc: "Методы" },
+        { url: "логарифмические-неравенства.html", title: "Логарифмические неравенства", category: "Алгебра", icon: "≠", desc: "Решение" },
+        { url: "иррациональные-уравнения.html", title: "Иррациональные уравнения", category: "Алгебра", icon: "=", desc: "Методы" },
+        { url: "иррациональные-неравенства.html", title: "Иррациональные неравенства", category: "Алгебра", icon: "≠", desc: "Решение" },
+
+        // Анализ
+        { url: "derivative.html", title: "Производная", category: "Анализ", icon: "ƒ′", desc: "Таблица, правила, экстремумы" },
+        { url: "derivative-calculator.html", title: "Калькулятор производных", category: "Инструменты", icon: "∂", desc: "Вычисление производных" },
+        { url: "производная-таблица-правила.html", title: "Таблица и правила дифференцирования", category: "Анализ", icon: "ƒ′", desc: "Таблица производных" },
+        { url: "производная-сложная-функция.html", title: "Производная сложной функции", category: "Анализ", icon: "∘", desc: "Формула и примеры" },
+        { url: "экстремумы-функции.html", title: "Экстремумы функции", category: "Анализ", icon: "▲", desc: "Максимум и минимум" },
+        { url: "исследование-функции.html", title: "Исследование функции", category: "Анализ", icon: "↗", desc: "Алгоритм и пример" },
+        { url: "наибольшее-наименьшее-значение.html", title: "Наибольшее и наименьшее значение", category: "Анализ", icon: "⇅", desc: "На отрезке" },
+        { url: "integral.html", title: "Интеграл", category: "Анализ", icon: "∫", desc: "Определённый и неопределённый" },
+        { url: "integral-calculator.html", title: "Калькулятор интегралов", category: "Инструменты", icon: "∫", desc: "Вычисление интегралов" },
+        { url: "indefinite.html", title: "Неопределённый интеграл", category: "Анализ", icon: "∫", desc: "Таблица интегралов" },
+        { url: "definite.html", title: "Определённый интеграл", category: "Анализ", icon: "∫ₐᵇ", desc: "Формула Ньютона-Лейбница" },
+        { url: "area.html", title: "Площадь криволинейной трапеции", category: "Анализ", icon: "▧", desc: "Геометрический смысл интеграла" },
+        { url: "primitive.html", title: "Первообразная", category: "Анализ", icon: "ƒ", desc: "Таблица первообразных" },
+
+        // Тригонометрия
+        { url: "trigonometry.html", title: "Тригонометрия", category: "Тригонометрия", icon: "△", desc: "Все разделы" },
+        { url: "Тождества.html", title: "Основные тригонометрические тождества", category: "Тригонометрия", icon: "≡", desc: "sin²α+cos²α=1" },
+        { url: "Сумма и разность углов.html", title: "Сумма и разность углов", category: "Тригонометria", icon: "+", desc: "Формулы" },
+        { url: "Двойной угол.html", title: "Двойной аргумент", category: "Тригонометрия", icon: "2α", desc: "sin2α, cos2α" },
+        { url: "Половинный аргумент.html", title: "Половинный аргумент", category: "Тригонометрия", icon: "½α", desc: "sin²(α/2), cos²(α/2)" },
+        { url: "Ссумма и разность функций.html", title: "Сумма и разность функций", category: "Тригонометрия", icon: "±", desc: "Преобразование в произведение" },
+        { url: "Произведение функций.html", title: "Произведение функций", category: "Тригонометрия", icon: "×", desc: "Преобразование в сумму" },
+        { url: "Знаки тригонометрических функций.html", title: "Знаки по четвертям", category: "Тригонометрия", icon: "◉", desc: "Знаки sin, cos, tg" },
+        { url: "Формулы приведения.html", title: "Формулы приведения", category: "Тригонометрия", icon: "↻", desc: "sin, cos, tg, ctg" },
+        { url: "Четность функции.html", title: "Чётность и нечётность", category: "Тригонометрия", icon: "∓", desc: "sin(-x), cos(-x)" },
+        { url: "Значения тригонометрических функций.html", title: "Таблица значений", category: "Тригонометрия", icon: "⊞", desc: "0°–360°" },
+        { url: "простейшие тригонометрические уравнения.html", title: "Простейшие уравнения", category: "Тригонометрия", icon: "=", desc: "sin x = a, cos x = a" },
+
+        // Геометрия
+        { url: "geometry.html", title: "Геометрия", category: "Геометрия", icon: "□", desc: "Навигация" },
+        { url: "stereo.html", title: "Прямые и плоскости в пространстве", category: "Геометрия", icon: "∥", desc: "Стереометрия" },
+        { url: "Многоугольники.html", title: "Многоугольники", category: "Геометрия", icon: "△", desc: "Площади" },
+        { url: "polyhedrons.html", title: "Многогранники", category: "Геометрия", icon: "◫", desc: "Призма, пирамида" },
+        { url: "solids.html", title: "Тела вращения", category: "Геометрия", icon: "◯", desc: "Цилиндр, конус, шар" },
+
+        // Инструменты
+        { url: "calculator.html", title: "Калькулятор", category: "Инструменты", icon: "🖩", desc: "Обычный, инженерный" },
+        { url: "quadratic.html", title: "Калькулятор квадратных уравнений", category: "Инструменты", icon: "📐", desc: "Решение" },
+        { url: "radical.html", title: "Калькулятор радикалов", category: "Инструменты", icon: "√", desc: "Корни любой степени" },
+        { url: "конвертер.html", title: "Конвертер величин", category: "Инструменты", icon: "⇄", desc: "Конвертация" },
+        { url: "plotter.html", title: "Построитель графиков", category: "Инструменты", icon: "📈", desc: "Графики функций" },
+        { url: "favorites.html", title: "Избранное", category: "Инструменты", icon: "⭐", desc: "Сохранённые страницы" },
+
+        // Общее
+        { url: "about.html", title: "О приложении", category: "Общее", icon: "ⓘ", desc: "Информация" }
+    ];
+
+    function getPageInfo(url) {
+        const decodedUrl = decodeURIComponent(url);
+        const found = pagesDB.find(p => p.url === url || p.url === decodedUrl);
+        if (found) return found;
+        return { title: url.replace('.html', '').replace(/%D0/g, ''), category: "Страница", icon: "📄", desc: "" };
+    }
+
+    function getFavorites() {
+        const saved = localStorage.getItem(FAV_KEY);
+        return saved ? JSON.parse(saved) : [];
+    }
+
+    function saveFavorites(fav) {
+        localStorage.setItem(FAV_KEY, JSON.stringify(fav));
+    }
+
+    function removeFromFavorites(url) {
+        let fav = getFavorites();
+        fav = fav.filter(f => f !== url);
+        saveFavorites(fav);
+        renderFavorites();
+    }
+
+    function clearAllFavorites() {
+        if (confirm('Удалить все страницы из избранного?')) {
+            saveFavorites([]);
+            renderFavorites();
+        }
+    }
+
+    function renderFavorites() {
+        const favorites = getFavorites();
+        const container = document.getElementById('favoritesList');
+        const countSpan = document.getElementById('favCount');
+
+        countSpan.textContent = favorites.length;
+
+        if (favorites.length === 0) {
+            container.innerHTML = `<div class="empty-state">
+                <div class="empty-icon">⭐</div>
+                <p>У вас пока нет избранных страниц</p>
+                <p>Нажмите на звёздочку ★ в правом верхнем углу любой страницы</p>
+            </div>`;
+            return;
+        }
+
+        container.innerHTML = favorites.map(url => {
+            const info = getPageInfo(url);
+            return `
+                <div class="favorite-item" onclick="window.location.href='${url}'">
+                    <div class="favorite-icon">${info.icon}</div>
+                    <div class="favorite-content">
+                        <div class="favorite-title">${info.title}</div>
+                        <div class="favorite-category">${info.category}</div>
+                        <div class="favorite-desc">${info.desc}</div>
+                    </div>
+                    <button class="remove-fav" onclick="event.stopPropagation(); removeFromFavorites('${url}')" title="Удалить">✖</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    (function() {
+        const savedTheme = localStorage.getItem('mathTheme');
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        renderFavorites();
+    }
+
+    renderFavorites();
+</script>
+</body>
+</html>
