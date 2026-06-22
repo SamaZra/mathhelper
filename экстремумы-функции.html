@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -19,7 +19,6 @@
         --example-bg: #1e3545;
         --info-bg: #1e3545;
         --info-border: #e67e22;
-        /* Цвета для SVG (тёмная тема) */
         --svg-stroke: #ffffff;
         --svg-fill: #ffffff;
         --svg-text: #ffffff;
@@ -38,7 +37,6 @@
         --example-bg: #f8fafc;
         --info-bg: #f0fdf4;
         --info-border: #e67e22;
-        /* Цвета для SVG (светлая тема) */
         --svg-stroke: #1a2a3f;
         --svg-fill: #1a2a3f;
         --svg-text: #1a2a3f;
@@ -93,17 +91,31 @@
     @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.definition-block p{font-size:0.9rem;}.algorithm-list li{font-size:0.9rem;}.math-example{font-size:0.85rem;padding:8px 12px;}}
     @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
     .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
-  
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
-    </style>
+  </style>
+
+  <!-- ===== MATHJAX С FALLBACK (CDN → локальный) ===== -->
+  <script>
+  (function(){
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js';
+      s.async = true;
+      s.onerror = function(){
+          var f = document.createElement('script');
+          f.src = 'file:///android_asset/es5/tex-chtml.js';
+          f.async = true;
+          document.head.appendChild(f);
+      };
+      document.head.appendChild(s);
+  })();
+  </script>
+  <!-- ================================================= -->
+
   <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.05,displayAlign:'center'}};</script>
   <script src="file:///android_asset/es5/tex-chtml.js" async></script>
 </head>
 <body>
 <div class="container">
-  <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>`n    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
 
   <div class="header"><h1>Экстремумы функции</h1><div class="subtitle">Возрастание/убывание · Определение · Алгоритм · Пример</div></div>
   <div class="content-card">
@@ -154,7 +166,7 @@
         <strong>3. Определим знаки производной:</strong><br>
       </div>
         <div class="image-no-gap" id="sign-svg-container">
-          <!-- SVG будет вставлен динамически для смены цвета -->
+          <!-- SVG будет вставлен динамически -->
         </div>
         <div class="math-example">
           • На интервале \((-\infty, -1)\):<br>
@@ -178,7 +190,6 @@
 </div>
 
 <script>
-  // Функция для получения текущих цветов темы
   function getCurrentThemeColors() {
       const isLight = document.documentElement.classList.contains('light-mode');
       return {
@@ -189,7 +200,6 @@
       };
   }
 
-  // SVG для метода интервалов (таблица знаков)
   function renderSignSVG(colors) {
       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="74.244 157.348 235.623 83.213">
       <g>
@@ -216,7 +226,6 @@
     </svg>`;
   }
 
-  // Функция обновления SVG
   function updateSVG() {
       const colors = getCurrentThemeColors();
       const container = document.getElementById('sign-svg-container');
@@ -225,7 +234,6 @@
       }
   }
 
-  // Переключение темы с обновлением SVG
   function toggleTheme() {
       const html = document.documentElement;
       const btn = document.getElementById('themeBtn');
@@ -241,7 +249,6 @@
       updateSVG();
   }
 
-  // Инициализация темы и SVG при загрузке
   (function() {
       const savedTheme = localStorage.getItem('mathTheme');
       if (savedTheme === 'light') {
@@ -258,7 +265,6 @@
       updateSVG();
   })();
 
-  // Наблюдатель за изменениями класса (на случай, если тема меняется внешне)
   const observer = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
           if (mutation.attributeName === 'class') {
@@ -268,7 +274,5 @@
   });
   observer.observe(document.documentElement, { attributes: true });
 </script>
-
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
 </body>
 </html>
