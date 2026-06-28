@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0">
+    <title>Тригонометрические неравенства</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #10b981;
+            --example-bg: #162a38;
+            --accent: #1abc9c;
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --step-color: #34d399;
+            --result-color: #4ade80;
+            --important-bg: #1e3545;
+            --important-border: #fbbf24;
+            --important-text: #ffffff;
+            --link-color: #fbbf24;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #10b981;
+            --example-bg: #e8f0fe;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --step-color: #059669;
+            --result-color: #059669;
+            --important-bg: #e8f0fe;
+            --important-border: #fbbf24;
+            --important-text: #1a2a3f;
+            --link-color: #d97706;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; color: var(--text); }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: var(--step-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .important { background: var(--important-bg); border-left: 4px solid var(--important-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--important-border); }
+        .important a { color: var(--link-color); text-decoration: underline; text-underline-offset: 2px; font-weight: bold; }
+        .important a:hover { opacity: 0.8; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #059669; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; color: var(--text); }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Тригонометрические неравенства</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое тригонометрическое неравенство</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Тригонометрическое неравенство</strong> — неравенство, содержащее переменную под знаком тригонометрической функции.</p>
+            <div class="formula-block">
+                $\sin x > \dfrac{1}{2}$<br>
+                $\cos x \leq -\dfrac{\sqrt{2}}{2}$<br>
+                $\operatorname{tg} x < 1$<br>
+                $\sin 2x \geq \dfrac{\sqrt{3}}{2}$
+            </div>
+            <div class="important">
+                <strong>💡 Ключевой принцип:</strong> Решение тригонометрических неравенств основано на <a href="Знаки тригонометрических функций.html">единичной окружности</a> и <strong>периодичности</strong> функций. Решения записываются в виде промежутков с учётом периода.
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 $\sin x > a$ и $\sin x < a$</span>
+            <span class="sub-title">решение с использованием единичной окружности</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 1.</strong> $\sin x > \dfrac{1}{2}$<br><br>
+                <span class="step">Шаг 1. На единичной окружности отмечаем точки, где $\sin x = \dfrac{1}{2}$.</span>
+                $x_1 = \dfrac{\pi}{6}$, $x_2 = \dfrac{5\pi}{6}$.<br><br>
+                <span class="step">Шаг 2. Выбираем дугу, где $\sin x > \dfrac{1}{2}$ (выше прямой $y = \dfrac{1}{2}$).</span>
+                Это промежуток $\left(\dfrac{\pi}{6}; \dfrac{5\pi}{6}\right)$.<br><br>
+                <span class="step">Шаг 3. Добавляем период $2\pi n$.</span>
+                <span class="result">Ответ: $x \in \left(\dfrac{\pi}{6} + 2\pi n; \dfrac{5\pi}{6} + 2\pi n\right)$, $n \in \mathbb{Z}$.</span>
+            </div>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2.</strong> $\sin x \leq -\dfrac{\sqrt{2}}{2}$<br><br>
+                <span class="step">Шаг 1. Точки:</span> $x_1 = \dfrac{5\pi}{4}$, $x_2 = \dfrac{7\pi}{4}$.<br><br>
+                <span class="step">Шаг 2. Выбираем дугу, где $\sin x \leq -\dfrac{\sqrt{2}}{2}$ (ниже прямой $y = -\dfrac{\sqrt{2}}{2}$).</span>
+                Это промежуток $\left[\dfrac{5\pi}{4}; \dfrac{7\pi}{4}\right]$.<br><br>
+                <span class="result">Ответ: $x \in \left[\dfrac{5\pi}{4} + 2\pi n; \dfrac{7\pi}{4} + 2\pi n\right]$, $n \in \mathbb{Z}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 $\cos x > a$ и $\cos x < a$</span>
+            <span class="sub-title">решение с использованием единичной окружности</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 3.</strong> $\cos x < -\dfrac{1}{2}$<br><br>
+                <span class="step">Шаг 1. Точки:</span> $\cos x = -\dfrac{1}{2} \Rightarrow x_1 = \dfrac{2\pi}{3}$, $x_2 = \dfrac{4\pi}{3}$.<br><br>
+                <span class="step">Шаг 2. Выбираем дугу, где $\cos x < -\dfrac{1}{2}$.</span>
+                Это промежуток $\left(\dfrac{2\pi}{3}; \dfrac{4\pi}{3}\right)$.<br><br>
+                <span class="result">Ответ: $x \in \left(\dfrac{2\pi}{3} + 2\pi n; \dfrac{4\pi}{3} + 2\pi n\right)$, $n \in \mathbb{Z}$.</span>
+            </div>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 4.</strong> $\cos x \geq \dfrac{\sqrt{3}}{2}$<br><br>
+                <span class="step">Шаг 1. Точки:</span> $x_1 = \dfrac{\pi}{6}$, $x_2 = -\dfrac{\pi}{6}$ (или $\dfrac{11\pi}{6}$).<br><br>
+                <span class="step">Шаг 2. Выбираем дугу:</span> $\left[-\dfrac{\pi}{6}; \dfrac{\pi}{6}\right]$.<br><br>
+                <span class="result">Ответ: $x \in \left[-\dfrac{\pi}{6} + 2\pi n; \dfrac{\pi}{6} + 2\pi n\right]$, $n \in \mathbb{Z}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 $\operatorname{tg} x > a$ и $\operatorname{tg} x < a$</span>
+            <span class="sub-title">использование линии тангенсов</span>
+        </div>
+        <div class="section-content">
+            <p>Решение неравенств с тангенсом удобно выполнять с помощью <strong>линии тангенсов</strong> (касательная к окружности в точке $(1;0)$).</p>
+            <div class="example">
+                <strong>Пример 5.</strong> $\operatorname{tg} x \leq 1$<br><br>
+                <span class="step">Шаг 1. На линии тангенсов отмечаем точку $1$.</span>
+                $\operatorname{tg} x = 1 \Rightarrow x = \dfrac{\pi}{4} + \pi n$.<br><br>
+                <span class="step">Шаг 2. Выбираем промежуток.</span>
+                $x \in \left(-\dfrac{\pi}{2} + \pi n; \dfrac{\pi}{4} + \pi n\right]$.<br><br>
+                <span class="result">Ответ: $x \in \left(-\dfrac{\pi}{2} + \pi n; \dfrac{\pi}{4} + \pi n\right]$, $n \in \mathbb{Z}$.</span>
+            </div>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 6.</strong> $\operatorname{tg} x > -\sqrt{3}$<br><br>
+                <span class="step">Шаг 1.</span> $\operatorname{tg} x = -\sqrt{3} \Rightarrow x = -\dfrac{\pi}{3} + \pi n$.<br><br>
+                <span class="step">Шаг 2.</span> $x \in \left(-\dfrac{\pi}{3} + \pi n; \dfrac{\pi}{2} + \pi n\right)$.<br><br>
+                <span class="result">Ответ: $x \in \left(-\dfrac{\pi}{3} + \pi n; \dfrac{\pi}{2} + \pi n\right)$, $n \in \mathbb{Z}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Неравенства с преобразованиями</span>
+            <span class="sub-title">сведение к простейшим неравенствам</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 7.</strong> $\sin 2x > \dfrac{\sqrt{3}}{2}$<br><br>
+                <span class="step">Шаг 1. Вводим замену $t = 2x$.</span>
+                $\sin t > \dfrac{\sqrt{3}}{2} \Rightarrow t \in \left(\dfrac{\pi}{3} + 2\pi n; \dfrac{2\pi}{3} + 2\pi n\right)$.<br><br>
+                <span class="step">Шаг 2. Возврат.</span>
+                $2x \in \left(\dfrac{\pi}{3} + 2\pi n; \dfrac{2\pi}{3} + 2\pi n\right)$.<br>
+                $x \in \left(\dfrac{\pi}{6} + \pi n; \dfrac{\pi}{3} + \pi n\right)$.<br><br>
+                <span class="result">Ответ: $x \in \left(\dfrac{\pi}{6} + \pi n; \dfrac{\pi}{3} + \pi n\right)$, $n \in \mathbb{Z}$.</span>
+            </div>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 8.</strong> $\cos\left(x - \dfrac{\pi}{4}\right) \leq \dfrac{\sqrt{2}}{2}$<br><br>
+                <span class="step">Шаг 1. Замена $t = x - \dfrac{\pi}{4}$.</span>
+                $\cos t \leq \dfrac{\sqrt{2}}{2} \Rightarrow t \in \left[\dfrac{\pi}{4} + 2\pi n; \dfrac{7\pi}{4} + 2\pi n\right]$.<br><br>
+                <span class="step">Шаг 2. Возврат.</span>
+                $x - \dfrac{\pi}{4} \in \left[\dfrac{\pi}{4} + 2\pi n; \dfrac{7\pi}{4} + 2\pi n\right]$.<br>
+                $x \in \left[\dfrac{\pi}{2} + 2\pi n; 2\pi + 2\pi n\right]$.<br><br>
+                <span class="result">Ответ: $x \in \left[\dfrac{\pi}{2} + 2\pi n; 2\pi + 2\pi n\right]$, $n \in \mathbb{Z}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📊 Сводная таблица</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>$\sin x > a$</strong> ($-1 < a < 1$): $x \in (\arcsin a + 2\pi n; \pi - \arcsin a + 2\pi n)$<br><br>
+                <strong>$\sin x < a$</strong> ($-1 < a < 1$): $x \in (-\pi - \arcsin a + 2\pi n; \arcsin a + 2\pi n)$<br><br>
+                <strong>$\cos x > a$</strong> ($-1 < a < 1$): $x \in (-\arccos a + 2\pi n; \arccos a + 2\pi n)$<br><br>
+                <strong>$\cos x < a$</strong> ($-1 < a < 1$): $x \in (\arccos a + 2\pi n; 2\pi - \arccos a + 2\pi n)$<br><br>
+                <strong>$\operatorname{tg} x > a$</strong>: $x \in (\operatorname{arctg} a + \pi n; \dfrac{\pi}{2} + \pi n)$<br><br>
+                <strong>$\operatorname{tg} x < a$</strong>: $x \in (-\dfrac{\pi}{2} + \pi n; \operatorname{arctg} a + \pi n)$<br><br>
+                <strong>Важно:</strong> Для нестрогих неравенств ($\geq$, $\leq$) промежутки становятся замкнутыми. Для $\sin x > 1$ и $\sin x < -1$ решений нет.
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>
