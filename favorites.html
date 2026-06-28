@@ -288,7 +288,7 @@
         // Тригонометрия
         { url: "trigonometry.html", title: "Тригонометрия", category: "Тригонометрия", icon: "△", desc: "Все разделы" },
         { url: "Тождества.html", title: "Основные тригонометрические тождества", category: "Тригонометрия", icon: "≡", desc: "sin²α+cos²α=1" },
-        { url: "Сумма и разность углов.html", title: "Сумма и разность углов", category: "Тригонометria", icon: "+", desc: "Формулы" },
+        { url: "Сумма и разность углов.html", title: "Сумма и разность углов", category: "Тригонометрия", icon: "+", desc: "Формулы" },
         { url: "Двойной угол.html", title: "Двойной аргумент", category: "Тригонометрия", icon: "2α", desc: "sin2α, cos2α" },
         { url: "Половинный аргумент.html", title: "Половинный аргумент", category: "Тригонометрия", icon: "½α", desc: "sin²(α/2), cos²(α/2)" },
         { url: "Ссумма и разность функций.html", title: "Сумма и разность функций", category: "Тригонометрия", icon: "±", desc: "Преобразование в произведение" },
@@ -314,6 +314,10 @@
         { url: "plotter.html", title: "Построитель графиков", category: "Инструменты", icon: "📈", desc: "Графики функций" },
         { url: "favorites.html", title: "Избранное", category: "Инструменты", icon: "⭐", desc: "Сохранённые страницы" },
 
+        // НОВЫЕ СТРАНИЦЫ ТРИГОНОМЕТРИИ (добавлены)
+        { url: "тригонометрические-уравнения-сводящиеся-к-алгебраическим.html", title: "Тригонометрические уравнения, сводящиеся к алгебраическим", category: "Тригонометрия", icon: "=", desc: "Замена переменной, однородные, введение вспомогательного аргумента" },
+        { url: "тригонометрические-неравенства.html", title: "Тригонометрические неравенства", category: "Тригонометрия", icon: "≠", desc: "Решение с использованием единичной окружности и линии тангенсов" },
+
         // Общее
         { url: "about.html", title: "О приложении", category: "Общее", icon: "ⓘ", desc: "Информация" }
     ];
@@ -321,8 +325,12 @@
     function getPageInfo(url) {
         const decodedUrl = decodeURIComponent(url);
         const found = pagesDB.find(p => p.url === url || p.url === decodedUrl);
-        if (found) return found;
-        return { title: url.replace('.html', '').replace(/%D0/g, ''), category: "Страница", icon: "📄", desc: "" };
+        if (found) {
+            return found;
+        }
+        // Если страница не найдена в базе — показываем имя файла как заглушку
+        const fileName = url.replace('.html', '').replace(/-/g, ' ');
+        return { title: fileName, category: "Страница", icon: "📄", desc: "" };
     }
 
     function getFavorites() {
@@ -366,6 +374,8 @@
 
         container.innerHTML = favorites.map(url => {
             const info = getPageInfo(url);
+            // Экранируем url для onclick, чтобы избежать проблем с кавычками
+            const safeUrl = url.replace(/'/g, "\\'");
             return `
                 <div class="favorite-item" onclick="window.location.href='${url}'">
                     <div class="favorite-icon">${info.icon}</div>
@@ -374,7 +384,7 @@
                         <div class="favorite-category">${info.category}</div>
                         <div class="favorite-desc">${info.desc}</div>
                     </div>
-                    <button class="remove-fav" onclick="event.stopPropagation(); removeFromFavorites('${url}')" title="Удалить">✖</button>
+                    <button class="remove-fav" onclick="event.stopPropagation(); removeFromFavorites('${safeUrl}')" title="Удалить">✖</button>
                 </div>
             `;
         }).join('');
@@ -400,6 +410,7 @@
             localStorage.setItem('mathTheme', 'light');
             btn.textContent = '☀️';
         }
+        // Обновляем список при смене темы (необязательно, но для порядка)
         renderFavorites();
     }
 
