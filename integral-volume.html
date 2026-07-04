@@ -77,9 +77,7 @@
         .geo-meaning strong { color: #fbbf24; }
         .geo-meaning .num { font-weight: 700; color: #a78bfa; }
 
-        /* ===== 3D МОДЕЛЬ ===== */
         .model-wrapper { position: relative; width: 100%; }
-
         .model-container {
             position: relative;
             width: 100%;
@@ -90,7 +88,6 @@
             background: var(--scene-bg);
             transition: background 0.3s;
         }
-
         .model-container:fullscreen,
         .model-container:-webkit-full-screen {
             width: 100vw !important;
@@ -105,14 +102,12 @@
             padding: 0 !important;
             overflow: hidden !important;
         }
-
         .model-container:fullscreen .model-canvas,
         .model-container:-webkit-full-screen .model-canvas {
             width: 100% !important;
             height: 100% !important;
             flex: 1 !important;
         }
-
         .model-canvas {
             display: block;
             width: 100%;
@@ -122,7 +117,6 @@
             background: transparent;
         }
         .model-canvas:active { cursor: grabbing; }
-
         .fullscreen-btn {
             position: absolute;
             bottom: 15px;
@@ -143,7 +137,6 @@
             transition: 0.2s;
         }
         .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
-
         .model-container:fullscreen .fullscreen-btn,
         .model-container:-webkit-full-screen .fullscreen-btn {
             position: fixed !important;
@@ -154,8 +147,6 @@
             z-index: 10000 !important;
             background: rgba(0,0,0,0.6) !important;
         }
-
-        /* === FULLSCREEN — только ползунки поверх === */
         .fs-sliders-overlay {
             display: none;
             position: fixed;
@@ -173,12 +164,10 @@
             min-width: 300px;
             max-width: 90%;
         }
-
         .model-container:fullscreen .fs-sliders-overlay,
         .model-container:-webkit-full-screen .fs-sliders-overlay {
             display: block !important;
         }
-
         .fs-sliders-overlay .slider-container {
             display: flex;
             align-items: center;
@@ -186,14 +175,12 @@
             justify-content: center;
             flex-wrap: wrap;
         }
-
         .fs-sliders-overlay .slider-container label {
             color: #ffffff !important;
             font-weight: 600;
             font-size: 0.9rem;
             white-space: nowrap;
         }
-
         .fs-sliders-overlay .slider-container input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
@@ -206,7 +193,6 @@
             outline: none;
             cursor: pointer;
         }
-
         .fs-sliders-overlay .slider-container input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -218,7 +204,6 @@
             border: 2px solid white;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
-
         .fs-sliders-overlay .slider-value {
             font-weight: 700;
             color: #fbbf24 !important;
@@ -226,7 +211,6 @@
             text-align: center;
             font-size: 0.9rem;
         }
-
         .fs-sliders-overlay .slider-label-h { color: #4ecdc4 !important; font-weight: 600; }
         .fs-sliders-overlay .slider-label-x { color: #fbbf24 !important; font-weight: 600; }
 
@@ -282,19 +266,33 @@
             }
         }
     </style>
+    
+    <!-- MathJax v3 - правильная загрузка -->
     <script>
         MathJax = {
-            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
-            chtml: { scale: 1.0, displayAlign: 'center' },
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.0,
+                displayAlign: 'center'
+            },
             startup: {
-                ready() {
-                    MathJax.startup.defaultReady();
-                    MathJax.startup.promise.then(() => setTimeout(drawAllGraphs, 300));
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        setTimeout(drawAllGraphs, 400);
+                    });
                 }
             }
         };
     </script>
-    <script src="es5/tex-chtml.js" async></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
 </head>
 <body>
 <div class="container">
@@ -328,7 +326,6 @@
 
             <!-- ДВА ГРАФИКА: для Ox и Oy -->
             <div class="graphs-row">
-                <!-- ЛЕВЫЙ: Ox -->
                 <div class="graph-container" id="gc1">
                     <div class="graph-formula" style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:6px;">
                         🔄 Вращение вокруг <strong style="color:#fbbf24;">оси Ox</strong>
@@ -344,7 +341,6 @@
                     </div>
                 </div>
 
-                <!-- ПРАВЫЙ: Oy -->
                 <div class="graph-container" id="gc2">
                     <div class="graph-formula" style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:6px;">
                         🔄 Вращение вокруг <strong style="color:#34d399;">оси Oy</strong>
@@ -405,12 +401,9 @@
         </div>
         <div class="section-content">
             <div class="model-wrapper">
-                <!-- 3D КОНТЕЙНЕР -->
                 <div class="model-container" id="container1">
                     <canvas id="canvas1" class="model-canvas"></canvas>
                     <button class="fullscreen-btn" id="fs1" title="Во весь экран">⛶</button>
-
-                    <!-- ===== FULLSCREEN — ДУБЛИРУЕМ ТОЛЬКО ПОЛЗУНКИ ===== -->
                     <div class="fs-sliders-overlay" id="fsSlidersOverlay">
                         <div class="slider-container">
                             <label><span class="slider-label-h">📏 H:</span></label>
@@ -425,7 +418,6 @@
                     </div>
                 </div>
 
-                <!-- ===== ПОЛЗУНКИ ПОД СЦЕНОЙ (основные) ===== -->
                 <div class="slider-wrapper">
                     <div class="slider-container">
                         <label><span class="slider-label-h">📏 Высота H:</span></label>
@@ -439,29 +431,26 @@
                     </div>
                 </div>
 
-                <!-- ===== INFO-GRID ПОД СЦЕНОЙ ===== -->
                 <div class="info-grid" id="infoGrid">
-                    <div class="item"><div class="label">Радиус \(r(x)\)</div><div class="value" id="infoR">1.225</div></div>
-                    <div class="item"><div class="label">Площадь \(S(x)\)</div><div class="value" id="infoS">4.712</div></div>
-                    <div class="item"><div class="label">Высота \(H\)</div><div class="value" id="infoH">4.000</div></div>
-                    <div class="item"><div class="label">Объём \(V\)</div><div class="value" id="infoV">18.850</div></div>
+                    <div class="item"><div class="label">Радиус r(x)</div><div class="value" id="infoR">1.225</div></div>
+                    <div class="item"><div class="label">Площадь S(x)</div><div class="value" id="infoS">4.712</div></div>
+                    <div class="item"><div class="label">Высота H</div><div class="value" id="infoH">4.000</div></div>
+                    <div class="item"><div class="label">Объём V</div><div class="value" id="infoV">18.850</div></div>
                 </div>
 
-                <!-- ===== ЛЕГЕНДА ПОД СЦЕНОЙ ===== -->
                 <div class="legend">
-                    <span class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span> Поперечное сечение \(S(x)\)</span>
+                    <span class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span> Поперечное сечение S(x)</span>
                     <span class="legend-item"><span class="legend-color" style="background:#ff6b6b;"></span> Осевое сечение (парабола)</span>
-                    <span class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span> Радиус \(r(x)\)</span>
-                    <span class="legend-item"><span class="legend-color" style="background:#4ecdc4;"></span> <strong>OH — высота</strong></span>
+                    <span class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span> Радиус r(x)</span>
+                    <span class="legend-item"><span class="legend-color" style="background:#4ecdc4;"></span> OH — высота</span>
                 </div>
 
-                <!-- ===== КНОПКИ ПОД СЦЕНОЙ ===== -->
                 <div class="btn-group">
                     <button class="btn-show btn-section active" id="showSectionBtn">✕ Скрыть сечение</button>
                     <button class="btn-show btn-triangle active" id="showTriangleBtn">✕ Скрыть осевое сечение</button>
                 </div>
                 <div class="graph-label" style="font-size:0.85rem; margin-top:4px;">
-                    🟡 Жёлтая линия — радиус \(r(x)\) | 🟡 Жёлтый круг — поперечное сечение \(S(x)\)<br>
+                    🟡 Жёлтая линия — радиус r(x) | 🟡 Жёлтый круг — поперечное сечение S(x)<br>
                     🔴 Красная заливка — осевое сечение (парабола) до точки H
                 </div>
             </div>
@@ -471,14 +460,14 @@
     <!-- ===== ПРИМЕРЫ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Пример 1. Параболоид вращения (вокруг \(Ox\))</span>
-            <span class="sub-title">$V = \dfrac{\pi R^2 H}{2}$</span>
+            <span class="main-title">📐 Пример 1. Параболоид вращения (вокруг Ox)</span>
+            <span class="sub-title">V = πR²H/2</span>
         </div>
         <div class="section-content">
             <div class="example">
-                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси \(Ox\)</strong> фигуры, ограниченной линиями \(y = \sqrt{x}\), \(x = 0\), \(x = 4\).<br><br>
+                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси Ox</strong> фигуры, ограниченной линиями \(y = \sqrt{x}\), \(x = 0\), \(x = 4\).<br><br>
                 <div class="explain">📖 Это тело называется <strong>параболоидом вращения</strong>.</div>
-                <span class="step">Шаг 1. Формула объёма вращения вокруг оси \(Ox\):</span>
+                <span class="step">Шаг 1. Формула объёма вращения вокруг оси Ox:</span>
                 $$ V = \pi \int_{a}^{b} [f(x)]^2 \, dx $$
                 <span class="step">Шаг 2. Подставляем \(f(x) = \sqrt{x}\), \(a = 0\), \(b = 4\):</span>
                 $$ V = \pi \int_{0}^{4} (\sqrt{x})^2 \, dx = \pi \int_{0}^{4} x \, dx $$
@@ -487,7 +476,7 @@
                 $$ V = \pi \cdot \frac{x^2}{2} \Big|_{0}^{4} = \pi \cdot \frac{16}{2} = 8\pi $$
                 <div class="explain">💡 Почему: \(\int x \, dx = x^2/2\).</div>
                 <span class="result">Ответ: \(V = 8\pi \approx 25.13\) куб. ед.</span>
-                <div class="explain">✅ Объём параболоида вращения вокруг оси \(Ox\) с высотой 4 и радиусом 2 равен \(8\pi\).</div>
+                <div class="explain">✅ Объём параболоида вращения вокруг оси Ox с высотой 4 и радиусом 2 равен \(8\pi\).</div>
                 <br>
                 <strong>Вывод общей формулы для параболоида \(y = R\sqrt{x/H}\):</strong><br><br>
                 <span class="step">Шаг 1. Подставляем в формулу:</span>
@@ -495,19 +484,19 @@
                 <span class="step">Шаг 2. Вычисляем:</span>
                 $$ V = \frac{\pi R^2}{H} \cdot \frac{H^2}{2} = \frac{\pi R^2 H}{2} $$
                 <span class="result">Общая формула: \(V = \dfrac{\pi R^2 H}{2}\)</span>
-                <div class="explain">📌 Это в 2 раза меньше объёма цилиндра с теми же \(R\) и \(H\).</div>
+                <div class="explain">📌 Это в 2 раза меньше объёма цилиндра с теми же R и H.</div>
             </div>
         </div>
     </div>
 
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Пример 2. Вращение синуса (вокруг \(Ox\))</span>
-            <span class="sub-title">$V = \dfrac{\pi^2}{2}$</span>
+            <span class="main-title">📐 Пример 2. Вращение синуса (вокруг Ox)</span>
+            <span class="sub-title">V = π²/2</span>
         </div>
         <div class="section-content">
             <div class="example">
-                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси \(Ox\)</strong> фигуры, ограниченной линиями \(y = \sin x\), \(x = 0\), \(x = \pi\).<br><br>
+                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси Ox</strong> фигуры, ограниченной линиями \(y = \sin x\), \(x = 0\), \(x = \pi\).<br><br>
                 <div class="explain">📖 Тело называется <strong>синусоидой вращения</strong>.</div>
                 <span class="step">Шаг 1. Формула объёма:</span>
                 $$ V = \pi \int_{0}^{\pi} \sin^2 x \, dx $$
@@ -518,21 +507,20 @@
                 $$ V = \frac{\pi}{2} \left[ x - \frac{\sin 2x}{2} \right]_{0}^{\pi} = \frac{\pi^2}{2} $$
                 <div class="explain">💡 Почему: \(\sin 2\pi = 0\), \(\sin 0 = 0\).</div>
                 <span class="result">Ответ: \(V = \dfrac{\pi^2}{2} \approx 4.93\) куб. ед.</span>
-                <div class="explain">✅ Объём тела вращения синуса вокруг оси \(Ox\) на \([0; \pi]\) равен \(\pi^2/2\).</div>
+                <div class="explain">✅ Объём тела вращения синуса вокруг оси Ox на \([0; \pi]\) равен \(\pi^2/2\).</div>
             </div>
         </div>
     </div>
 
-    <!-- ===== ПРИМЕР 3 ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Пример 3. Вращение параболы \(y = x^2\) (вокруг \(Ox\))</span>
-            <span class="sub-title">$V = \dfrac{32\pi}{5}$</span>
+            <span class="main-title">📐 Пример 3. Вращение параболы y = x² (вокруг Ox)</span>
+            <span class="sub-title">V = 32π/5</span>
         </div>
         <div class="section-content">
             <div class="example">
-                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси \(Ox\)</strong> фигуры, ограниченной линиями \(y = x^2\), \(y = 0\), \(x = 0\), \(x = 2\).<br><br>
-                <div class="explain">📖 Вращаем параболу \(y = x^2\) вокруг оси \(Ox\).</div>
+                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси Ox</strong> фигуры, ограниченной линиями \(y = x^2\), \(y = 0\), \(x = 0\), \(x = 2\).<br><br>
+                <div class="explain">📖 Вращаем параболу \(y = x^2\) вокруг оси Ox.</div>
                 <span class="step">Шаг 1. Формула объёма:</span>
                 $$ V = \pi \int_{0}^{2} (x^2)^2 \, dx = \pi \int_{0}^{2} x^4 \, dx $$
                 <div class="explain">💡 Почему: \((x^2)^2 = x^4\).</div>
@@ -540,27 +528,26 @@
                 $$ V = \pi \cdot \frac{x^5}{5} \Big|_{0}^{2} = \pi \cdot \frac{32}{5} = \frac{32\pi}{5} $$
                 <div class="explain">💡 Почему: \(\int x^4 dx = x^5/5\).</div>
                 <span class="result">Ответ: \(V = \dfrac{32\pi}{5} \approx 20.11\) куб. ед.</span>
-                <div class="explain">✅ Объём тела вращения параболы \(y = x^2\) вокруг оси \(Ox\) на \([0; 2]\) равен \(32\pi/5\).</div>
+                <div class="explain">✅ Объём тела вращения параболы \(y = x^2\) вокруг оси Ox на \([0; 2]\) равен \(32\pi/5\).</div>
             </div>
         </div>
     </div>
 
-    <!-- ===== ПРИМЕР 4 ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Пример 4. Вращение вокруг оси \(Oy\)</span>
-            <span class="sub-title">$V = 8\pi$</span>
+            <span class="main-title">📐 Пример 4. Вращение вокруг оси Oy</span>
+            <span class="sub-title">V = 8π</span>
         </div>
         <div class="section-content">
             <div class="example">
-                <strong>Условие:</strong> Найти объём тела, полученного вращением вокруг оси \(Oy\) фигуры, ограниченной линиями \(y = x^2\), \(y = 0\), \(x = 0\), \(x = 2\).<br><br>
-                <div class="explain">📖 Вращаем параболу \(y = x^2\) вокруг оси \(Oy\).</div>
+                <strong>Условие:</strong> Найти объём тела, полученного вращением вокруг оси Oy фигуры, ограниченной линиями \(y = x^2\), \(y = 0\), \(x = 0\), \(x = 2\).<br><br>
+                <div class="explain">📖 Вращаем параболу \(y = x^2\) вокруг оси Oy.</div>
                 <span class="step">Шаг 1. Выражаем \(x\) через \(y\):</span>
                 $$ x^2 = y \Rightarrow x = \sqrt{y} $$
-                <div class="explain">💡 Почему: для вращения вокруг \(Oy\) нужна функция \(x = g(y)\).</div>
+                <div class="explain">💡 Почему: для вращения вокруг Oy нужна функция \(x = g(y)\).</div>
                 <span class="step">Шаг 2. Пределы по \(y\): \([0; 4]\)</span>
                 <div class="explain">💡 Почему: при \(x = 2\): \(y = 4\).</div>
-                <span class="step">Шаг 3. Формула для вращения вокруг \(Oy\):</span>
+                <span class="step">Шаг 3. Формула для вращения вокруг Oy:</span>
                 $$ V = \pi \int_{0}^{4} (\sqrt{y})^2 \, dy = \pi \int_{0}^{4} y \, dy $$
                 <span class="step">Шаг 4. Вычисляем:</span>
                 $$ V = \pi \cdot \frac{y^2}{2} \Big|_{0}^{4} = 8\pi $$
@@ -571,16 +558,15 @@
         </div>
     </div>
 
-    <!-- ===== ПРИМЕР 5 ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Пример 5. Вращение прямой вокруг \(Oy\)</span>
-            <span class="sub-title">$V = \dfrac{8\pi}{3}$</span>
+            <span class="main-title">📐 Пример 5. Вращение прямой вокруг Oy</span>
+            <span class="sub-title">V = 8π/3</span>
         </div>
         <div class="section-content">
             <div class="example">
-                <strong>Условие:</strong> Найти объём тела, полученного вращением вокруг оси \(Oy\) фигуры, ограниченной линиями \(x = 2 - y\), \(y = 0\), \(y = 2\).<br><br>
-                <div class="explain">📖 Вращаем прямую вокруг оси \(Oy\). Получается <strong>конус</strong>.</div>
+                <strong>Условие:</strong> Найти объём тела, полученного вращением вокруг оси Oy фигуры, ограниченной линиями \(x = 2 - y\), \(y = 0\), \(y = 2\).<br><br>
+                <div class="explain">📖 Вращаем прямую вокруг оси Oy. Получается <strong>конус</strong>.</div>
                 <span class="step">Шаг 1. \(g(y) = 2 - y\), \(y \in [0; 2]\)</span>
                 <span class="step">Шаг 2. Подставляем в формулу:</span>
                 $$ V = \pi \int_{0}^{2} (2 - y)^2 \, dy = \pi \int_{0}^{2} (4 - 4y + y^2) \, dy $$
@@ -593,7 +579,6 @@
         </div>
     </div>
 
-    <!-- ===== НЕОБЯЗАТЕЛЬНЫЙ МАТЕРИАЛ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📊 * Сравнение: параболоид vs конус</span>
@@ -601,10 +586,10 @@
         </div>
         <div class="section-content">
             <div class="formula-block">
-                <strong>Параболоид:</strong> \(V_{пар} = \dfrac{\pi R^2 H}{2} \approx 1.57 \cdot R^2 H\)<br><br>
-                <strong>Конус:</strong> \(V_{кон} = \dfrac{\pi R^2 H}{3} \approx 1.05 \cdot R^2 H\)<br><br>
+                <strong>Параболоид:</strong> \(V_{\text{пар}} = \dfrac{\pi R^2 H}{2} \approx 1.57 \cdot R^2 H\)<br><br>
+                <strong>Конус:</strong> \(V_{\text{кон}} = \dfrac{\pi R^2 H}{3} \approx 1.05 \cdot R^2 H\)<br><br>
                 <strong>Вывод:</strong> Объём параболоида <strong>в 1.5 раза больше</strong> объёма конуса:
-                $$ \frac{V_{пар}}{V_{кон}} = \frac{1/2}{1/3} = 1.5 $$
+                $$ \frac{V_{\text{пар}}}{V_{\text{кон}}} = \frac{1/2}{1/3} = 1.5 $$
             </div>
             <div class="important" style="border-left-color: var(--text-secondary);">
                 * Этот материал не обязателен для запоминания, но помогает лучше понять геометрический смысл.
@@ -698,14 +683,12 @@
         ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
         ctx.fillRect(0, 0, w, h);
 
-        // ===== СЕТКА С ЦИФРАМИ =====
         ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
         ctx.lineWidth = 0.6;
 
         const stepX = 1;
         const stepY = 1;
 
-        // Вертикальные линии
         for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x += stepX) {
             const sx = toX(x);
             ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h-pad); ctx.stroke();
@@ -716,7 +699,6 @@
             if (x !== 0) ctx.fillText(x, sx, h - pad + 4);
         }
 
-        // Горизонтальные линии
         for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y += stepY) {
             const sy = toY(y);
             ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w-pad, sy); ctx.stroke();
@@ -727,7 +709,6 @@
             if (y !== 0) ctx.fillText(y, pad - 8, sy);
         }
 
-        // ===== ОСИ =====
         ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
         ctx.lineWidth = 1.8;
         const ox = toY(0), oy = toX(0);
@@ -757,7 +738,6 @@
             ctx.fillText('0', oy - 6, ox + 4);
         }
 
-        // ===== ЗАЛИВКА ПОД ГРАФИКОМ =====
         if (fillTo !== undefined && functions.length > 0) {
             const fn = functions[0];
             ctx.beginPath();
@@ -777,7 +757,6 @@
             ctx.globalAlpha = 1;
         }
 
-        // ===== ГРАФИК =====
         functions.forEach(fn => {
             ctx.strokeStyle = fn.color;
             ctx.lineWidth = 2.5;
@@ -798,7 +777,6 @@
             ctx.stroke();
         });
 
-        // ===== ТОЧКА (H; R) =====
         if (fillTo !== undefined) {
             const H = fillTo;
             const R = functions[0].f(H);
@@ -848,12 +826,10 @@
     }
 
     function drawAllGraphs() {
-        // ===== ГРАФИК ДЛЯ OX: y = √x =====
         drawOneGraph('graph1', [
             { f: x => Math.sqrt(x), color: '#fbbf24', label: 'y = √x' }
         ], -0.5, 4.5, -0.5, 3, 4);
 
-        // ===== ГРАФИК ДЛЯ OY: y = x² =====
         drawOneGraph('graph2', [
             { f: x => x * x, color: '#34d399', label: 'y = x²' }
         ], -0.5, 2.5, -0.5, 4.5, 2);
