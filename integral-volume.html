@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Вычисление объёмов через интеграл — 11 класс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --legend-text: #cbdbe6;
+            --legend-bg: #1a2d3c;
+            --scene-bg: #1a2d3c;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --legend-text: #1a2a3f;
+            --legend-bg: #eef2f8;
+            --scene-bg: #eef2f8;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 14px 18px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: #a78bfa; margin-top: 8px; }
+        .example .result { margin-top: 8px; font-weight: 600; color: #c4b5fd; }
+        .example .explain { color: #a7f3d0; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #a7f3d0; padding-left: 12px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+
+        .graph-container { text-align: center; margin: 12px 0; background: var(--canvas-bg); border-radius: 16px; padding: 8px; display: block; transition: background 0.2s; }
+        .graphs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; }
+        .graph-container canvas { max-width: 100%; height: auto; border-radius: 12px; display: inline-block; background: var(--canvas-bg); transition: background 0.2s; }
+        .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; }
+        .graph-formula { text-align: center; }
+
+        .geo-meaning { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 16px 20px; margin: 12px 0; color: var(--text); line-height: 1.8; }
+        .geo-meaning strong { color: #fbbf24; }
+        .geo-meaning .num { font-weight: 700; color: #a78bfa; }
+
+        /* ===== 3D МОДЕЛЬ ===== */
+        .model-wrapper { position: relative; width: 100%; }
+
+        .model-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            min-height: 350px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: var(--scene-bg);
+            transition: background 0.3s;
+        }
+
+        .model-container:fullscreen,
+        .model-container:-webkit-full-screen {
+            width: 100vw !important;
+            height: 100vh !important;
+            aspect-ratio: auto !important;
+            border-radius: 0 !important;
+            background: var(--scene-bg) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+
+        .model-container:fullscreen .model-canvas,
+        .model-container:-webkit-full-screen .model-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            flex: 1 !important;
+        }
+
+        .model-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            touch-action: none;
+            background: transparent;
+        }
+        .model-canvas:active { cursor: grabbing; }
+
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            color: white;
+            transition: 0.2s;
+        }
+        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+
+        .model-container:fullscreen .fullscreen-btn,
+        .model-container:-webkit-full-screen .fullscreen-btn {
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            bottom: auto !important;
+            left: auto !important;
+            z-index: 10000 !important;
+            background: rgba(0,0,0,0.6) !important;
+        }
+
+        /* === FULLSCREEN — только ползунки поверх === */
+        .fs-sliders-overlay {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 14px 24px;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            width: auto;
+            min-width: 300px;
+            max-width: 90%;
+        }
+
+        .model-container:fullscreen .fs-sliders-overlay,
+        .model-container:-webkit-full-screen .fs-sliders-overlay {
+            display: block !important;
+        }
+
+        .fs-sliders-overlay .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .fs-sliders-overlay .slider-container label {
+            color: #ffffff !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .fs-sliders-overlay .slider-container input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            flex: 1;
+            min-width: 120px;
+            max-width: 200px;
+            height: 6px;
+            border-radius: 3px;
+            background: #4a6a7a;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .fs-sliders-overlay .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #8b5cf6;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .fs-sliders-overlay .slider-value {
+            font-weight: 700;
+            color: #fbbf24 !important;
+            min-width: 60px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .fs-sliders-overlay .slider-label-h { color: #4ecdc4 !important; font-weight: 600; }
+        .fs-sliders-overlay .slider-label-x { color: #fbbf24 !important; font-weight: 600; }
+
+        .slider-wrapper { margin: 12px 0 8px; padding: 12px 20px; background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); }
+        .slider-container { display: flex; align-items: center; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .slider-container label { font-weight: 600; color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+        .slider-container input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 120px; max-width: 200px; height: 6px; border-radius: 3px; background: #4a6a7a; outline: none; cursor: pointer; }
+        .slider-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #8b5cf6; cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .slider-value { font-weight: 700; color: var(--special-border); min-width: 60px; text-align: center; font-size: 0.9rem; }
+
+        .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 8px 0; }
+        .info-grid .item { background: var(--formula-bg); padding: 8px 12px; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
+        .info-grid .item .label { color: var(--text-secondary); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-grid .item .value { font-weight: 700; color: var(--special-border); font-size: 1rem; }
+
+        .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin: 6px 0; font-size: 0.85rem; color: var(--legend-text); }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-color { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
+
+        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 8px 0; }
+        .btn-show { padding: 10px 24px; border: none; border-radius: 40px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; color: white; }
+        .btn-show:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+        .btn-show.active { transform: scale(0.95); }
+        .btn-section { background: var(--special-border); }
+        .btn-section.active { background: #fbbf24; color: #1a2d3c; }
+        .btn-triangle { background: #ff6b6b; }
+        .btn-triangle.active { background: #fbbf24; color: #1a2d3c; }
+
+        .slider-label-h { color: #4ecdc4; font-weight: 600; }
+        .slider-label-x { color: #fbbf24; font-weight: 600; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .model-container { min-height: 250px; }
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .slider-container input[type="range"] { min-width: 80px; max-width: 120px; }
+            .graphs-row { grid-template-columns: 1fr; gap: 12px; }
+            .graph-formula { font-size: 0.85rem !important; }
+            .fs-sliders-overlay {
+                padding: 10px 16px !important;
+                min-width: 200px !important;
+                bottom: 15px !important;
+            }
+            .fs-sliders-overlay .slider-container {
+                gap: 8px !important;
+                flex-direction: column !important;
+            }
+            .fs-sliders-overlay .slider-container input[type="range"] {
+                min-width: 80px !important;
+                max-width: 150px !important;
+            }
+        }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
+            chtml: { scale: 1.0, displayAlign: 'center' },
+            startup: {
+                ready() {
+                    MathJax.startup.defaultReady();
+                    MathJax.startup.promise.then(() => setTimeout(drawAllGraphs, 300));
+                }
+            }
+        };
+    </script>
+    <script src="es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Вычисление объёмов через интеграл</h1>
+
+    <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Определение</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Объём тела</strong> — величина, равная интегралу от площади его поперечного сечения.</p>
+            <div class="important">
+                <strong>📌 Другими словами:</strong><br>
+                Чтобы найти объём тела, нужно <strong>разрезать</strong> его на тонкие слои, <strong>посчитать</strong> площадь каждого слоя, а затем <strong>сложить</strong> все эти площади с помощью интеграла.
+            </div>
+            <div class="formula-block">
+                $$ V = \int_{a}^{b} S(x) \, dx $$
+                где \(S(x)\) — площадь поперечного сечения тела плоскостью, перпендикулярной оси \(Ox\).
+            </div>
+            <div class="formula-block">
+                <strong>Для тел вращения вокруг оси \(Ox\):</strong>
+                $$ V = \pi \int_{a}^{b} [f(x)]^2 \, dx $$
+                <br>
+                <strong style="color:#34d399;">Для тел вращения вокруг оси \(Oy\):</strong>
+                $$ V = \pi \int_{c}^{d} [g(y)]^2 \, dy $$
+                где \(x = g(y)\) — функция, выражающая \(x\) через \(y\).
+            </div>
+
+            <!-- ДВА ГРАФИКА: для Ox и Oy -->
+            <div class="graphs-row">
+                <!-- ЛЕВЫЙ: Ox -->
+                <div class="graph-container" id="gc1">
+                    <div class="graph-formula" style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:6px;">
+                        🔄 Вращение вокруг <strong style="color:#fbbf24;">оси Ox</strong>
+                    </div>
+                    <div class="graph-formula" style="font-size:0.95rem; color:var(--text-secondary); margin-bottom:8px;">
+                        $$ V = \pi \int_{0}^{4} (\sqrt{x})^2 \, dx = 8\pi $$
+                    </div>
+                    <canvas id="graph1" width="500" height="330"></canvas>
+                    <div class="graph-label">
+                        \(y = \sqrt{x}\), \(x \in [0; 4]\)<br>
+                        <span style="color:#fbbf24;">⬤ Жёлтая заливка — вращение вокруг Ox</span><br>
+                        <span style="color:#fbbf24;">●</span> Точка (4; 2)
+                    </div>
+                </div>
+
+                <!-- ПРАВЫЙ: Oy -->
+                <div class="graph-container" id="gc2">
+                    <div class="graph-formula" style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:6px;">
+                        🔄 Вращение вокруг <strong style="color:#34d399;">оси Oy</strong>
+                    </div>
+                    <div class="graph-formula" style="font-size:0.95rem; color:var(--text-secondary); margin-bottom:8px;">
+                        $$ V = \pi \int_{0}^{2} (x^2)^2 \, dx = \frac{32\pi}{5} $$
+                    </div>
+                    <canvas id="graph2" width="500" height="330"></canvas>
+                    <div class="graph-label">
+                        \(y = x^2\), \(x \in [0; 2]\)<br>
+                        <span style="color:#34d399;">⬤ Зелёная заливка — вращение вокруг Oy</span><br>
+                        <span style="color:#34d399;">●</span> Точка (2; 4)
+                    </div>
+                </div>
+            </div>
+            <div class="graph-label" style="margin-top: -4px; font-size:0.8rem;">
+                📌 Левый график — вращение вокруг \(Ox\) (\(y = \sqrt{x}\)). Правый — вращение вокруг \(Oy\) (\(y = x^2\)).
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ГЕОМЕТРИЧЕСКИЙ СМЫСЛ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔍 Геометрический смысл</span>
+            <span class="sub-title">нажмите, чтобы открыть</span>
+        </div>
+        <div class="section-content">
+            <div class="geo-meaning">
+                <span class="num">1.</span> Фигура, ограниченная графиком \(y = f(x)\) и осью \(Ox\) на \([a; b]\).<br>
+                При вращении вокруг \(Ox\) получается <strong>тело вращения</strong>.<br><br>
+                <span class="num">2.</span> Разрезаем тело плоскостями, перпендикулярными \(Ox\), на тонкие слои (круги).<br>
+                Каждый слой — поперечное сечение — круг радиуса \(r(x) = f(x)\).<br><br>
+                <span class="num">3.</span> Площадь каждого круга:
+                $$ S(x) = \pi \cdot [r(x)]^2 = \pi \cdot [f(x)]^2 $$<br><br>
+                <span class="num">4.</span> Объём тела = сумма площадей всех кругов:
+                $$ V = \int_{a}^{b} S(x) \, dx $$<br><br>
+                <span class="num">5.</span> Подставляем \(S(x)\):
+                $$ V = \pi \int_{a}^{b} [f(x)]^2 \, dx $$
+            </div>
+            <div class="formula-block">
+                <strong>Площадь поперечного сечения:</strong> \(S(x) = \pi \cdot [r(x)]^2\)<br>
+                <strong>Объём тела вращения:</strong> \(V = \pi \int_{a}^{b} [f(x)]^2 \, dx\)
+            </div>
+            <div class="formula-block" style="border-left-color: #4ecdc4;">
+                <strong>Для вращения вокруг оси \(Oy\):</strong><br>
+                Если фигура задана как \(x = g(y)\), то:
+                $$ V = \pi \int_{c}^{d} [g(y)]^2 \, dy $$
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 3D-МОДЕЛЬ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔄 3D-модель</span>
+            <span class="sub-title">для лучшего понимания</span>
+        </div>
+        <div class="section-content">
+            <div class="model-wrapper">
+                <!-- 3D КОНТЕЙНЕР -->
+                <div class="model-container" id="container1">
+                    <canvas id="canvas1" class="model-canvas"></canvas>
+                    <button class="fullscreen-btn" id="fs1" title="Во весь экран">⛶</button>
+
+                    <!-- ===== FULLSCREEN — ДУБЛИРУЕМ ТОЛЬКО ПОЛЗУНКИ ===== -->
+                    <div class="fs-sliders-overlay" id="fsSlidersOverlay">
+                        <div class="slider-container">
+                            <label><span class="slider-label-h">📏 H:</span></label>
+                            <input type="range" id="fsHeightSlider" min="0.5" max="6" step="0.1" value="4">
+                            <span class="slider-value" id="fsHeightValue">4.0</span>
+                        </div>
+                        <div class="slider-container" style="margin-top:6px;">
+                            <label><span class="slider-label-x">📐 x:</span></label>
+                            <input type="range" id="fsSectionSlider" min="0" max="6" step="0.1" value="2">
+                            <span class="slider-value" id="fsSliderValue">2.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== ПОЛЗУНКИ ПОД СЦЕНОЙ (основные) ===== -->
+                <div class="slider-wrapper">
+                    <div class="slider-container">
+                        <label><span class="slider-label-h">📏 Высота H:</span></label>
+                        <input type="range" id="heightSlider" min="0.5" max="6" step="0.1" value="4">
+                        <span class="slider-value" id="heightValue">H = 4.0</span>
+                    </div>
+                    <div class="slider-container" style="margin-top:6px;">
+                        <label><span class="slider-label-x">📐 Сечение x:</span></label>
+                        <input type="range" id="sectionSlider" min="0" max="6" step="0.1" value="2">
+                        <span class="slider-value" id="sliderValue">x = 2.0</span>
+                    </div>
+                </div>
+
+                <!-- ===== INFO-GRID ПОД СЦЕНОЙ ===== -->
+                <div class="info-grid" id="infoGrid">
+                    <div class="item"><div class="label">Радиус \(r(x)\)</div><div class="value" id="infoR">1.225</div></div>
+                    <div class="item"><div class="label">Площадь \(S(x)\)</div><div class="value" id="infoS">4.712</div></div>
+                    <div class="item"><div class="label">Высота \(H\)</div><div class="value" id="infoH">4.000</div></div>
+                    <div class="item"><div class="label">Объём \(V\)</div><div class="value" id="infoV">18.850</div></div>
+                </div>
+
+                <!-- ===== ЛЕГЕНДА ПОД СЦЕНОЙ ===== -->
+                <div class="legend">
+                    <span class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span> Поперечное сечение \(S(x)\)</span>
+                    <span class="legend-item"><span class="legend-color" style="background:#ff6b6b;"></span> Осевое сечение (парабола)</span>
+                    <span class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span> Радиус \(r(x)\)</span>
+                    <span class="legend-item"><span class="legend-color" style="background:#4ecdc4;"></span> <strong>OH — высота</strong></span>
+                </div>
+
+                <!-- ===== КНОПКИ ПОД СЦЕНОЙ ===== -->
+                <div class="btn-group">
+                    <button class="btn-show btn-section active" id="showSectionBtn">✕ Скрыть сечение</button>
+                    <button class="btn-show btn-triangle active" id="showTriangleBtn">✕ Скрыть осевое сечение</button>
+                </div>
+                <div class="graph-label" style="font-size:0.85rem; margin-top:4px;">
+                    🟡 Жёлтая линия — радиус \(r(x)\) | 🟡 Жёлтый круг — поперечное сечение \(S(x)\)<br>
+                    🔴 Красная заливка — осевое сечение (парабола) до точки H
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕРЫ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. Параболоид вращения (вокруг \(Ox\))</span>
+            <span class="sub-title">$V = \dfrac{\pi R^2 H}{2}$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси \(Ox\)</strong> фигуры, ограниченной линиями \(y = \sqrt{x}\), \(x = 0\), \(x = 4\).<br><br>
+                <div class="explain">📖 Это тело называется <strong>параболоидом вращения</strong>.</div>
+                <span class="step">Шаг 1. Формула объёма вращения вокруг оси \(Ox\):</span>
+                $$ V = \pi \int_{a}^{b} [f(x)]^2 \, dx $$
+                <span class="step">Шаг 2. Подставляем \(f(x) = \sqrt{x}\), \(a = 0\), \(b = 4\):</span>
+                $$ V = \pi \int_{0}^{4} (\sqrt{x})^2 \, dx = \pi \int_{0}^{4} x \, dx $$
+                <div class="explain">💡 Почему: \((\sqrt{x})^2 = x\).</div>
+                <span class="step">Шаг 3. Вычисляем интеграл:</span>
+                $$ V = \pi \cdot \frac{x^2}{2} \Big|_{0}^{4} = \pi \cdot \frac{16}{2} = 8\pi $$
+                <div class="explain">💡 Почему: \(\int x \, dx = x^2/2\).</div>
+                <span class="result">Ответ: \(V = 8\pi \approx 25.13\) куб. ед.</span>
+                <div class="explain">✅ Объём параболоида вращения вокруг оси \(Ox\) с высотой 4 и радиусом 2 равен \(8\pi\).</div>
+                <br>
+                <strong>Вывод общей формулы для параболоида \(y = R\sqrt{x/H}\):</strong><br><br>
+                <span class="step">Шаг 1. Подставляем в формулу:</span>
+                $$ V = \pi \int_{0}^{H} \left( R\sqrt{\frac{x}{H}} \right)^2 dx = \pi R^2 \int_{0}^{H} \frac{x}{H} dx $$
+                <span class="step">Шаг 2. Вычисляем:</span>
+                $$ V = \frac{\pi R^2}{H} \cdot \frac{H^2}{2} = \frac{\pi R^2 H}{2} $$
+                <span class="result">Общая формула: \(V = \dfrac{\pi R^2 H}{2}\)</span>
+                <div class="explain">📌 Это в 2 раза меньше объёма цилиндра с теми же \(R\) и \(H\).</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. Вращение синуса (вокруг \(Ox\))</span>
+            <span class="sub-title">$V = \dfrac{\pi^2}{2}$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси \(Ox\)</strong> фигуры, ограниченной линиями \(y = \sin x\), \(x = 0\), \(x = \pi\).<br><br>
+                <div class="explain">📖 Тело называется <strong>синусоидой вращения</strong>.</div>
+                <span class="step">Шаг 1. Формула объёма:</span>
+                $$ V = \pi \int_{0}^{\pi} \sin^2 x \, dx $$
+                <span class="step">Шаг 2. Используем формулу \(\sin^2 x = \frac{1 - \cos 2x}{2}\):</span>
+                $$ V = \frac{\pi}{2} \int_{0}^{\pi} (1 - \cos 2x) \, dx $$
+                <div class="explain">💡 Почему: так легче интегрировать.</div>
+                <span class="step">Шаг 3. Вычисляем интеграл:</span>
+                $$ V = \frac{\pi}{2} \left[ x - \frac{\sin 2x}{2} \right]_{0}^{\pi} = \frac{\pi^2}{2} $$
+                <div class="explain">💡 Почему: \(\sin 2\pi = 0\), \(\sin 0 = 0\).</div>
+                <span class="result">Ответ: \(V = \dfrac{\pi^2}{2} \approx 4.93\) куб. ед.</span>
+                <div class="explain">✅ Объём тела вращения синуса вокруг оси \(Ox\) на \([0; \pi]\) равен \(\pi^2/2\).</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. Вращение параболы \(y = x^2\) (вокруг \(Ox\))</span>
+            <span class="sub-title">$V = \dfrac{32\pi}{5}$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси \(Ox\)</strong> фигуры, ограниченной линиями \(y = x^2\), \(y = 0\), \(x = 0\), \(x = 2\).<br><br>
+                <div class="explain">📖 Вращаем параболу \(y = x^2\) вокруг оси \(Ox\).</div>
+                <span class="step">Шаг 1. Формула объёма:</span>
+                $$ V = \pi \int_{0}^{2} (x^2)^2 \, dx = \pi \int_{0}^{2} x^4 \, dx $$
+                <div class="explain">💡 Почему: \((x^2)^2 = x^4\).</div>
+                <span class="step">Шаг 2. Вычисляем интеграл:</span>
+                $$ V = \pi \cdot \frac{x^5}{5} \Big|_{0}^{2} = \pi \cdot \frac{32}{5} = \frac{32\pi}{5} $$
+                <div class="explain">💡 Почему: \(\int x^4 dx = x^5/5\).</div>
+                <span class="result">Ответ: \(V = \dfrac{32\pi}{5} \approx 20.11\) куб. ед.</span>
+                <div class="explain">✅ Объём тела вращения параболы \(y = x^2\) вокруг оси \(Ox\) на \([0; 2]\) равен \(32\pi/5\).</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. Вращение вокруг оси \(Oy\)</span>
+            <span class="sub-title">$V = 8\pi$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Найти объём тела, полученного вращением вокруг оси \(Oy\) фигуры, ограниченной линиями \(y = x^2\), \(y = 0\), \(x = 0\), \(x = 2\).<br><br>
+                <div class="explain">📖 Вращаем параболу \(y = x^2\) вокруг оси \(Oy\).</div>
+                <span class="step">Шаг 1. Выражаем \(x\) через \(y\):</span>
+                $$ x^2 = y \Rightarrow x = \sqrt{y} $$
+                <div class="explain">💡 Почему: для вращения вокруг \(Oy\) нужна функция \(x = g(y)\).</div>
+                <span class="step">Шаг 2. Пределы по \(y\): \([0; 4]\)</span>
+                <div class="explain">💡 Почему: при \(x = 2\): \(y = 4\).</div>
+                <span class="step">Шаг 3. Формула для вращения вокруг \(Oy\):</span>
+                $$ V = \pi \int_{0}^{4} (\sqrt{y})^2 \, dy = \pi \int_{0}^{4} y \, dy $$
+                <span class="step">Шаг 4. Вычисляем:</span>
+                $$ V = \pi \cdot \frac{y^2}{2} \Big|_{0}^{4} = 8\pi $$
+                <div class="explain">💡 Почему: \(\int_0^4 y\,dy = 8\).</div>
+                <span class="result">Ответ: \(V = 8\pi \approx 25.13\) куб. ед.</span>
+                <div class="explain">✅ Интересно: тот же объём, что и в примере 1! Это одно и то же тело.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 5 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5. Вращение прямой вокруг \(Oy\)</span>
+            <span class="sub-title">$V = \dfrac{8\pi}{3}$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Найти объём тела, полученного вращением вокруг оси \(Oy\) фигуры, ограниченной линиями \(x = 2 - y\), \(y = 0\), \(y = 2\).<br><br>
+                <div class="explain">📖 Вращаем прямую вокруг оси \(Oy\). Получается <strong>конус</strong>.</div>
+                <span class="step">Шаг 1. \(g(y) = 2 - y\), \(y \in [0; 2]\)</span>
+                <span class="step">Шаг 2. Подставляем в формулу:</span>
+                $$ V = \pi \int_{0}^{2} (2 - y)^2 \, dy = \pi \int_{0}^{2} (4 - 4y + y^2) \, dy $$
+                <span class="step">Шаг 3. Вычисляем:</span>
+                $$ V = \pi \left[ 4y - 2y^2 + \frac{y^3}{3} \right]_{0}^{2} = \frac{8\pi}{3} $$
+                <div class="explain">💡 Почему: подстановка \(y=2\) даёт \(8 - 8 + 8/3 = 8/3\).</div>
+                <span class="result">Ответ: \(V = \dfrac{8\pi}{3} \approx 8.38\) куб. ед.</span>
+                <div class="explain">✅ Получили конус: \(V = \frac{1}{3}\pi R^2 H = \frac{1}{3}\pi \cdot 4 \cdot 2 = \frac{8\pi}{3}\).</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== НЕОБЯЗАТЕЛЬНЫЙ МАТЕРИАЛ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📊 * Сравнение: параболоид vs конус</span>
+            <span class="sub-title">необязательный материал</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>Параболоид:</strong> \(V_{пар} = \dfrac{\pi R^2 H}{2} \approx 1.57 \cdot R^2 H\)<br><br>
+                <strong>Конус:</strong> \(V_{кон} = \dfrac{\pi R^2 H}{3} \approx 1.05 \cdot R^2 H\)<br><br>
+                <strong>Вывод:</strong> Объём параболоида <strong>в 1.5 раза больше</strong> объёма конуса:
+                $$ \frac{V_{пар}}{V_{кон}} = \frac{1/2}{1/3} = 1.5 $$
+            </div>
+            <div class="important" style="border-left-color: var(--text-secondary);">
+                * Этот материал не обязателен для запоминания, но помогает лучше понять геометрический смысл.
+            </div>
+        </div>
+    </div>
+
+    <a href="#" class="back-link">← Назад к интегралам</a>
+</div>
+
+<!-- ===== СКРИПТЫ ===== -->
+<script>
+    // ТЕМА
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        drawAllGraphs();
+        if (window._updateSceneBackground) {
+            window._updateSceneBackground();
+        }
+        updateLegendColors();
+    }
+
+    function updateLegendColors() {
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const legend = document.querySelector('.legend');
+        if (legend) {
+            legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
+        }
+    }
+
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+        setTimeout(updateLegendColors, 100);
+    })();
+
+    // ИЗБРАННОЕ
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+
+    // ===== 2D ГРАФИКИ =====
+    function drawOneGraph(canvasId, functions, xMin, xMax, yMin, yMax, fillTo) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 45;
+        const pw = w - 2*pad, ph = h - 2*pad;
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        // ===== СЕТКА С ЦИФРАМИ =====
+        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+        ctx.lineWidth = 0.6;
+
+        const stepX = 1;
+        const stepY = 1;
+
+        // Вертикальные линии
+        for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x += stepX) {
+            const sx = toX(x);
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h-pad); ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            if (x !== 0) ctx.fillText(x, sx, h - pad + 4);
+        }
+
+        // Горизонтальные линии
+        for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y += stepY) {
+            const sy = toY(y);
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w-pad, sy); ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            if (y !== 0) ctx.fillText(y, pad - 8, sy);
+        }
+
+        // ===== ОСИ =====
+        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 1.8;
+        const ox = toY(0), oy = toX(0);
+        if (ox >= pad && ox <= h-pad) {
+            ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w-pad, ox); ctx.stroke();
+        }
+        if (oy >= pad && oy <= w-pad) {
+            ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h-pad); ctx.stroke();
+        }
+
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.beginPath(); ctx.moveTo(w-pad, ox); ctx.lineTo(w-pad-8, ox-4); ctx.lineTo(w-pad-8, ox+4); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy-4, pad+8); ctx.lineTo(oy+4, pad+8); ctx.fill();
+
+        ctx.font = '13px "Segoe UI", "JetBrains Mono", monospace';
+        ctx.fillStyle = isLight ? '#1e3a5f' : '#cbdbe6';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('x', w-pad-5, ox-8);
+        ctx.fillText('y', oy+8, pad+14);
+
+        if (oy >= pad && oy <= w-pad) {
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
+            ctx.fillText('0', oy - 6, ox + 4);
+        }
+
+        // ===== ЗАЛИВКА ПОД ГРАФИКОМ =====
+        if (fillTo !== undefined && functions.length > 0) {
+            const fn = functions[0];
+            ctx.beginPath();
+            ctx.moveTo(toX(0), toY(0));
+            const step = (xMax - xMin) / 800;
+            for (let x = 0; x <= fillTo; x += step) {
+                let y;
+                try { y = fn.f(x); } catch(e) { continue; }
+                if (y === null || y === undefined || isNaN(y) || !isFinite(y)) continue;
+                ctx.lineTo(toX(x), toY(y));
+            }
+            ctx.lineTo(toX(fillTo), toY(0));
+            ctx.closePath();
+            ctx.fillStyle = functions[0].color;
+            ctx.globalAlpha = 0.2;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        // ===== ГРАФИК =====
+        functions.forEach(fn => {
+            ctx.strokeStyle = fn.color;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            let first = true;
+            const step = (xMax - xMin) / 800;
+            for (let x = xMin; x <= xMax; x += step) {
+                let y;
+                try { y = fn.f(x); } catch(e) { first = true; continue; }
+                if (y === null || y === undefined || isNaN(y) || !isFinite(y) || y < yMin - 0.5 || y > yMax + 0.5) {
+                    first = true;
+                    continue;
+                }
+                const sx = toX(x), sy = toY(y);
+                if (first) { ctx.moveTo(sx, sy); first = false; }
+                else { ctx.lineTo(sx, sy); }
+            }
+            ctx.stroke();
+        });
+
+        // ===== ТОЧКА (H; R) =====
+        if (fillTo !== undefined) {
+            const H = fillTo;
+            const R = functions[0].f(H);
+            const color = functions[0].color;
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(toX(H), toY(R), 6, 0, 2 * Math.PI);
+            ctx.fill();
+
+            ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(toX(H), toY(R), 6, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.font = 'bold 13px "Segoe UI", "JetBrains Mono", monospace';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('(' + H + '; ' + R + ')', toX(H) + 10, toY(R) - 4);
+
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.2;
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(toX(H), toY(R));
+            ctx.lineTo(toX(H), toY(0));
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(toX(H), toY(R));
+            ctx.lineTo(toX(0), toY(R));
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = color;
+            ctx.font = 'bold 12px "Segoe UI", "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText('H=' + H, toX(H), toY(0) + 6);
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('R=' + R.toFixed(1), toX(0) - 10, toY(R));
+        }
+    }
+
+    function drawAllGraphs() {
+        // ===== ГРАФИК ДЛЯ OX: y = √x =====
+        drawOneGraph('graph1', [
+            { f: x => Math.sqrt(x), color: '#fbbf24', label: 'y = √x' }
+        ], -0.5, 4.5, -0.5, 3, 4);
+
+        // ===== ГРАФИК ДЛЯ OY: y = x² =====
+        drawOneGraph('graph2', [
+            { f: x => x * x, color: '#34d399', label: 'y = x²' }
+        ], -0.5, 2.5, -0.5, 4.5, 2);
+
+        document.getElementById('gc1').style.display = 'block';
+        document.getElementById('gc2').style.display = 'block';
+    }
+
+    window.addEventListener('load', function() {
+        setTimeout(drawAllGraphs, 500);
+    });
+</script>
+
+<!-- ===== THREE.JS (3D) ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+    (function() {
+        const container = document.getElementById('container1');
+        const canvas = document.getElementById('canvas1');
+        if (!container || !canvas) return;
+
+        const R = 3;
+        let currentH = 4;
+        let currentX = 2;
+        let sectionVisible = true;
+        let axialVisible = true;
+
+        let width = container.clientWidth || 400;
+        let height = container.clientHeight || 350;
+
+        const scene = new THREE.Scene();
+
+        function getSceneBgColor() {
+            const isLight = document.documentElement.classList.contains('light-mode');
+            return isLight ? 0xeef2f8 : 0x1a2d3c;
+        }
+
+        function updateSceneBackground() {
+            const color = getSceneBgColor();
+            scene.background = new THREE.Color(color);
+            const containerEl = document.getElementById('container1');
+            if (containerEl) {
+                const isLight = document.documentElement.classList.contains('light-mode');
+                containerEl.style.background = isLight ? '#eef2f8' : '#1a2d3c';
+            }
+        }
+
+        updateSceneBackground();
+        window._updateSceneBackground = updateSceneBackground;
+
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+        camera.position.set(6, 5, 10);
+        camera.lookAt(3, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.target.set(3, 0, 0);
+        controls.update();
+
+        const ambient = new THREE.AmbientLight(0x404060, 0.7);
+        scene.add(ambient);
+        const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+        dir.position.set(5, 8, 6);
+        scene.add(dir);
+        const back = new THREE.DirectionalLight(0x8888ff, 0.4);
+        back.position.set(-3, 2, -4);
+        scene.add(back);
+
+        const mainGroup = new THREE.Group();
+        scene.add(mainGroup);
+
+        let paraboloid = null, wireframe = null, ring = null;
+        let sectionGroup = null, axialGroup = null;
+        let dotH = null;
+
+        function createAxisWithLabel(from, to, color, label, offset) {
+            const line = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(from.x, from.y, from.z), new THREE.Vector3(to.x, to.y, to.z)]),
+                new THREE.LineBasicMaterial({ color })
+            );
+            mainGroup.add(line);
+            const dir = new THREE.Vector3(to.x - from.x, to.y - from.y, to.z - from.z).normalize();
+            const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 8), new THREE.MeshBasicMaterial({ color }));
+            arrow.position.copy(new THREE.Vector3(to.x, to.y, to.z));
+            arrow.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir));
+            mainGroup.add(arrow);
+            const c = document.createElement('canvas');
+            c.width = 128; c.height = 128;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 56px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.8)';
+            ctx.shadowBlur = 8;
+            ctx.fillText(label, 64, 64);
+            const texture = new THREE.CanvasTexture(c);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }));
+            sprite.position.set(to.x + offset.x, to.y + offset.y, to.z + offset.z);
+            sprite.scale.set(1.0, 1.0, 1);
+            mainGroup.add(sprite);
+        }
+
+        createAxisWithLabel({x:0,y:0,z:0}, {x:7,y:0,z:0}, 0xff6b6b, 'X', {x:0.4,y:-0.2,z:0});
+        createAxisWithLabel({x:0,y:0,z:0}, {x:0,y:4,z:0}, 0x4ecdc4, 'Y', {x:0,y:0.4,z:0});
+        createAxisWithLabel({x:0,y:0,z:0}, {x:0,y:0,z:4}, 0x45b7d1, 'Z', {x:0,y:-0.2,z:0.4});
+
+        const dotO = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+        dotO.position.set(0, 0, 0);
+        mainGroup.add(dotO);
+
+        function makeLabel(text, pos, color = '#fbbf24', scale = 1.2) {
+            const c = document.createElement('canvas');
+            c.width = 128; c.height = 128;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = color;
+            ctx.font = 'bold 56px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.8)';
+            ctx.shadowBlur = 8;
+            ctx.fillText(text, 64, 64);
+            const texture = new THREE.CanvasTexture(c);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }));
+            sprite.position.set(pos.x, pos.y, pos.z);
+            sprite.scale.set(scale, scale, 1);
+            return sprite;
+        }
+
+        let globalLabels = [];
+
+        function updateLabels(H) {
+            globalLabels.forEach(l => mainGroup.remove(l));
+            globalLabels = [];
+            globalLabels.push(makeLabel('O', {x:-0.4,y:-0.4,z:0}, '#fbbf24', 1.2));
+            globalLabels.push(makeLabel('H', {x:H+0.3,y:-0.3,z:0}, '#4ecdc4', 1.2));
+            globalLabels.push(makeLabel('R', {x:H,y:R/2+0.6,z:0}, '#fbbf24', 1.2));
+            globalLabels.push(makeLabel('a = 0', {x:0,y:-0.7,z:0}, '#ff6b6b', 0.8));
+            globalLabels.push(makeLabel('b = H', {x:H,y:-0.7,z:0}, '#ff6b6b', 0.8));
+            globalLabels.forEach(l => mainGroup.add(l));
+        }
+
+        function buildParaboloid(H) {
+            if (paraboloid) { mainGroup.remove(paraboloid); paraboloid.geometry.dispose(); paraboloid.material.dispose(); }
+            if (wireframe) { mainGroup.remove(wireframe); wireframe.geometry.dispose(); wireframe.material.dispose(); }
+            if (ring) { mainGroup.remove(ring); ring.geometry.dispose(); ring.material.dispose(); }
+            if (sectionGroup) { mainGroup.remove(sectionGroup); }
+            if (axialGroup) { mainGroup.remove(axialGroup); }
+            if (dotH) { mainGroup.remove(dotH); dotH = null; }
+
+            const seg = 64;
+            const geo = new THREE.BufferGeometry();
+            const verts = [], idx = [], norms = [], uvs = [];
+            for (let i = 0; i <= seg; i++) {
+                const t = i / seg;
+                const x = t * H;
+                const r = R * Math.sqrt(t);
+                for (let j = 0; j <= seg; j++) {
+                    const theta = (j / seg) * Math.PI * 2;
+                    verts.push(x, r * Math.cos(theta), r * Math.sin(theta));
+                    uvs.push(t, j / seg);
+                    const nx = R / (2 * Math.sqrt(H * x + 0.001)) || 0;
+                    const ny = Math.cos(theta), nz = Math.sin(theta);
+                    const len = Math.sqrt(nx*nx + ny*ny + nz*nz);
+                    norms.push(nx/len, ny/len, nz/len);
+                }
+            }
+            for (let i = 0; i < seg; i++) {
+                for (let j = 0; j < seg; j++) {
+                    const a = i * (seg+1) + j, b = i * (seg+1) + j + 1;
+                    const c = (i+1) * (seg+1) + j, d = (i+1) * (seg+1) + j + 1;
+                    idx.push(a, b, c); idx.push(b, d, c);
+                }
+            }
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+            geo.setAttribute('normal', new THREE.Float32BufferAttribute(norms, 3));
+            geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+            geo.setIndex(idx);
+            geo.computeVertexNormals();
+
+            const texCanvas = document.createElement('canvas');
+            texCanvas.width = 512; texCanvas.height = 512;
+            const ctx = texCanvas.getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, texCanvas.width, texCanvas.height);
+            grad.addColorStop(0, 'rgba(139, 92, 246, 0.7)');
+            grad.addColorStop(0.5, 'rgba(59, 130, 246, 0.7)');
+            grad.addColorStop(1, 'rgba(16, 185, 129, 0.7)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, texCanvas.width, texCanvas.height);
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 20; i++) {
+                const pos = (i/20)*texCanvas.width;
+                ctx.beginPath(); ctx.moveTo(pos, 0); ctx.lineTo(pos, texCanvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, pos); ctx.lineTo(texCanvas.width, pos); ctx.stroke();
+            }
+            const texture = new THREE.CanvasTexture(texCanvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(2, 4);
+
+            const mat = new THREE.MeshPhongMaterial({
+                map: texture,
+                transparent: true,
+                opacity: 0.45,
+                side: THREE.DoubleSide,
+                shininess: 60,
+                emissive: 0x1a0a2a,
+                emissiveIntensity: 0.1,
+                specular: 0x6666aa,
+                specularIntensity: 0.4
+            });
+            paraboloid = new THREE.Mesh(geo, mat);
+            mainGroup.add(paraboloid);
+
+            const edges = new THREE.EdgesGeometry(geo);
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x6d28d9, transparent: true, opacity: 0.1 });
+            wireframe = new THREE.LineSegments(edges, edgeMat);
+            mainGroup.add(wireframe);
+
+            const ringPoints = [];
+            for (let i = 0; i <= 48; i++) {
+                const theta = (i/48)*Math.PI*2;
+                ringPoints.push(new THREE.Vector3(H, R*Math.cos(theta), R*Math.sin(theta)));
+            }
+            const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPoints);
+            const ringMat = new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 3 });
+            ring = new THREE.Line(ringGeo, ringMat);
+            mainGroup.add(ring);
+
+            dotH = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshBasicMaterial({ color: 0x4ecdc4 }));
+            dotH.position.set(H, 0, 0);
+            mainGroup.add(dotH);
+
+            sectionGroup = new THREE.Group();
+            mainGroup.add(sectionGroup);
+            axialGroup = new THREE.Group();
+            mainGroup.add(axialGroup);
+
+            updateSection(currentX, H);
+            updateAxial(H);
+            updateLabels(H);
+        }
+
+        function updateSection(x, H) {
+            if (!sectionGroup) return;
+            while(sectionGroup.children.length > 0) {
+                const child = sectionGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+                sectionGroup.remove(child);
+            }
+            const sectionR = R * Math.sqrt(x / H);
+            if (x > H || x < 0) return;
+
+            const sectionGeo = new THREE.CircleGeometry(sectionR, 32);
+            const sectionMat = new THREE.MeshBasicMaterial({
+                color: 0xfbbf24, transparent: true, opacity: 0.25,
+                side: THREE.DoubleSide, depthTest: false, depthWrite: false
+            });
+            const sectionMesh = new THREE.Mesh(sectionGeo, sectionMat);
+            sectionMesh.position.set(x, 0, 0);
+            sectionMesh.rotation.y = Math.PI / 2;
+            sectionMesh.renderOrder = 999;
+            sectionGroup.add(sectionMesh);
+            sectionGroup.visible = sectionVisible;
+
+            const ringPoints = [];
+            for (let i = 0; i <= 48; i++) {
+                const theta = (i/48)*Math.PI*2;
+                ringPoints.push(new THREE.Vector3(x, sectionR*Math.cos(theta), sectionR*Math.sin(theta)));
+            }
+            const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPoints);
+            const ringMat = new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 2 });
+            const ringLine = new THREE.Line(ringGeo, ringMat);
+            ringLine.renderOrder = 999;
+            sectionGroup.add(ringLine);
+
+            const rLinePoints = [new THREE.Vector3(x, 0, 0), new THREE.Vector3(x, sectionR, 0)];
+            const rLineGeo = new THREE.BufferGeometry().setFromPoints(rLinePoints);
+            const rLineMat = new THREE.LineBasicMaterial({
+                color: 0xfbbf24, linewidth: 3, transparent: true,
+                depthTest: false, depthWrite: false
+            });
+            const rLine = new THREE.Line(rLineGeo, rLineMat);
+            rLine.renderOrder = 1001;
+            sectionGroup.add(rLine);
+
+            const dotMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24, depthTest: false });
+            const dotA = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), dotMat);
+            dotA.position.set(x, 0, 0); dotA.renderOrder = 1001; sectionGroup.add(dotA);
+            const dotB = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), dotMat);
+            dotB.position.set(x, sectionR, 0); dotB.renderOrder = 1001; sectionGroup.add(dotB);
+
+            sectionGroup.add(makeLabel('A', {x, y:-0.5, z:0}, '#fbbf24', 0.9));
+            sectionGroup.add(makeLabel('B', {x, y:sectionR+0.5, z:0}, '#fbbf24', 0.9));
+            sectionGroup.add(makeLabel('r(x)', {x:x+0.6, y:sectionR/2+0.6, z:0}, '#fbbf24', 1.2));
+            sectionGroup.add(makeLabel('S(x)', {x:x-0.8, y:sectionR+0.8, z:0}, '#fbbf24', 0.9));
+
+            document.getElementById('infoR').textContent = sectionR.toFixed(3);
+            document.getElementById('infoS').textContent = (Math.PI * sectionR * sectionR).toFixed(3);
+            document.getElementById('infoH').textContent = H.toFixed(3);
+            document.getElementById('infoV').textContent = ((Math.PI * R * R * H) / 2).toFixed(3);
+            document.getElementById('sliderValue').innerHTML = 'x = ' + x.toFixed(1);
+
+            const fsSliderValue = document.getElementById('fsSliderValue');
+            if (fsSliderValue) fsSliderValue.textContent = x.toFixed(1);
+        }
+
+        function updateAxial(H) {
+            if (!axialGroup) return;
+            while(axialGroup.children.length > 0) {
+                const child = axialGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+                axialGroup.remove(child);
+            }
+
+            const pts = [];
+            const seg = 64;
+            for (let i = 0; i <= seg; i++) {
+                const t = i / seg;
+                const x = t * H;
+                const r = R * Math.sqrt(t);
+                pts.push(new THREE.Vector3(x, r, 0));
+            }
+            pts.push(new THREE.Vector3(H, 0, 0));
+
+            const shape = new THREE.Shape();
+            shape.moveTo(0, 0);
+            for (let i = 0; i < pts.length; i++) {
+                if (i === 0) shape.moveTo(pts[i].x, pts[i].y);
+                else shape.lineTo(pts[i].x, pts[i].y);
+            }
+            shape.lineTo(0, 0);
+
+            const shapeGeo = new THREE.ShapeGeometry(shape);
+            const shapeMat = new THREE.MeshBasicMaterial({
+                color: 0xff6b6b,
+                transparent: true,
+                opacity: 0.35,
+                side: THREE.DoubleSide,
+                depthTest: false,
+                depthWrite: false
+            });
+            const mesh = new THREE.Mesh(shapeGeo, shapeMat);
+            mesh.renderOrder = 998;
+            axialGroup.add(mesh);
+
+            const linePts = [];
+            for (let i = 0; i <= seg; i++) {
+                const t = i / seg;
+                const x = t * H;
+                const r = R * Math.sqrt(t);
+                linePts.push(new THREE.Vector3(x, r, 0));
+            }
+            const lineGeo = new THREE.BufferGeometry().setFromPoints(linePts);
+            const lineMat = new THREE.LineBasicMaterial({
+                color: 0xff6b6b,
+                linewidth: 3,
+                transparent: true,
+                opacity: 1,
+                depthTest: false,
+                depthWrite: false
+            });
+            const line = new THREE.Line(lineGeo, lineMat);
+            line.renderOrder = 999;
+            axialGroup.add(line);
+
+            const basePts = [
+                new THREE.Vector3(H, 0, 0),
+                new THREE.Vector3(H, R, 0)
+            ];
+            const baseGeo = new THREE.BufferGeometry().setFromPoints(basePts);
+            const baseMat = new THREE.LineBasicMaterial({
+                color: 0xff6b6b,
+                linewidth: 2,
+                transparent: true,
+                opacity: 0.6,
+                depthTest: false,
+                depthWrite: false
+            });
+            const baseLine = new THREE.Line(baseGeo, baseMat);
+            baseLine.renderOrder = 999;
+            axialGroup.add(baseLine);
+
+            axialGroup.visible = axialVisible;
+        }
+
+        buildParaboloid(currentH);
+
+        const heightSlider = document.getElementById('heightSlider');
+        const sectionSlider = document.getElementById('sectionSlider');
+        const fsHeightSlider = document.getElementById('fsHeightSlider');
+        const fsSectionSlider = document.getElementById('fsSectionSlider');
+        const fsHeightValue = document.getElementById('fsHeightValue');
+        const fsSliderValue = document.getElementById('fsSliderValue');
+
+        heightSlider.addEventListener('input', function() {
+            currentH = parseFloat(this.value);
+            document.getElementById('heightValue').textContent = 'H = ' + currentH.toFixed(1);
+
+            if (fsHeightSlider) {
+                fsHeightSlider.value = currentH;
+                if (fsHeightValue) fsHeightValue.textContent = currentH.toFixed(1);
+            }
+            if (fsSectionSlider) {
+                fsSectionSlider.max = currentH;
+                if (parseFloat(fsSectionSlider.value) > currentH) {
+                    fsSectionSlider.value = currentH;
+                    currentX = currentH;
+                }
+            }
+
+            sectionSlider.max = currentH;
+            if (parseFloat(sectionSlider.value) > currentH) {
+                sectionSlider.value = currentH;
+                currentX = currentH;
+            }
+
+            buildParaboloid(currentH);
+            updateSection(parseFloat(sectionSlider.value), currentH);
+            updateLabels(currentH);
+        });
+
+        sectionSlider.addEventListener('input', function() {
+            currentX = parseFloat(this.value);
+            if (currentX > currentH) currentX = currentH;
+            document.getElementById('sliderValue').textContent = 'x = ' + currentX.toFixed(1);
+
+            if (fsSectionSlider) {
+                fsSectionSlider.value = currentX;
+                if (fsSliderValue) fsSliderValue.textContent = currentX.toFixed(1);
+            }
+
+            updateSection(currentX, currentH);
+        });
+
+        if (fsHeightSlider) {
+            fsHeightSlider.addEventListener('input', function() {
+                const val = parseFloat(this.value);
+                if (fsHeightValue) fsHeightValue.textContent = val.toFixed(1);
+
+                heightSlider.value = val;
+                document.getElementById('heightValue').textContent = 'H = ' + val.toFixed(1);
+
+                heightSlider.dispatchEvent(new Event('input'));
+            });
+        }
+
+        if (fsSectionSlider) {
+            fsSectionSlider.addEventListener('input', function() {
+                const val = parseFloat(this.value);
+                if (fsSliderValue) fsSliderValue.textContent = val.toFixed(1);
+
+                sectionSlider.value = val;
+                document.getElementById('sliderValue').textContent = 'x = ' + val.toFixed(1);
+
+                sectionSlider.dispatchEvent(new Event('input'));
+            });
+        }
+
+        const btnSection = document.getElementById('showSectionBtn');
+        const btnAxial = document.getElementById('showTriangleBtn');
+
+        btnSection.addEventListener('click', function() {
+            sectionVisible = !sectionVisible;
+            if (sectionGroup) sectionGroup.visible = sectionVisible;
+            if (sectionVisible) {
+                btnSection.textContent = '✕ Скрыть сечение';
+                btnSection.classList.add('active');
+            } else {
+                btnSection.textContent = '📐 Поперечное сечение (круг)';
+                btnSection.classList.remove('active');
+            }
+        });
+
+        btnAxial.addEventListener('click', function() {
+            axialVisible = !axialVisible;
+            if (axialGroup) axialGroup.visible = axialVisible;
+            if (axialVisible) {
+                btnAxial.textContent = '✕ Скрыть осевое сечение';
+                btnAxial.classList.add('active');
+            } else {
+                btnAxial.textContent = '🔺 Осевое сечение (парабола)';
+                btnAxial.classList.remove('active');
+            }
+        });
+
+        const fsBtn = document.getElementById('fs1');
+        if (fsBtn) {
+            fsBtn.addEventListener('click', async () => {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    try {
+                        await container.requestFullscreen();
+                        fsBtn.textContent = '✖';
+                        setTimeout(updateSize, 100);
+                    } catch(e) {}
+                } else {
+                    if (document.exitFullscreen) await document.exitFullscreen();
+                    else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                    fsBtn.textContent = '⛶';
+                    setTimeout(updateSize, 100);
+                }
+            });
+            document.addEventListener('fullscreenchange', () => {
+                const isFullscreen = document.fullscreenElement === container || document.webkitFullscreenElement === container;
+                fsBtn.textContent = isFullscreen ? '✖' : '⛶';
+                setTimeout(updateSize, 100);
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window._resize3d = function() { updateSize(); };
+        window.addEventListener('resize', updateSize);
+        new ResizeObserver(() => updateSize()).observe(container);
+        setTimeout(updateSize, 100);
+
+        function updateSize() {
+            const rect = container.getBoundingClientRect();
+            let rw = rect.width, rh = rect.height;
+
+            if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
+                rw = window.innerWidth;
+                rh = window.innerHeight;
+            }
+
+            if (rw < 10) rw = 800;
+            if (rh < 10) rh = 450;
+
+            canvas.width = rw;
+            canvas.height = rh;
+            renderer.setSize(rw, rh);
+            camera.aspect = rw / rh;
+            camera.updateProjectionMatrix();
+            updateSceneBackground();
+        }
+    })();
+</script>
+
+</body>
+</html>
