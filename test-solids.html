@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тест: Тела вращения</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Segoe UI',Roboto,sans-serif;background:#1a2d3c;padding:8px;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;}
+        .container{max-width:1200px;margin:0 auto;position:relative;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(30,58,95,0.3);
+            --accent: #1e3a5f;
+            --accent-hover: #2a4a7a;
+            --accent-glow: rgba(30,58,95,0.5);
+            --danger: #ef4444;
+            --success: #34d399;
+            --warning: #f59e0b;
+            --block-bg: #152535;
+        }
+
+        .header{text-align:center;padding:20px;background:var(--block-bg);border-radius:20px;margin-bottom:20px;border:1px solid var(--border);}
+        .header h1{font-size:1.5rem;color:var(--text);border-bottom:4px solid var(--accent);display:inline-block;padding-bottom:8px;margin-bottom:8px;}
+        .header .sub{color:var(--text-secondary);font-size:0.85rem;}
+
+        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;z-index:100;color:var(--text);transition:0.2s;}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .favorite-btn{position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;z-index:1000;color:var(--text-secondary);transition:0.2s;}
+        .favorite-btn.active{color:#facc15;}
+        .favorite-btn:hover{transform:scale(1.1);}
+
+        .controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:center;}
+        .controls select{padding:8px 14px;background:var(--block-bg);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.9rem;flex:1 1 auto;min-width:80px;}
+        .controls select:focus{outline:2px solid var(--accent);}
+        .controls .btn-generate{padding:10px 24px;background:var(--accent);border:none;border-radius:40px;color:white;font-weight:bold;cursor:pointer;transition:0.2s;flex:0 1 auto;}
+        .controls .btn-generate:hover{background:var(--accent-hover);}
+        .controls .btn-repeat{background:var(--warning);text-decoration:none;display:inline-block;padding:10px 20px;border-radius:40px;color:white;font-weight:bold;font-size:0.85rem;transition:0.2s;}
+        .controls .btn-repeat:hover{background:#d97706;}
+
+        .mode-selector,.difficulty-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+        .mode-btn,.diff-btn{padding:6px 14px;border-radius:20px;border:2px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.8rem;transition:0.2s;}
+        .mode-btn:hover,.diff-btn:hover{border-color:var(--text-secondary);color:var(--text);}
+        .mode-btn.active{border-color:#ffffff;color:#ffffff;background:rgba(255,255,255,0.1);}
+        .diff-btn.active{border-color:var(--warning);color:var(--warning);background:rgba(245,158,11,0.15);}
+        .diff-btn.easy.active{border-color:var(--success);color:var(--success);background:rgba(52,211,153,0.15);}
+        .diff-btn.hard.active{border-color:var(--danger);color:var(--danger);background:rgba(239,68,68,0.15);}
+
+        .card{background:var(--card-bg);border-radius:24px;padding:20px;margin-top:60px;border:1px solid var(--border);}
+
+        .btn-full-test{display:inline-block;width:100%;padding:14px;background:var(--accent);border:none;border-radius:40px;color:white;font-weight:bold;font-size:1rem;text-align:center;text-decoration:none;cursor:pointer;margin:8px 0;transition:0.3s;border:1px solid var(--border);}
+        .btn-full-test:hover{background:var(--accent-hover);transform:scale(1.02);box-shadow:0 4px 20px var(--accent-glow);}
+
+        .fixed-timer{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--card-bg);border-bottom:2px solid var(--accent);padding:8px 16px;display:none;align-items:center;justify-content:space-between;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+        .fixed-timer.show{display:flex;}
+        .fixed-timer .time{font-size:1.2rem;font-weight:bold;font-family:monospace;color:var(--text);min-width:60px;}
+        .fixed-timer .time.danger{color:var(--danger);animation:blink 0.5s infinite;}
+        .fixed-timer .bar{flex:1;height:6px;background:var(--block-bg);border-radius:10px;margin:0 12px;overflow:hidden;}
+        .fixed-timer .bar-fill{height:100%;background:var(--accent);border-radius:10px;transition:width 0.3s;}
+        .fixed-timer .info{color:var(--text-secondary);font-size:0.8rem;}
+        .fixed-timer .info .ok{color:var(--accent);font-weight:bold;}
+        @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+        .btn-start{width:100%;padding:14px;background:var(--accent);border:2px solid #ffffff;border-radius:40px;color:white;font-weight:bold;font-size:1.1rem;cursor:pointer;margin:12px 0;display:none;transition:0.3s;position:relative;}
+        .btn-start:hover{background:var(--accent-hover);transform:scale(1.02);}
+        .btn-start.show{display:block;animation:pulse-glow 2s ease-in-out infinite;}
+        @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(255,255,255,0.2),0 0 40px rgba(255,255,255,0.1);}50%{box-shadow:0 0 30px rgba(255,255,255,0.4),0 0 60px rgba(255,255,255,0.2);}}
+
+        .questions-hidden{text-align:center;padding:40px 20px;background:var(--block-bg);border-radius:16px;border:2px dashed var(--border);margin:16px 0;}
+        .questions-hidden .lock{font-size:48px;display:block;margin-bottom:12px;color:var(--text-secondary);}
+        .questions-hidden h3{color:var(--text);margin-bottom:8px;}
+        .questions-hidden p{color:var(--text-secondary);}
+
+        .questions-wrapper{display:none;}
+        .questions-wrapper.show{display:block;}
+
+        .question{background:var(--block-bg);border-radius:16px;padding:16px;margin-bottom:14px;border:1px solid var(--border);}
+        .question .num{color:var(--accent);font-weight:bold;margin-right:8px;}
+        .question p{font-weight:600;margin-bottom:10px;line-height:1.6;color:var(--text);}
+        .question .opts{display:flex;flex-direction:column;gap:6px;}
+        .question .opts label{display:block;padding:10px 14px;background:var(--card-bg);border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:0.15s;color:var(--text);}
+        .question .opts label:hover{background:var(--block-bg);border-color:var(--accent);}
+        .question .opts input{margin-right:10px;}
+        .question .opts label.correct{background:rgba(52,211,153,0.2);border-color:var(--success);color:var(--success);}
+        .question .opts label.wrong{background:rgba(239,68,68,0.2);border-color:var(--danger);color:var(--danger);}
+        .question .opts label.disabled{opacity:0.6;cursor:default;}
+
+        .btn-submit{width:100%;padding:14px;background:var(--accent);border:none;border-radius:40px;color:white;font-weight:bold;font-size:1rem;cursor:pointer;margin-top:8px;display:none;transition:0.2s;}
+        .btn-submit.show{display:block;}
+        .btn-submit:hover{background:var(--accent-hover);}
+        .btn-submit:disabled{opacity:0.5;cursor:not-allowed;}
+
+        .result{margin-top:16px;padding:16px;border-radius:16px;text-align:center;font-weight:bold;font-size:1.1rem;display:none;}
+        .result.show{display:block;}
+        .result.excellent{background:rgba(52,211,153,0.2);color:var(--success);border:1px solid var(--success);}
+        .result.good{background:rgba(52,211,153,0.15);color:var(--success);border:1px solid var(--success);}
+        .result.satisfactory{background:rgba(245,158,11,0.2);color:var(--warning);border:1px solid var(--warning);}
+        .result.poor{background:rgba(239,68,68,0.2);color:var(--danger);border:1px solid var(--danger);}
+
+        .restart-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--block-bg),var(--accent));border:none;border-radius:40px;color:white;font-weight:bold;cursor:pointer;margin-top:12px;display:none;transition:0.2s;}
+        .restart-btn.show{display:block;}
+        .restart-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(30,58,95,0.3);}
+
+        .back-link{display:inline-block;margin:20px 0 10px;padding:10px 20px;background:var(--accent);color:white;text-decoration:none;font-weight:bold;border-radius:20px;font-size:0.95rem;transition:0.2s;}
+        .back-link:hover{background:var(--accent-hover);}
+
+        .light-mode .mode-btn.active{border-color:var(--accent);color:var(--accent);background:#e2e8f0;}
+        .light-mode .btn-start{border-color:var(--accent);}
+        .light-mode .btn-start.show{animation:pulse-glow-light 2s ease-in-out infinite;}
+        @keyframes pulse-glow-light{0%,100%{box-shadow:0 0 20px rgba(30,58,95,0.2),0 0 40px rgba(30,58,95,0.1);}50%{box-shadow:0 0 30px rgba(30,58,95,0.4),0 0 60px rgba(30,58,95,0.2);}}
+        .light-mode .question .opts label.correct{background:#d1fae5!important;border-color:#059669!important;color:#065f46!important;}
+        .light-mode .question .opts label.wrong{background:#fee2e2!important;border-color:#dc2626!important;color:#991b1b!important;}
+        .light-mode .result.excellent{background:#d1fae5;color:#065f46;border-color:#059669;}
+        .light-mode .result.good{background:#d1fae5;color:#065f46;border-color:#059669;}
+        .light-mode .result.satisfactory{background:#fef3c7;color:#92400e;border-color:#f59e0b;}
+        .light-mode .result.poor{background:#fee2e2;color:#991b1b;border-color:#dc2626;}
+        .light-mode .controls select{background:#f1f5f9;color:#1a2a3f;border-color:#e2e8f0;}
+
+        @media(max-width:700px){.container{padding:12px;}.card{padding:14px;margin-top:55px;}.fixed-timer{padding:6px 12px;}.fixed-timer .time{font-size:1rem;min-width:50px;}.mode-btn,.diff-btn{font-size:0.7rem;padding:4px 10px;}.controls select{font-size:0.8rem;padding:6px 10px;}.controls .btn-generate{padding:8px 16px;font-size:0.9rem;}.header h1{font-size:1.2rem;}}
+            @media(max-width:700px){...}
+
+        /* ===== СВЕТЛАЯ ТЕМА ===== */
+        .light-mode body{background:#f5f7fc;}
+        .light-mode .container{background:white;}
+        .light-mode .card{background:white;}
+        .light-mode .header{background:#f8fafc;}
+        .light-mode .header .sub{color:#5a7a94;}
+        .light-mode .header h1 {
+    background: linear-gradient(135deg, #1a2a3f, #2c5a77);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+        .light-mode .theme-toggle{background:white;border:1px solid #eff3f8;color:#1a2a3f;}
+        .light-mode .favorite-btn{background:white;border:1px solid #eff3f8;color:#5a7a94;}
+        .light-mode .controls select{background:#e2e8f0;color:#1a2a3f;}
+        .light-mode .mode-btn{border-color:#e2e8f0;color:#5a7a94;}
+        .light-mode .mode-btn.active{border-color:#1abc9c;color:#1abc9c;background:#e8f8f5;}
+        .light-mode .diff-btn{border-color:#e2e8f0;color:#5a7a94;}
+        .light-mode .diff-btn.active{border-color:#fbbf24;color:#fbbf24;background:#fef3c7;}
+        .light-mode .diff-btn.easy.active{border-color:#34d399;color:#34d399;background:#d1fae5;}
+        .light-mode .diff-btn.hard.active{border-color:#ef4444;color:#ef4444;background:#fee2e2;}
+        .light-mode .question{background:#f8fafc;}
+        .light-mode .question p{color:#1a2a3f;}
+        .light-mode .question .opts label{background:white;border:1px solid #eff3f8;color:#1a2a3f;}
+        .light-mode .question .opts label:hover{background:#f1f5f9;border-color:#1abc9c;}
+        .light-mode .questions-hidden{background:#f8fafc;border-color:#e2e8f0;}
+        .light-mode .questions-hidden h3{color:#1a2a3f;}
+        .light-mode .questions-hidden p{color:#5a7a94;}
+        .light-mode .fixed-timer{background:white;border-bottom-color:#1abc9c;}
+        .light-mode .fixed-timer .time{color:#1a2a3f;}
+        .light-mode .fixed-timer .info{color:#5a7a94;}
+        .light-mode .result.excellent{background:#d1fae5;color:#065f46;}
+        .light-mode .result.good{background:#d1fae5;color:#065f46;}
+        .light-mode .result.satisfactory{background:#fef3c7;color:#92400e;}
+        .light-mode .result.poor{background:#fee2e2;color:#991b1b;}
+        .light-mode .restart-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);}
+        .light-mode .back-link{background:#1abc9c;}
+        .light-mode .btn-start{background:#3498db;color:white;}
+        .light-mode .btn-start:hover{background:#2980b9;}
+        .light-mode .question .opts label.correct{background:#d1fae5 !important;border-color:#059669 !important;color:#065f46 !important;}
+        .light-mode .question .opts label.wrong{background:#fee2e2 !important;border-color:#dc2626 !important;color:#991b1b !important;}
+    </style>
+
+    <script>
+        MathJax = { ... };
+    </script>
+    </style>
+    <script>
+        MathJax = {tex:{inlineMath:[['$','$'],['\\(','\\)']]},chtml:{scale:0.95}};
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+
+<script>
+    document.addEventListener('contextmenu',function(e){e.preventDefault();alert('Копирование и сохранение контента запрещено!');return false;});
+    document.addEventListener('copy',function(e){e.preventDefault();alert('Копирование контента запрещено!');return false;});
+    document.addEventListener('keydown',function(e){
+        if(e.key==='F12'||e.keyCode===123){e.preventDefault();alert('Инструменты разработчика отключены!');return false;}
+        if(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='i'||e.key==='j')){e.preventDefault();alert('Инструменты разработчика отключены!');return false;}
+        if(e.ctrlKey&&(e.key==='u'||e.key==='U'||e.key==='s'||e.key==='S')){e.preventDefault();alert('Просмотр исходного кода и сохранение запрещены!');return false;}
+        if(e.key==='PrintScreen'||e.keyCode===44){e.preventDefault();alert('Создание скриншотов запрещено!');return false;}
+    });
+    document.addEventListener('visibilitychange',function(){if(document.hidden){alert('Переключение на другие приложения во время теста запрещено!');}});
+</script>
+
+<div class="container">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+
+    <div class="header">
+        <h1>Тест: Тела вращения</h1>
+        <div class="sub">200+ заданий · 4 режима </div>
+    </div>
+
+    <div class="fixed-timer" id="fixedTimer">
+        <span class="time" id="timerFixed">10:00</span>
+        <div class="bar"><div class="bar-fill" id="timerBarFixed" style="width:100%;"></div></div>
+        <span class="info"><span class="ok" id="answeredFixed">0</span>/<span id="totalFixed">0</span></span>
+    </div>
+
+    <div class="card">
+        <div class="controls">
+            <select id="questionCount">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+            </select>
+            <select id="timeSelect">
+                <option value="1">1 мин</option>
+                <option value="2">2 мин</option>
+                <option value="3">3 мин</option>
+                <option value="5">5 мин</option>
+                <option value="10" selected>10 мин</option>
+                <option value="15">15 мин</option>
+                <option value="20">20 мин</option>
+                <option value="30">30 мин</option>
+            </select>
+            <button class="btn-generate" onclick="generateTest()">Сгенерировать</button>
+            <a href="solids.html" target="_blank" class="btn-repeat">Повторить</a>
+        </div>
+
+        <a href="test-solids-adaptive.html" class="btn-full-test">Умный тест</a>
+
+        <div class="mode-selector" id="modeSelector">
+            <button class="mode-btn active" data-mode="cylinder">Цилиндр</button>
+            <button class="mode-btn" data-mode="cone">Конус</button>
+            <button class="mode-btn" data-mode="truncated">Усечённый конус</button>
+            <button class="mode-btn" data-mode="sphere">Шар и сфера</button>
+        </div>
+
+        <div id="testContainer"></div>
+    </div>
+
+    <a href="tests.html" class="back-link">Назад к тестам</a>
+</div>
+
+<script>
+    function shuffle(arr){for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var temp=arr[i];arr[i]=arr[j];arr[j]=temp;}return arr;}
+    function shuffleArray(arr){for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var temp=arr[i];arr[i]=arr[j];arr[j]=temp;}return arr;}
+
+    // ================================================================
+    // БАНК 1: ЦИЛИНДР (55)
+    // ================================================================
+    var cylinderBank = [
+        // Базовые формулы (15)
+        { q: "Объём цилиндра равен:", opts: ["\\( V = \\pi R^2 h \\)", "\\( V = 2\\pi R h \\)", "\\( V = \\frac{1}{3}\\pi R^2 h \\)", "\\( V = \\pi R h \\)"], ans: 0, diff: 'easy' },
+        { q: "Площадь боковой поверхности цилиндра:", opts: ["\\( S_{\\text{бок}} = 2\\pi R h \\)", "\\( S_{\\text{бок}} = \\pi R^2 h \\)", "\\( S_{\\text{бок}} = \\pi R h \\)", "\\( S_{\\text{бок}} = 2\\pi R^2 \\)"], ans: 0, diff: 'easy' },
+        { q: "Площадь полной поверхности цилиндра:", opts: ["\\( S = 2\\pi R (R + h) \\)", "\\( S = 2\\pi R h \\)", "\\( S = \\pi R^2 + 2\\pi R h \\)", "\\( S = 2\\pi R^2 + \\pi R h \\)"], ans: 0, diff: 'easy' },
+        { q: "Площадь основания цилиндра:", opts: ["\\( \\pi R^2 \\)", "\\( 2\\pi R \\)", "\\( \\pi R^2 h \\)", "\\( 2\\pi R^2 \\)"], ans: 0, diff: 'easy' },
+        { q: "Образующая цилиндра равна:", opts: ["Высоте", "Радиусу", "Диаметру", "2R"], ans: 0, diff: 'easy' },
+        { q: "Осевое сечение цилиндра — это:", opts: ["Прямоугольник", "Квадрат", "Треугольник", "Круг"], ans: 0, diff: 'easy' },
+        { q: "Развёртка боковой поверхности цилиндра — это:", opts: ["Прямоугольник", "Квадрат", "Треугольник", "Круг"], ans: 0, diff: 'easy' },
+        { q: "Сколько оснований у цилиндра?", opts: ["2", "1", "3", "4"], ans: 0, diff: 'easy' },
+        { q: "Цилиндр — тело вращения:", opts: ["Прямоугольника", "Треугольника", "Трапеции", "Полукруга"], ans: 0, diff: 'easy' },
+        { q: "Диаметр основания цилиндра:", opts: ["2R", "R", "2h", "h"], ans: 0, diff: 'easy' },
+        { q: "Площадь боковой поверхности цилиндра в развёртке:", opts: ["2πRh", "πR²", "2πR", "Rh"], ans: 0, diff: 'easy' },
+        { q: "Площадь основания цилиндра с R=7 см:", opts: ["49π", "14π", "98π", "7π"], ans: 0, diff: 'easy' },
+        { q: "Осевое сечение цилиндра — это прямоугольник со сторонами:", opts: ["2R и h", "R и h", "2R и 2h", "R и 2h"], ans: 0, diff: 'easy' },
+        { q: "Площадь осевого сечения цилиндра:", opts: ["2Rh", "Rh", "πR²", "2πR"], ans: 0, diff: 'easy' },
+        { q: "Объём цилиндра через диаметр D и высоту h:", opts: ["\\( \\frac{\\pi D^2 h}{4} \\)", "\\( \\frac{\\pi D^2 h}{2} \\)", "\\( \\pi D^2 h \\)", "\\( \\frac{\\pi D h}{4} \\)"], ans: 0, diff: 'medium' },
+
+        // Вычисления (20)
+        { q: "Объём цилиндра с R=3 см, h=5 см:", opts: ["45π см³", "30π см³", "15π см³", "75π см³"], ans: 0, diff: 'easy' },
+        { q: "Sбок цилиндра с R=2 см, h=5 см:", opts: ["20π см²", "10π см²", "40π см²", "4π см²"], ans: 0, diff: 'easy' },
+        { q: "Sполн цилиндра с R=3 см, h=4 см:", opts: ["42π см²", "24π см²", "54π см²", "36π см²"], ans: 0, diff: 'easy' },
+        { q: "Объём цилиндра с R=4 см, h=6 см:", opts: ["96π см³", "48π см³", "144π см³", "72π см³"], ans: 0, diff: 'medium' },
+        { q: "Sбок цилиндра с R=5 см, h=7 см:", opts: ["70π см²", "35π см²", "140π см²", "10π см²"], ans: 0, diff: 'medium' },
+        { q: "Sполн цилиндра с R=4 см, h=5 см:", opts: ["72π см²", "36π см²", "90π см²", "54π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём цилиндра с R=6 см, h=3 см:", opts: ["108π см³", "54π см³", "216π см³", "36π см³"], ans: 0, diff: 'medium' },
+        { q: "Sбок цилиндра с R=3 см, h=8 см:", opts: ["48π см²", "24π см²", "96π см²", "12π см²"], ans: 0, diff: 'medium' },
+        { q: "Sполн цилиндра с R=5 см, h=6 см:", opts: ["110π см²", "55π см²", "220π см²", "85π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём цилиндра с R=2 см, h=10 см:", opts: ["40π см³", "20π см³", "80π см³", "10π см³"], ans: 0, diff: 'medium' },
+        { q: "Объём цилиндра с R=8 см, h=5 см:", opts: ["320π см³", "160π см³", "640π см³", "80π см³"], ans: 0, diff: 'medium' },
+        { q: "Sбок цилиндра с R=7 см, h=4 см:", opts: ["56π см²", "28π см²", "112π см²", "14π см²"], ans: 0, diff: 'medium' },
+        { q: "Sполн цилиндра с R=6 см, h=8 см:", opts: ["168π см²", "84π см²", "336π см²", "126π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём цилиндра с R=10 см, h=2 см:", opts: ["200π см³", "100π см³", "400π см³", "50π см³"], ans: 0, diff: 'medium' },
+        { q: "Объём цилиндра с D=14 см, h=6 см:", opts: ["294π см³", "147π см³", "588π см³", "98π см³"], ans: 0, diff: 'medium' },
+        { q: "Sбок цилиндра с R=11 см, h=4 см:", opts: ["88π см²", "44π см²", "176π см²", "22π см²"], ans: 0, diff: 'hard' },
+        { q: "Sполн цилиндра с R=8 см, h=3 см:", opts: ["176π см²", "88π см²", "352π см²", "132π см²"], ans: 0, diff: 'hard' },
+        { q: "Объём цилиндра с R=12 см, h=4 см:", opts: ["576π см³", "288π см³", "1152π см³", "144π см³"], ans: 0, diff: 'hard' },
+        { q: "Sполн цилиндра с R=10 см, h=5 см:", opts: ["300π см²", "150π см²", "600π см²", "200π см²"], ans: 0, diff: 'hard' },
+        { q: "Sполн цилиндра с R=12 см, h=5 см:", opts: ["408π см²", "204π см²", "816π см²", "300π см²"], ans: 0, diff: 'hard' },
+
+        // Свойства и зависимости (10)
+        { q: "Если высоту цилиндра увеличить в 2 раза, объём:", opts: ["Увеличится в 2 раза", "Увеличится в 4 раза", "Увеличится в 8 раз", "Не изменится"], ans: 0, diff: 'easy' },
+        { q: "Если радиус цилиндра увеличить в 2 раза, объём:", opts: ["Увеличится в 4 раза", "Увеличится в 2 раза", "Увеличится в 8 раз", "Не изменится"], ans: 0, diff: 'easy' },
+        { q: "Если радиус цилиндра уменьшить в 2 раза, объём:", opts: ["Уменьшится в 4 раза", "Уменьшится в 2 раза", "Уменьшится в 8 раз", "Не изменится"], ans: 0, diff: 'medium' },
+        { q: "Во сколько раз объём цилиндра больше объёма конуса с теми же R и h?", opts: ["В 3 раза", "В 2 раза", "В 4 раза", "В 6 раз"], ans: 0, diff: 'medium' },
+        { q: "Если высоту и радиус цилиндра увеличить в 2 раза, объём:", opts: ["Увеличится в 8 раз", "Увеличится в 4 раза", "Увеличится в 2 раза", "Увеличится в 6 раз"], ans: 0, diff: 'hard' },
+        { q: "Во сколько раз увеличится Sбок цилиндра, если R увеличить в 3 раза?", opts: ["В 3 раза", "В 9 раз", "В 6 раз", "В 27 раз"], ans: 0, diff: 'medium' },
+        { q: "Во сколько раз увеличится Sполн цилиндра, если h увеличить в 2 раза?", opts: ["В 2 раза", "В 4 раза", "В 8 раз", "Не изменится"], ans: 0, diff: 'medium' },
+        { q: "Если радиус цилиндра увеличить в 3 раза, Sбок:", opts: ["Увеличится в 3 раза", "В 9 раз", "В 6 раз", "В 27 раз"], ans: 0, diff: 'medium' },
+        { q: "Отношение объёма цилиндра к объёму шара с равными R:", opts: ["3:4", "4:3", "2:3", "3:2"], ans: 0, diff: 'hard' },
+        { q: "Объём цилиндра в литрах, если R=1 дм, h=2 дм:", opts: ["2π л", "4π л", "π л", "6π л"], ans: 0, diff: 'medium' }
+    ];
+// ===== ДОПОЛНИТЕЛЬНЫЕ ВОПРОСЫ: ЦИЛИНДР (40) =====
+var cylinderExtra = [
+    { q: "Объём цилиндра с R=5 см, h=8 см:", opts: ["200π см³", "40π см³", "80π см³", "160π см³"], ans: 0, diff: 'easy' },
+    { q: "Sбок цилиндра с R=6 см, h=9 см:", opts: ["108π см²", "54π см²", "216π см²", "36π см²"], ans: 0, diff: 'easy' },
+    { q: "Sполн цилиндра с R=4 см, h=7 см:", opts: ["88π см²", "44π см²", "176π см²", "56π см²"], ans: 0, diff: 'easy' },
+    { q: "Объём цилиндра с R=7 см, h=3 см:", opts: ["147π см³", "49π см³", "294π см³", "21π см³"], ans: 0, diff: 'easy' },
+    { q: "Sбок цилиндра с R=8 см, h=6 см:", opts: ["96π см²", "48π см²", "192π см²", "32π см²"], ans: 0, diff: 'easy' },
+    { q: "Sполн цилиндра с R=5 см, h=10 см:", opts: ["150π см²", "75π см²", "300π см²", "100π см²"], ans: 0, diff: 'easy' },
+    { q: "Объём цилиндра с R=9 см, h=2 см:", opts: ["162π см³", "81π см³", "324π см³", "18π см³"], ans: 0, diff: 'easy' },
+    { q: "Sбок цилиндра с R=10 см, h=5 см:", opts: ["100π см²", "50π см²", "200π см²", "20π см²"], ans: 0, diff: 'easy' },
+    { q: "Sполн цилиндра с R=6 см, h=10 см:", opts: ["192π см²", "96π см²", "384π см²", "120π см²"], ans: 0, diff: 'easy' },
+    { q: "Объём цилиндра с R=3 см, h=9 см:", opts: ["81π см³", "27π см³", "162π см³", "9π см³"], ans: 0, diff: 'easy' },
+    { q: "Объём цилиндра с R=11 см, h=4 см:", opts: ["484π см³", "121π см³", "968π см³", "44π см³"], ans: 0, diff: 'medium' },
+    { q: "Sбок цилиндра с R=12 см, h=7 см:", opts: ["168π см²", "84π см²", "336π см²", "56π см²"], ans: 0, diff: 'medium' },
+    { q: "Sполн цилиндра с R=7 см, h=9 см:", opts: ["224π см²", "112π см²", "448π см²", "126π см²"], ans: 0, diff: 'medium' },
+    { q: "Объём цилиндра с R=13 см, h=5 см:", opts: ["845π см³", "169π см³", "1690π см³", "65π см³"], ans: 0, diff: 'medium' },
+    { q: "Sбок цилиндра с R=14 см, h=6 см:", opts: ["168π см²", "84π см²", "336π см²", "42π см²"], ans: 0, diff: 'medium' },
+    { q: "Sполн цилиндра с R=8 см, h=12 см:", opts: ["320π см²", "160π см²", "640π см²", "192π см²"], ans: 0, diff: 'medium' },
+    { q: "Объём цилиндра с R=15 см, h=3 см:", opts: ["675π см³", "225π см³", "1350π см³", "45π см³"], ans: 0, diff: 'medium' },
+    { q: "Sбок цилиндра с R=16 см, h=8 см:", opts: ["256π см²", "128π см²", "512π см²", "64π см²"], ans: 0, diff: 'medium' },
+    { q: "Sполн цилиндра с R=9 см, h=14 см:", opts: ["414π см²", "207π см²", "828π см²", "252π см²"], ans: 0, diff: 'medium' },
+    { q: "Объём цилиндра с R=18 см, h=4 см:", opts: ["1296π см³", "648π см³", "2592π см³", "72π см³"], ans: 0, diff: 'medium' },
+    { q: "Объём цилиндра с R=20 см, h=6 см:", opts: ["2400π см³", "1200π см³", "4800π см³", "120π см³"], ans: 0, diff: 'hard' },
+    { q: "Sбок цилиндра с R=22 см, h=9 см:", opts: ["396π см²", "198π см²", "792π см²", "99π см²"], ans: 0, diff: 'hard' },
+    { q: "Sполн цилиндра с R=10 см, h=18 см:", opts: ["560π см²", "280π см²", "1120π см²", "360π см²"], ans: 0, diff: 'hard' },
+    { q: "Объём цилиндра с R=25 см, h=4 см:", opts: ["2500π см³", "1250π см³", "5000π см³", "100π см³"], ans: 0, diff: 'hard' },
+    { q: "Sбок цилиндра с R=28 см, h=5 см:", opts: ["280π см²", "140π см²", "560π см²", "70π см²"], ans: 0, diff: 'hard' },
+    { q: "Sполн цилиндра с R=12 см, h=20 см:", opts: ["768π см²", "384π см²", "1536π см²", "480π см²"], ans: 0, diff: 'hard' },
+    { q: "Объём цилиндра с R=30 см, h=7 см:", opts: ["6300π см³", "3150π см³", "12600π см³", "210π см³"], ans: 0, diff: 'hard' },
+    { q: "Sбок цилиндра с R=32 см, h=8 см:", opts: ["512π см²", "256π см²", "1024π см²", "128π см²"], ans: 0, diff: 'hard' },
+    { q: "Sполн цилиндра с R=15 см, h=24 см:", opts: ["1170π см²", "585π см²", "2340π см²", "720π см²"], ans: 0, diff: 'hard' },
+    { q: "Объём цилиндра с R=36 см, h=5 см:", opts: ["6480π см³", "3240π см³", "12960π см³", "180π см³"], ans: 0, diff: 'hard' },
+    // Свойства (10)
+    { q: "Как изменится объём цилиндра, если радиус увеличить в 2 раза, а высоту уменьшить в 2 раза?", opts: ["Увеличится в 2 раза", "Увеличится в 4 раза", "Не изменится", "Уменьшится в 2 раза"], ans: 0, diff: 'medium' },
+    { q: "Как изменится Sбок цилиндра, если радиус увеличить в 3 раза, а высоту уменьшить в 3 раза?", opts: ["Не изменится", "Увеличится в 3 раза", "Уменьшится в 3 раза", "Увеличится в 9 раз"], ans: 0, diff: 'medium' },
+    { q: "Как изменится объём цилиндра, если радиус уменьшить в 2 раза, а высоту увеличить в 4 раза?", opts: ["Не изменится", "Увеличится в 2 раза", "Уменьшится в 2 раза", "Увеличится в 4 раза"], ans: 0, diff: 'medium' },
+    { q: "Sбок цилиндра с R=6 см и Sосн=36π см² равна:", opts: ["72π см²", "36π см²", "144π см²", "18π см²"], ans: 0, diff: 'hard' },
+    { q: "Объём цилиндра с Sбок=100π см² и h=5 см:", opts: ["500π см³", "250π см³", "1000π см³", "50π см³"], ans: 0, diff: 'hard' }
+];
+    // ================================================================
+    // БАНК 2: КОНУС (55)
+    // ================================================================
+    var coneBank = [
+        // Базовые формулы (15)
+        { q: "Объём конуса равен:", opts: ["\\( V = \\frac{1}{3}\\pi R^2 h \\)", "\\( V = \\pi R^2 h \\)", "\\( V = \\frac{1}{2}\\pi R^2 h \\)", "\\( V = \\frac{1}{3}\\pi R h \\)"], ans: 0, diff: 'easy' },
+        { q: "Площадь боковой поверхности конуса:", opts: ["\\( S_{\\text{бок}} = \\pi R \\ell \\)", "\\( S_{\\text{бок}} = 2\\pi R \\ell \\)", "\\( S_{\\text{бок}} = \\pi R^2 \\)", "\\( S_{\\text{бок}} = \\frac{1}{2}\\pi R \\ell \\)"], ans: 0, diff: 'easy' },
+        { q: "Площадь полной поверхности конуса:", opts: ["\\( S = \\pi R (R + \\ell) \\)", "\\( S = \\pi R \\ell \\)", "\\( S = \\pi R^2 + \\pi R \\ell \\)", "\\( S = 2\\pi R (R + \\ell) \\)"], ans: 0, diff: 'easy' },
+        { q: "Образующая конуса через R и h:", opts: ["\\( \\ell = \\sqrt{R^2 + h^2} \\)", "\\( \\ell = R + h \\)", "\\( \\ell = \\sqrt{R^2 - h^2} \\)", "\\( \\ell = \\sqrt{Rh} \\)"], ans: 0, diff: 'easy' },
+        { q: "Площадь основания конуса:", opts: ["πR²", "2πR", "πRℓ", "2πRℓ"], ans: 0, diff: 'easy' },
+        { q: "Осевое сечение конуса — это:", opts: ["Треугольник", "Прямоугольник", "Трапеция", "Круг"], ans: 0, diff: 'easy' },
+        { q: "Развёртка боковой поверхности конуса — это:", opts: ["Круговой сектор", "Прямоугольник", "Треугольник", "Круг"], ans: 0, diff: 'easy' },
+        { q: "Сколько оснований у конуса?", opts: ["1", "2", "3", "4"], ans: 0, diff: 'easy' },
+        { q: "Конус — тело вращения:", opts: ["Треугольника", "Прямоугольника", "Трапеции", "Полукруга"], ans: 0, diff: 'easy' },
+        { q: "Образующая конуса — это:", opts: ["Отрезок от вершины до окружности основания", "Высота", "Радиус", "Диаметр"], ans: 0, diff: 'easy' },
+        { q: "Осевое сечение конуса — треугольник с основанием:", opts: ["2R", "R", "2h", "h"], ans: 0, diff: 'easy' },
+        { q: "Высота осевого сечения конуса равна:", opts: ["h", "R", "ℓ", "2R"], ans: 0, diff: 'easy' },
+        { q: "Образующая конуса всегда:", opts: ["Больше высоты", "Меньше высоты", "Равна высоте", "Не связано"], ans: 0, diff: 'easy' },
+        { q: "Площадь основания конуса с R=4 см:", opts: ["16π", "8π", "32π", "4π"], ans: 0, diff: 'easy' },
+        { q: "Высота конуса, образующая и радиус связаны:", opts: ["\\( h^2 = \\ell^2 - R^2 \\)", "\\( h^2 = \\ell^2 + R^2 \\)", "\\( h = \\ell + R \\)", "\\( h = \\ell - R \\)"], ans: 0, diff: 'medium' },
+
+        // Вычисления (20)
+        { q: "Объём конуса с R=3 см, h=6 см:", opts: ["18π см³", "54π см³", "36π см³", "9π см³"], ans: 0, diff: 'easy' },
+        { q: "Sбок конуса с R=4 см, ℓ=5 см:", opts: ["20π см²", "40π см²", "10π см²", "16π см²"], ans: 0, diff: 'easy' },
+        { q: "Sполн конуса с R=3 см, ℓ=5 см:", opts: ["24π см²", "15π см²", "30π см²", "39π см²"], ans: 0, diff: 'easy' },
+        { q: "Образующая конуса с R=6 см, h=8 см:", opts: ["10 см", "14 см", "12 см", "8 см"], ans: 0, diff: 'medium' },
+        { q: "Объём конуса с R=4 см, h=9 см:", opts: ["48π см³", "144π см³", "72π см³", "24π см³"], ans: 0, diff: 'medium' },
+        { q: "Sбок конуса с R=6 см, ℓ=8 см:", opts: ["48π см²", "96π см²", "24π см²", "36π см²"], ans: 0, diff: 'medium' },
+        { q: "Sполн конуса с R=5 см, ℓ=7 см:", opts: ["60π см²", "35π см²", "120π см²", "45π см²"], ans: 0, diff: 'medium' },
+        { q: "Образующая конуса с R=8 см, h=15 см:", opts: ["17 см", "23 см", "19 см", "12 см"], ans: 0, diff: 'medium' },
+        { q: "Объём конуса с R=5 см, h=12 см:", opts: ["100π см³", "300π см³", "150π см³", "50π см³"], ans: 0, diff: 'medium' },
+        { q: "Sбок конуса с R=8 см, ℓ=10 см:", opts: ["80π см²", "160π см²", "40π см²", "60π см²"], ans: 0, diff: 'medium' },
+        { q: "Sполн конуса с R=6 см, ℓ=10 см:", opts: ["96π см²", "60π см²", "120π см²", "156π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём конуса с R=9 см, h=4 см:", opts: ["108π см³", "324π см³", "162π см³", "54π см³"], ans: 0, diff: 'medium' },
+        { q: "Sбок конуса с R=10 см, ℓ=12 см:", opts: ["120π см²", "240π см²", "60π см²", "80π см²"], ans: 0, diff: 'medium' },
+        { q: "Sполн конуса с R=8 см, ℓ=12 см:", opts: ["160π см²", "80π см²", "200π см²", "120π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём конуса с R=6 см, h=15 см:", opts: ["180π см³", "540π см³", "270π см³", "90π см³"], ans: 0, diff: 'medium' },
+        { q: "Sбок конуса с R=12 см, ℓ=13 см:", opts: ["156π см²", "312π см²", "78π см²", "104π см²"], ans: 0, diff: 'medium' },
+        { q: "Sполн конуса с R=9 см, ℓ=15 см:", opts: ["216π см²", "108π см²", "270π см²", "180π см²"], ans: 0, diff: 'hard' },
+        { q: "Объём конуса с R=10 см, h=24 см:", opts: ["800π см³", "2400π см³", "1200π см³", "400π см³"], ans: 0, diff: 'hard' },
+        { q: "Sполн конуса с R=12 см, ℓ=20 см:", opts: ["384π см²", "192π см²", "480π см²", "320π см²"], ans: 0, diff: 'hard' },
+        { q: "Объём конуса с D=18 см, h=4 см:", opts: ["108π см³", "324π см³", "162π см³", "54π см³"], ans: 0, diff: 'hard' },
+
+        // Свойства и зависимости (10)
+        { q: "Если высоту конуса увеличить в 3 раза, объём:", opts: ["Увеличится в 3 раза", "Увеличится в 9 раз", "Увеличится в 6 раз", "Увеличится в 27 раз"], ans: 0, diff: 'easy' },
+        { q: "Конус и цилиндр с равными R и h. Объём конуса:", opts: ["В 3 раза меньше", "В 2 раза меньше", "Равен", "В 4 раза меньше"], ans: 0, diff: 'easy' },
+        { q: "Если радиус конуса увеличить в 2 раза, объём:", opts: ["Увеличится в 4 раза", "Увеличится в 2 раза", "Увеличится в 8 раз", "Увеличится в 6 раз"], ans: 0, diff: 'hard' },
+        { q: "Во сколько раз объём конуса меньше объёма цилиндра с теми же R и h?", opts: ["В 3 раза", "В 2 раза", "В 4 раза", "В 6 раз"], ans: 0, diff: 'medium' },
+        { q: "Если высоту конуса увеличить в 2 раза, объём:", opts: ["Увеличится в 2 раза", "Увеличится в 4 раза", "Увеличится в 8 раз", "Увеличится в 6 раз"], ans: 0, diff: 'medium' },
+        { q: "Отношение объёма конуса к объёму шара с равными R и h=2R:", opts: ["1:2", "2:1", "1:4", "4:1"], ans: 0, diff: 'hard' },
+        { q: "Если радиус и высоту конуса увеличить в 2 раза, объём:", opts: ["Увеличится в 8 раз", "Увеличится в 4 раза", "Увеличится в 2 раза", "Увеличится в 6 раз"], ans: 0, diff: 'hard' },
+        { q: "Образующая конуса с R=7 см, h=24 см:", opts: ["25 см", "31 см", "20 см", "28 см"], ans: 0, diff: 'medium' },
+        { q: "Образующая конуса с R=9 см, h=12 см:", opts: ["15 см", "21 см", "18 см", "10 см"], ans: 0, diff: 'medium' },
+        { q: "Образующая конуса с R=5 см, h=12 см:", opts: ["13 см", "17 см", "10 см", "15 см"], ans: 0, diff: 'medium' }
+    ];
+// ===== ДОПОЛНИТЕЛЬНЫЕ ВОПРОСЫ: КОНУС (30) =====
+var coneExtra = [
+    { q: "Объём конуса с R=5 см, h=9 см:", opts: ["75π см³", "225π см³", "150π см³", "45π см³"], ans: 0, diff: 'easy' },
+    { q: "Sбок конуса с R=6 см, ℓ=8 см:", opts: ["48π см²", "96π см²", "24π см²", "36π см²"], ans: 0, diff: 'easy' },
+    { q: "Sполн конуса с R=4 см, ℓ=7 см:", opts: ["44π см²", "28π см²", "56π см²", "88π см²"], ans: 0, diff: 'easy' },
+    { q: "Образующая конуса с R=8 см, h=6 см:", opts: ["10 см", "14 см", "12 см", "8 см"], ans: 0, diff: 'easy' },
+    { q: "Объём конуса с R=7 см, h=12 см:", opts: ["196π см³", "588π см³", "294π см³", "84π см³"], ans: 0, diff: 'easy' },
+    { q: "Sбок конуса с R=9 см, ℓ=11 см:", opts: ["99π см²", "198π см²", "49.5π см²", "66π см²"], ans: 0, diff: 'easy' },
+    { q: "Sполн конуса с R=5 см, ℓ=8 см:", opts: ["65π см²", "40π см²", "80π см²", "130π см²"], ans: 0, diff: 'easy' },
+    { q: "Образующая конуса с R=10 см, h=24 см:", opts: ["26 см", "34 см", "20 см", "28 см"], ans: 0, diff: 'easy' },
+    { q: "Объём конуса с R=8 см, h=15 см:", opts: ["320π см³", "960π см³", "480π см³", "120π см³"], ans: 0, diff: 'easy' },
+    { q: "Sбок конуса с R=11 см, ℓ=13 см:", opts: ["143π см²", "286π см²", "71.5π см²", "95π см²"], ans: 0, diff: 'easy' },
+    { q: "Объём конуса с R=12 см, h=16 см:", opts: ["768π см³", "2304π см³", "1152π см³", "192π см³"], ans: 0, diff: 'medium' },
+    { q: "Sбок конуса с R=13 см, ℓ=15 см:", opts: ["195π см²", "390π см²", "97.5π см²", "130π см²"], ans: 0, diff: 'medium' },
+    { q: "Sполн конуса с R=7 см, ℓ=10 см:", opts: ["119π см²", "70π см²", "140π см²", "238π см²"], ans: 0, diff: 'medium' },
+    { q: "Образующая конуса с R=15 см, h=20 см:", opts: ["25 см", "35 см", "20 см", "30 см"], ans: 0, diff: 'medium' },
+    { q: "Объём конуса с R=14 см, h=18 см:", opts: ["1176π см³", "3528π см³", "1764π см³", "252π см³"], ans: 0, diff: 'medium' },
+    { q: "Sбок конуса с R=16 см, ℓ=18 см:", opts: ["288π см²", "576π см²", "144π см²", "192π см²"], ans: 0, diff: 'medium' },
+    { q: "Sполн конуса с R=9 см, ℓ=12 см:", opts: ["189π см²", "108π см²", "216π см²", "378π см²"], ans: 0, diff: 'medium' },
+    { q: "Образующая конуса с R=20 см, h=21 см:", opts: ["29 см", "41 см", "25 см", "31 см"], ans: 0, diff: 'medium' },
+    { q: "Объём конуса с R=18 см, h=24 см:", opts: ["2592π см³", "7776π см³", "3888π см³", "432π см³"], ans: 0, diff: 'medium' },
+    { q: "Sбок конуса с R=21 см, ℓ=23 см:", opts: ["483π см²", "966π см²", "241.5π см²", "322π см²"], ans: 0, diff: 'medium' },
+    { q: "Объём конуса с R=22 см, h=30 см:", opts: ["4840π см³", "14520π см³", "7260π см³", "660π см³"], ans: 0, diff: 'hard' },
+    { q: "Sбок конуса с R=24 см, ℓ=26 см:", opts: ["624π см²", "1248π см²", "312π см²", "416π см²"], ans: 0, diff: 'hard' },
+    { q: "Sполн конуса с R=10 см, ℓ=14 см:", opts: ["240π см²", "140π см²", "280π см²", "480π см²"], ans: 0, diff: 'hard' },
+    { q: "Образующая конуса с R=25 см, h=60 см:", opts: ["65 см", "85 см", "45 см", "75 см"], ans: 0, diff: 'hard' },
+    { q: "Объём конуса с R=28 см, h=21 см:", opts: ["5488π см³", "16464π см³", "8232π см³", "588π см³"], ans: 0, diff: 'hard' },
+    { q: "Sбок конуса с R=30 см, ℓ=34 см:", opts: ["1020π см²", "2040π см²", "510π см²", "680π см²"], ans: 0, diff: 'hard' },
+    { q: "Sполн конуса с R=12 см, ℓ=16 см:", opts: ["336π см²", "192π см²", "384π см²", "672π см²"], ans: 0, diff: 'hard' },
+    { q: "Образующая конуса с R=36 см, h=48 см:", opts: ["60 см", "84 см", "40 см", "72 см"], ans: 0, diff: 'hard' },
+    { q: "Объём конуса с R=40 см, h=42 см:", opts: ["22400π см³", "67200π см³", "33600π см³", "1680π см³"], ans: 0, diff: 'hard' },
+    { q: "Sбок конуса с R=45 см, ℓ=51 см:", opts: ["2295π см²", "4590π см²", "1147.5π см²", "1530π см²"], ans: 0, diff: 'hard' },
+    // Свойства (10)
+    { q: "Как изменится объём конуса, если радиус увеличить в 2 раза, а высоту уменьшить в 2 раза?", opts: ["Увеличится в 2 раза", "Увеличится в 4 раза", "Не изменится", "Уменьшится в 2 раза"], ans: 0, diff: 'medium' },
+    { q: "Как изменится Sбок конуса, если радиус увеличить в 3 раза, а высоту уменьшить в 3 раза?", opts: ["Не изменится", "Увеличится в 3 раза", "Уменьшится в 3 раза", "Увеличится в 9 раз"], ans: 0, diff: 'medium' },
+    { q: "Образующая конуса с R=9 см, Sбок=135π см² равна:", opts: ["15 см", "12 см", "18 см", "10 см"], ans: 0, diff: 'hard' },
+    { q: "Объём конуса с R=6 см и Sбок=60π см²:", opts: ["48π см³", "96π см³", "144π см³", "24π см³"], ans: 0, diff: 'hard' },
+    { q: "Sполн конуса с V=96π см³ и h=8 см:", opts: ["108π см²", "54π см²", "216π см²", "72π см²"], ans: 0, diff: 'hard' }
+];
+
+// Объединяем
+coneBank = coneBank.concat(coneExtra);
+    // ================================================================
+    // БАНК 3: УСЕЧЁННЫЙ КОНУС (40)
+    // ================================================================
+    var truncatedBank = [
+        // Базовые формулы (10)
+        { q: "Объём усечённого конуса:", opts: ["\\( V = \\frac{1}{3}\\pi h (R^2 + Rr + r^2) \\)", "\\( V = \\frac{1}{3}\\pi h (R^2 + r^2) \\)", "\\( V = \\pi h (R^2 - r^2) \\)", "\\( V = \\frac{1}{3}\\pi h (R^2 - r^2) \\)"], ans: 0, diff: 'medium' },
+        { q: "Боковая поверхность усечённого конуса:", opts: ["\\( S_{\\text{бок}} = \\pi \\ell (R + r) \\)", "\\( S_{\\text{бок}} = 2\\pi \\ell (R + r) \\)", "\\( S_{\\text{бок}} = \\pi \\ell (R - r) \\)", "\\( S_{\\text{бок}} = \\pi \\ell R r \\)"], ans: 0, diff: 'medium' },
+        { q: "Образующая усечённого конуса:", opts: ["\\( \\ell = \\sqrt{h^2 + (R - r)^2} \\)", "\\( \\ell = \\sqrt{h^2 + (R + r)^2} \\)", "\\( \\ell = \\sqrt{h^2 - (R - r)^2} \\)", "\\( \\ell = h + R - r \\)"], ans: 0, diff: 'medium' },
+        { q: "Полная поверхность усечённого конуса:", opts: ["\\( S = \\pi \\ell (R + r) + \\pi R^2 + \\pi r^2 \\)", "\\( S = 2\\pi \\ell (R + r) \\)", "\\( S = \\pi \\ell (R + r) + \\pi R^2 \\)", "\\( S = \\pi \\ell (R - r) + \\pi R^2 + \\pi r^2 \\)"], ans: 0, diff: 'medium' },
+        { q: "Сколько оснований у усечённого конуса?", opts: ["2", "1", "3", "4"], ans: 0, diff: 'easy' },
+        { q: "Осевое сечение усечённого конуса — это:", opts: ["Трапеция", "Треугольник", "Прямоугольник", "Круг"], ans: 0, diff: 'easy' },
+        { q: "Усечённый конус — тело вращения:", opts: ["Трапеции", "Треугольника", "Прямоугольника", "Полукруга"], ans: 0, diff: 'easy' },
+        { q: "Основания усечённого конуса — это:", opts: ["Круги", "Квадраты", "Треугольники", "Трапеции"], ans: 0, diff: 'easy' },
+        { q: "Образующая усечённого конуса всегда:", opts: ["Больше высоты", "Меньше высоты", "Равна высоте", "Не связано"], ans: 0, diff: 'medium' },
+        { q: "Если высоту усечённого конуса увеличить в 2 раза, объём:", opts: ["Увеличится в 2 раза", "Увеличится в 4 раза", "Увеличится в 8 раз", "Не изменится"], ans: 0, diff: 'medium' },
+
+        // Вычисления (15)
+        { q: "Объём усечённого конуса с R=5, r=3, h=6:", opts: ["98π", "49π", "196π", "147π"], ans: 0, diff: 'medium' },
+        { q: "Sбок усечённого конуса с R=6, r=2, ℓ=5:", opts: ["40π", "80π", "20π", "60π"], ans: 0, diff: 'medium' },
+        { q: "Образующая усечённого конуса с R=8, r=4, h=3:", opts: ["5", "7", "10", "4"], ans: 0, diff: 'medium' },
+        { q: "Sполн усечённого конуса с R=7, r=3, ℓ=6:", opts: ["60π+49π+9π=118π", "72π", "60π+49π", "60π+9π"], ans: 0, diff: 'hard' },
+        { q: "Объём усечённого конуса с R=6, r=4, h=9:", opts: ["228π", "114π", "456π", "342π"], ans: 0, diff: 'hard' },
+        { q: "Sбок усечённого конуса с R=9, r=5, ℓ=7:", opts: ["98π", "196π", "49π", "147π"], ans: 0, diff: 'medium' },
+        { q: "Образующая усечённого конуса с R=10, r=6, h=8:", opts: ["√80=4√5", "16", "8", "12"], ans: 0, diff: 'hard' },
+        { q: "Sполн усечённого конуса с R=8, r=4, ℓ=5:", opts: ["60π+64π+16π=140π", "80π", "60π+64π", "60π+16π"], ans: 0, diff: 'hard' },
+        { q: "Объём усечённого конуса с R=9, r=6, h=4:", opts: ["228π", "114π", "456π", "342π"], ans: 0, diff: 'hard' },
+        { q: "Sбок усечённого конуса с R=12, r=8, ℓ=6:", opts: ["120π", "240π", "60π", "180π"], ans: 0, diff: 'hard' },
+        { q: "Образующая усечённого конуса с R=13, r=5, h=6:", opts: ["10", "14", "12", "8"], ans: 0, diff: 'hard' },
+        { q: "Sполн усечённого конуса с R=10, r=6, ℓ=8:", opts: ["128π+100π+36π=264π", "160π", "128π+100π", "128π+36π"], ans: 0, diff: 'hard' },
+        { q: "Объём усечённого конуса с R=12, r=8, h=3:", opts: ["304π", "152π", "608π", "456π"], ans: 0, diff: 'hard' },
+        { q: "Sбок усечённого конуса с R=15, r=9, ℓ=8:", opts: ["192π", "384π", "96π", "288π"], ans: 0, diff: 'hard' },
+        { q: "Sполн усечённого конуса с R=14, r=8, ℓ=10:", opts: ["220π+196π+64π=480π", "200π", "220π+196π", "220π+64π"], ans: 0, diff: 'hard' },
+
+        // Дополнительные (5)
+        { q: "Объём усечённого конуса с R=18, r=12, h=4:", opts: ["912π", "456π", "1824π", "1368π"], ans: 0, diff: 'hard' },
+        { q: "Sбок усечённого конуса с R=21, r=15, ℓ=10:", opts: ["360π", "720π", "180π", "540π"], ans: 0, diff: 'hard' },
+        { q: "Образующая усечённого конуса с R=17, r=7, h=6:", opts: ["2√109 ≈20.88", "12", "10", "14"], ans: 0, diff: 'hard' },
+        { q: "Объём усечённого конуса с R=15, r=10, h=6:", opts: ["950π", "475π", "1900π", "1425π"], ans: 0, diff: 'hard' },
+        { q: "Sполн усечённого конуса с R=16, r=9, ℓ=11:", opts: ["275π+256π+81π=612π", "220π", "275π+256π", "275π+81π"], ans: 0, diff: 'hard' }
+    ];
+// ===== ДОПОЛНИТЕЛЬНЫЕ ВОПРОСЫ: УСЕЧЁННЫЙ КОНУС (30) =====
+var truncatedExtra = [
+    { q: "Объём усечённого конуса с R=6, r=4, h=5:", opts: ["\\( \\frac{380}{3}\\pi \\)", "\\( 380\\pi \\)", "\\( \\frac{260}{3}\\pi \\)", "\\( \\frac{100}{3}\\pi \\)"], ans: 0, diff: 'medium' },
+    { q: "Sбок усечённого конуса с R=7, r=3, ℓ=6:", opts: ["60π", "120π", "30π", "90π"], ans: 0, diff: 'medium' },
+    { q: "Образующая усечённого конуса с R=10, r=6, h=6:", opts: ["2√13", "16", "10", "12"], ans: 0, diff: 'medium' },
+    { q: "Sполн усечённого конуса с R=9, r=5, ℓ=7:", opts: ["204π", "140π", "98π+81π", "98π+25π"], ans: 0, diff: 'hard' },
+    { q: "Объём усечённого конуса с R=8, r=6, h=9:", opts: ["444π", "222π", "888π", "666π"], ans: 0, diff: 'hard' },
+    { q: "Sбок усечённого конуса с R=11, r=7, ℓ=8:", opts: ["144π", "288π", "72π", "216π"], ans: 0, diff: 'medium' },
+    { q: "Образующая усечённого конуса с R=12, r=8, h=5:", opts: ["√41", "17", "13", "9"], ans: 0, diff: 'hard' },
+    { q: "Sполн усечённого конуса с R=10, r=8, ℓ=9:", opts: ["326π", "180π", "162π+100π", "162π+64π"], ans: 0, diff: 'hard' },
+    { q: "Объём усечённого конуса с R=14, r=10, h=6:", opts: ["872π", "436π", "1744π", "1308π"], ans: 0, diff: 'hard' },
+    { q: "Sбок усечённого конуса с R=16, r=12, ℓ=10:", opts: ["280π", "560π", "140π", "420π"], ans: 0, diff: 'hard' },
+    { q: "Объём усечённого конуса с R=18, r=14, h=8:", opts: ["\\( \\frac{6176}{3}\\pi \\)", "\\( 6176\\pi \\)", "\\( \\frac{4160}{3}\\pi \\)", "\\( \\frac{1024}{3}\\pi \\)"], ans: 0, diff: 'hard' },
+    { q: "Sбок усечённого конуса с R=20, r=16, ℓ=12:", opts: ["432π", "864π", "216π", "648π"], ans: 0, diff: 'hard' },
+    { q: "Образующая усечённого конуса с R=22, r=18, h=6:", opts: ["2√13", "28", "20", "14"], ans: 0, diff: 'hard' },
+    { q: "Sполн усечённого конуса с R=15, r=12, ℓ=13:", opts: ["720π", "260π", "351π+225π", "351π+144π"], ans: 0, diff: 'hard' },
+    { q: "Объём усечённого конуса с R=24, r=20, h=9:", opts: ["4368π", "2184π", "8736π", "6552π"], ans: 0, diff: 'hard' },
+    { q: "Sбок усечённого конуса с R=25, r=21, ℓ=14:", opts: ["644π", "1288π", "322π", "966π"], ans: 0, diff: 'hard' },
+    { q: "Образующая усечённого конуса с R=26, r=22, h=8:", opts: ["4√5", "34", "24", "16"], ans: 0, diff: 'hard' },
+    { q: "Sполн усечённого конуса с R=18, r=15, ℓ=16:", opts: ["1077π", "320π", "528π+324π", "528π+225π"], ans: 0, diff: 'hard' },
+    { q: "Объём усечённого конуса с R=30, r=25, h=10:", opts: ["\\( \\frac{22750}{3}\\pi \\)", "\\( 22750\\pi \\)", "\\( \\frac{15250}{3}\\pi \\)", "\\( \\frac{2750}{3}\\pi \\)"], ans: 0, diff: 'hard' },
+    { q: "Sбок усечённого конуса с R=32, r=28, ℓ=15:", opts: ["900π", "1800π", "450π", "1350π"], ans: 0, diff: 'hard' },
+    { q: "Образующая усечённого конуса с R=35, r=30, h=10:", opts: ["5√29", "45", "35", "25"], ans: 0, diff: 'hard' },
+    { q: "Sполн усечённого конуса с R=20, r=16, ℓ=18:", opts: ["1304π", "360π", "648π+400π", "648π+256π"], ans: 0, diff: 'hard' },
+    { q: "Объём усечённого конуса с R=36, r=30, h=12:", opts: ["13104π", "6552π", "26208π", "19656π"], ans: 0, diff: 'hard' },
+    { q: "Sбок усечённого конуса с R=40, r=35, ℓ=20:", opts: ["1500π", "3000π", "750π", "2250π"], ans: 0, diff: 'hard' },
+    { q: "Образующая усечённого конуса с R=42, r=38, h=10:", opts: ["2√29", "52", "42", "32"], ans: 0, diff: 'hard' },
+    { q: "Sполн усечённого конуса с R=24, r=20, ℓ=22:", opts: ["1944π", "480π", "968π+576π", "968π+400π"], ans: 0, diff: 'hard' },
+    { q: "Объём усечённого конуса с R=45, r=40, h=15:", opts: ["27125π", "81375π", "18125π", "2125π"], ans: 0, diff: 'hard' },
+    { q: "Sбок усечённого конуса с R=48, r=44, ℓ=25:", opts: ["2300π", "4600π", "1150π", "3450π"], ans: 0, diff: 'hard' },
+    { q: "Образующая усечённого конуса с R=50, r=46, h=12:", opts: ["4√10", "62", "50", "38"], ans: 0, diff: 'hard' },
+    { q: "Sполн усечённого конуса с R=28, r=24, ℓ=26:", opts: ["2712π", "600π", "1352π+784π", "1352π+576π"], ans: 0, diff: 'hard' }
+];
+
+// Объединяем
+truncatedBank = truncatedBank.concat(truncatedExtra);
+    // ================================================================
+    // БАНК 4: ШАР И СФЕРА (65)
+    // ================================================================
+    var sphereBank = [
+        // Базовые формулы (15)
+        { q: "Объём шара равен:", opts: ["\\( V = \\frac{4}{3}\\pi R^3 \\)", "\\( V = 4\\pi R^2 \\)", "\\( V = \\frac{1}{3}\\pi R^3 \\)", "\\( V = \\pi R^2 h \\)"], ans: 0, diff: 'easy' },
+        { q: "Площадь поверхности сферы:", opts: ["\\( S = 4\\pi R^2 \\)", "\\( S = \\frac{4}{3}\\pi R^2 \\)", "\\( S = 2\\pi R^2 \\)", "\\( S = \\pi R^2 \\)"], ans: 0, diff: 'easy' },
+        { q: "Объём полушара с R:", opts: ["\\( \\frac{2}{3}\\pi R^3 \\)", "\\( \\frac{4}{3}\\pi R^3 \\)", "\\( \\frac{1}{3}\\pi R^3 \\)", "\\( \\frac{1}{2}\\pi R^3 \\)"], ans: 0, diff: 'easy' },
+        { q: "Площадь полной поверхности полушара с R:", opts: ["3πR²", "2πR²", "4πR²", "πR²"], ans: 0, diff: 'easy' },
+        { q: "Сфера — это:", opts: ["Поверхность", "Тело", "Плоскость", "Линия"], ans: 0, diff: 'easy' },
+        { q: "Шар — это:", opts: ["Тело", "Поверхность", "Плоскость", "Линия"], ans: 0, diff: 'easy' },
+        { q: "Центр сферы — это:", opts: ["Точка", "Прямая", "Плоскость", "Окружность"], ans: 0, diff: 'easy' },
+        { q: "Любое сечение шара плоскостью — это:", opts: ["Круг", "Эллипс", "Треугольник", "Прямоугольник"], ans: 0, diff: 'easy' },
+        { q: "Радиус сферы — это:", opts: ["Отрезок от центра до точки сферы", "Диаметр", "Хорда", "Касательная"], ans: 0, diff: 'easy' },
+        { q: "Диаметр сферы:", opts: ["2R", "R", "4R", "3R"], ans: 0, diff: 'easy' },
+        { q: "Касательная плоскость к сфере:", opts: ["⊥ радиусу", "∥ радиусу", "Пересекает центр", "Проходит через центр"], ans: 0, diff: 'easy' },
+        { q: "Уравнение сферы с центром в начале координат:", opts: ["x²+y²+z²=R²", "x+y+z=R", "x²+y²=R²", "x²+y²+z²=2R²"], ans: 0, diff: 'easy' },
+        { q: "В формулу объёма шара радиус входит в степени:", opts: ["3", "2", "1", "4"], ans: 0, diff: 'easy' },
+        { q: "В формулу площади сферы радиус входит в степени:", opts: ["2", "3", "1", "4"], ans: 0, diff: 'easy' },
+        { q: "Площадь сферы с R=1:", opts: ["4π", "2π", "π", "8π"], ans: 0, diff: 'easy' },
+
+        // Вычисления (20)
+        { q: "Объём шара с R=3 см:", opts: ["36π см³", "27π см³", "108π см³", "12π см³"], ans: 0, diff: 'easy' },
+        { q: "Площадь поверхности сферы с R=5 см:", opts: ["100π см²", "50π см²", "25π см²", "200π см²"], ans: 0, diff: 'easy' },
+        { q: "Объём шара с D=6 см:", opts: ["36π см³", "288π см³", "72π см³", "108π см³"], ans: 0, diff: 'easy' },
+        { q: "Площадь поверхности сферы с D=10 см:", opts: ["100π см²", "400π см²", "200π см²", "50π см²"], ans: 0, diff: 'easy' },
+        { q: "Объём шара с R=4 см:", opts: ["256π/3 см³", "64π см³", "128π/3 см³", "256π см³"], ans: 0, diff: 'medium' },
+        { q: "Sсферы с R=6 см:", opts: ["144π см²", "72π см²", "36π см²", "288π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём шара с R=5 см:", opts: ["500π/3 см³", "100π см³", "250π/3 см³", "500π см³"], ans: 0, diff: 'medium' },
+        { q: "Sсферы с R=7 см:", opts: ["196π см²", "98π см²", "49π см²", "392π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём шара с R=6 см:", opts: ["288π см³", "144π см³", "72π см³", "576π см³"], ans: 0, diff: 'medium' },
+        { q: "Sсферы с R=8 см:", opts: ["256π см²", "128π см²", "64π см²", "512π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём шара с R=9 см:", opts: ["972π см³", "486π см³", "243π см³", "1944π см³"], ans: 0, diff: 'medium' },
+        { q: "Sсферы с R=10 см:", opts: ["400π см²", "200π см²", "100π см²", "800π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём шара с R=12 см:", opts: ["2304π см³", "1152π см³", "576π см³", "4608π см³"], ans: 0, diff: 'medium' },
+        { q: "Sсферы с R=15 см:", opts: ["900π см²", "450π см²", "225π см²", "1800π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём шара с R=10 см:", opts: ["4000π/3 см³", "800π см³", "2000π/3 см³", "4000π см³"], ans: 0, diff: 'medium' },
+        { q: "Sсферы с R=20 см:", opts: ["1600π см²", "800π см²", "400π см²", "3200π см²"], ans: 0, diff: 'medium' },
+        { q: "Sполн полушара с R=6 см:", opts: ["108π см²", "72π см²", "144π см²", "54π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём шара с R=8 см:", opts: ["2048π/3 см³", "1024π/3 см³", "4096π/3 см³", "2048π см³"], ans: 0, diff: 'medium' },
+        { q: "Sсферы с R=12 см:", opts: ["576π см²", "288π см²", "144π см²", "1152π см²"], ans: 0, diff: 'medium' },
+        { q: "Объём шара с R=15 см:", opts: ["4500π см³", "2250π см³", "1125π см³", "9000π см³"], ans: 0, diff: 'medium' },
+
+        // Уравнение сферы (10)
+        { q: "Уравнение сферы с центром (0;0;0) и R=3:", opts: ["x²+y²+z²=9", "x²+y²+z²=3", "x²+y²+z²=6", "x²+y²+z²=27"], ans: 0, diff: 'easy' },
+        { q: "Уравнение сферы с центром (0;0;0) и R=5:", opts: ["x²+y²+z²=25", "x²+y²+z²=5", "x²+y²+z²=10", "x²+y²+z²=125"], ans: 0, diff: 'easy' },
+        { q: "Уравнение сферы с центром (1;2;3) и R=4:", opts: ["(x-1)²+(y-2)²+(z-3)²=16", "(x+1)²+(y+2)²+(z+3)²=16", "(x-1)²+(y-2)²+(z-3)²=4", "(x+1)²+(y+2)²+(z+3)²=4"], ans: 0, diff: 'medium' },
+        { q: "Найти R сферы: x²+y²+z²=36:", opts: ["R=6", "R=36", "R=12", "R=3"], ans: 0, diff: 'easy' },
+        { q: "Найти R сферы: x²+y²+z²=49:", opts: ["R=7", "R=49", "R=14", "R=4"], ans: 0, diff: 'easy' },
+        { q: "Найти центр сферы: (x-2)²+(y+1)²+(z-4)²=9:", opts: ["(2;-1;4)", "(-2;1;-4)", "(2;1;4)", "(-2;-1;-4)"], ans: 0, diff: 'medium' },
+        { q: "Найти R сферы: (x-1)²+(y+3)²+(z-5)²=25:", opts: ["R=5", "R=25", "R=10", "R=3"], ans: 0, diff: 'medium' },
+        { q: "Точка (2;0;0) лежит на сфере x²+y²+z²=4?", opts: ["Да", "Нет", "Только на поверхности", "Нельзя определить"], ans: 0, diff: 'medium' },
+        { q: "Точка (3;0;0) лежит на сфере x²+y²+z²=4?", opts: ["Нет", "Да", "Только внутри", "Нельзя определить"], ans: 0, diff: 'medium' },
+        { q: "Уравнение сферы с центром (-2;0;0) и R=3:", opts: ["(x+2)²+y²+z²=9", "(x-2)²+y²+z²=9", "(x+2)²+y²+z²=3", "(x-2)²+y²+z²=3"], ans: 0, diff: 'medium' },
+
+        // Свойства и зависимости (10)
+        { q: "Если радиус шара увеличить в 2 раза, объём:", opts: ["Увеличится в 8 раз", "Увеличится в 4 раза", "Увеличится в 2 раза", "Увеличится в 6 раз"], ans: 0, diff: 'easy' },
+        { q: "Если радиус сферы увеличить в 3 раза, площадь поверхности:", opts: ["Увеличится в 9 раз", "Увеличится в 6 раз", "Увеличится в 3 раза", "Увеличится в 27 раз"], ans: 0, diff: 'easy' },
+        { q: "Если радиус шара увеличить в 3 раза, объём:", opts: ["Увеличится в 27 раз", "Увеличится в 9 раз", "Увеличится в 6 раз", "Увеличится в 3 раза"], ans: 0, diff: 'medium' },
+        { q: "Во сколько раз объём шара больше объёма конуса с равными R и h=2R?", opts: ["В 2 раза", "В 3 раза", "В 4 раза", "В 6 раз"], ans: 0, diff: 'hard' },
+        { q: "Отношение объёма шара к объёму цилиндра с равными R и h=2R:", opts: ["2:3", "3:2", "1:2", "2:1"], ans: 0, diff: 'hard' },
+        { q: "Отношение Sсферы к Sполн цилиндра с равными R и h=2R:", opts: ["1:1", "2:3", "3:2", "1:2"], ans: 0, diff: 'hard' },
+        { q: "Объём шара вписанного в куб с ребром a:", opts: ["πa³/6", "πa³/3", "πa³/4", "πa³/8"], ans: 0, diff: 'hard' },
+        { q: "Шар вписан в цилиндр. Отношение объёмов:", opts: ["2:3", "3:2", "1:2", "2:1"], ans: 0, diff: 'hard' },
+        { q: "Объём шарового сегмента с высотой h и R:", opts: ["πh²(R-h/3)", "πh²(R+h/3)", "2πRh", "πR²h"], ans: 0, diff: 'hard' },
+        { q: "Площадь сферической поверхности шарового сегмента:", opts: ["2πRh", "πRh", "4πRh", "2πR²"], ans: 0, diff: 'hard' }
+    ];
+// ===== ДОПОЛНИТЕЛЬНЫЕ ВОПРОСЫ: ШАР И СФЕРА (30) =====
+var sphereExtra = [
+    { q: "Объём шара с R=7 см:", opts: ["1372π/3 см³", "686π/3 см³", "2744π/3 см³", "1372π см³"], ans: 0, diff: 'easy' },
+    { q: "Площадь сферы с R=9 см:", opts: ["324π см²", "162π см²", "81π см²", "648π см²"], ans: 0, diff: 'easy' },
+    { q: "Объём шара с R=11 см:", opts: ["5324π/3 см³", "2662π/3 см³", "10648π/3 см³", "5324π см³"], ans: 0, diff: 'easy' },
+    { q: "Площадь сферы с R=13 см:", opts: ["676π см²", "338π см²", "169π см²", "1352π см²"], ans: 0, diff: 'easy' },
+    { q: "Объём шара с R=14 см:", opts: ["10976π/3 см³", "5488π/3 см³", "21952π/3 см³", "10976π см³"], ans: 0, diff: 'easy' },
+    { q: "Площадь сферы с R=16 см:", opts: ["1024π см²", "512π см²", "256π см²", "2048π см²"], ans: 0, diff: 'easy' },
+    { q: "Объём шара с R=18 см:", opts: ["7776π см³", "3888π см³", "1944π см³", "15552π см³"], ans: 0, diff: 'easy' },
+    { q: "Площадь сферы с R=20 см:", opts: ["1600π см²", "800π см²", "400π см²", "3200π см²"], ans: 0, diff: 'easy' },
+    { q: "Объём шара с R=21 см:", opts: ["12348π см³", "6174π см³", "3087π см³", "24696π см³"], ans: 0, diff: 'easy' },
+    { q: "Площадь сферы с R=24 см:", opts: ["2304π см²", "1152π см²", "576π см²", "4608π см²"], ans: 0, diff: 'easy' },
+    { q: "Объём шара с R=25 см:", opts: ["62500π/3 см³", "31250π/3 см³", "125000π/3 см³", "62500π см³"], ans: 0, diff: 'medium' },
+    { q: "Площадь сферы с R=28 см:", opts: ["3136π см²", "1568π см²", "784π см²", "6272π см²"], ans: 0, diff: 'medium' },
+    { q: "Объём шара с R=30 см:", opts: ["36000π см³", "18000π см³", "9000π см³", "72000π см³"], ans: 0, diff: 'medium' },
+    { q: "Площадь сферы с R=32 см:", opts: ["4096π см²", "2048π см²", "1024π см²", "8192π см²"], ans: 0, diff: 'medium' },
+    { q: "Объём шара с R=35 см:", opts: ["171500π/3 см³", "85750π/3 см³", "343000π/3 см³", "171500π см³"], ans: 0, diff: 'medium' },
+    { q: "Площадь сферы с R=36 см:", opts: ["5184π см²", "2592π см²", "1296π см²", "10368π см²"], ans: 0, diff: 'medium' },
+    { q: "Объём шара с R=40 см:", opts: ["256000π/3 см³", "128000π/3 см³", "512000π/3 см³", "256000π см³"], ans: 0, diff: 'medium' },
+    { q: "Площадь сферы с R=42 см:", opts: ["7056π см²", "3528π см²", "1764π см²", "14112π см²"], ans: 0, diff: 'medium' },
+    { q: "Объём шара с R=45 см:", opts: ["121500π см³", "60750π см³", "30375π см³", "243000π см³"], ans: 0, diff: 'medium' },
+    { q: "Площадь сферы с R=48 см:", opts: ["9216π см²", "4608π см²", "2304π см²", "18432π см²"], ans: 0, diff: 'medium' },
+    { q: "Объём шара с R=50 см:", opts: ["500000π/3 см³", "250000π/3 см³", "1000000π/3 см³", "500000π см³"], ans: 0, diff: 'hard' },
+    { q: "Площадь сферы с R=54 см:", opts: ["11664π см²", "5832π см²", "2916π см²", "23328π см²"], ans: 0, diff: 'hard' },
+    { q: "Объём шара с R=60 см:", opts: ["288000π см³", "144000π см³", "72000π см³", "576000π см³"], ans: 0, diff: 'hard' },
+    { q: "Площадь сферы с R=64 см:", opts: ["16384π см²", "8192π см²", "4096π см²", "32768π см²"], ans: 0, diff: 'hard' },
+    { q: "Объём шара с R=70 см:", opts: ["1372000π/3 см³", "686000π/3 см³", "2744000π/3 см³", "1372000π см³"], ans: 0, diff: 'hard' },
+    { q: "Площадь сферы с R=72 см:", opts: ["20736π см²", "10368π см²", "5184π см²", "41472π см²"], ans: 0, diff: 'hard' },
+    { q: "Объём шара с R=80 см:", opts: ["2048000π/3 см³", "1024000π/3 см³", "4096000π/3 см³", "2048000π см³"], ans: 0, diff: 'hard' },
+    { q: "Площадь сферы с R=84 см:", opts: ["28224π см²", "14112π см²", "7056π см²", "56448π см²"], ans: 0, diff: 'hard' },
+    { q: "Объём шара с R=90 см:", opts: ["972000π см³", "486000π см³", "243000π см³", "1944000π см³"], ans: 0, diff: 'hard' },
+    { q: "Площадь сферы с R=96 см:", opts: ["36864π см²", "18432π см²", "9216π см²", "73728π см²"], ans: 0, diff: 'hard' }
+];
+
+// Объединяем
+sphereBank = sphereBank.concat(sphereExtra);
+    // ================================================================
+    // БАНК 5: ИНТЕРАКТИВНЫЕ ВОПРОСЫ (35)
+    // ================================================================
+    var interactiveBank = [
+        // Выбор формулы (10)
+        { q: "Какая формула соответствует объёму цилиндра?", opts: ["\\( V = \\pi R^2 h \\)", "\\( V = \\frac{1}{3}\\pi R^2 h \\)", "\\( V = \\frac{4}{3}\\pi R^3 \\)", "\\( V = \\pi R h \\)"], ans: 0, diff: 'easy' },
+        { q: "Какая формула соответствует объёму конуса?", opts: ["\\( V = \\frac{1}{3}\\pi R^2 h \\)", "\\( V = \\pi R^2 h \\)", "\\( V = \\frac{4}{3}\\pi R^3 \\)", "\\( V = \\pi R h \\)"], ans: 0, diff: 'easy' },
+        { q: "Какая формула соответствует объёму шара?", opts: ["\\( V = \\frac{4}{3}\\pi R^3 \\)", "\\( V = \\pi R^2 h \\)", "\\( V = \\frac{1}{3}\\pi R^2 h \\)", "\\( V = 4\\pi R^2 \\)"], ans: 0, diff: 'easy' },
+        { q: "Какая формула соответствует Sбок цилиндра?", opts: ["\\( S = 2\\pi R h \\)", "\\( S = \\pi R \\ell \\)", "\\( S = 4\\pi R^2 \\)", "\\( S = \\pi R h \\)"], ans: 0, diff: 'easy' },
+        { q: "Какая формула соответствует Sбок конуса?", opts: ["\\( S = \\pi R \\ell \\)", "\\( S = 2\\pi R h \\)", "\\( S = 4\\pi R^2 \\)", "\\( S = \\pi R h \\)"], ans: 0, diff: 'easy' },
+        { q: "Какая формула соответствует площади сферы?", opts: ["\\( S = 4\\pi R^2 \\)", "\\( S = 2\\pi R h \\)", "\\( S = \\pi R \\ell \\)", "\\( S = \\pi R^2 \\)"], ans: 0, diff: 'easy' },
+        { q: "Какая формула соответствует объёму усечённого конуса?", opts: ["\\( V = \\frac{1}{3}\\pi h (R^2+Rr+r^2) \\)", "\\( V = \\frac{1}{3}\\pi h (R^2+r^2) \\)", "\\( V = \\pi h (R^2-r^2) \\)", "\\( V = \\frac{4}{3}\\pi R^3 \\)"], ans: 0, diff: 'medium' },
+        { q: "Какая формула соответствует Sбок усечённого конуса?", opts: ["\\( S = \\pi \\ell (R+r) \\)", "\\( S = 2\\pi \\ell (R+r) \\)", "\\( S = \\pi \\ell (R-r) \\)", "\\( S = \\pi R \\ell \\)"], ans: 0, diff: 'medium' },
+        { q: "Какая формула соответствует объёму полушара?", opts: ["\\( V = \\frac{2}{3}\\pi R^3 \\)", "\\( V = \\frac{4}{3}\\pi R^3 \\)", "\\( V = \\frac{1}{3}\\pi R^3 \\)", "\\( V = \\frac{1}{2}\\pi R^3 \\)"], ans: 0, diff: 'medium' },
+        { q: "Какая формула соответствует Sполн полушара?", opts: ["\\( S = 3\\pi R^2 \\)", "\\( S = 2\\pi R^2 \\)", "\\( S = 4\\pi R^2 \\)", "\\( S = \\pi R^2 \\)"], ans: 0, diff: 'medium' },
+
+        // Выбор фигуры по формуле (5)
+        { q: "\\( V = \\pi R^2 h \\) — какая фигура?", opts: ["Цилиндр", "Конус", "Шар", "Усечённый конус"], ans: 0, diff: 'easy' },
+        { q: "\\( V = \\frac{1}{3}\\pi R^2 h \\) — какая фигура?", opts: ["Конус", "Цилиндр", "Шар", "Усечённый конус"], ans: 0, diff: 'easy' },
+        { q: "\\( V = \\frac{4}{3}\\pi R^3 \\) — какая фигура?", opts: ["Шар", "Цилиндр", "Конус", "Усечённый конус"], ans: 0, diff: 'easy' },
+        { q: "\\( S = 4\\pi R^2 \\) — какая фигура?", opts: ["Сфера", "Цилиндр", "Конус", "Усечённый конус"], ans: 0, diff: 'easy' },
+        { q: "\\( V = \\frac{1}{3}\\pi h (R^2+Rr+r^2) \\) — какая фигура?", opts: ["Усечённый конус", "Цилиндр", "Конус", "Шар"], ans: 0, diff: 'medium' },
+
+        // Соотнесение элемента (7)
+        { q: "Образующая конуса — это:", opts: ["Отрезок от вершины до окружности основания", "Высота", "Радиус", "Диаметр"], ans: 0, diff: 'easy' },
+        { q: "Высота цилиндра — это:", opts: ["Расстояние между основаниями", "Радиус", "Диаметр", "Образующая"], ans: 0, diff: 'easy' },
+        { q: "Радиус сферы — это:", opts: ["Отрезок от центра до точки на сфере", "Диаметр", "Хорда", "Касательная"], ans: 0, diff: 'easy' },
+        { q: "Осевое сечение цилиндра — это:", opts: ["Прямоугольник", "Треугольник", "Трапеция", "Круг"], ans: 0, diff: 'easy' },
+        { q: "Осевое сечение конуса — это:", opts: ["Треугольник", "Прямоугольник", "Трапеция", "Круг"], ans: 0, diff: 'easy' },
+        { q: "Осевое сечение усечённого конуса — это:", opts: ["Трапеция", "Треугольник", "Прямоугольник", "Круг"], ans: 0, diff: 'easy' },
+        { q: "Касательная плоскость к сфере:", opts: ["Перпендикулярна радиусу", "Параллельна радиусу", "Пересекает центр", "Проходит через центр"], ans: 0, diff: 'easy' },
+
+        // Уравнение сферы (8)
+        { q: "Уравнение сферы с центром (0;0;0) и R=3:", opts: ["x²+y²+z²=9", "x²+y²+z²=3", "x²+y²+z²=6", "x²+y²+z²=27"], ans: 0, diff: 'easy' },
+        { q: "Уравнение сферы с центром (0;0;0) и R=7:", opts: ["x²+y²+z²=49", "x²+y²+z²=7", "x²+y²+z²=14", "x²+y²+z²=343"], ans: 0, diff: 'easy' },
+        { q: "Найти R сферы: x²+y²+z²=64:", opts: ["R=8", "R=64", "R=16", "R=4"], ans: 0, diff: 'easy' },
+        { q: "Найти R сферы: x²+y²+z²=100:", opts: ["R=10", "R=100", "R=20", "R=5"], ans: 0, diff: 'easy' },
+        { q: "Найти центр сферы: (x-3)²+(y+2)²+(z-1)²=16:", opts: ["(3;-2;1)", "(-3;2;-1)", "(3;2;1)", "(-3;-2;-1)"], ans: 0, diff: 'medium' },
+        { q: "Найти R сферы: (x-2)²+(y+1)²+(z-4)²=36:", opts: ["R=6", "R=36", "R=12", "R=3"], ans: 0, diff: 'medium' },
+        { q: "Уравнение сферы с центром (-3;0;0) и R=4:", opts: ["(x+3)²+y²+z²=16", "(x-3)²+y²+z²=16", "(x+3)²+y²+z²=4", "(x-3)²+y²+z²=4"], ans: 0, diff: 'medium' },
+        { q: "Точка (4;0;0) лежит на сфере x²+y²+z²=16?", opts: ["Да", "Нет", "Только на поверхности", "Нельзя определить"], ans: 0, diff: 'medium' }
+    ];
+// ===== ДОПОЛНИТЕЛЬНЫЕ ИНТЕРАКТИВНЫЕ ВОПРОСЫ (20) =====
+var interactiveExtra = [
+    // Выбор формулы (5)
+    { q: "Какая формула соответствует объёму усечённого конуса?", opts: ["\\( V = \\frac{1}{3}\\pi h (R^2+Rr+r^2) \\)", "\\( V = \\frac{1}{3}\\pi h (R^2+r^2) \\)", "\\( V = \\pi h (R^2-r^2) \\)", "\\( V = \\frac{4}{3}\\pi R^3 \\)"], ans: 0, topic: "Интерактивные", diff: "medium" },
+    { q: "Какая формула соответствует Sбок усечённого конуса?", opts: ["\\( S = \\pi \\ell (R+r) \\)", "\\( S = 2\\pi \\ell (R+r) \\)", "\\( S = \\pi \\ell (R-r) \\)", "\\( S = \\pi R \\ell \\)"], ans: 0, topic: "Интерактивные", diff: "medium" },
+    { q: "Какая формула соответствует площади полной поверхности полушара?", opts: ["\\( S = 3\\pi R^2 \\)", "\\( S = 2\\pi R^2 \\)", "\\( S = 4\\pi R^2 \\)", "\\( S = \\pi R^2 \\)"], ans: 0, topic: "Интерактивные", diff: "medium" },
+    { q: "Какая формула соответствует объёму шарового сегмента?", opts: ["\\( V = \\pi h^2(R-h/3) \\)", "\\( V = \\pi h^2(R+h/3) \\)", "\\( V = 2\\pi R h \\)", "\\( V = \\pi R^2 h \\)"], ans: 0, topic: "Интерактивные", diff: "hard" },
+    { q: "Какая формула соответствует площади сферической поверхности сегмента?", opts: ["\\( S = 2\\pi R h \\)", "\\( S = \\pi R h \\)", "\\( S = 4\\pi R h \\)", "\\( S = 2\\pi R^2 \\)"], ans: 0, topic: "Интерактивные", diff: "hard" },
+
+    // Выбор фигуры по формуле (5)
+    { q: "\\( S = 2\\pi R h \\) — какая фигура?", opts: ["Цилиндр", "Конус", "Сфера", "Усечённый конус"], ans: 0, topic: "Интерактивные", diff: "easy" },
+    { q: "\\( S = \\pi R \\ell \\) — какая фигура?", opts: ["Конус", "Цилиндр", "Сфера", "Усечённый конус"], ans: 0, topic: "Интерактивные", diff: "easy" },
+    { q: "\\( S = 4\\pi R^2 \\) — какая фигура?", opts: ["Сфера", "Цилиндр", "Конус", "Усечённый конус"], ans: 0, topic: "Интерактивные", diff: "easy" },
+    { q: "\\( V = \\frac{2}{3}\\pi R^3 \\) — какая фигура?", opts: ["Полушар", "Шар", "Конус", "Цилиндр"], ans: 0, topic: "Интерактивные", diff: "medium" },
+    { q: "\\( S = \\pi \\ell (R+r) + \\pi R^2 + \\pi r^2 \\) — какая фигура?", opts: ["Усечённый конус", "Конус", "Цилиндр", "Сфера"], ans: 0, topic: "Интерактивные", diff: "medium" },
+
+    // Соотнесение элемента (5)
+    { q: "Осевое сечение конуса — это:", opts: ["Треугольник", "Прямоугольник", "Трапеция", "Круг"], ans: 0, topic: "Интерактивные", diff: "easy" },
+    { q: "Осевое сечение цилиндра — это:", opts: ["Прямоугольник", "Треугольник", "Трапеция", "Круг"], ans: 0, topic: "Интерактивные", diff: "easy" },
+    { q: "Осевое сечение усечённого конуса — это:", opts: ["Трапеция", "Треугольник", "Прямоугольник", "Круг"], ans: 0, topic: "Интерактивные", diff: "easy" },
+    { q: "Образующая конуса — это:", opts: ["Отрезок от вершины до окружности основания", "Высота", "Радиус", "Диаметр"], ans: 0, topic: "Интерактивные", diff: "easy" },
+    { q: "Касательная плоскость к сфере:", opts: ["Перпендикулярна радиусу", "Параллельна радиусу", "Пересекает центр", "Проходит через центр"], ans: 0, topic: "Интерактивные", diff: "easy" },
+
+    // Уравнение сферы (5)
+    { q: "Уравнение сферы с центром (0;0;0) и R=4:", opts: ["x²+y²+z²=16", "x²+y²+z²=4", "x²+y²+z²=8", "x²+y²+z²=64"], ans: 0, topic: "Интерактивные", diff: "easy" },
+    { q: "Найти R сферы: x²+y²+z²=121:", opts: ["R=11", "R=121", "R=22", "R=5.5"], ans: 0, topic: "Интерактивные", diff: "easy" },
+    { q: "Уравнение сферы с центром (-1;2;-3) и R=5:", opts: ["(x+1)²+(y-2)²+(z+3)²=25", "(x-1)²+(y+2)²+(z-3)²=25", "(x+1)²+(y-2)²+(z+3)²=5", "(x-1)²+(y+2)²+(z-3)²=5"], ans: 0, topic: "Интерактивные", diff: "hard" },
+    { q: "Точка (3;4;0) лежит на сфере x²+y²+z²=25?", opts: ["Да", "Нет", "Только внутри", "Нельзя определить"], ans: 0, topic: "Интерактивные", diff: "medium" },
+    { q: "Точка (0;5;0) лежит на сфере x²+y²+z²=25?", opts: ["Да", "Нет", "Только внутри", "Нельзя определить"], ans: 0, topic: "Интерактивные", diff: "medium" }
+];
+
+// Объединяем
+interactiveBank = interactiveBank.concat(interactiveExtra);
+    // ================================================================
+    // СБОРКА ПОЛНОГО БАНКА
+    // ================================================================
+    var fullBank = cylinderBank.concat(coneBank).concat(truncatedBank).concat(sphereBank).concat(interactiveBank);
+
+    // ================================================================
+    // РЕЖИМЫ ВЫБОРКИ
+    // ================================================================
+    var currentMode = 'cylinder';
+
+    document.querySelectorAll('.mode-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            currentMode = this.dataset.mode;
+            generateTest();
+        });
+    });
+
+function getQuestionsByMode(mode, count) {
+    var source = [];
+    switch(mode) {
+        case 'cylinder': source = cylinderBank; break;
+        case 'cone': source = coneBank; break;
+        case 'truncated': source = truncatedBank; break;
+        case 'sphere': source = sphereBank; break;
+        default: source = fullBank; break;
+    }
+
+    if (source.length === 0) {
+        source = fullBank;
+    }
+
+    var pool = shuffleArray(source.slice());
+    return pool.slice(0, count);
+}
+
+    // ================================================================
+    // ТАЙМЕР И ЛОГИКА ТЕСТА
+    // ================================================================
+    var currentQuestions = [];
+    var timerInterval = null;
+    var timeLeft = 0;
+    var totalTime = 0;
+    var isFinished = false;
+    var isStarted = false;
+
+    function formatTime(sec) {
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function updateTimer() {
+        var el = document.getElementById('timerFixed');
+        if (el) {
+            el.textContent = formatTime(timeLeft);
+            el.className = 'time';
+            if (timeLeft <= 10) el.classList.add('danger');
+        }
+        var bar = document.getElementById('timerBarFixed');
+        if (bar && totalTime > 0) {
+            bar.style.width = (timeLeft / totalTime * 100) + '%';
+        }
+    }
+
+    function updateProgress() {
+        var total = currentQuestions.length;
+        var answered = 0;
+        for (var i = 0; i < total; i++) {
+            var sel = document.querySelector('input[name="q' + i + '"]:checked');
+            if (sel) answered++;
+        }
+        document.getElementById('answeredFixed').textContent = answered;
+        document.getElementById('totalFixed').textContent = total;
+    }
+
+    function timeExpired() {
+        if (isFinished) return;
+        isFinished = true;
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+
+        var btn = document.getElementById('submitBtn');
+        if (btn) btn.disabled = true;
+
+        for (var i = 0; i < currentQuestions.length; i++) {
+            var q = currentQuestions[i];
+            var sel = document.querySelector('input[name="q' + i + '"]:checked');
+            if (!sel) {
+                var labels = document.querySelectorAll('input[name="q' + i + '"]');
+                for (var j = 0; j < labels.length; j++) {
+                    var input = labels[j];
+                    var label = input.closest('label');
+                    if (parseInt(input.value) === q.ans) {
+                        label.classList.add('correct');
+                    } else {
+                        label.classList.add('wrong');
+                    }
+                    input.disabled = true;
+                    label.classList.add('disabled');
+                }
+            }
+        }
+        checkAnswers(true);
+    }
+
+    function startTest() {
+        if (isStarted) return;
+        isStarted = true;
+
+        var startBtn = document.getElementById('startBtn');
+        if (startBtn) startBtn.classList.remove('show');
+
+        var hiddenNotice = document.getElementById('questionsHidden');
+        if (hiddenNotice) hiddenNotice.style.display = 'none';
+
+        var questionsWrapper = document.getElementById('questionsWrapper');
+        if (questionsWrapper) questionsWrapper.classList.add('show');
+
+        var allInputs = document.querySelectorAll('#questions input[type="radio"]');
+        for (var i = 0; i < allInputs.length; i++) {
+            allInputs[i].disabled = false;
+        }
+
+        var submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.classList.add('show');
+
+        document.getElementById('fixedTimer').classList.add('show');
+
+        timerInterval = setInterval(function() {
+            timeLeft--;
+            updateTimer();
+            updateProgress();
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                timeExpired();
+            }
+        }, 1000);
+
+        updateTimer();
+        updateProgress();
+    }
+
+    function generateTest() {
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        isFinished = false;
+        isStarted = false;
+
+        var count = parseInt(document.getElementById('questionCount').value);
+        var timeSelect = document.getElementById('timeSelect');
+        totalTime = parseInt(timeSelect.value) * 60;
+        timeLeft = totalTime;
+
+        currentQuestions = getQuestionsByMode(currentMode, count);
+
+        currentQuestions = currentQuestions.map(function(q) {
+            var optsWithIndex = q.opts.map(function(opt, idx) {
+                return { text: opt, idx: idx };
+            });
+            var shuffledOpts = shuffleArray(optsWithIndex);
+            var newAns = shuffledOpts.findIndex(function(item) {
+                return item.idx === q.ans;
+            });
+            return {
+                q: q.q,
+                opts: shuffledOpts.map(function(item) { return item.text; }),
+                ans: newAns,
+                diff: q.diff
+            };
+        });
+
+        document.getElementById('fixedTimer').classList.remove('show');
+
+        var html = '';
+        html += '<button class="btn-start show" id="startBtn" onclick="startTest()">Начать тест</button>';
+
+        html += '<div id="questionsHidden" class="questions-hidden">';
+        html += '  <span class="lock">🔒</span>';
+        html += '  <h3>Вопросы скрыты</h3>';
+        html += '  <p>Нажмите кнопку <strong>"Начать тест"</strong>, чтобы увидеть задания и запустить таймер</p>';
+        html += '</div>';
+
+        html += '<div id="questionsWrapper" class="questions-wrapper">';
+        html += '  <div id="questions"></div>';
+        html += '</div>';
+
+        html += '<button class="btn-submit" id="submitBtn" onclick="checkAnswers(false)">Проверить</button>';
+        html += '<div id="result" class="result"></div>';
+
+        document.getElementById('testContainer').innerHTML = html;
+        renderQuestions();
+        updateProgress();
+
+        var allInputs = document.querySelectorAll('#questions input[type="radio"]');
+        for (var i = 0; i < allInputs.length; i++) {
+            allInputs[i].disabled = true;
+        }
+
+        var submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.classList.remove('show');
+
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    function renderQuestions() {
+        var html = '';
+        for (var i = 0; i < currentQuestions.length; i++) {
+            var q = currentQuestions[i];
+            html += '<div class="question"><p><span class="num">' + (i+1) + '.</span> ' + q.q + '</p><div class="opts">';
+            for (var j = 0; j < q.opts.length; j++) {
+                html += '<label><input type="radio" name="q' + i + '" value="' + j + '" onchange="updateProgress()"> ' + q.opts[j] + '</label>';
+            }
+            html += '</div></div>';
+        }
+        document.getElementById('questions').innerHTML = html;
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    function getGrade(pct) {
+        if (pct >= 91) return { text: 'Отлично!', cls: 'excellent' };
+        if (pct >= 70) return { text: 'Хорошо!', cls: 'good' };
+        if (pct >= 50) return { text: 'Удовлетворительно', cls: 'satisfactory' };
+        return { text: 'Плохо. Повторите тему!', cls: 'poor' };
+    }
+
+    function checkAnswers(timeUp) {
+        if (isFinished && !timeUp) return;
+        if (!isStarted && !timeUp) return;
+
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        isFinished = true;
+
+        var correct = 0;
+        var totalAnswered = 0;
+
+        for (var i = 0; i < currentQuestions.length; i++) {
+            var q = currentQuestions[i];
+            var sel = document.querySelector('input[name="q' + i + '"]:checked');
+            if (sel) totalAnswered++;
+            if (sel && parseInt(sel.value) === q.ans) correct++;
+
+            var labels = document.querySelectorAll('input[name="q' + i + '"]');
+            for (var j = 0; j < labels.length; j++) {
+                var input = labels[j];
+                var label = input.closest('label');
+                if (parseInt(input.value) === q.ans) {
+                    label.classList.add('correct');
+                } else if (input.checked && parseInt(input.value) !== q.ans) {
+                    label.classList.add('wrong');
+                }
+                input.disabled = true;
+                label.classList.add('disabled');
+            }
+        }
+
+        var pct = Math.round((correct / currentQuestions.length) * 100);
+        var grade = getGrade(pct);
+
+        var msg = grade.text + ' ' + correct + '/' + currentQuestions.length + ' (' + pct + '%)';
+        if (timeUp) msg = '⏰ Время вышло! ' + msg;
+        if (totalAnswered < currentQuestions.length) {
+            msg += ' (не отвечено: ' + (currentQuestions.length - totalAnswered) + ')';
+        }
+
+        var result = document.getElementById('result');
+        result.textContent = msg;
+        result.className = 'result show ' + grade.cls;
+
+        var btn = document.getElementById('submitBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Тест завершён';
+        }
+
+        if (!document.querySelector('.restart-btn')) {
+            var restart = document.createElement('button');
+            restart.className = 'restart-btn show';
+            restart.textContent = 'Пройти заново';
+            restart.onclick = function() { generateTest(); };
+            result.after(restart);
+        }
+
+        result.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ================================================================
+    // ТЕМА (СОХРАНЯЕТСЯ В localStorage)
+    // ================================================================
+    function toggleTheme() {
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    // ================================================================
+    // ИЗБРАННОЕ
+    // ================================================================
+    var FAV_KEY = 'math_favorites';
+    function getFavorites() { var s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { var u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        var u = window.location.pathname.split('/').pop();
+        var f = getFavorites();
+        var btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(function(x) { return x !== u; });
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        var btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+
+    window.addEventListener('load', function() {
+        setTimeout(generateTest, 300);
+    });
+</script>
+</body>
+</html>

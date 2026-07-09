@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тест: Показательная функция</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+                /* ===== ЗАЩИТА ОТ КОПИРОВАНИЯ ===== */
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        img, svg, canvas {
+            -webkit-user-drag: none;
+            user-drag: none;
+            -webkit-touch-callout: none;
+        }
+        ::selection {
+            background: transparent !important;
+        }
+        ::-moz-selection {
+            background: transparent !important;
+        }
+        body{font-family:'Segoe UI',Roboto,sans-serif;background:#1a2d3c;padding:8px;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;}
+        .container{max-width:1200px;margin:0 auto;position:relative;}
+
+        :root {
+    --bg: #1a2d3c;
+    --card-bg: #1e3545;
+    --text: #ffffff;
+    --text-secondary: #8ba5b8;
+    --border: rgba(30, 58, 95, 0.3);
+    --accent: #1e3a5f;
+    --accent-hover: #2a4a7a;
+    --accent-glow: rgba(30, 58, 95, 0.5);
+    --danger: #ef4444;
+    --success: #34d399;
+    --warning: #f59e0b;
+    --block-bg: #152535;
+}
+
+        .header{text-align:center;padding:20px;background:var(--block-bg);border-radius:20px;margin-bottom:20px;border:1px solid var(--border);}
+        .header h1{font-size:1.5rem;color:var(--text);border-bottom:4px solid var(--accent);display:inline-block;padding-bottom:8px;margin-bottom:8px;}
+        .header .sub{color:var(--text-secondary);font-size:0.85rem;}
+
+        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;z-index:100;color:var(--text);transition:0.2s;}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .favorite-btn{position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;z-index:1000;color:var(--text-secondary);transition:0.2s;}
+        .favorite-btn.active{color:#facc15;}
+        .favorite-btn:hover{transform:scale(1.1);}
+
+        .controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:center;}
+        .controls select{padding:8px 14px;background:var(--block-bg);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.9rem;flex:1 1 auto;min-width:80px;}
+        .controls select:focus{outline:2px solid var(--accent);}
+        .controls .btn-generate{padding:10px 24px;background:var(--accent);border:none;border-radius:40px;color:white;font-weight:bold;cursor:pointer;transition:0.2s;flex:0 1 auto;}
+        .controls .btn-generate:hover{background:var(--accent-hover);}
+        .controls .btn-repeat{background:var(--warning);text-decoration:none;display:inline-block;padding:10px 20px;border-radius:40px;color:white;font-weight:bold;font-size:0.85rem;transition:0.2s;}
+        .controls .btn-repeat:hover{background:#d97706;}
+
+        .mode-selector,.difficulty-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+        .mode-btn,.diff-btn{padding:6px 14px;border-radius:20px;border:2px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.8rem;transition:0.2s;}
+        .mode-btn:hover,.diff-btn:hover{border-color:var(--text-secondary);color:var(--text);}
+        .mode-btn.active{border-color:#ffffff;color:#ffffff;background:rgba(255,255,255,0.1);}
+        .diff-btn.active{border-color:var(--warning);color:var(--warning);background:rgba(245,158,11,0.15);}
+        .diff-btn.easy.active{border-color:var(--success);color:var(--success);background:rgba(52,211,153,0.15);}
+        .diff-btn.hard.active{border-color:var(--danger);color:var(--danger);background:rgba(239,68,68,0.15);}
+
+        .card{background:var(--card-bg);border-radius:24px;padding:20px;margin-top:60px;border:1px solid var(--border);}
+
+        .btn-full-test{display:inline-block;width:100%;padding:14px;background:var(--accent);border:none;border-radius:40px;color:white;font-weight:bold;font-size:1rem;text-align:center;text-decoration:none;cursor:pointer;margin:8px 0;transition:0.3s;border:1px solid var(--border);}
+        .btn-full-test:hover{background:var(--accent-hover);transform:scale(1.02);box-shadow:0 4px 20px var(--accent-glow);}
+
+        .fixed-timer{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--card-bg);border-bottom:2px solid var(--accent);padding:8px 16px;display:none;align-items:center;justify-content:space-between;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+        .fixed-timer.show{display:flex;}
+        .fixed-timer .time{font-size:1.2rem;font-weight:bold;font-family:monospace;color:var(--text);min-width:60px;}
+        .fixed-timer .time.danger{color:var(--danger);animation:blink 0.5s infinite;}
+        .fixed-timer .bar{flex:1;height:6px;background:var(--block-bg);border-radius:10px;margin:0 12px;overflow:hidden;}
+        .fixed-timer .bar-fill{height:100%;background:var(--accent);border-radius:10px;transition:width 0.3s;}
+        .fixed-timer .info{color:var(--text-secondary);font-size:0.8rem;}
+        .fixed-timer .info .ok{color:var(--accent);font-weight:bold;}
+        @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+        .btn-start{width:100%;padding:14px;background:var(--accent);border:2px solid #ffffff;border-radius:40px;color:white;font-weight:bold;font-size:1.1rem;cursor:pointer;margin:12px 0;display:none;transition:0.3s;position:relative;}
+        .btn-start:hover{background:var(--accent-hover);transform:scale(1.02);}
+        .btn-start.show{display:block;animation:pulse-glow 2s ease-in-out infinite;}
+        @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(255,255,255,0.2),0 0 40px rgba(255,255,255,0.1);}50%{box-shadow:0 0 30px rgba(255,255,255,0.4),0 0 60px rgba(255,255,255,0.2);}}
+
+        .questions-hidden{text-align:center;padding:40px 20px;background:var(--block-bg);border-radius:16px;border:2px dashed var(--border);margin:16px 0;}
+        .questions-hidden .lock{font-size:48px;display:block;margin-bottom:12px;color:var(--text-secondary);}
+        .questions-hidden h3{color:var(--text);margin-bottom:8px;}
+        .questions-hidden p{color:var(--text-secondary);}
+
+        .questions-wrapper{display:none;}
+        .questions-wrapper.show{display:block;}
+
+        .question{background:var(--block-bg);border-radius:16px;padding:16px;margin-bottom:14px;border:1px solid var(--border);}
+        .question .num{color:var(--accent);font-weight:bold;margin-right:8px;}
+        .question p{font-weight:600;margin-bottom:10px;line-height:1.6;color:var(--text);}
+        .question .opts{display:flex;flex-direction:column;gap:6px;}
+        .question .opts label{display:block;padding:10px 14px;background:var(--card-bg);border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:0.15s;color:var(--text);}
+        .question .opts label:hover{background:var(--block-bg);border-color:var(--accent);}
+        .question .opts input{margin-right:10px;}
+        .question .opts label.correct{background:rgba(52,211,153,0.2);border-color:var(--success);color:var(--success);}
+        .question .opts label.wrong{background:rgba(239,68,68,0.2);border-color:var(--danger);color:var(--danger);}
+        .question .opts label.disabled{opacity:0.6;cursor:default;}
+
+        .btn-submit{width:100%;padding:14px;background:var(--accent);border:none;border-radius:40px;color:white;font-weight:bold;font-size:1rem;cursor:pointer;margin-top:8px;display:none;transition:0.2s;}
+        .btn-submit.show{display:block;}
+        .btn-submit:hover{background:var(--accent-hover);}
+        .btn-submit:disabled{opacity:0.5;cursor:not-allowed;}
+
+        .result{margin-top:16px;padding:16px;border-radius:16px;text-align:center;font-weight:bold;font-size:1.1rem;display:none;}
+        .result.show{display:block;}
+        .result.excellent{background:rgba(52,211,153,0.2);color:var(--success);border:1px solid var(--success);}
+        .result.good{background:rgba(52,211,153,0.15);color:var(--success);border:1px solid var(--success);}
+        .result.satisfactory{background:rgba(245,158,11,0.2);color:var(--warning);border:1px solid var(--warning);}
+        .result.poor{background:rgba(239,68,68,0.2);color:var(--danger);border:1px solid var(--danger);}
+
+        .restart-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--block-bg),var(--accent));border:none;border-radius:40px;color:white;font-weight:bold;cursor:pointer;margin-top:12px;display:none;transition:0.2s;}
+        .restart-btn.show{display:block;}
+        .restart-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(30,58,95,0.3);}
+
+        .back-link{display:inline-block;margin:20px 0 10px;padding:10px 20px;background:var(--accent);color:white;text-decoration:none;font-weight:bold;border-radius:20px;font-size:0.95rem;transition:0.2s;}
+        .back-link:hover{background:var(--accent-hover);}
+
+        .light-mode .mode-btn.active{border-color:var(--accent);color:var(--accent);background:#e2e8f0;}
+        .light-mode .btn-start{border-color:var(--accent);}
+        .light-mode .btn-start.show{animation:pulse-glow-light 2s ease-in-out infinite;}
+        @keyframes pulse-glow-light{0%,100%{box-shadow:0 0 20px rgba(30,58,95,0.2),0 0 40px rgba(30,58,95,0.1);}50%{box-shadow:0 0 30px rgba(30,58,95,0.4),0 0 60px rgba(30,58,95,0.2);}}
+        .light-mode .question .opts label.correct{background:#d1fae5!important;border-color:#059669!important;color:#065f46!important;}
+        .light-mode .question .opts label.wrong{background:#fee2e2!important;border-color:#dc2626!important;color:#991b1b!important;}
+        .light-mode .result.excellent{background:#d1fae5;color:#065f46;border-color:#059669;}
+        .light-mode .result.good{background:#d1fae5;color:#065f46;border-color:#059669;}
+        .light-mode .result.satisfactory{background:#fef3c7;color:#92400e;border-color:#f59e0b;}
+        .light-mode .result.poor{background:#fee2e2;color:#991b1b;border-color:#dc2626;}
+        .light-mode .controls select{background:#f1f5f9;color:#1a2a3f;border-color:#e2e8f0;}
+
+        @media(max-width:700px){.container{padding:12px;}.card{padding:14px;margin-top:55px;}.fixed-timer{padding:6px 12px;}.fixed-timer .time{font-size:1rem;min-width:50px;}.mode-btn,.diff-btn{font-size:0.7rem;padding:4px 10px;}.controls select{font-size:0.8rem;padding:6px 10px;}.controls .btn-generate{padding:8px 16px;font-size:0.9rem;}.header h1{font-size:1.2rem;}}
+           /* ===== СВЕТЛАЯ ТЕМА ===== */
+        .light-mode body{background:#f5f7fc;}
+        .light-mode .container{background:white;}
+        .light-mode .card{background:white;}
+        .light-mode .header{background:#f8fafc;}
+        .light-mode .header .sub{color:#5a7a94;}
+        .light-mode .header h1 {
+    background: linear-gradient(135deg, #1a2a3f, #2c5a77);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+        .light-mode .theme-toggle{background:white;border:1px solid #eff3f8;color:#1a2a3f;}
+        .light-mode .favorite-btn{background:white;border:1px solid #eff3f8;color:#5a7a94;}
+        .light-mode .controls select{background:#e2e8f0;color:#1a2a3f;}
+        .light-mode .mode-btn{border-color:#e2e8f0;color:#5a7a94;}
+        .light-mode .mode-btn.active{border-color:#1abc9c;color:#1abc9c;background:#e8f8f5;}
+        .light-mode .question{background:#f8fafc;}
+        .light-mode .question p{color:#1a2a3f;}
+        .light-mode .question .opts label{background:white;border:1px solid #eff3f8;color:#1a2a3f;}
+        .light-mode .question .opts label:hover{background:#f1f5f9;border-color:#1abc9c;}
+        .light-mode .questions-hidden{background:#f8fafc;border-color:#e2e8f0;}
+        .light-mode .questions-hidden h3{color:#1a2a3f;}
+        .light-mode .questions-hidden p{color:#5a7a94;}
+        .light-mode .fixed-timer{background:white;border-bottom-color:#1abc9c;}
+        .light-mode .fixed-timer .time{color:#1a2a3f;}
+        .light-mode .fixed-timer .info{color:#5a7a94;}
+        .light-mode .result.excellent{background:#d1fae5;color:#065f46;}
+        .light-mode .result.good{background:#d1fae5;color:#065f46;}
+        .light-mode .result.satisfactory{background:#fef3c7;color:#92400e;}
+        .light-mode .result.poor{background:#fee2e2;color:#991b1b;}
+        .light-mode .restart-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);}
+        .light-mode .back-link{background:#1abc9c;}
+        .light-mode .btn-start{background:#3498db;color:white;}
+        .light-mode .btn-start:hover{background:#2980b9;}
+        .light-mode .question .opts label.correct{background:#d1fae5 !important;border-color:#059669 !important;color:#065f46 !important;}
+        .light-mode .question .opts label.wrong{background:#fee2e2 !important;border-color:#dc2626 !important;color:#991b1b !important;}
+    </style>
+    <script>
+        MathJax = {tex:{inlineMath:[['$','$'],['\\(','\\)']]},chtml:{scale:0.95}};
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+
+<script>
+    // ===== ЗАЩИТА ОТ СПИСЫВАНИЯ =====
+
+    // 1. Защита от копирования
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        alert('⚠️ Копирование и сохранение контента запрещено!');
+        return false;
+    });
+
+    document.addEventListener('copy', function(e) {
+        e.preventDefault();
+        alert('⚠️ Копирование контента запрещено!');
+        return false;
+    });
+
+    document.addEventListener('cut', function(e) {
+        e.preventDefault();
+        alert('⚠️ Вырезание контента запрещено!');
+        return false;
+    });
+
+    // 2. Защита от клавиш разработчика
+    document.addEventListener('keydown', function(e) {
+        // F12
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            alert('⚠️ Инструменты разработчика отключены!');
+            return false;
+        }
+        // Ctrl+Shift+I, Ctrl+Shift+J
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'i' || e.key === 'j')) {
+            e.preventDefault();
+            alert('⚠️ Инструменты разработчика отключены!');
+            return false;
+        }
+        // Ctrl+U (просмотр исходного кода)
+        if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) {
+            e.preventDefault();
+            alert('⚠️ Просмотр исходного кода запрещён!');
+            return false;
+        }
+        // Ctrl+S (сохранение)
+        if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            alert('⚠️ Сохранение страницы запрещено!');
+            return false;
+        }
+        // PrintScreen
+        if (e.key === 'PrintScreen' || e.keyCode === 44) {
+            e.preventDefault();
+            alert('⚠️ Создание скриншотов запрещено!');
+            return false;
+        }
+    });
+
+    // 3. Защита от переключения приложений
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            alert('⚠️ Переключение на другие приложения во время теста запрещено!');
+        }
+    });
+
+    // 4. Защита от масштабирования (мобильные устройства)
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches && e.touches.length > 1) {
+            e.preventDefault();
+            alert('⚠️ Масштабирование отключено!');
+            return false;
+        }
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', function(e) {
+        e.preventDefault();
+        alert('⚠️ Масштабирование отключено!');
+        return false;
+    });
+
+    // 5. Защита от выделения текста
+    document.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+        return false;
+    });
+
+    // 6. Защита от перетаскивания
+    document.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+        return false;
+    });
+</script>
+
+<div class="container">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+
+    <div class="header">
+        <h1>Тест: Показательная функция</h1>
+        <div class="sub">400+ заданий · 4 режима </div>
+    </div>
+
+    <div class="fixed-timer" id="fixedTimer">
+        <span class="time" id="timerFixed">10:00</span>
+        <div class="bar"><div class="bar-fill" id="timerBarFixed" style="width:100%;"></div></div>
+        <span class="info"><span class="ok" id="answeredFixed">0</span>/<span id="totalFixed">0</span></span>
+    </div>
+
+    <div class="card">
+        <div class="controls">
+            <select id="questionCount">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+            </select>
+            <select id="timeSelect">
+                <option value="1">1 мин</option>
+                <option value="2">2 мин</option>
+                <option value="3">3 мин</option>
+                <option value="5">5 мин</option>
+                <option value="10" selected>10 мин</option>
+                <option value="15">15 мин</option>
+                <option value="20">20 мин</option>
+                <option value="30">30 мин</option>
+            </select>
+            <button class="btn-generate" onclick="generateTest()">Сгенерировать</button>
+            <a href="exponential-menu.html" target="_blank" class="btn-repeat">Повторить</a>
+        </div>
+
+        <a href="test-exponential-adaptive.html" class="btn-full-test">Умный тест</a>
+
+        <div class="mode-selector" id="modeSelector">
+            <button class="mode-btn active" data-mode="properties">Свойства степеней</button>
+            <button class="mode-btn" data-mode="compare">Сравнение чисел</button>
+            <button class="mode-btn" data-mode="equations">Показательные уравнения</button>
+            <button class="mode-btn" data-mode="inequalities">Показательные неравенства</button>
+        </div>
+
+        <div id="testContainer"></div>
+    </div>
+
+    <a href="tests.html" class="back-link">Назад к тестам</a>
+</div>
+
+<script>
+    function shuffle(arr){for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var temp=arr[i];arr[i]=arr[j];arr[j]=temp;}return arr;}
+    function shuffleArray(arr){for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var temp=arr[i];arr[i]=arr[j];arr[j]=temp;}return arr;}
+
+    // ================================================================
+    // БАНК 1: СВОЙСТВА СТЕПЕНЕЙ (100)
+    // ================================================================
+    var propertiesBank = [
+        { q: "\\( a^0 = ? \\) (при \\( a \\neq 0 \\))", opts: ["0", "1", "\\( a \\)", "\\( -a \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 15^0 \\) равно:", opts: ["0", "1", "15", "-15"], ans: 1, diff: 'easy' },
+        { q: "\\( (-7)^0 \\) равно:", opts: ["-7", "0", "1", "-1"], ans: 2, diff: 'easy' },
+        { q: "\\( 2^0 \\) равно:", opts: ["0", "1", "2", "-2"], ans: 1, diff: 'easy' },
+        { q: "\\( (\\frac{2}{3})^0 \\) равно:", opts: ["0", "\\( \\frac{2}{3} \\)", "1", "\\( -1 \\)"], ans: 2, diff: 'easy' },
+        { q: "\\( (-3)^0 \\) равно:", opts: ["-3", "0", "1", "-1"], ans: 2, diff: 'easy' },
+        { q: "\\( 10^0 \\) равно:", opts: ["0", "1", "10", "-10"], ans: 1, diff: 'easy' },
+        { q: "\\( (\\frac{1}{4})^0 \\) равно:", opts: ["0", "\\( \\frac{1}{4} \\)", "1", "\\( -1 \\)"], ans: 2, diff: 'easy' },
+        { q: "\\( (-5)^0 \\) равно:", opts: ["-5", "0", "1", "-1"], ans: 2, diff: 'easy' },
+        { q: "\\( a^1 = ? \\)", opts: ["1", "0", "\\( a \\)", "\\( a^2 \\)"], ans: 2, diff: 'easy' },
+        { q: "\\( 5^1 \\) равно:", opts: ["1", "0", "5", "25"], ans: 2, diff: 'easy' },
+        { q: "\\( (-2)^1 \\) равно:", opts: ["1", "-2", "2", "0"], ans: 1, diff: 'easy' },
+        { q: "\\( 10^1 \\) равно:", opts: ["1", "0", "10", "100"], ans: 2, diff: 'easy' },
+        { q: "\\( (\\frac{1}{2})^1 \\) равно:", opts: ["1", "0", "\\( \\frac{1}{2} \\)", "\\( \\frac{1}{4} \\)"], ans: 2, diff: 'easy' },
+        { q: "\\( a^n \\cdot a^k = ? \\)", opts: ["\\( a^{n-k} \\)", "\\( a^{n+k} \\)", "\\( a^{nk} \\)", "\\( (a^n)^k \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^3 \\cdot 2^4 \\) равно:", opts: ["\\( 2^7 \\)", "\\( 2^{12} \\)", "\\( 4^7 \\)", "\\( 2^1 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( 3^2 \\cdot 3^3 \\) равно:", opts: ["\\( 3^5 \\)", "\\( 3^6 \\)", "\\( 9^5 \\)", "\\( 3^1 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( x^3 \\cdot x^5 \\) равно:", opts: ["\\( x^{15} \\)", "\\( x^8 \\)", "\\( x^2 \\)", "\\( 2x^8 \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 5^4 \\cdot 5^2 \\) равно:", opts: ["\\( 5^6 \\)", "\\( 5^8 \\)", "\\( 25^3 \\)", "\\( 5^2 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( y^2 \\cdot y \\cdot y^4 \\) равно:", opts: ["\\( y^8 \\)", "\\( y^6 \\)", "\\( y^7 \\)", "\\( 3y^7 \\)"], ans: 2, diff: 'medium' },
+        { q: "\\( 2^5 \\cdot 2^3 \\) равно:", opts: ["\\( 2^8 \\)", "\\( 2^{15} \\)", "\\( 4^4 \\)", "\\( 2^2 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( 4^3 \\cdot 4^2 \\) равно:", opts: ["\\( 4^5 \\)", "\\( 4^6 \\)", "\\( 16^3 \\)", "\\( 4^1 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( 6^2 \\cdot 6^3 \\) равно:", opts: ["\\( 6^5 \\)", "\\( 6^6 \\)", "\\( 36^3 \\)", "\\( 6^1 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( 7^2 \\cdot 7^4 \\) равно:", opts: ["\\( 7^6 \\)", "\\( 7^8 \\)", "\\( 49^3 \\)", "\\( 7^2 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{a^n}{a^k} = ? \\)", opts: ["\\( a^{n+k} \\)", "\\( a^{nk} \\)", "\\( a^{n-k} \\)", "\\( a^{k-n} \\)"], ans: 2, diff: 'easy' },
+        { q: "\\( \\frac{2^7}{2^4} \\) равно:", opts: ["\\( 2^3 \\)", "\\( 2^{11} \\)", "\\( 4^4 \\)", "\\( 2^{28} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{3^6}{3^2} \\) равно:", opts: ["\\( 3^4 \\)", "\\( 3^8 \\)", "\\( 9^3 \\)", "\\( 3^{12} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{5^8}{5^3} \\) равно:", opts: ["\\( 5^5 \\)", "\\( 5^{11} \\)", "\\( 25^4 \\)", "\\( 5^{24} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{x^8}{x^3} \\) равно:", opts: ["\\( x^{11} \\)", "\\( x^5 \\)", "\\( x^{24} \\)", "\\( \\frac{8}{3}x \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( \\frac{4^5}{4^2} \\) равно:", opts: ["\\( 4^3 \\)", "\\( 4^7 \\)", "\\( 16^3 \\)", "\\( 4^{10} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{2^9}{2^5} \\) равно:", opts: ["\\( 2^4 \\)", "\\( 2^{14} \\)", "\\( 4^5 \\)", "\\( 2^{45} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{3^9}{3^3} \\) равно:", opts: ["\\( 3^6 \\)", "\\( 3^{12} \\)", "\\( 9^5 \\)", "\\( 3^{27} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( (a^n)^k = ? \\)", opts: ["\\( a^{n+k} \\)", "\\( a^{n-k} \\)", "\\( a^{nk} \\)", "\\( a^{n/k} \\)"], ans: 2, diff: 'easy' },
+        { q: "\\( (2^3)^2 \\) равно:", opts: ["\\( 2^5 \\)", "\\( 2^6 \\)", "\\( 4^5 \\)", "\\( 2^9 \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (3^2)^3 \\) равно:", opts: ["\\( 3^5 \\)", "\\( 3^6 \\)", "\\( 9^3 \\)", "\\( 3^8 \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (5^2)^4 \\) равно:", opts: ["\\( 5^6 \\)", "\\( 5^8 \\)", "\\( 25^4 \\)", "\\( 5^{16} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (x^2)^5 \\) равно:", opts: ["\\( x^7 \\)", "\\( x^{10} \\)", "\\( x^{25} \\)", "\\( 2x^5 \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (4^3)^2 \\) равно:", opts: ["\\( 4^5 \\)", "\\( 4^6 \\)", "\\( 16^3 \\)", "\\( 4^9 \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( a^{-n} = ? \\)", opts: ["\\( -a^n \\)", "\\( \\frac{1}{a^n} \\)", "\\( a^{1/n} \\)", "\\( (-a)^n \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^{-1} \\) равно:", opts: ["\\( -2 \\)", "\\( \\frac{1}{2} \\)", "2", "\\( -\\frac{1}{2} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^{-2} \\) равно:", opts: ["\\( -9 \\)", "\\( \\frac{1}{9} \\)", "9", "\\( -\\frac{1}{9} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 5^{-1} \\) равно:", opts: ["\\( -5 \\)", "\\( \\frac{1}{5} \\)", "5", "\\( -\\frac{1}{5} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 4^{-2} \\) равно:", opts: ["\\( -16 \\)", "\\( \\frac{1}{16} \\)", "16", "\\( -\\frac{1}{16} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^{-3} \\) равно:", opts: ["\\( -8 \\)", "\\( \\frac{1}{8} \\)", "8", "\\( -\\frac{1}{8} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 10^{-1} \\) равно:", opts: ["\\( -10 \\)", "0.1", "10", "\\( -0.1 \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (ab)^n = ? \\)", opts: ["\\( a^n b \\)", "\\( a b^n \\)", "\\( a^n b^n \\)", "\\( a^n + b^n \\)"], ans: 2, diff: 'easy' },
+        { q: "\\( \\left(\\frac{a}{b}\\right)^n = ? \\)", opts: ["\\( \\frac{a^n}{b} \\)", "\\( \\frac{a}{b^n} \\)", "\\( \\frac{a^n}{b^n} \\)", "\\( a^n - b^n \\)"], ans: 2, diff: 'easy' },
+        { q: "\\( (2x)^3 \\) равно:", opts: ["\\( 6x^3 \\)", "\\( 8x^3 \\)", "\\( 2x^3 \\)", "\\( 8x \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (3y)^2 \\) равно:", opts: ["\\( 6y^2 \\)", "\\( 9y^2 \\)", "\\( 3y^2 \\)", "\\( 9y \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( \\left(\\frac{2}{x}\\right)^3 \\) равно:", opts: ["\\( \\frac{8}{x} \\)", "\\( \\frac{2}{x^3} \\)", "\\( \\frac{8}{x^3} \\)", "\\( \\frac{6}{x^3} \\)"], ans: 2, diff: 'medium' },
+        { q: "\\( (-2a)^4 \\) равно:", opts: ["\\( -16a^4 \\)", "\\( 16a^4 \\)", "\\( 8a^4 \\)", "\\( -8a^4 \\)"], ans: 1, diff: 'medium' },
+        { q: "\\( \\left(\\frac{3}{y}\\right)^2 \\) равно:", opts: ["\\( \\frac{9}{y^2} \\)", "\\( \\frac{6}{y^2} \\)", "\\( \\frac{3}{y^2} \\)", "\\( \\frac{9}{y} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( (4x)^2 \\) равно:", opts: ["\\( 8x^2 \\)", "\\( 16x^2 \\)", "\\( 4x^2 \\)", "\\( 16x \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( \\left(\\frac{1}{x}\\right)^2 \\) равно:", opts: ["\\( \\frac{1}{x} \\)", "\\( \\frac{1}{x^2} \\)", "\\( \\frac{2}{x} \\)", "\\( \\frac{1}{x^3} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (5a)^2 \\) равно:", opts: ["\\( 25a^2 \\)", "\\( 10a^2 \\)", "\\( 5a^2 \\)", "\\( 25a \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\left(\\frac{2}{3}\\right)^3 \\) равно:", opts: ["\\( \\frac{6}{9} \\)", "\\( \\frac{8}{27} \\)", "\\( \\frac{2}{27} \\)", "\\( \\frac{6}{27} \\)"], ans: 1, diff: 'medium' },
+        { q: "\\( \\left(\\frac{x}{y}\\right)^2 \\) равно:", opts: ["\\( \\frac{x^2}{y} \\)", "\\( \\frac{x}{y^2} \\)", "\\( \\frac{x^2}{y^2} \\)", "\\( \\frac{x}{y} \\)"], ans: 2, diff: 'easy' },
+        { q: "\\( (ab)^2 \\) равно:", opts: ["\\( a^2 b \\)", "\\( a b^2 \\)", "\\( a^2 b^2 \\)", "\\( ab \\)"], ans: 2, diff: 'easy' },
+        { q: "\\( \\left(\\frac{x}{2}\\right)^3 \\) равно:", opts: ["\\( \\frac{x^3}{8} \\)", "\\( \\frac{x^3}{2} \\)", "\\( \\frac{x}{8} \\)", "\\( \\frac{x^3}{6} \\)"], ans: 0, diff: 'medium' },
+        { q: "\\( 2^7 \\cdot 2^2 \\) равно:", opts: ["\\( 2^9 \\)", "\\( 2^{14} \\)", "\\( 4^5 \\)", "\\( 2^5 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( 3^5 \\cdot 3^2 \\) равно:", opts: ["\\( 3^7 \\)", "\\( 3^{10} \\)", "\\( 9^4 \\)", "\\( 3^3 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( 5^3 \\cdot 5^5 \\) равно:", opts: ["\\( 5^8 \\)", "\\( 5^{15} \\)", "\\( 25^4 \\)", "\\( 5^2 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( 2^8 \\cdot 2^3 \\) равно:", opts: ["\\( 2^{11} \\)", "\\( 2^{24} \\)", "\\( 4^6 \\)", "\\( 2^5 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( 4^4 \\cdot 4^3 \\) равно:", opts: ["\\( 4^7 \\)", "\\( 4^{12} \\)", "\\( 16^4 \\)", "\\( 4^1 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{5^7}{5^4} \\) равно:", opts: ["\\( 5^3 \\)", "\\( 5^{11} \\)", "\\( 25^4 \\)", "\\( 5^{28} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{7^4}{7^2} \\) равно:", opts: ["\\( 7^2 \\)", "\\( 7^6 \\)", "\\( 49^2 \\)", "\\( 7^8 \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{3^7}{3^5} \\) равно:", opts: ["\\( 3^2 \\)", "\\( 3^{12} \\)", "\\( 9^4 \\)", "\\( 3^{35} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{5^9}{5^6} \\) равно:", opts: ["\\( 5^3 \\)", "\\( 5^{15} \\)", "\\( 25^5 \\)", "\\( 5^{54} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{2^8}{2^2} \\) равно:", opts: ["\\( 2^6 \\)", "\\( 2^{10} \\)", "\\( 4^4 \\)", "\\( 2^{16} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{4^7}{4^3} \\) равно:", opts: ["\\( 4^4 \\)", "\\( 4^{10} \\)", "\\( 16^4 \\)", "\\( 4^{21} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( \\frac{6^4}{6^3} \\) равно:", opts: ["\\( 6^1 \\)", "\\( 6^7 \\)", "\\( 36^2 \\)", "\\( 6^{12} \\)"], ans: 0, diff: 'easy' },
+        { q: "\\( (2^5)^2 \\) равно:", opts: ["\\( 2^7 \\)", "\\( 2^{10} \\)", "\\( 4^5 \\)", "\\( 2^{25} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (3^4)^2 \\) равно:", opts: ["\\( 3^6 \\)", "\\( 3^8 \\)", "\\( 9^4 \\)", "\\( 3^{16} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (4^2)^3 \\) равно:", opts: ["\\( 4^5 \\)", "\\( 4^6 \\)", "\\( 16^3 \\)", "\\( 4^8 \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (2^6)^2 \\) равно:", opts: ["\\( 2^8 \\)", "\\( 2^{12} \\)", "\\( 4^6 \\)", "\\( 2^{36} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (7^2)^3 \\) равно:", opts: ["\\( 7^5 \\)", "\\( 7^6 \\)", "\\( 49^3 \\)", "\\( 7^8 \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (3^5)^2 \\) равно:", opts: ["\\( 3^7 \\)", "\\( 3^{10} \\)", "\\( 9^5 \\)", "\\( 3^{25} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (5^4)^2 \\) равно:", opts: ["\\( 5^6 \\)", "\\( 5^8 \\)", "\\( 25^4 \\)", "\\( 5^{16} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (2^7)^2 \\) равно:", opts: ["\\( 2^9 \\)", "\\( 2^{14} \\)", "\\( 4^7 \\)", "\\( 2^{49} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( (4^3)^3 \\) равно:", opts: ["\\( 4^6 \\)", "\\( 4^9 \\)", "\\( 16^4 \\)", "\\( 4^{27} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 5^{-2} \\) равно:", opts: ["\\( -25 \\)", "\\( \\frac{1}{25} \\)", "25", "\\( -\\frac{1}{25} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 7^{-1} \\) равно:", opts: ["\\( -7 \\)", "\\( \\frac{1}{7} \\)", "7", "\\( -\\frac{1}{7} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 4^{-1} \\) равно:", opts: ["\\( -4 \\)", "\\( \\frac{1}{4} \\)", "4", "\\( -\\frac{1}{4} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 6^{-2} \\) равно:", opts: ["\\( -36 \\)", "\\( \\frac{1}{36} \\)", "36", "\\( -\\frac{1}{36} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^{-4} \\) равно:", opts: ["\\( -81 \\)", "\\( \\frac{1}{81} \\)", "81", "\\( -\\frac{1}{81} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^{-5} \\) равно:", opts: ["\\( -32 \\)", "\\( \\frac{1}{32} \\)", "32", "\\( -\\frac{1}{32} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 8^{-1} \\) равно:", opts: ["\\( -8 \\)", "\\( \\frac{1}{8} \\)", "8", "\\( -\\frac{1}{8} \\)"], ans: 1, diff: 'easy' },
+        { q: "\\( 9^{-1} \\) равно:", opts: ["\\( -9 \\)", "\\( \\frac{1}{9} \\)", "9", "\\( -\\frac{1}{9} \\)"], ans: 1, diff: 'easy' }
+    ];
+
+    // ================================================================
+    // БАНК 2: СРАВНЕНИЕ ЧИСЕЛ (50)
+    // ================================================================
+    var compareBank = [
+        { q: "Сравнить \\( 2^3 \\) и \\( 2^5 \\):", opts: ["\\( 2^3 < 2^5 \\)", "\\( 2^3 > 2^5 \\)", "\\( 2^3 = 2^5 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 3^2 \\) и \\( 3^4 \\):", opts: ["\\( 3^2 < 3^4 \\)", "\\( 3^2 > 3^4 \\)", "\\( 3^2 = 3^4 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 5^1 \\) и \\( 5^3 \\):", opts: ["\\( 5^1 < 5^3 \\)", "\\( 5^1 > 5^3 \\)", "\\( 5^1 = 5^3 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 2^4 \\) и \\( 2^6 \\):", opts: ["\\( 2^4 < 2^6 \\)", "\\( 2^4 > 2^6 \\)", "\\( 2^4 = 2^6 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 4^2 \\) и \\( 4^3 \\):", opts: ["\\( 4^2 < 4^3 \\)", "\\( 4^2 > 4^3 \\)", "\\( 4^2 = 4^3 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( (0.5)^2 \\) и \\( (0.5)^4 \\):", opts: ["\\( (0.5)^2 < (0.5)^4 \\)", "\\( (0.5)^2 > (0.5)^4 \\)", "\\( (0.5)^2 = (0.5)^4 \\)", "Невозможно сравнить"], ans: 1, diff: 'medium' },
+        { q: "Сравнить \\( (\\frac{1}{3})^1 \\) и \\( (\\frac{1}{3})^3 \\):", opts: ["\\( (\\frac{1}{3})^1 < (\\frac{1}{3})^3 \\)", "\\( (\\frac{1}{3})^1 > (\\frac{1}{3})^3 \\)", "\\( (\\frac{1}{3})^1 = (\\frac{1}{3})^3 \\)", "Невозможно сравнить"], ans: 1, diff: 'medium' },
+        { q: "Сравнить \\( 2^{\\sqrt{2}} \\) и \\( 2^{\\sqrt{3}} \\):", opts: ["\\( 2^{\\sqrt{2}} < 2^{\\sqrt{3}} \\)", "\\( 2^{\\sqrt{2}} > 2^{\\sqrt{3}} \\)", "\\( 2^{\\sqrt{2}} = 2^{\\sqrt{3}} \\)", "Невозможно сравнить"], ans: 0, diff: 'hard' },
+        { q: "Сравнить \\( 3^2 \\) и \\( 3^5 \\):", opts: ["\\( 3^2 < 3^5 \\)", "\\( 3^2 > 3^5 \\)", "\\( 3^2 = 3^5 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( (\\frac{2}{3})^2 \\) и \\( (\\frac{2}{3})^4 \\):", opts: ["\\( (\\frac{2}{3})^2 < (\\frac{2}{3})^4 \\)", "\\( (\\frac{2}{3})^2 > (\\frac{2}{3})^4 \\)", "\\( (\\frac{2}{3})^2 = (\\frac{2}{3})^4 \\)", "Невозможно сравнить"], ans: 1, diff: 'medium' },
+        { q: "Сравнить \\( 5^3 \\) и \\( 5^7 \\):", opts: ["\\( 5^3 < 5^7 \\)", "\\( 5^3 > 5^7 \\)", "\\( 5^3 = 5^7 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( (0.1)^3 \\) и \\( (0.1)^5 \\):", opts: ["\\( (0.1)^3 < (0.1)^5 \\)", "\\( (0.1)^3 > (0.1)^5 \\)", "\\( (0.1)^3 = (0.1)^5 \\)", "Невозможно сравнить"], ans: 1, diff: 'medium' },
+        { q: "Сравнить \\( 4^{\\sqrt{2}} \\) и \\( 4^{\\sqrt{5}} \\):", opts: ["\\( 4^{\\sqrt{2}} < 4^{\\sqrt{5}} \\)", "\\( 4^{\\sqrt{2}} > 4^{\\sqrt{5}} \\)", "\\( 4^{\\sqrt{2}} = 4^{\\sqrt{5}} \\)", "Невозможно сравнить"], ans: 0, diff: 'hard' },
+        { q: "Сравнить \\( (\\frac{1}{4})^2 \\) и \\( (\\frac{1}{4})^6 \\):", opts: ["\\( (\\frac{1}{4})^2 < (\\frac{1}{4})^6 \\)", "\\( (\\frac{1}{4})^2 > (\\frac{1}{4})^6 \\)", "\\( (\\frac{1}{4})^2 = (\\frac{1}{4})^6 \\)", "Невозможно сравнить"], ans: 1, diff: 'medium' },
+        { q: "Сравнить \\( 2^3 \\) и \\( 3^3 \\):", opts: ["\\( 2^3 < 3^3 \\)", "\\( 2^3 > 3^3 \\)", "\\( 2^3 = 3^3 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 4^2 \\) и \\( 5^2 \\):", opts: ["\\( 4^2 < 5^2 \\)", "\\( 4^2 > 5^2 \\)", "\\( 4^2 = 5^2 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 2^4 \\) и \\( 3^4 \\):", opts: ["\\( 2^4 < 3^4 \\)", "\\( 2^4 > 3^4 \\)", "\\( 2^4 = 3^4 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 3^2 \\) и \\( 4^2 \\):", opts: ["\\( 3^2 < 4^2 \\)", "\\( 3^2 > 4^2 \\)", "\\( 3^2 = 4^2 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 5^2 \\) и \\( 6^2 \\):", opts: ["\\( 5^2 < 6^2 \\)", "\\( 5^2 > 6^2 \\)", "\\( 5^2 = 6^2 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 2^{\\sqrt{2}} \\) и \\( 3^{\\sqrt{2}} \\):", opts: ["\\( 2^{\\sqrt{2}} < 3^{\\sqrt{2}} \\)", "\\( 2^{\\sqrt{2}} > 3^{\\sqrt{2}} \\)", "\\( 2^{\\sqrt{2}} = 3^{\\sqrt{2}} \\)", "Невозможно сравнить"], ans: 0, diff: 'hard' },
+        { q: "Сравнить \\( 3^{\\pi} \\) и \\( 4^{\\pi} \\):", opts: ["\\( 3^{\\pi} < 4^{\\pi} \\)", "\\( 3^{\\pi} > 4^{\\pi} \\)", "\\( 3^{\\pi} = 4^{\\pi} \\)", "Невозможно сравнить"], ans: 0, diff: 'hard' },
+        { q: "Сравнить \\( (\\frac{1}{2})^3 \\) и \\( (\\frac{1}{3})^3 \\):", opts: ["\\( (\\frac{1}{2})^3 < (\\frac{1}{3})^3 \\)", "\\( (\\frac{1}{2})^3 > (\\frac{1}{3})^3 \\)", "\\( (\\frac{1}{2})^3 = (\\frac{1}{3})^3 \\)", "Невозможно сравнить"], ans: 1, diff: 'medium' },
+        { q: "Сравнить \\( (\\frac{2}{3})^2 \\) и \\( (\\frac{3}{4})^2 \\):", opts: ["\\( (\\frac{2}{3})^2 < (\\frac{3}{4})^2 \\)", "\\( (\\frac{2}{3})^2 > (\\frac{3}{4})^2 \\)", "\\( (\\frac{2}{3})^2 = (\\frac{3}{4})^2 \\)", "Невозможно сравнить"], ans: 0, diff: 'medium' },
+        { q: "Сравнить \\( 1^5 \\) и \\( 2^5 \\):", opts: ["\\( 1^5 < 2^5 \\)", "\\( 1^5 > 2^5 \\)", "\\( 1^5 = 2^5 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 2^0 \\) и \\( 3^0 \\):", opts: ["\\( 2^0 < 3^0 \\)", "\\( 2^0 > 3^0 \\)", "\\( 2^0 = 3^0 \\)", "Невозможно сравнить"], ans: 2, diff: 'easy' },
+        { q: "Сравнить \\( 3^{\\sqrt{2}} \\) и \\( 4^{\\sqrt{2}} \\):", opts: ["\\( 3^{\\sqrt{2}} < 4^{\\sqrt{2}} \\)", "\\( 3^{\\sqrt{2}} > 4^{\\sqrt{2}} \\)", "\\( 3^{\\sqrt{2}} = 4^{\\sqrt{2}} \\)", "Невозможно сравнить"], ans: 0, diff: 'hard' },
+        { q: "Сравнить \\( 10^2 \\) и \\( 100^2 \\):", opts: ["\\( 10^2 < 100^2 \\)", "\\( 10^2 > 100^2 \\)", "\\( 10^2 = 100^2 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( (\\frac{1}{4})^2 \\) и \\( (\\frac{1}{5})^2 \\):", opts: ["\\( (\\frac{1}{4})^2 < (\\frac{1}{5})^2 \\)", "\\( (\\frac{1}{4})^2 > (\\frac{1}{5})^2 \\)", "\\( (\\frac{1}{4})^2 = (\\frac{1}{5})^2 \\)", "Невозможно сравнить"], ans: 0, diff: 'medium' },
+        { q: "Сравнить \\( 5^3 \\) и \\( 6^3 \\):", opts: ["\\( 5^3 < 6^3 \\)", "\\( 5^3 > 6^3 \\)", "\\( 5^3 = 6^3 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 2^3 \\) и \\( 3^2 \\):", opts: ["\\( 2^3 < 3^2 \\)", "\\( 2^3 > 3^2 \\)", "\\( 2^3 = 3^2 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 3^4 \\) и \\( 4^3 \\):", opts: ["\\( 3^4 < 4^3 \\)", "\\( 3^4 > 4^3 \\)", "\\( 3^4 = 4^3 \\)", "Невозможно сравнить"], ans: 1, diff: 'medium' },
+        { q: "Сравнить \\( 2^4 \\) и \\( 4^2 \\):", opts: ["\\( 2^4 < 4^2 \\)", "\\( 2^4 > 4^2 \\)", "\\( 2^4 = 4^2 \\)", "Невозможно сравнить"], ans: 1, diff: 'medium' },
+        { q: "Сравнить \\( 5^2 \\) и \\( 2^5 \\):", opts: ["\\( 5^2 < 2^5 \\)", "\\( 5^2 > 2^5 \\)", "\\( 5^2 = 2^5 \\)", "Невозможно сравнить"], ans: 1, diff: 'medium' },
+        { q: "Сравнить \\( 3^3 \\) и \\( 2^4 \\):", opts: ["\\( 3^3 < 2^4 \\)", "\\( 3^3 > 2^4 \\)", "\\( 3^3 = 2^4 \\)", "Невозможно сравнить"], ans: 1, diff: 'medium' },
+        { q: "Сравнить \\( 2^5 \\) и \\( 5^2 \\):", opts: ["\\( 2^5 < 5^2 \\)", "\\( 2^5 > 5^2 \\)", "\\( 2^5 = 5^2 \\)", "Невозможно сравнить"], ans: 0, diff: 'medium' },
+        { q: "Сравнить \\( 4^3 \\) и \\( 3^4 \\):", opts: ["\\( 4^3 < 3^4 \\)", "\\( 4^3 > 3^4 \\)", "\\( 4^3 = 3^4 \\)", "Невозможно сравнить"], ans: 0, diff: 'medium' },
+        { q: "Сравнить \\( 3^5 \\) и \\( 5^3 \\):", opts: ["\\( 3^5 < 5^3 \\)", "\\( 3^5 > 5^3 \\)", "\\( 3^5 = 5^3 \\)", "Невозможно сравнить"], ans: 1, diff: 'hard' },
+        { q: "Сравнить \\( 2^6 \\) и \\( 6^2 \\):", opts: ["\\( 2^6 < 6^2 \\)", "\\( 2^6 > 6^2 \\)", "\\( 2^6 = 6^2 \\)", "Невозможно сравнить"], ans: 1, diff: 'hard' },
+        { q: "Сравнить \\( 5^4 \\) и \\( 4^5 \\):", opts: ["\\( 5^4 < 4^5 \\)", "\\( 5^4 > 4^5 \\)", "\\( 5^4 = 4^5 \\)", "Невозможно сравнить"], ans: 0, diff: 'hard' },
+        { q: "Сравнить \\( 3^6 \\) и \\( 6^3 \\):", opts: ["\\( 3^6 < 6^3 \\)", "\\( 3^6 > 6^3 \\)", "\\( 3^6 = 6^3 \\)", "Невозможно сравнить"], ans: 0, diff: 'hard' },
+        { q: "Сравнить \\( 1^{100} \\) и \\( 100^1 \\):", opts: ["\\( 1^{100} < 100^1 \\)", "\\( 1^{100} > 100^1 \\)", "\\( 1^{100} = 100^1 \\)", "Невозможно сравнить"], ans: 0, diff: 'easy' },
+        { q: "Сравнить \\( 10^2 \\) и \\( 2^{10} \\):", opts: ["\\( 10^2 < 2^{10} \\)", "\\( 10^2 > 2^{10} \\)", "\\( 10^2 = 2^{10} \\)", "Невозможно сравнить"], ans: 0, diff: 'medium' },
+        { q: "Сравнить \\( 8^2 \\) и \\( 2^6 \\):", opts: ["\\( 8^2 < 2^6 \\)", "\\( 8^2 > 2^6 \\)", "\\( 8^2 = 2^6 \\)", "Невозможно сравнить"], ans: 2, diff: 'medium' },
+        { q: "Сравнить \\( 9^2 \\) и \\( 3^4 \\):", opts: ["\\( 9^2 < 3^4 \\)", "\\( 9^2 > 3^4 \\)", "\\( 9^2 = 3^4 \\)", "Невозможно сравнить"], ans: 2, diff: 'medium' },
+        { q: "Сравнить \\( 16^2 \\) и \\( 2^8 \\):", opts: ["\\( 16^2 < 2^8 \\)", "\\( 16^2 > 2^8 \\)", "\\( 16^2 = 2^8 \\)", "Невозможно сравнить"], ans: 2, diff: 'medium' },
+        { q: "Сравнить \\( 25^2 \\) и \\( 5^4 \\):", opts: ["\\( 25^2 < 5^4 \\)", "\\( 25^2 > 5^4 \\)", "\\( 25^2 = 5^4 \\)", "Невозможно сравнить"], ans: 2, diff: 'medium' },
+        { q: "Сравнить \\( 36^2 \\) и \\( 6^4 \\):", opts: ["\\( 36^2 < 6^4 \\)", "\\( 36^2 > 6^4 \\)", "\\( 36^2 = 6^4 \\)", "Невозможно сравнить"], ans: 2, diff: 'medium' }
+    ];
+
+    // ================================================================
+    // БАНК 3: ПОКАЗАТЕЛЬНЫЕ УРАВНЕНИЯ (100)
+    // ================================================================
+    var equationBank = [
+        { q: "\\( 2^x = 8 \\)", opts: ["x=2", "x=3", "x=4", "x=1"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^x = 27 \\)", opts: ["x=2", "x=3", "x=4", "x=1"], ans: 1, diff: 'easy' },
+        { q: "\\( 5^x = 125 \\)", opts: ["x=2", "x=3", "x=4", "x=5"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x = 16 \\)", opts: ["x=2", "x=3", "x=4", "x=5"], ans: 2, diff: 'easy' },
+        { q: "\\( 4^x = 64 \\)", opts: ["x=2", "x=3", "x=4", "x=5"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^x = 81 \\)", opts: ["x=2", "x=3", "x=4", "x=5"], ans: 2, diff: 'easy' },
+        { q: "\\( 2^x = 32 \\)", opts: ["x=4", "x=5", "x=6", "x=3"], ans: 1, diff: 'easy' },
+        { q: "\\( 5^x = 625 \\)", opts: ["x=3", "x=4", "x=5", "x=6"], ans: 1, diff: 'easy' },
+        { q: "\\( 10^x = 1000 \\)", opts: ["x=2", "x=3", "x=4", "x=5"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x = 64 \\)", opts: ["x=5", "x=6", "x=7", "x=4"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^x = 243 \\)", opts: ["x=4", "x=5", "x=6", "x=3"], ans: 1, diff: 'easy' },
+        { q: "\\( 4^x = 256 \\)", opts: ["x=3", "x=4", "x=5", "x=6"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x = 1 \\)", opts: ["x=0", "x=1", "x=-1", "x=2"], ans: 0, diff: 'easy' },
+        { q: "\\( 3^x = 1 \\)", opts: ["x=0", "x=1", "x=-1", "x=2"], ans: 0, diff: 'easy' },
+        { q: "\\( 5^x = \\frac{1}{5} \\)", opts: ["x=1", "x=-1", "x=0", "x=2"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x = \\frac{1}{4} \\)", opts: ["x=2", "x=-2", "x=1", "x=-1"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^x = \\frac{1}{9} \\)", opts: ["x=2", "x=-2", "x=1", "x=-1"], ans: 1, diff: 'easy' },
+        { q: "\\( 4^x = \\frac{1}{16} \\)", opts: ["x=2", "x=-2", "x=1", "x=-1"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x = \\frac{1}{8} \\)", opts: ["x=3", "x=-3", "x=2", "x=-2"], ans: 1, diff: 'easy' },
+        { q: "\\( 5^x = \\frac{1}{25} \\)", opts: ["x=2", "x=-2", "x=1", "x=-1"], ans: 1, diff: 'easy' },
+        { q: "\\( 10^x = 0.1 \\)", opts: ["x=1", "x=-1", "x=0", "x=2"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x = \\sqrt{2} \\)", opts: ["x=1", "x=\\frac{1}{2}", "x=2", "x=-\\frac{1}{2}"], ans: 1, diff: 'medium' },
+        { q: "\\( 4^x = 2 \\)", opts: ["x=1", "x=\\frac{1}{2}", "x=2", "x=-\\frac{1}{2}"], ans: 1, diff: 'medium' },
+        { q: "\\( 9^x = 3 \\)", opts: ["x=1", "x=\\frac{1}{2}", "x=2", "x=-\\frac{1}{2}"], ans: 1, diff: 'medium' },
+        { q: "\\( 8^x = 2 \\)", opts: ["x=1", "x=\\frac{1}{3}", "x=3", "x=-\\frac{1}{3}"], ans: 1, diff: 'medium' },
+        { q: "\\( 27^x = 3 \\)", opts: ["x=1", "x=\\frac{1}{3}", "x=3", "x=-\\frac{1}{3}"], ans: 1, diff: 'medium' },
+        { q: "\\( 16^x = 4 \\)", opts: ["x=1", "x=\\frac{1}{2}", "x=2", "x=-\\frac{1}{2}"], ans: 1, diff: 'medium' },
+        { q: "\\( 2^{x+1} = 8 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, diff: 'medium' },
+        { q: "\\( 3^{x-1} = 9 \\)", opts: ["x=2", "x=3", "x=4", "x=1"], ans: 1, diff: 'medium' },
+        { q: "\\( 2^{2x} = 16 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, diff: 'medium' },
+        { q: "\\( 3^{2x} = 81 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, diff: 'medium' },
+        { q: "\\( 2^{x+2} = 32 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 2, diff: 'medium' },
+        { q: "\\( 5^{x-2} = 125 \\)", opts: ["x=3", "x=4", "x=5", "x=2"], ans: 2, diff: 'medium' },
+        { q: "\\( 4^{x+1} = 64 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, diff: 'medium' },
+        { q: "\\( 3^{2x+1} = 27 \\)", opts: ["x=1", "x=2", "x=3", "x=0"], ans: 0, diff: 'medium' },
+        { q: "\\( 2^{3x} = 64 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, diff: 'medium' },
+        { q: "\\( 5^{2x-1} = 125 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, diff: 'medium' },
+        { q: "\\( 4^x - 2^x - 12 = 0 \\)", opts: ["x=2", "x=3", "x=4", "x=1"], ans: 0, diff: 'hard' },
+        { q: "\\( 9^x - 10 \\cdot 3^x + 9 = 0 \\)", opts: ["x=0 или x=2", "x=1 или x=2", "x=0 или x=1", "x=2 или x=3"], ans: 0, diff: 'hard' },
+        { q: "\\( 5^{2x} + 5^x - 2 = 0 \\)", opts: ["x=0", "x=1", "x=-1", "x=2"], ans: 0, diff: 'hard' },
+        { q: "\\( 4^x - 6 \\cdot 2^x + 8 = 0 \\)", opts: ["x=1 или x=2", "x=0 или x=2", "x=0 или x=3", "x=1 или x=3"], ans: 0, diff: 'hard' },
+        { q: "\\( 9^x - 4 \\cdot 3^x + 3 = 0 \\)", opts: ["x=0 или x=1", "x=1 или x=2", "x=0 или x=2", "x=2 или x=3"], ans: 0, diff: 'hard' },
+        { q: "\\( 25^x - 6 \\cdot 5^x + 5 = 0 \\)", opts: ["x=0 или x=1", "x=1 или x=2", "x=0 или x=2", "x=2 или x=3"], ans: 0, diff: 'hard' },
+        { q: "\\( 16^x - 5 \\cdot 4^x + 4 = 0 \\)", opts: ["x=0 или x=1", "x=1 или x=2", "x=0 или x=2", "x=2 или x=3"], ans: 0, diff: 'hard' },
+        { q: "\\( 2^{x+1} + 2^x = 12 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, diff: 'medium' },
+        { q: "\\( 3^{x+2} - 3^x = 24 \\)", opts: ["x=1", "x=2", "x=3", "x=0"], ans: 0, diff: 'medium' },
+        { q: "\\( 5^{x+1} - 5^{x-1} = 120 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, diff: 'hard' },
+        { q: "\\( 2^{x+2} + 2^{x+1} = 24 \\)", opts: ["x=1", "x=2", "x=3", "x=0"], ans: 0, diff: 'medium' },
+        { q: "\\( 3^{x+3} + 3^{x+2} = 108 \\)", opts: ["x=1", "x=2", "x=3", "x=0"], ans: 0, diff: 'hard' },
+        { q: "\\( 2^x = 3^x \\)", opts: ["x=0", "x=1", "x=-1", "x=2"], ans: 0, diff: 'medium' },
+        { q: "\\( 5^x = 7^x \\)", opts: ["x=0", "x=1", "x=-1", "x=2"], ans: 0, diff: 'medium' },
+        { q: "\\( 2^x \\cdot 3^x = 36 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, diff: 'hard' },
+        { q: "\\( 2^x = 7 \\)", opts: ["\\( x = \\log_2 7 \\)", "\\( x = 7 \\)", "\\( x = \\log_7 2 \\)", "\\( x = \\frac{1}{2} \\)"], ans: 0, diff: 'medium' },
+        { q: "\\( 5^x = 3 \\)", opts: ["\\( x = \\log_5 3 \\)", "\\( x = 3 \\)", "\\( x = \\log_3 5 \\)", "\\( x = \\frac{1}{3} \\)"], ans: 0, diff: 'medium' },
+        { q: "\\( 3^x = 10 \\)", opts: ["\\( x = \\log_3 10 \\)", "\\( x = 10 \\)", "\\( x = \\log_{10} 3 \\)", "\\( x = \\frac{1}{10} \\)"], ans: 0, diff: 'medium' },
+        { q: "\\( 2^x = 5 \\)", opts: ["\\( x = \\log_2 5 \\)", "\\( x = 5 \\)", "\\( x = \\log_5 2 \\)", "\\( x = \\frac{1}{5} \\)"], ans: 0, diff: 'medium' },
+        { q: "\\( 10^x = 7 \\)", opts: ["\\( x = \\log 7 \\)", "\\( x = 7 \\)", "\\( x = \\frac{1}{7} \\)", "\\( x = \\log_7 10 \\)"], ans: 0, diff: 'medium' }
+    ];
+
+    // ================================================================
+    // БАНК 4: ПОКАЗАТЕЛЬНЫЕ НЕРАВЕНСТВА (100)
+    // ================================================================
+    var inequalityBank = [
+        { q: "\\( 2^x > 8 \\)", opts: ["x>2", "x>3", "x>4", "x>1"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^x < 27 \\)", opts: ["x<2", "x<3", "x<4", "x<1"], ans: 1, diff: 'easy' },
+        { q: "\\( 5^x \\geq 125 \\)", opts: ["x \\geq 2", "x \\geq 3", "x \\geq 4", "x \\geq 5"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x \\leq 16 \\)", opts: ["x \\leq 2", "x \\leq 3", "x \\leq 4", "x \\leq 5"], ans: 2, diff: 'easy' },
+        { q: "\\( 4^x > 64 \\)", opts: ["x>2", "x>3", "x>4", "x>5"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^x \\geq 81 \\)", opts: ["x \\geq 2", "x \\geq 3", "x \\geq 4", "x \\geq 5"], ans: 2, diff: 'easy' },
+        { q: "\\( 2^x < 32 \\)", opts: ["x<4", "x<5", "x<6", "x<3"], ans: 1, diff: 'easy' },
+        { q: "\\( 5^x \\leq 625 \\)", opts: ["x \\leq 3", "x \\leq 4", "x \\leq 5", "x \\leq 6"], ans: 1, diff: 'easy' },
+        { q: "\\( 10^x > 1000 \\)", opts: ["x>2", "x>3", "x>4", "x>5"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x \\geq 64 \\)", opts: ["x \\geq 5", "x \\geq 6", "x \\geq 7", "x \\geq 4"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^x < 243 \\)", opts: ["x<4", "x<5", "x<6", "x<3"], ans: 1, diff: 'easy' },
+        { q: "\\( 4^x > 256 \\)", opts: ["x>3", "x>4", "x>5", "x>6"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x \\leq 128 \\)", opts: ["x \\leq 6", "x \\leq 7", "x \\leq 8", "x \\leq 5"], ans: 1, diff: 'easy' },
+        { q: "\\( 5^x < 3125 \\)", opts: ["x<4", "x<5", "x<6", "x<7"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^x > 729 \\)", opts: ["x>5", "x>6", "x>7", "x>4"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x < 1 \\)", opts: ["x<0", "x<1", "x>-1", "x<2"], ans: 0, diff: 'easy' },
+        { q: "\\( 3^x > 1 \\)", opts: ["x>0", "x>1", "x>-1", "x>2"], ans: 0, diff: 'easy' },
+        { q: "\\( 5^x \\leq \\frac{1}{5} \\)", opts: ["x \\leq 1", "x \\leq -1", "x \\leq 0", "x \\leq 2"], ans: 1, diff: 'easy' },
+        { q: "\\( 2^x < \\frac{1}{4} \\)", opts: ["x<2", "x<-2", "x<1", "x<-1"], ans: 1, diff: 'easy' },
+        { q: "\\( 3^x \\geq \\frac{1}{9} \\)", opts: ["x \\geq 2", "x \\geq -2", "x \\geq 1", "x \\geq -1"], ans: 1, diff: 'easy' },
+        { q: "\\( 4^x \\leq \\frac{1}{16} \\)", opts: ["x \\leq 2", "x \\leq -2", "x \\leq 1", "x \\leq -1"], ans: 1, diff: 'medium' },
+        { q: "\\( 2^x > \\frac{1}{8} \\)", opts: ["x>3", "x>-3", "x>2", "x>-2"], ans: 1, diff: 'medium' },
+        { q: "\\( 5^x < \\frac{1}{25} \\)", opts: ["x<2", "x<-2", "x<1", "x<-1"], ans: 1, diff: 'medium' },
+        { q: "\\( 10^x \\geq 0.1 \\)", opts: ["x \\geq 1", "x \\geq -1", "x \\geq 0", "x \\geq 2"], ans: 1, diff: 'medium' },
+        { q: "\\( 2^x > \\sqrt{2} \\)", opts: ["x>1", "x>\\frac{1}{2}", "x>2", "x>-\\frac{1}{2}"], ans: 1, diff: 'medium' },
+        { q: "\\( 4^x \\leq 2 \\)", opts: ["x \\leq 1", "x \\leq \\frac{1}{2}", "x \\leq 2", "x \\leq -\\frac{1}{2}"], ans: 1, diff: 'medium' },
+        { q: "\\( 9^x \\geq 3 \\)", opts: ["x \\geq 1", "x \\geq \\frac{1}{2}", "x \\geq 2", "x \\geq -\\frac{1}{2}"], ans: 1, diff: 'medium' },
+        { q: "\\( 8^x < 2 \\)", opts: ["x<1", "x<\\frac{1}{3}", "x<3", "x<-\\frac{1}{3}"], ans: 1, diff: 'medium' },
+        { q: "\\( 27^x > 3 \\)", opts: ["x>1", "x>\\frac{1}{3}", "x>3", "x>-\\frac{1}{3}"], ans: 1, diff: 'medium' },
+        { q: "\\( 16^x \\leq 4 \\)", opts: ["x \\leq 1", "x \\leq \\frac{1}{2}", "x \\leq 2", "x \\leq -\\frac{1}{2}"], ans: 1, diff: 'medium' },
+        { q: "\\( 2^{x+1} > 8 \\)", opts: ["x>1", "x>2", "x>3", "x>4"], ans: 1, diff: 'medium' },
+        { q: "\\( 3^{x-1} < 9 \\)", opts: ["x<2", "x<3", "x<4", "x<1"], ans: 1, diff: 'medium' },
+        { q: "\\( 2^{2x} \\geq 16 \\)", opts: ["x \\geq 1", "x \\geq 2", "x \\geq 3", "x \\geq 4"], ans: 1, diff: 'medium' },
+        { q: "\\( 3^{2x} \\leq 81 \\)", opts: ["x \\leq 1", "x \\leq 2", "x \\leq 3", "x \\leq 4"], ans: 1, diff: 'medium' },
+        { q: "\\( 2^{x+2} < 32 \\)", opts: ["x<1", "x<2", "x<3", "x<4"], ans: 2, diff: 'medium' },
+        { q: "\\( 5^{x-2} > 125 \\)", opts: ["x>3", "x>4", "x>5", "x>2"], ans: 2, diff: 'medium' },
+        { q: "\\( 4^{x+1} \\leq 64 \\)", opts: ["x \\leq 1", "x \\leq 2", "x \\leq 3", "x \\leq 4"], ans: 1, diff: 'medium' },
+        { q: "\\( 3^{2x+1} \\geq 27 \\)", opts: ["x \\geq 1", "x \\geq 2", "x \\geq 3", "x \\geq 0"], ans: 0, diff: 'medium' },
+        { q: "\\( 2^{3x} < 64 \\)", opts: ["x<1", "x<2", "x<3", "x<4"], ans: 1, diff: 'medium' },
+        { q: "\\( 5^{2x-1} \\leq 125 \\)", opts: ["x \\leq 1", "x \\leq 2", "x \\leq 3", "x \\leq 4"], ans: 1, diff: 'medium' },
+        { q: "\\( \\left(\\frac{1}{2}\\right)^x < 4 \\)", opts: ["x>-2", "x<-2", "x>2", "x<2"], ans: 0, diff: 'hard' },
+        { q: "\\( \\left(\\frac{2}{3}\\right)^{x+1} \\geq \\frac{8}{27} \\)", opts: ["x \\leq 2", "x \\geq 2", "x < 2", "x > 2"], ans: 0, diff: 'hard' },
+        { q: "\\( (0.1)^{2x} > 0.01 \\)", opts: ["x<1", "x>1", "x \\leq 1", "x \\geq 1"], ans: 0, diff: 'hard' },
+        { q: "\\( 2^x > 3^x \\)", opts: ["x<0", "x>0", "x \\leq 0", "x \\geq 0"], ans: 0, diff: 'hard' },
+        { q: "\\( 5^x \\leq 2^x \\)", opts: ["x \\leq 0", "x \\geq 0", "x < 0", "x > 0"], ans: 0, diff: 'hard' },
+        { q: "\\( 4^x - 2^x - 12 \\geq 0 \\)", opts: ["x \\geq 2", "x \\leq 2", "x > 2", "x < 2"], ans: 0, diff: 'hard' },
+        { q: "\\( 9^x - 10 \\cdot 3^x + 9 \\leq 0 \\)", opts: ["0 \\leq x \\leq 2", "x \\leq 0 \\text{ или } x \\geq 2", "1 \\leq x \\leq 2", "0 \\leq x \\leq 1"], ans: 0, diff: 'hard' },
+        { q: "\\( \\left(\\frac{2}{3}\\right)^x > 1 \\)", opts: ["x<0", "x>0", "x \\leq 0", "x \\geq 0"], ans: 0, diff: 'hard' },
+        { q: "\\( \\left(\\frac{5}{3}\\right)^x \\leq 1 \\)", opts: ["x \\leq 0", "x \\geq 0", "x < 0", "x > 0"], ans: 0, diff: 'hard' },
+        { q: "\\( 2^x + 2^{x+1} < 12 \\)", opts: ["x<2", "x>2", "x \\leq 2", "x \\geq 2"], ans: 0, diff: 'hard' },
+        { q: "\\( 3^{x+2} - 3^x > 24 \\)", opts: ["x>1", "x<1", "x \\geq 1", "x \\leq 1"], ans: 0, diff: 'hard' },
+        { q: "\\( 5^{x+1} - 5^x < 100 \\)", opts: ["x<2", "x>2", "x \\leq 2", "x \\geq 2"], ans: 0, diff: 'hard' },
+        { q: "\\( 2^{2x+1} - 2^{2x} > 8 \\)", opts: ["x>1", "x<1", "x \\geq 1", "x \\leq 1"], ans: 0, diff: 'hard' },
+        { q: "\\( 3^{3x+1} - 3^{3x} \\leq 54 \\)", opts: ["x \\leq 1", "x \\geq 1", "x < 1", "x > 1"], ans: 0, diff: 'hard' },
+        { q: "\\( 4^{x+2} - 4^{x+1} \\geq 48 \\)", opts: ["x \\geq 1", "x \\leq 1", "x > 1", "x < 1"], ans: 0, diff: 'hard' }
+    ];
+
+    // ================================================================
+    // СБОРКА ПОЛНОГО БАНКА
+    // ================================================================
+    var fullBank = propertiesBank.concat(compareBank).concat(equationBank).concat(inequalityBank);
+
+    // ================================================================
+    // РЕЖИМЫ ВЫБОРКИ
+    // ================================================================
+    var currentMode = 'properties';
+
+    document.querySelectorAll('.mode-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            currentMode = this.dataset.mode;
+            generateTest();
+        });
+    });
+
+
+    function getQuestionsByMode(mode, count) {
+    var source = [];
+    switch(mode) {
+        case 'cylinder': source = cylinderBank; break;
+        case 'cone': source = coneBank; break;
+        case 'truncated': source = truncatedBank; break;
+        case 'sphere': source = sphereBank; break;
+        default: source = fullBank; break;
+    }
+
+    if (source.length === 0) {
+        source = fullBank;
+    }
+
+    var pool = shuffleArray(source.slice());
+    return pool.slice(0, count);
+}
+
+
+    // ================================================================
+    // ТАЙМЕР И ЛОГИКА ТЕСТА
+    // ================================================================
+    var currentQuestions = [];
+    var timerInterval = null;
+    var timeLeft = 0;
+    var totalTime = 0;
+    var isFinished = false;
+    var isStarted = false;
+
+    function formatTime(sec) {
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function updateTimer() {
+        var el = document.getElementById('timerFixed');
+        if (el) {
+            el.textContent = formatTime(timeLeft);
+            el.className = 'time';
+            if (timeLeft <= 10) el.classList.add('danger');
+        }
+        var bar = document.getElementById('timerBarFixed');
+        if (bar && totalTime > 0) {
+            bar.style.width = (timeLeft / totalTime * 100) + '%';
+        }
+    }
+
+    function updateProgress() {
+        var total = currentQuestions.length;
+        var answered = 0;
+        for (var i = 0; i < total; i++) {
+            var sel = document.querySelector('input[name="q' + i + '"]:checked');
+            if (sel) answered++;
+        }
+        document.getElementById('answeredFixed').textContent = answered;
+        document.getElementById('totalFixed').textContent = total;
+    }
+
+    function timeExpired() {
+        if (isFinished) return;
+        isFinished = true;
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+
+        var btn = document.getElementById('submitBtn');
+        if (btn) btn.disabled = true;
+
+        for (var i = 0; i < currentQuestions.length; i++) {
+            var q = currentQuestions[i];
+            var sel = document.querySelector('input[name="q' + i + '"]:checked');
+            if (!sel) {
+                var labels = document.querySelectorAll('input[name="q' + i + '"]');
+                for (var j = 0; j < labels.length; j++) {
+                    var input = labels[j];
+                    var label = input.closest('label');
+                    if (parseInt(input.value) === q.ans) {
+                        label.classList.add('correct');
+                    } else {
+                        label.classList.add('wrong');
+                    }
+                    input.disabled = true;
+                    label.classList.add('disabled');
+                }
+            }
+        }
+        checkAnswers(true);
+    }
+
+    function startTest() {
+        if (isStarted) return;
+        isStarted = true;
+
+        var startBtn = document.getElementById('startBtn');
+        if (startBtn) startBtn.classList.remove('show');
+
+        var hiddenNotice = document.getElementById('questionsHidden');
+        if (hiddenNotice) hiddenNotice.style.display = 'none';
+
+        var questionsWrapper = document.getElementById('questionsWrapper');
+        if (questionsWrapper) questionsWrapper.classList.add('show');
+
+        var allInputs = document.querySelectorAll('#questions input[type="radio"]');
+        for (var i = 0; i < allInputs.length; i++) {
+            allInputs[i].disabled = false;
+        }
+
+        var submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.classList.add('show');
+
+        document.getElementById('fixedTimer').classList.add('show');
+
+        timerInterval = setInterval(function() {
+            timeLeft--;
+            updateTimer();
+            updateProgress();
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                timeExpired();
+            }
+        }, 1000);
+
+        updateTimer();
+        updateProgress();
+    }
+
+    function generateTest() {
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        isFinished = false;
+        isStarted = false;
+
+        var count = parseInt(document.getElementById('questionCount').value);
+        var timeSelect = document.getElementById('timeSelect');
+        totalTime = parseInt(timeSelect.value) * 60;
+        timeLeft = totalTime;
+
+        currentQuestions = getQuestionsByMode(currentMode, count);
+
+        currentQuestions = currentQuestions.map(function(q) {
+            var optsWithIndex = q.opts.map(function(opt, idx) {
+                return { text: opt, idx: idx };
+            });
+            var shuffledOpts = shuffleArray(optsWithIndex);
+            var newAns = shuffledOpts.findIndex(function(item) {
+                return item.idx === q.ans;
+            });
+            return {
+                q: q.q,
+                opts: shuffledOpts.map(function(item) { return item.text; }),
+                ans: newAns,
+                diff: q.diff
+            };
+        });
+
+        document.getElementById('fixedTimer').classList.remove('show');
+
+        var html = '';
+        html += '<button class="btn-start show" id="startBtn" onclick="startTest()">Начать тест</button>';
+
+        html += '<div id="questionsHidden" class="questions-hidden">';
+        html += '  <span class="lock">🔒</span>';
+        html += '  <h3>Вопросы скрыты</h3>';
+        html += '  <p>Нажмите кнопку <strong>"Начать тест"</strong>, чтобы увидеть задания и запустить таймер</p>';
+        html += '</div>';
+
+        html += '<div id="questionsWrapper" class="questions-wrapper">';
+        html += '  <div id="questions"></div>';
+        html += '</div>';
+
+        html += '<button class="btn-submit" id="submitBtn" onclick="checkAnswers(false)">Проверить</button>';
+        html += '<div id="result" class="result"></div>';
+
+        document.getElementById('testContainer').innerHTML = html;
+        renderQuestions();
+        updateProgress();
+
+        var allInputs = document.querySelectorAll('#questions input[type="radio"]');
+        for (var i = 0; i < allInputs.length; i++) {
+            allInputs[i].disabled = true;
+        }
+
+        var submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.classList.remove('show');
+
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    function renderQuestions() {
+        var html = '';
+        for (var i = 0; i < currentQuestions.length; i++) {
+            var q = currentQuestions[i];
+            html += '<div class="question"><p><span class="num">' + (i+1) + '.</span> ' + q.q + '</p><div class="opts">';
+            for (var j = 0; j < q.opts.length; j++) {
+                html += '<label><input type="radio" name="q' + i + '" value="' + j + '" onchange="updateProgress()"> ' + q.opts[j] + '</label>';
+            }
+            html += '</div></div>';
+        }
+        document.getElementById('questions').innerHTML = html;
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    function getGrade(pct) {
+        if (pct >= 91) return { text: 'Отлично!', cls: 'excellent' };
+        if (pct >= 70) return { text: 'Хорошо!', cls: 'good' };
+        if (pct >= 50) return { text: 'Удовлетворительно', cls: 'satisfactory' };
+        return { text: 'Плохо. Повторите тему!', cls: 'poor' };
+    }
+
+    function checkAnswers(timeUp) {
+        if (isFinished && !timeUp) return;
+        if (!isStarted && !timeUp) return;
+
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        isFinished = true;
+
+        var correct = 0;
+        var totalAnswered = 0;
+
+        for (var i = 0; i < currentQuestions.length; i++) {
+            var q = currentQuestions[i];
+            var sel = document.querySelector('input[name="q' + i + '"]:checked');
+            if (sel) totalAnswered++;
+            if (sel && parseInt(sel.value) === q.ans) correct++;
+
+            var labels = document.querySelectorAll('input[name="q' + i + '"]');
+            for (var j = 0; j < labels.length; j++) {
+                var input = labels[j];
+                var label = input.closest('label');
+                if (parseInt(input.value) === q.ans) {
+                    label.classList.add('correct');
+                } else if (input.checked && parseInt(input.value) !== q.ans) {
+                    label.classList.add('wrong');
+                }
+                input.disabled = true;
+                label.classList.add('disabled');
+            }
+        }
+
+        var pct = Math.round((correct / currentQuestions.length) * 100);
+        var grade = getGrade(pct);
+
+        var msg = grade.text + ' ' + correct + '/' + currentQuestions.length + ' (' + pct + '%)';
+        if (timeUp) msg = '⏰ Время вышло! ' + msg;
+        if (totalAnswered < currentQuestions.length) {
+            msg += ' (не отвечено: ' + (currentQuestions.length - totalAnswered) + ')';
+        }
+
+        var result = document.getElementById('result');
+        result.textContent = msg;
+        result.className = 'result show ' + grade.cls;
+
+        var btn = document.getElementById('submitBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Тест завершён';
+        }
+
+        if (!document.querySelector('.restart-btn')) {
+            var restart = document.createElement('button');
+            restart.className = 'restart-btn show';
+            restart.textContent = 'Пройти заново';
+            restart.onclick = function() { generateTest(); };
+            result.after(restart);
+        }
+
+        result.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ================================================================
+    // ТЕМА (СОХРАНЯЕТСЯ В localStorage)
+    // ================================================================
+    function toggleTheme() {
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    // ================================================================
+    // ИЗБРАННОЕ
+    // ================================================================
+    var FAV_KEY = 'math_favorites';
+    function getFavorites() { var s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { var u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        var u = window.location.pathname.split('/').pop();
+        var f = getFavorites();
+        var btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(function(x) { return x !== u; });
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        var btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+
+    window.addEventListener('load', function() {
+        setTimeout(generateTest, 300);
+    });
+</script>
+</body>
+</html>

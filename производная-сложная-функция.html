@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -21,6 +21,8 @@
             --info-border: #8b5cf6;
             --outer-color: #e74c3c;
             --inner-color: #3498db;
+            --step-bg: #162a38;
+            --result-color: #34d399;
         }
 
         :root.light-mode {
@@ -37,6 +39,8 @@
             --info-border: #8b5cf6;
             --outer-color: #e74c3c;
             --inner-color: #2980b9;
+            --step-bg: #ffffff;
+            --result-color: #059669;
         }
 
         body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
@@ -50,111 +54,201 @@
         .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
         .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
         .section{margin-bottom:14px;}
-        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--info-border);padding-left:12px;cursor:pointer;user-select:none;}
+        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--info-border);padding-left:12px;cursor:pointer;user-select:none;text-align:center;position:relative;}
+        .section-title .main-title{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;}
+        .section-title .main-title::after{content:"▼";margin-left:auto;font-size:0.85rem;transition:transform 0.3s;color:var(--text-secondary);position:absolute;right:12px;}
+        .section.collapsed .section-title .main-title::after{transform:rotate(-90deg);}
+        .section-title .sub-title{font-size:0.9rem;color:var(--text-secondary);font-weight:400;font-style:italic;}
         .section-title:hover{opacity:0.8;}
-        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
-        .section.collapsed .section-title::after{transform:rotate(-90deg);}
-        .section-content{max-height:3000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section-content{max-height:5000px;overflow:hidden;transition:max-height 0.4s ease;}
         .section.collapsed .section-content{max-height:0;}
 
-        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:16px 20px;border-radius:16px;margin:12px 0;}
-        .definition-block p{font-size:1rem;line-height:1.5;color:var(--text);}
+        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:14px 18px;border-radius:16px;margin:10px 0;}
+        .definition-block p{font-size:0.95rem;line-height:1.5;color:var(--text);}
         .definition-block p strong{color:var(--text);}
 
-        .formula-block{background:var(--info-bg);border-left:4px solid var(--accent);padding:16px 20px;border-radius:16px;margin:12px 0 16px;text-align:center;overflow-x:auto;}
-        .main-formula{font-size:1.3rem;font-weight:800;color:var(--text);}
-        .rule-text{margin-top:10px;font-size:0.9rem;color:var(--text-secondary);}
+        .formula-block{background:var(--info-bg);border-left:4px solid var(--accent);padding:14px 18px;border-radius:16px;margin:10px 0 14px;text-align:center;overflow-x:auto;}
+        .main-formula{font-size:1.2rem;font-weight:800;color:var(--text);}
+        .rule-text{margin-top:8px;font-size:0.85rem;color:var(--text-secondary);}
 
-        .examples-block{background:var(--example-bg);border-radius:16px;padding:16px 20px;border:1px solid var(--border);margin:12px 0;}
-        .example-item{margin-bottom:20px;border-left:4px solid var(--accent);padding-left:16px;}
-        .example-item:last-child{margin-bottom:0;}
-        .example-title{font-weight:800;color:var(--text);font-size:1rem;margin-bottom:8px;}
-        .math-example{background:var(--card-bg);padding:14px 18px;border-radius:14px;margin:8px 0;font-size:1rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text);}
-        .math-example strong{color:var(--text);}
-        .math-example mjx-container {font-size:1.05rem !important;}
+        .example{background:var(--example-bg);padding:14px 16px;border-radius:14px;margin-top:10px;border-left:5px solid var(--info-border);font-size:0.9rem;line-height:1.7;color:var(--text);}
+        .example .step{font-weight:700;color:#a78bfa;margin-top:6px;margin-bottom:2px;}
+        .example .result{margin-top:6px;font-weight:600;color:var(--result-color);}
+        .example .outer{color:var(--outer-color);font-weight:700;}
+        .example .inner{color:var(--inner-color);font-weight:700;}
+        .example mjx-container{font-size:0.95rem !important;}
+
+        .important{background:var(--info-bg);border-left:4px solid #fbbf24;border-radius:14px;padding:10px 14px;margin:10px 0;color:var(--text);}
+        .important strong{color:#fbbf24;}
+        p{margin:6px 0;font-size:0.92rem;line-height:1.5;color:var(--text);}
 
         .back-link{display:inline-block;margin-top:20px;padding:10px 24px;background:var(--accent);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
         .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
 
-        @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.main-formula{font-size:1rem;}.math-example{font-size:0.95rem;padding:10px 14px;}.math-example mjx-container {font-size:0.95rem !important;}}
+        @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.main-formula{font-size:1rem;}.example{font-size:0.85rem;padding:10px 12px;}.example mjx-container{font-size:0.85rem !important;}}
         @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
         .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
-    
+
     .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
     .favorite-btn:hover { transform: scale(1.1); }
     .favorite-btn.active { color: #facc15; }
     </style>
     <script>
         MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true
-            },
-            svg: { scale: 1.05, displayAlign: 'center' },
-            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' }
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
+            chtml: { scale: 1.0, displayAlign: 'center' }
         };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
 </head>
 <body>
 <div class="container">
     <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
 
-    <div class="header"><h1>📐 Производная сложной функции</h1><div class="subtitle">Определение · Формула · Примеры · Ошибки</div></div>
+    <div class="header"><h1> Производная сложной функции</h1><div class="subtitle">Определение · Формула · Подробные примеры · Ошибки</div></div>
     <div class="content-card">
 
         <!-- ОПРЕДЕЛЕНИЕ -->
         <div class="definition-block">
             <p><strong>Сложная функция</strong> — это функция от функции: \(y = f(g(x))\), где \(u = g(x)\) — внутренняя функция, \(f(u)\) — внешняя функция.</p>
-            <p style="margin-top:8px;"><strong>Производная сложной функции</strong> равна произведению производной внешней функции по внутренней на производную внутренней функции.</p>
+            <p style="margin-top:6px;"><strong>Производная сложной функции</strong> равна произведению производной внешней функции по внутренней на производную внутренней функции.</p>
         </div>
 
         <!-- ФОРМУЛА -->
         <div class="formula-block">
             <div class="main-formula">$$ (f(g(x)))' = \color{#e74c3c}{f'(g(x))} \cdot \color{#3498db}{g'(x)} $$</div>
-            <div class="rule-text"><span style="color:#e74c3c;font-weight:800;">Красным</span> — производная внешней функции, <span style="color:#3498db;font-weight:800;">синим</span> — производная внутренней.</div>
+            <div class="rule-text"><span style="color:#e74c3c;font-weight:800;">Красным</span> — производная внешней, <span style="color:#3498db;font-weight:800;">синим</span> — производная внутренней.</div>
         </div>
 
-        <!-- ПОДРОБНЫЙ ПРИМЕР -->
+        <!-- ============================================================ -->
+        <!-- ПОДРОБНЫЕ ПРИМЕРЫ (все в одном блоке) -->
+        <!-- ============================================================ -->
         <div class="section">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Подробный пример: \(y = \sin(4x - \pi/3)\)</div>
-            <div class="section-content"><div class="examples-block"><div class="math-example">
-                <strong>Шаг 1.</strong> Внешняя: \(f(u) = \color{#e74c3c}{\sin u}\), внутренняя: \(u = g(x) = \color{#3498db}{4x - \frac{\pi}{3}}\)<br><br>
-                <strong>Шаг 2.</strong> Производная внешней: \(f'(u) = \color{#e74c3c}{\cos u}\)<br><br>
-                <strong>Шаг 3.</strong> Производная внутренней: \(g'(x) = \color{#3498db}{4}\)<br><br>
-                <strong>Шаг 4.</strong> Подставляем: \(y' = \color{#e74c3c}{\cos(4x - \frac{\pi}{3})} \cdot \color{#3498db}{4} = 4\cos(4x - \frac{\pi}{3})\)
-            </div></div></div>
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title"> Примеры с подробным решением </span>
+                <span class="sub-title">9 разобранных примеров с пошаговым решением</span>
+            </div>
+            <div class="section-content">
+
+                <!-- ПРИМЕР 1 -->
+                <div class="example">
+                    <strong>Пример 1.</strong> \(y = \sin(4x - \pi/3)\)<br><br>
+                    <span class="step">Шаг 1.</span> Внешняя: \(f(u) = \color{#e74c3c}{\sin u}\), внутренняя: \(u = g(x) = \color{#3498db}{4x - \frac{\pi}{3}}\).<br>
+                    <span class="step">Шаг 2.</span> \(f'(u) = \color{#e74c3c}{\cos u}\).<br>
+                    <span class="step">Шаг 3.</span> \(g'(x) = \color{#3498db}{4}\).<br>
+                    <span class="step">Шаг 4.</span> \(y' = \color{#e74c3c}{\cos(4x - \frac{\pi}{3})} \cdot \color{#3498db}{4}\).<br>
+                    <span class="result">Ответ: \(y' = 4\cos(4x - \frac{\pi}{3})\).</span>
+                </div>
+
+                <!-- ПРИМЕР 2 -->
+                <div class="example" style="margin-top:10px;">
+                    <strong>Пример 2.</strong> \(y = e^{-2x^2+1}\)<br><br>
+                    <span class="step">Шаг 1.</span> Внешняя: \(f(u) = \color{#e74c3c}{e^u}\), внутренняя: \(u = g(x) = \color{#3498db}{-2x^2+1}\).<br>
+                    <span class="step">Шаг 2.</span> \(f'(u) = \color{#e74c3c}{e^u}\).<br>
+                    <span class="step">Шаг 3.</span> \(g'(x) = \color{#3498db}{-4x}\).<br>
+                    <span class="step">Шаг 4.</span> \(y' = \color{#e74c3c}{e^{-2x^2+1}} \cdot \color{#3498db}{(-4x)}\).<br>
+                    <span class="result">Ответ: \(y' = -4x \cdot e^{-2x^2+1}\).</span>
+                </div>
+
+                <!-- ПРИМЕР 3 -->
+                <div class="example" style="margin-top:10px;">
+                    <strong>Пример 3.</strong> \(y = \ln(5x^3-2x+7)\)<br><br>
+                    <span class="step">Шаг 1.</span> Внешняя: \(f(u) = \color{#e74c3c}{\ln u}\), внутренняя: \(u = g(x) = \color{#3498db}{5x^3-2x+7}\).<br>
+                    <span class="step">Шаг 2.</span> \(f'(u) = \color{#e74c3c}{\frac{1}{u}}\).<br>
+                    <span class="step">Шаг 3.</span> \(g'(x) = \color{#3498db}{15x^2 - 2}\).<br>
+                    <span class="step">Шаг 4.</span> \(y' = \color{#e74c3c}{\frac{1}{5x^3-2x+7}} \cdot \color{#3498db}{(15x^2 - 2)}\).<br>
+                    <span class="result">Ответ: \(y' = \frac{15x^2 - 2}{5x^3-2x+7}\).</span>
+                </div>
+
+                <!-- ПРИМЕР 4 -->
+                <div class="example" style="margin-top:10px;">
+                    <strong>Пример 4.</strong> \(y = \sqrt{3x^2+2x}\)<br><br>
+                    <span class="step">Шаг 1.</span> Внешняя: \(f(u) = \color{#e74c3c}{\sqrt{u}}\), внутренняя: \(u = g(x) = \color{#3498db}{3x^2+2x}\).<br>
+                    <span class="step">Шаг 2.</span> \(f'(u) = \color{#e74c3c}{\frac{1}{2\sqrt{u}}}\).<br>
+                    <span class="step">Шаг 3.</span> \(g'(x) = \color{#3498db}{6x+2}\).<br>
+                    <span class="step">Шаг 4.</span> \(y' = \color{#e74c3c}{\frac{1}{2\sqrt{3x^2+2x}}} \cdot \color{#3498db}{(6x+2)}\).<br>
+                    <span class="step">Шаг 5. Упрощаем:</span> \(y' = \frac{6x+2}{2\sqrt{3x^2+2x}} = \frac{3x+1}{\sqrt{3x^2+2x}}\).<br>
+                    <span class="result">Ответ: \(y' = \frac{3x+1}{\sqrt{3x^2+2x}}\).</span>
+                </div>
+
+                <!-- ПРИМЕР 5 -->
+                <div class="example" style="margin-top:10px;">
+                    <strong>Пример 5.</strong> \(y = \frac{1}{\sqrt{x^2+4}}\)<br><br>
+                    <span class="step">Шаг 1.</span> \(y = (x^2+4)^{-1/2}\).<br>
+                    <span class="step">Шаг 2.</span> Внешняя: \(f(u) = \color{#e74c3c}{u^{-1/2}}\), внутренняя: \(u = g(x) = \color{#3498db}{x^2+4}\).<br>
+                    <span class="step">Шаг 3.</span> \(f'(u) = \color{#e74c3c}{-\frac{1}{2}u^{-3/2}}\).<br>
+                    <span class="step">Шаг 4.</span> \(g'(x) = \color{#3498db}{2x}\).<br>
+                    <span class="step">Шаг 5.</span> \(y' = \color{#e74c3c}{-\frac{1}{2}(x^2+4)^{-3/2}} \cdot \color{#3498db}{2x}\).<br>
+                    <span class="step">Шаг 6. Упрощаем:</span> \(y' = -\frac{x}{(x^2+4)^{3/2}}\).<br>
+                    <span class="result">Ответ: \(y' = -\frac{x}{(x^2+4)\sqrt{x^2+4}}\).</span>
+                </div>
+
+                <!-- ПРИМЕР 6 -->
+                <div class="example" style="margin-top:10px;">
+                    <strong>Пример 6.</strong> \(y = \frac{1}{(2x+1)^3}\)<br><br>
+                    <span class="step">Шаг 1.</span> \(y = (2x+1)^{-3}\).<br>
+                    <span class="step">Шаг 2.</span> Внешняя: \(f(u) = \color{#e74c3c}{u^{-3}}\), внутренняя: \(u = g(x) = \color{#3498db}{2x+1}\).<br>
+                    <span class="step">Шаг 3.</span> \(f'(u) = \color{#e74c3c}{-3u^{-4}}\).<br>
+                    <span class="step">Шаг 4.</span> \(g'(x) = \color{#3498db}{2}\).<br>
+                    <span class="step">Шаг 5.</span> \(y' = \color{#e74c3c}{-3(2x+1)^{-4}} \cdot \color{#3498db}{2}\).<br>
+                    <span class="step">Шаг 6. Упрощаем:</span> \(y' = -\frac{6}{(2x+1)^4}\).<br>
+                    <span class="result">Ответ: \(y' = -\frac{6}{(2x+1)^4}\).</span>
+                </div>
+
+                <!-- ПРИМЕР 7 -->
+                <div class="example" style="margin-top:10px;">
+                    <strong>Пример 7.</strong> \(y = \cos(5x^2+2)\)<br><br>
+                    <span class="step">Шаг 1.</span> Внешняя: \(f(u) = \color{#e74c3c}{\cos u}\), внутренняя: \(u = g(x) = \color{#3498db}{5x^2+2}\).<br>
+                    <span class="step">Шаг 2.</span> \(f'(u) = \color{#e74c3c}{-\sin u}\).<br>
+                    <span class="step">Шаг 3.</span> \(g'(x) = \color{#3498db}{10x}\).<br>
+                    <span class="step">Шаг 4.</span> \(y' = \color{#e74c3c}{-\sin(5x^2+2)} \cdot \color{#3498db}{10x}\).<br>
+                    <span class="result">Ответ: \(y' = -10x \cdot \sin(5x^2+2)\).</span>
+                </div>
+
+                <!-- ПРИМЕР 8 -->
+                <div class="example" style="margin-top:10px;">
+                    <strong>Пример 8.</strong> \(y = \operatorname{tg}(2x-\pi)\)<br><br>
+                    <span class="step">Шаг 1.</span> Внешняя: \(f(u) = \color{#e74c3c}{\operatorname{tg} u}\), внутренняя: \(u = g(x) = \color{#3498db}{2x-\pi}\).<br>
+                    <span class="step">Шаг 2.</span> \(f'(u) = \color{#e74c3c}{\frac{1}{\cos^2 u}}\).<br>
+                    <span class="step">Шаг 3.</span> \(g'(x) = \color{#3498db}{2}\).<br>
+                    <span class="step">Шаг 4.</span> \(y' = \color{#e74c3c}{\frac{1}{\cos^2(2x-\pi)}} \cdot \color{#3498db}{2}\).<br>
+                    <span class="result">Ответ: \(y' = \frac{2}{\cos^2(2x-\pi)}\).</span>
+                </div>
+
+                <!-- ПРИМЕР 9 -->
+                <div class="example" style="margin-top:10px;">
+                    <strong>Пример 9.</strong> \(y = \operatorname{ctg}(3x)\)<br><br>
+                    <span class="step">Шаг 1.</span> Внешняя: \(f(u) = \color{#e74c3c}{\operatorname{ctg} u}\), внутренняя: \(u = g(x) = \color{#3498db}{3x}\).<br>
+                    <span class="step">Шаг 2.</span> \(f'(u) = \color{#e74c3c}{-\frac{1}{\sin^2 u}}\).<br>
+                    <span class="step">Шаг 3.</span> \(g'(x) = \color{#3498db}{3}\).<br>
+                    <span class="step">Шаг 4.</span> \(y' = \color{#e74c3c}{-\frac{1}{\sin^2(3x)}} \cdot \color{#3498db}{3}\).<br>
+                    <span class="result">Ответ: \(y' = -\frac{3}{\sin^2(3x)}\).</span>
+                </div>
+
+            </div>
         </div>
 
-        <!-- ДРУГИЕ ПРИМЕРЫ -->
-        <div class="section collapsed">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📚 Другие примеры</div>
-            <div class="section-content"><div class="examples-block">
-                <div class="example-item"><div class="example-title">📌 \(y = e^{-2x^2+1}\)</div><div class="math-example">$$ y' = \color{#e74c3c}{e^{-2x^2+1}} \cdot \color{#3498db}{(-4x)} = -4x e^{-2x^2+1} $$</div></div>
-                <div class="example-item"><div class="example-title">📌 \(y = \ln(5x^3 - 2x + 7)\)</div><div class="math-example">$$ y' = \color{#e74c3c}{\frac{1}{5x^3 - 2x + 7}} \cdot \color{#3498db}{(15x^2 - 2)} = \frac{15x^2 - 2}{5x^3 - 2x + 7} $$</div></div>
-                <div class="example-item"><div class="example-title">📌 \(y = \sqrt{3x^2 + 2x}\)</div><div class="math-example">$$ y' = \color{#e74c3c}{\frac{1}{2\sqrt{3x^2+2x}}} \cdot \color{#3498db}{(6x+2)} = \frac{3x+1}{\sqrt{3x^2+2x}} $$</div></div>
-                <div class="example-item"><div class="example-title">📌 \(y = \frac{1}{\sqrt{x^2+4}}\)</div><div class="math-example">$$ y = (x^2+4)^{-1/2},\quad y' = \color{#e74c3c}{-\frac{1}{2}(x^2+4)^{-3/2}} \cdot \color{#3498db}{2x} = -\frac{x}{(x^2+4)\sqrt{x^2+4}} $$</div></div>
-                <div class="example-item"><div class="example-title">📌 \(y = \frac{1}{(2x+1)^3}\)</div><div class="math-example">$$ y = (2x+1)^{-3},\quad y' = \color{#e74c3c}{-3(2x+1)^{-4}} \cdot \color{#3498db}{2} = -\frac{6}{(2x+1)^4} $$</div></div>
-                <div class="example-item"><div class="example-title">📌 \(y = \cos(5x^2 + 2)\)</div><div class="math-example">$$ y' = \color{#e74c3c}{-\sin(5x^2 + 2)} \cdot \color{#3498db}{(10x)} = -10x \sin(5x^2 + 2) $$</div></div>
-                <div class="example-item"><div class="example-title">📌 \(y = \operatorname{tg}(2x - \pi)\)</div><div class="math-example">$$ y' = \color{#e74c3c}{\frac{1}{\cos^2(2x - \pi)}} \cdot \color{#3498db}{2} = \frac{2}{\cos^2(2x - \pi)} $$</div></div>
-                <div class="example-item"><div class="example-title">📌 \(y = \operatorname{ctg}(3x)\)</div><div class="math-example">$$ y' = \color{#e74c3c}{-\frac{1}{\sin^2(3x)}} \cdot \color{#3498db}{3} = -\frac{3}{\sin^2(3x)} $$</div></div>
-            </div></div>
-        </div>
-
+        <!-- ============================================================ -->
         <!-- ЧАСТЫЕ ОШИБКИ -->
-        <div class="section">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚠️ Частые ошибки</div>
-            <div class="section-content"><div class="definition-block">
-                <p>❌ <strong>Забывают умножить на производную внутренней функции</strong> — самая распространённая ошибка.</p>
-                <p>❌ <strong>Путают порядок:</strong> сначала производная внешней (с внутренней!), потом умножаем на производную внутренней.</p>
-                <p>❌ <strong>Неправильно находят производную внешней</strong> — убедитесь, что внешняя функция продифференцирована правильно.</p>
-                <p>✅ <strong>Правило:</strong> «сначала внешнюю, умножить на производную внутренней».</p>
-            </div></div></div>
+        <!-- ============================================================ -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">⚠️ Частые ошибки</span>
+            </div>
+            <div class="section-content">
+                <div class="important">
+                    <p>❌ <strong>Забывают умножить на производную внутренней функции</strong> — самая распространённая ошибка.</p>
+                    <p>❌ <strong>Путают порядок:</strong> сначала производная внешней (с внутренней!), потом умножаем на производную внутренней.</p>
+                    <p>❌ <strong>Неправильно находят производную внешней</strong> — убедитесь, что внешняя функция продифференцирована правильно.</p>
+                    <p>❌ <strong>В нелинейных функциях забывают продифференцировать внутреннюю правильно</strong> (например, \((x^2)' = 2x\), а не \(2\)).</p>
+                    <p>✅ <strong>Правило:</strong> «сначала внешнюю, умножить на производную внутренней».</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <a href="derivative.html" class="back-link">← Назад к производной</a>
-</div>
 </div>
 
 <script>

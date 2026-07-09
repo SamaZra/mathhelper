@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -24,6 +24,14 @@
             --info-border: #8b5cf6;
             --outer-color: #e74c3c;
             --inner-color: #3498db;
+            /* Для таблицы */
+            --table-row-even: #1e3545;
+            --table-row-odd: #162a38;
+            --table-row-hover: #2a4a5a;
+            /* Для свойств */
+            --property-even: #1a4a5a;
+            --property-odd: #153d4a;
+            --property-hover: #2a5a6a;
         }
 
         :root.light-mode {
@@ -43,6 +51,12 @@
             --info-border: #8b5cf6;
             --outer-color: #e74c3c;
             --inner-color: #2980b9;
+            --table-row-even: #ffffff;
+            --table-row-odd: #f1f5f9;
+            --table-row-hover: #e2e8f0;
+            --property-even: #f8fafc;
+            --property-odd: #f1f5f9;
+            --property-hover: #e8f0fe;
         }
 
         body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);padding:32px 20px 48px;}
@@ -69,12 +83,31 @@
         .def-card p{margin:6px 0;font-size:1rem;line-height:1.5;color:var(--text);}
         .def-card strong{color:var(--text);}
 
-        .property-card{background:var(--property-bg);border-radius:16px;padding:14px 18px;box-shadow:0 2px 8px rgba(0,0,0,0.05);border:1px solid var(--border);margin:12px 0;border-left:5px solid var(--special-border);}
+        /* ===== СВОЙСТВА С ЧЕРЕДОВАНИЕМ ===== */
+        .property-card{
+            border-radius:16px;
+            padding:14px 18px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.05);
+            border:1px solid var(--border);
+            margin:0 0 4px 0;
+            border-left:5px solid var(--special-border);
+            transition: background-color 0.2s ease;
+        }
+        .property-card:nth-child(even) {
+            background-color: var(--property-even);
+        }
+        .property-card:nth-child(odd) {
+            background-color: var(--property-odd);
+        }
+        .property-card:hover {
+            background-color: var(--property-hover) !important;
+            transition: background-color 0.1s ease;
+        }
         .property-name{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);margin-bottom:8px;font-weight:500;}
         .property-formula{font-family:monospace;font-size:1.1rem;font-weight:bold;color:var(--text);overflow-x:auto;padding:5px 0;}
         .property-card p{font-size:0.9rem;color:var(--text-secondary);margin-top:6px;}
 
-        /* Таблица */
+        /* ===== ТАБЛИЦА С ЧЕРЕДОВАНИЕМ ===== */
         .table-wrapper{
             overflow-x:auto;
             border-radius:20px;
@@ -108,14 +141,23 @@
             color:var(--text);
             font-size:1rem;
             line-height:1.5;
+            transition: background-color 0.2s ease;
+        }
+        .table-wrapper tbody tr:nth-child(even) td {
+            background-color: var(--table-row-even);
+        }
+        .table-wrapper tbody tr:nth-child(odd) td {
+            background-color: var(--table-row-odd);
+        }
+        .table-wrapper tbody tr:hover td {
+            background-color: var(--table-row-hover) !important;
+            transition: background-color 0.1s ease;
         }
         .col-simple{
-            background:var(--formula-card-bg);
             font-weight:600;
             min-width:250px;
         }
         .col-complex{
-            background:var(--card-bg);
             min-width:350px;
         }
         .coef-red{color:#ec489a;font-weight:700;}
@@ -182,7 +224,7 @@
         }
         @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
         .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
-    
+
     .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
     .favorite-btn:hover { transform: scale(1.1); }
     .favorite-btn.active { color: #facc15; }
@@ -198,14 +240,16 @@
             options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' }
         };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script src="file:///android_asset/es5/tex-chtml.js"></script>
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
 
     <h1>📐 Неопределённый интеграл</h1>
 
+    <!-- ОПРЕДЕЛЕНИЕ -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📘 Определение</div>
         <div class="section-content">
@@ -217,6 +261,7 @@
         </div>
     </div>
 
+    <!-- ТАБЛИЦА -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Таблица интегралов</div>
         <div class="section-content">
@@ -239,6 +284,7 @@
         </div>
     </div>
 
+    <!-- ПРИМЕРЫ ДЛЯ СЛОЖНЫХ ФУНКЦИЙ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Примеры для сложных функций</div>
         <div class="section-content">
@@ -256,6 +302,7 @@
         </div>
     </div>
 
+    <!-- СВОЙСТВА -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚙️ Свойства неопределённого интеграла</div>
         <div class="section-content">
@@ -267,6 +314,7 @@
         </div>
     </div>
 
+    <!-- МЕТОД НЕПОСРЕДСТВЕННОГО ИНТЕГРИРОВАНИЯ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Метод непосредственного интегрирования</div>
         <div class="section-content">
@@ -324,6 +372,7 @@
         </div>
     </div>
 
+    <!-- ЧАСТЫЕ ОШИБКИ -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚠️ Частые ошибки</div>
         <div class="section-content">

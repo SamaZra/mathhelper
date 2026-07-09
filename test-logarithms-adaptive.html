@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Умный тест: Логарифмы</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#1a2d3c;color:#e8edf3;font-family:'Segoe UI',Roboto,system-ui,sans-serif;padding:12px;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;}
+        .container{max-width:720px;margin:0 auto;background:#1e3545;border-radius:16px;padding:16px;padding-top:50px;position:relative;}
+
+        .theme-toggle{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:#1e3545;border:1px solid #2a4a5a;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:100;color:#b0c4d8;}
+        .theme-toggle:hover{transform:scale(1.05);}
+        .favorite-btn{position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;background:#1e3545;border:1px solid #2a4a5a;cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;z-index:1000;color:#8ba5b8;transition:0.2s;}
+        .favorite-btn.active{color:#facc15;}
+        .favorite-btn:hover{transform:scale(1.05);}
+
+        .header{text-align:center;padding:12px 0 16px;border-bottom:2px solid #2a4a5a;margin-bottom:14px;}
+        .header h1{font-size:1.3rem;color:#e8edf3;font-weight:600;}
+        .header .sub{color:#8ba5b8;font-size:0.75rem;margin-top:4px;}
+
+        .settings{background:#162a38;border-radius:12px;padding:12px;margin-bottom:14px;border:1px solid #2a4a5a;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+        .settings label{color:#8ba5b8;font-size:0.8rem;}
+        .settings select{padding:6px 10px;background:#1e3545;border:1px solid #2a4a5a;border-radius:8px;color:#e8edf3;font-size:0.85rem;cursor:pointer;}
+        .settings select:focus{outline:none;border-color:#1abc9c;}
+        .settings .start-btn{padding:8px 20px;background:#1abc9c;border:none;border-radius:24px;color:#0f1a24;font-weight:bold;font-size:0.9rem;cursor:pointer;transition:all 0.3s;margin-left:auto;box-shadow:0 0 14px rgba(26,188,156,0.2);animation:pulse-glow 2s ease-in-out infinite;}
+        .settings .start-btn:hover{transform:scale(1.03);box-shadow:0 0 28px rgba(26,188,156,0.4);}
+        .settings .start-btn:disabled{opacity:0.35;cursor:not-allowed;animation:none;box-shadow:none;}
+        @keyframes pulse-glow{0%{box-shadow:0 0 10px rgba(26,188,156,0.15);transform:scale(1);}50%{box-shadow:0 0 26px rgba(26,188,156,0.4),0 0 50px rgba(26,188,156,0.1);transform:scale(1.02);}100%{box-shadow:0 0 10px rgba(26,188,156,0.15);transform:scale(1);}}
+        .settings .reset-btn{background:#2c4a5a;border:none;border-radius:24px;color:#b0c4d8;padding:8px 16px;font-weight:500;cursor:pointer;transition:0.2s;font-size:0.8rem;}
+        .settings .reset-btn:hover{background:#1a3a4a;}
+
+        .mode-switch{display:flex;gap:4px;align-items:center;}
+        .mode-btn{padding:5px 12px;border-radius:8px;border:1px solid #2a4a5a;background:transparent;color:#8ba5b8;cursor:pointer;transition:0.2s;font-size:0.75rem;}
+        .mode-btn .hint{font-size:0.5rem;opacity:0.5;display:block;}
+        .mode-btn.active{border-color:#1abc9c;color:#1abc9c;background:#1a3a3a;}
+        .mode-btn.exam.active{border-color:#f59e0b;color:#f59e0b;background:#2a2a1a;}
+
+        .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:12px;}
+        .stats-card{background:#162a38;border-radius:10px;padding:6px 3px;text-align:center;border:1px solid #2a4a5a;}
+        .stats-card .label{font-size:0.5rem;color:#8ba5b8;text-transform:uppercase;letter-spacing:0.3px;}
+        .stats-card .value{font-size:0.95rem;font-weight:600;margin-top:1px;}
+        .stats-card .value.green{color:#34d399;}
+        .stats-card .value.red{color:#f87171;}
+        .stats-card .value.yellow{color:#fbbf24;}
+        .stats-card .value.blue{color:#60a5fa;}
+        .stats-card .value.purple{color:#a78bfa;}
+
+        .progress-container{margin-bottom:10px;}
+        .progress-info{display:flex;justify-content:space-between;font-size:0.7rem;color:#8ba5b8;margin-bottom:2px;}
+        .progress-bar{height:4px;background:#2a4a5a;border-radius:4px;overflow:hidden;}
+        .progress-fill{height:100%;background:#1abc9c;border-radius:4px;transition:width 0.4s;}
+
+        .timer-container{display:flex;align-items:center;gap:8px;margin:4px 0 10px;padding:4px 10px;background:#162a38;border-radius:8px;border:1px solid #2a4a5a;}
+        .timer-icon{font-size:0.9rem;}
+        .timer-bar-wrap{flex:1;height:4px;background:#2a4a5a;border-radius:4px;overflow:hidden;}
+        .timer-bar-fill{height:100%;border-radius:4px;transition:width 0.3s;background:#34d399;}
+        .timer-text{font-weight:600;font-size:0.85rem;min-width:40px;text-align:right;color:#b0c4d8;}
+        .timer-text.warning{color:#fbbf24;}
+        .timer-text.danger{color:#ef4444;animation:blink 0.5s infinite;}
+        @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+        .question-area{margin:10px 0;}
+        .q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px;}
+        .q-topic{font-size:0.65rem;color:#8ba5b8;background:#162a38;padding:2px 8px;border-radius:8px;}
+        .q-difficulty{font-size:0.6rem;font-weight:600;padding:2px 8px;border-radius:8px;}
+        .q-difficulty.easy{background:#1a3a2a;color:#6ee7b7;}
+        .q-difficulty.medium{background:#3a2a1a;color:#fbbf24;}
+        .q-difficulty.hard{background:#3a1a1a;color:#fca5a5;}
+        .q-text{font-size:0.95rem;font-weight:500;line-height:1.5;margin:8px 0;}
+        .q-number{color:#8ba5b8;font-size:0.7rem;}
+
+        .options{display:flex;flex-direction:column;gap:4px;}
+        .options button{display:block;width:100%;padding:10px 14px;background:#162a38;border:1px solid #2a4a5a;border-radius:10px;color:#e8edf3;font-size:0.9rem;text-align:left;cursor:pointer;transition:0.15s;}
+        .options button:hover:not(:disabled){background:#1e3a4a;border-color:#1abc9c;}
+        .options button.correct{background:#1a3a2a;border-color:#2ecc71;color:#6ee7b7;}
+        .options button.wrong{background:#3a1a1a;border-color:#ef4444;color:#fca5a5;}
+        .options button:disabled{cursor:default;opacity:0.6;}
+        .options button:disabled:hover{background:#162a38;border-color:#2a4a5a;}
+
+        .result-box{margin-top:10px;padding:8px 14px;border-radius:10px;display:none;font-weight:500;font-size:0.9rem;}
+        .result-box.show{display:block;}
+        .result-box.correct{background:#1a3a2a;border:1px solid #2ecc71;color:#6ee7b7;}
+        .result-box.wrong{background:#3a1a1a;border:1px solid #ef4444;color:#fca5a5;}
+
+        .controls{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
+        .controls button{padding:8px 16px;border:none;border-radius:24px;font-weight:600;cursor:pointer;flex:1;min-width:70px;transition:0.2s;font-size:0.85rem;}
+        .controls .next-btn{background:#1abc9c;color:#0f1a24;}
+        .controls .next-btn:hover:not(:disabled){background:#16a085;transform:scale(1.02);}
+        .controls .next-btn:disabled{opacity:0.35;cursor:not-allowed;}
+        .controls .finish-btn{background:#f59e0b;color:#1a1a0a;}
+        .controls .finish-btn:hover{background:#d97706;transform:scale(1.02);}
+        .controls .abort-btn{background:#4a5a6a;color:#e8edf3;}
+        .controls .abort-btn:hover{background:#3a4a5a;transform:scale(1.02);}
+        .controls .abort-btn.active{background:#b91c1c;color:white;box-shadow:0 0 16px rgba(185,28,28,0.3);}
+
+        .result-final{background:#162a38;border-radius:12px;padding:16px;margin-top:12px;display:none;border:1px solid #1abc9c;}
+        .result-final.show{display:block;}
+        .result-final .big-score{font-size:2rem;font-weight:700;text-align:center;margin:4px 0;}
+        .result-final .big-score.excellent{color:#34d399;}
+        .result-final .big-score.good{color:#fbbf24;}
+        .result-final .big-score.poor{color:#f87171;}
+        .result-final .grade-text{text-align:center;font-size:1rem;margin-bottom:8px;}
+        .result-final .grade-text.excellent{color:#34d399;}
+        .result-final .grade-text.good{color:#fbbf24;}
+        .result-final .grade-text.poor{color:#f87171;}
+        .result-final .result-details{text-align:center;color:#8ba5b8;font-size:0.8rem;}
+        .result-final .result-mode{text-align:center;color:#8ba5b8;font-size:0.75rem;margin-top:2px;}
+
+        .result-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px;}
+        .result-actions button{padding:6px 16px;border:none;border-radius:24px;font-weight:600;cursor:pointer;font-size:0.8rem;transition:0.2s;}
+        .result-actions .retry-btn{background:#1abc9c;color:#0f1a24;}
+        .result-actions .retry-btn:hover{background:#16a085;transform:scale(1.02);}
+        .result-actions .share-btn{background:#2c5a77;color:#e8edf3;}
+        .result-actions .share-btn:hover{background:#1a4a6a;transform:scale(1.02);}
+        .result-actions .reference-btn{background:#8b5cf6;color:white;}
+        .result-actions .reference-btn:hover{background:#7c3aed;transform:scale(1.02);}
+
+        .share-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;}
+        .share-modal.show{display:flex;}
+        .share-modal .modal-content{background:#1e3545;border-radius:16px;padding:20px;max-width:380px;width:90%;border:1px solid #2a4a5a;}
+        .share-modal .modal-title{text-align:center;font-size:1rem;font-weight:600;margin-bottom:10px;color:#e8edf3;}
+        .share-modal .modal-close{float:right;background:none;border:none;color:#8ba5b8;font-size:1.2rem;cursor:pointer;padding:0 4px;}
+        .share-modal .modal-close:hover{color:#e8edf3;}
+        .share-modal input{width:100%;padding:8px 12px;border-radius:8px;border:1px solid #2a4a5a;background:#162a38;color:#e8edf3;font-size:0.9rem;margin-bottom:8px;}
+        .share-modal input:focus{outline:none;border-color:#1abc9c;}
+        .share-modal .modal-note{text-align:center;color:#8ba5b8;font-size:0.7rem;margin-top:8px;}
+        .share-modal .modal-btn{width:100%;padding:8px;background:#1abc9c;border:none;border-radius:24px;color:#0f1a24;font-weight:bold;font-size:0.9rem;cursor:pointer;transition:0.2s;}
+        .share-modal .modal-btn:hover{background:#16a085;transform:scale(1.02);}
+        .share-modal .modal-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+        .topic-stats{margin-top:10px;display:none;}
+        .topic-stats.show{display:block;}
+        .topic-stats-title{font-size:0.8rem;color:#8ba5b8;margin-bottom:4px;}
+        .topic-row{display:flex;justify-content:space-between;padding:3px 0;font-size:0.75rem;border-bottom:1px solid #1e2a3a;}
+        .topic-row .name{color:#8ba5b8;}
+        .topic-row .stat{font-weight:500;}
+        .topic-row .stat.good{color:#34d399;}
+        .topic-row .stat.medium{color:#fbbf24;}
+        .topic-row .stat.poor{color:#f87171;}
+
+        .recommend-box{background:#162a38;border-radius:10px;padding:10px 14px;margin-top:10px;border-left:3px solid #fbbf24;display:none;}
+        .recommend-box.show{display:block;}
+        .recommend-box .title{font-weight:600;color:#fbbf24;font-size:0.8rem;}
+        .recommend-box .list{color:#8ba5b8;font-size:0.75rem;margin-top:3px;padding-left:16px;}
+        .recommend-box .list li{margin:2px 0;}
+
+        .history{display:none;margin-top:12px;border-top:1px solid #2a4a5a;padding-top:10px;}
+        .history.show{display:block;}
+        .history-title{color:#8ba5b8;font-size:0.8rem;margin-bottom:4px;}
+        .history-note{font-size:0.6rem;color:#5a7a8a;margin-bottom:4px;}
+        .history-item{display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:0.7rem;border-bottom:1px solid #1e2a3a;color:#8ba5b8;flex-wrap:wrap;gap:2px;}
+        .history-item .h-grade{font-weight:600;}
+        .history-item .h-grade.grade5{color:#34d399;}
+        .history-item .h-grade.grade4{color:#fbbf24;}
+        .history-item .h-grade.grade3{color:#f97316;}
+        .history-item .h-grade.grade2{color:#f87171;}
+        .history-actions{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+        .history-actions button{padding:2px 10px;border:none;border-radius:10px;color:#e8edf3;cursor:pointer;font-size:0.65rem;transition:0.2s;background:#2a4a5a;}
+        .history-actions button:hover{background:#1a3a4a;}
+
+        .back-link{display:block;text-align:center;margin-top:14px;padding:8px;background:#1abc9c;border-radius:24px;color:#0f1a24;text-decoration:none;font-weight:600;font-size:0.85rem;}
+        .back-link:hover{background:#16a085;}
+
+        .light-mode body{background:#eef2f8;}
+        .light-mode .container{background:white;border:1px solid #e2e8f0;}
+        .light-mode .header{border-bottom-color:#e2e8f0;}
+        .light-mode .header h1{color:#1a2a3f;}
+        .light-mode .settings{background:#f8fafc;border-color:#e2e8f0;}
+        .light-mode .settings select{background:white;border-color:#e2e8f0;color:#1a2a3f;}
+        .light-mode .mode-btn{color:#5a7a94;border-color:#e2e8f0;}
+        .light-mode .mode-btn.active{border-color:#1abc9c;color:#1abc9c;background:#e8f8f5;}
+        .light-mode .mode-btn.exam.active{border-color:#f59e0b;color:#d97706;background:#fef3c7;}
+        .light-mode .stats-card{background:#f8fafc;border-color:#e2e8f0;}
+        .light-mode .stats-card .label{color:#5a7a94;}
+        .light-mode .q-text{color:#1a2a3f;}
+        .light-mode .options button{background:white;border-color:#e2e8f0;color:#1a2a3f;}
+        .light-mode .options button:hover:not(:disabled){background:#f1f5f9;border-color:#1abc9c;}
+        .light-mode .options button.correct{background:#d1fae5;border-color:#059669;color:#065f46;}
+        .light-mode .options button.wrong{background:#fee2e2;border-color:#dc2626;color:#991b1b;}
+        .light-mode .theme-toggle{background:white;border:1px solid #e2e8f0;color:#1a2a3f;}
+        .light-mode .result-box.correct{background:#d1fae5;border-color:#059669;color:#065f46;}
+        .light-mode .result-box.wrong{background:#fee2e2;border-color:#dc2626;color:#991b1b;}
+        .light-mode .q-topic{background:#f1f5f9;color:#5a7a94;}
+        .light-mode .timer-container{background:#f8fafc;border-color:#e2e8f0;}
+        .light-mode .timer-text{color:#1a2a3f;}
+        .light-mode .share-modal .modal-content{background:white;border-color:#e2e8f0;}
+        .light-mode .share-modal .modal-title{color:#1a2a3f;}
+        .light-mode .share-modal .modal-close{color:#5a7a94;}
+        .light-mode .share-modal .modal-close:hover{color:#1a2a3f;}
+        .light-mode .share-modal input{background:white;border-color:#e2e8f0;color:#1a2a3f;}
+        .light-mode .share-modal input:focus{border-color:#1abc9c;}
+        .light-mode .share-modal .modal-note{color:#5a7a94;}
+        .light-mode .topic-row{border-bottom-color:#e2e8f0;}
+        .light-mode .topic-row .name{color:#5a7a94;}
+        .light-mode .recommend-box{background:#f8fafc;border-left-color:#fbbf24;}
+        .light-mode .result-final{background:#f8fafc;border-color:#1abc9c;}
+        .light-mode .result-actions .reference-btn{background:#8b5cf6;color:white;}
+        .light-mode .result-actions .reference-btn:hover{background:#7c3aed;}
+        .light-mode .history{border-top-color:#e2e8f0;}
+        .light-mode .history-item{border-bottom-color:#f1f5f9;color:#5a7a94;}
+        .light-mode .history-actions button{background:#e2e8f0;color:#1a2a3f;}
+        .light-mode .history-actions button:hover{background:#d1d5db;}
+        .light-mode .settings .start-btn{color:white;}
+        .light-mode .controls .abort-btn{background:#9ca3af;color:#1a2a3f;}
+        .light-mode .controls .abort-btn:hover{background:#8a929f;}
+
+        @media(max-width:550px){body{padding:8px;}.container{padding:12px;padding-top:44px;}.stats-grid{grid-template-columns:repeat(3,1fr);}.settings{flex-direction:column;align-items:stretch;}.settings .start-btn{margin-left:0;}.mode-switch{flex-wrap:wrap;}.result-final .big-score{font-size:1.6rem;}}
+    </style>
+    <script>
+        MathJax = {tex:{inlineMath:[['$','$'],['\\(','\\)']]},chtml:{scale:0.95}};
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" async></script>
+</head>
+<body>
+
+<!-- ===== ЗАЩИТА ===== -->
+<script>
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        alert('⚠️ Копирование и сохранение контента запрещено!');
+        return false;
+    });
+    document.addEventListener('copy', function(e) {
+        e.preventDefault();
+        alert('⚠️ Копирование контента запрещено!');
+        return false;
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            alert('⚠️ Инструменты разработчика отключены!');
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'i' || e.key === 'j')) {
+            e.preventDefault();
+            alert('⚠️ Инструменты разработчика отключены!');
+            return false;
+        }
+        if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            alert('⚠️ Просмотр исходного кода и сохранение запрещены!');
+            return false;
+        }
+        if (e.key === 'PrintScreen' || e.keyCode === 44) {
+            e.preventDefault();
+            alert('⚠️ Создание скриншотов запрещено!');
+            return false;
+        }
+    });
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches && e.touches.length > 1) {
+            e.preventDefault();
+            alert('⚠️ Масштабирование отключено!');
+            return false;
+        }
+    }, { passive: false });
+    document.addEventListener('gesturestart', function(e) {
+        e.preventDefault();
+        alert('⚠️ Масштабирование отключено!');
+        return false;
+    });
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            alert('⚠️ Переключение на другие приложения во время теста запрещено!');
+        }
+    });
+</script>
+
+<div class="container">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+
+    <div class="header">
+        <h1>Адаптивный тест: Логарифмы</h1>
+        <div class="sub">Адаптивная сложность · 400+ вопросов · 4 темы</div>
+    </div>
+
+    <!-- НАСТРОЙКИ -->
+    <div class="settings" id="settingsPanel">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;flex:1;">
+            <label for="questionLimit">Вопросов:</label>
+            <select id="questionLimit">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+                <option value="0">∞</option>
+            </select>
+        </div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" data-mode="study" onclick="setMode('study')">
+                📖 Учебный
+                <span class="hint">без таймера</span>
+            </button>
+            <button class="mode-btn exam" data-mode="exam" onclick="setMode('exam')">
+                📝 Экзамен
+                <span class="hint">с таймером</span>
+            </button>
+        </div>
+
+        <button class="start-btn" id="startBtn" onclick="startTest()">▶ Начать тест</button>
+        <button class="reset-btn" onclick="resetFull()">Сброс</button>
+    </div>
+
+    <!-- СТАТИСТИКА -->
+    <div class="stats-grid" id="statsGrid" style="display:none;">
+        <div class="stats-card"><div class="label">Вопросов</div><div class="value blue" id="qCount">0</div></div>
+        <div class="stats-card"><div class="label">Правильно</div><div class="value green" id="correctCount">0</div></div>
+        <div class="stats-card"><div class="label">Ошибок</div><div class="value red" id="wrongCount">0</div></div>
+        <div class="stats-card"><div class="label">Уровень</div><div class="value yellow" id="levelDisplay">Средний</div></div>
+        <div class="stats-card"><div class="label">Осталось</div><div class="value purple" id="remainCount">0</div></div>
+    </div>
+
+    <!-- ПРОГРЕСС -->
+    <div class="progress-container" id="progressContainer" style="display:none;">
+        <div class="progress-info">
+            <span id="progressText">Прогресс: 0%</span>
+            <span id="answeredText">0 / 20</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%;"></div></div>
+    </div>
+
+    <!-- ТАЙМЕР -->
+    <div class="timer-container" id="timerContainer" style="display:none;">
+        <span class="timer-icon">⏱</span>
+        <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timerBarFill" style="width:100%;background:#34d399;"></div></div>
+        <span class="timer-text" id="timerText">45 сек</span>
+    </div>
+
+    <!-- ВОПРОС -->
+    <div class="question-area" id="questionArea" style="display:none;">
+        <div class="q-meta">
+            <span class="q-topic" id="qTopic">Тема: —</span>
+            <span class="q-difficulty easy" id="qDifficulty">Лёгкий</span>
+            <span class="q-number" id="qNumber">Вопрос №1</span>
+        </div>
+        <div class="q-text" id="qText">Настройте параметры и нажмите "Начать тест"</div>
+        <div class="options" id="optionsContainer"></div>
+    </div>
+
+    <!-- РЕЗУЛЬТАТ ОТВЕТА -->
+    <div class="result-box" id="resultBox"></div>
+
+    <!-- КНОПКИ УПРАВЛЕНИЯ -->
+    <div class="controls" id="controlsPanel" style="display:none;">
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Далее →</button>
+        <button class="finish-btn" id="finishBtn" onclick="finishTest()" style="display:none;">Завершить</button>
+        <button class="abort-btn" id="abortBtn" onclick="abortTest()" style="display:none;">Прервать</button>
+    </div>
+
+    <!-- РЕЗУЛЬТАТ ТЕСТА -->
+    <div class="result-final" id="resultFinal">
+        <div class="grade-text" id="gradeText">Отлично!</div>
+        <div class="big-score" id="bigScore">85%</div>
+        <div class="result-details" id="resultDetails">20 вопросов · 17 правильно · 3 ошибки</div>
+        <div class="result-mode" id="examResult">📖 Режим: учебный (без таймера)</div>
+        <div class="result-actions">
+            <button class="retry-btn" onclick="resetFull()">🔄 Пройти заново</button>
+            <button class="share-btn" onclick="openShareModal()">📤 Поделиться</button>
+            <button class="reference-btn" onclick="openReference()">📖 Повторить тему → справочник</button>
+        </div>
+    </div>
+
+    <!-- РЕКОМЕНДАЦИИ -->
+    <div class="recommend-box" id="recommendBox">
+        <div class="title">📌 Рекомендации</div>
+        <ul class="list" id="recommendList"></ul>
+    </div>
+
+    <!-- СТАТИСТИКА ПО ТЕМАМ -->
+    <div class="topic-stats" id="topicStats">
+        <div class="topic-stats-title">📊 Статистика по темам</div>
+        <div id="topicStatsContent"></div>
+    </div>
+
+    <!-- ИСТОРИЯ -->
+    <div class="history" id="historyPanel">
+        <div class="history-title">📈 История результатов</div>
+        <div class="history-note">📌 Сохраняется только на этом устройстве</div>
+        <div id="historyList"></div>
+        <div class="history-actions">
+            <button onclick="exportHistory()">📤 Экспорт</button>
+            <button onclick="document.getElementById('importFile').click()">📥 Импорт</button>
+            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importHistory(event)">
+            <button onclick="clearHistory()">🗑 Очистить</button>
+        </div>
+    </div>
+
+    <a href="tests.html" class="back-link">← Назад к тестам</a>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВВОДА ДАННЫХ -->
+<div class="share-modal" id="shareModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeShareModal()">✕</button>
+        <div class="modal-title">📝 Введите данные</div>
+        <input type="text" id="studentName" placeholder="Фамилия Имя">
+        <input type="text" id="studentGroup" placeholder="Группа / Класс">
+        <button class="modal-btn" id="shareSendBtn" onclick="sendShare()">📤 Отправить отчёт</button>
+        <div class="modal-note">Откроется системное окно для выбора приложения</div>
+    </div>
+</div>
+
+<script>
+    // ================================================================
+    // ПЕРЕМЕННЫЕ
+    // ================================================================
+    var currentMode = 'study';
+    var timerInterval = null;
+    var timeLeft = 0;
+    var totalTime = 0;
+    var abortClicked = false;
+
+    // Ссылка на справочник для повторения
+    var referenceLink = 'logarithms.html';
+
+    var state = {
+        correct: 0,
+        wrong: 0,
+        level: 0,
+        topicStats: {},
+        usedQuestions: [],
+        answered: 0,
+        questionLimit: 20,
+        isRunning: false,
+        isFinished: false,
+        streak: 0,
+        currentQuestion: null,
+        totalTimeSpent: 0,
+        timePerQuestion: []
+    };
+
+    var levels = ['Лёгкий', 'Средний', 'Сложный'];
+    var levelColors = ['#34d399', '#fbbf24', '#f87171'];
+
+    // ================================================================
+    // БАНК ВОПРОСОВ — ЛОГАРИФМЫ (сокращённая версия для примера)
+    // ================================================================
+    var questionBank = [
+        // ===== СВОЙСТВА ЛОГАРИФМОВ =====
+        { q: "\\( \\log_a b = x \\) означает:", opts: ["\\( a^x = b \\)", "\\( b^x = a \\)", "\\( x^a = b \\)", "\\( a^b = x \\)"], ans: 0, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_3 81 \\) равен:", opts: ["3", "4", "9", "27"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_5 125 \\) равен:", opts: ["3", "5", "25", "15"], ans: 0, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_2 64 \\) равен:", opts: ["5", "6", "7", "8"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_4 16 \\) равен:", opts: ["2", "3", "4", "8"], ans: 0, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_7 49 \\) равен:", opts: ["1", "2", "3", "7"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_{10} 100 \\) равен:", opts: ["1", "2", "10", "100"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_2 8 \\) равен:", opts: ["2", "3", "4", "5"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_3 27 \\) равен:", opts: ["2", "3", "4", "9"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_5 25 \\) равен:", opts: ["1", "2", "3", "5"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_a 1 = ? \\)", opts: ["1", "\\( a \\)", "0", "-1"], ans: 2, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_a a = ? \\)", opts: ["0", "1", "\\( a \\)", "\\( a^2 \\)"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_a (bc) = ? \\)", opts: ["\\( \\log_a b \\cdot \\log_a c \\)", "\\( \\log_a b - \\log_a c \\)", "\\( \\log_a b + \\log_a c \\)", "\\( \\frac{\\log_a b}{\\log_a c} \\)"], ans: 2, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_a \\left(\\frac{b}{c}\\right) = ? \\)", opts: ["\\( \\log_a b + \\log_a c \\)", "\\( \\log_a b - \\log_a c \\)", "\\( \\frac{\\log_a b}{\\log_a c} \\)", "\\( \\log_a b \\cdot \\log_a c \\)"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_a b^p = ? \\)", opts: ["\\( p \\cdot \\log_a b \\)", "\\( (\\log_a b)^p \\)", "\\( \\log_a (b+p) \\)", "\\( \\frac{1}{p} \\log_a b \\)"], ans: 0, topic: "Свойства логарифмов", diff: "medium" },
+        { q: "\\( \\log_2 8 + \\log_2 4 \\) равно:", opts: ["\\( \\log_2 12 \\)", "\\( \\log_2 32 \\)", "7", "5"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\log_3 54 - \\log_3 2 \\) равно:", opts: ["\\( \\log_3 52 \\)", "\\( \\log_3 27 \\)", "3", "4"], ans: 1, topic: "Свойства логарифмов", diff: "medium" },
+        { q: "\\( \\log_5 25^3 \\) равно:", opts: ["15", "6", "\\( 3\\log_5 25 \\)", "125"], ans: 1, topic: "Свойства логарифмов", diff: "medium" },
+        { q: "\\( \\log_2 8 \\cdot \\log_8 2 \\) равно:", opts: ["1", "2", "3", "4"], ans: 0, topic: "Свойства логарифмов", diff: "hard" },
+        { q: "\\( a^{\\log_a b} = ? \\)", opts: ["\\( a \\)", "\\( b \\)", "\\( \\log_a b \\)", "1"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( 3^{\\log_3 7} \\) равно:", opts: ["3", "7", "\\( \\log_3 7 \\)", "21"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( 10^{\\lg 5} \\) равно:", opts: ["10", "\\( \\lg 5 \\)", "5", "50"], ans: 2, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "Формула перехода к новому основанию:", opts: ["\\( \\log_a b = \\frac{\\log_c a}{\\log_c b} \\)", "\\( \\log_a b = \\log_c b - \\log_c a \\)", "\\( \\log_a b = \\frac{\\log_c b}{\\log_c a} \\)", "\\( \\log_a b = \\log_c b \\cdot \\log_c a \\)"], ans: 2, topic: "Свойства логарифмов", diff: "medium" },
+        { q: "\\( \\lg 1000 \\) равен:", opts: ["1", "2", "3", "10"], ans: 2, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\lg 0.1 \\) равен:", opts: ["1", "0", "-1", "-10"], ans: 2, topic: "Свойства логарифмов", diff: "medium" },
+        { q: "\\( \\ln e^3 = ? \\)", opts: ["\\( e \\)", "1", "3", "\\( e^3 \\)"], ans: 2, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\ln e \\) равен:", opts: ["0", "1", "\\( e \\)", "10"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\ln 1 \\) равен:", opts: ["1", "\\( e \\)", "0", "-1"], ans: 2, topic: "Свойства логарифмов", diff: "easy" },
+        { q: "\\( \\ln e^x \\) равен:", opts: ["\\( e \\)", "\\( x \\)", "\\( e^x \\)", "1"], ans: 1, topic: "Свойства логарифмов", diff: "easy" },
+
+        // ===== ЛОГАРИФМИЧЕСКИЕ УРАВНЕНИЯ =====
+        { q: "\\( \\log_2 x = 3 \\)", opts: ["x=6", "x=8", "x=9", "x=3"], ans: 1, topic: "Логарифмические уравнения", diff: "easy" },
+        { q: "\\( \\log_3 x = 4 \\)", opts: ["x=12", "x=64", "x=81", "x=9"], ans: 2, topic: "Логарифмические уравнения", diff: "easy" },
+        { q: "\\( \\log_5 x = 2 \\)", opts: ["x=10", "x=15", "x=25", "x=5"], ans: 2, topic: "Логарифмические уравнения", diff: "easy" },
+        { q: "\\( \\log_2 x = 5 \\)", opts: ["x=10", "x=25", "x=32", "x=16"], ans: 2, topic: "Логарифмические уравнения", diff: "easy" },
+        { q: "\\( \\log_4 x = 3 \\)", opts: ["x=12", "x=64", "x=81", "x=16"], ans: 1, topic: "Логарифмические уравнения", diff: "easy" },
+        { q: "\\( \\log_3 x = 2 \\)", opts: ["x=6", "x=8", "x=9", "x=3"], ans: 2, topic: "Логарифмические уравнения", diff: "easy" },
+        { q: "\\( \\log_2 x = 1 \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, topic: "Логарифмические уравнения", diff: "easy" },
+        { q: "\\( \\log_{10} x = 2 \\)", opts: ["x=20", "x=100", "x=10", "x=200"], ans: 1, topic: "Логарифмические уравнения", diff: "easy" },
+        { q: "\\( \\log_2 x = -1 \\)", opts: ["x=-2", "x=\\frac{1}{2}", "x=2", "x=-\\frac{1}{2}"], ans: 1, topic: "Логарифмические уравнения", diff: "medium" },
+        { q: "\\( \\log_3 x = -2 \\)", opts: ["x=-9", "x=\\frac{1}{9}", "x=9", "x=-\\frac{1}{9}"], ans: 1, topic: "Логарифмические уравнения", diff: "medium" },
+        { q: "\\( \\lg x = -1 \\)", opts: ["x=-10", "x=0.1", "x=10", "x=-0.1"], ans: 1, topic: "Логарифмические уравнения", diff: "medium" },
+        { q: "\\( \\log_3(x+1) = \\log_3(2x-5) \\)", opts: ["x=4", "x=5", "x=6", "x=7"], ans: 2, topic: "Логарифмические уравнения", diff: "medium" },
+        { q: "\\( \\log_2(x+3) = \\log_2(3x-1) \\)", opts: ["x=1", "x=2", "x=3", "x=4"], ans: 1, topic: "Логарифмические уравнения", diff: "medium" },
+        { q: "\\( \\log_5(x-1) = \\log_5(2x-4) \\)", opts: ["x=2", "x=3", "x=4", "x=5"], ans: 1, topic: "Логарифмические уравнения", diff: "medium" },
+        { q: "\\( \\log_2^2 x - 3\\log_2 x + 2 = 0 \\)", opts: ["x=2 или x=4", "x=1 или x=4", "x=2 или x=8", "x=1 или x=2"], ans: 0, topic: "Логарифмические уравнения", diff: "medium" },
+        { q: "\\( \\log_3^2 x + \\log_3 x - 6 = 0 \\)", opts: ["x=\\frac{1}{27} или x=9", "x=27 или x=9", "x=\\frac{1}{9} или x=3", "x=3 или x=27"], ans: 0, topic: "Логарифмические уравнения", diff: "hard" },
+        { q: "\\( \\log_2 x + \\log_4 x = 6 \\)", opts: ["x=8", "x=12", "x=16", "x=24"], ans: 2, topic: "Логарифмические уравнения", diff: "hard" },
+
+        // ===== ЛОГАРИФМИЧЕСКИЕ НЕРАВЕНСТВА =====
+        { q: "\\( \\log_2 x > 3 \\)", opts: ["x > 6", "x > 8", "x > 9", "x > 3"], ans: 1, topic: "Логарифмические неравенства", diff: "easy" },
+        { q: "\\( \\log_3 x < 2 \\)", opts: ["0 < x < 6", "0 < x < 8", "0 < x < 9", "0 < x < 3"], ans: 2, topic: "Логарифмические неравенства", diff: "easy" },
+        { q: "\\( \\log_5 x \\geq 2 \\)", opts: ["x \\geq 10", "x \\geq 15", "x \\geq 25", "x \\geq 5"], ans: 2, topic: "Логарифмические неравенства", diff: "easy" },
+        { q: "\\( \\log_2 x \\leq 4 \\)", opts: ["0 < x \\leq 8", "0 < x \\leq 16", "0 < x \\leq 12", "0 < x \\leq 24"], ans: 1, topic: "Логарифмические неравенства", diff: "easy" },
+        { q: "\\( \\log_2 x < 1 \\)", opts: ["0 < x < 2", "x < 2", "0 < x < 1", "x > 1"], ans: 0, topic: "Логарифмические неравенства", diff: "easy" },
+        { q: "\\( \\log_5 x \\leq 1 \\)", opts: ["0 < x \\leq 5", "x \\leq 5", "0 < x \\leq 1", "x \\geq 5"], ans: 0, topic: "Логарифмические неравенства", diff: "easy" },
+        { q: "\\( \\log_2 x \\geq 0 \\)", opts: ["x \\geq 1", "x \\geq 2", "x \\geq 0", "x > 0"], ans: 0, topic: "Логарифмические неравенства", diff: "easy" },
+        { q: "\\( \\log_3 x < 0 \\)", opts: ["0 < x < 1", "x < 1", "x < 3", "0 < x < 3"], ans: 0, topic: "Логарифмические неравенства", diff: "easy" },
+        { q: "\\( \\log_2(x-1) > \\log_2 3 \\)", opts: ["x > 3", "x > 4", "x > 5", "x > 2"], ans: 1, topic: "Логарифмические неравенства", diff: "medium" },
+        { q: "\\( \\log_3(x+1) < \\log_3 4 \\)", opts: ["-1 < x < 3", "-1 < x < 4", "0 < x < 3", "0 < x < 4"], ans: 0, topic: "Логарифмические неравенства", diff: "medium" },
+        { q: "\\( \\log_{0.5} x > 2 \\)", opts: ["0 < x < 0.25", "x > 0.25", "0 < x < 0.5", "x < 0.25"], ans: 0, topic: "Логарифмические неравенства", diff: "medium" },
+        { q: "\\( \\log_{0.5} x \\leq 3 \\)", opts: ["x \\geq 0.125", "0 < x \\leq 0.125", "x \\leq 0.125", "x \\geq 0.5"], ans: 0, topic: "Логарифмические неравенства", diff: "hard" },
+        { q: "\\( \\log_2^2 x - 3\\log_2 x + 2 \\geq 0 \\)", opts: ["(0;2] \\cup [4;+\\infty)", "[2;4]", "(0;1] \\cup [2;+\\infty)", "[1;2]"], ans: 0, topic: "Логарифмические неравенства", diff: "hard" },
+
+        // ===== ЛОГАРИФМИЧЕСКАЯ ФУНКЦИЯ =====
+        { q: "Логарифмическая функция имеет вид:", opts: ["\\( y = a^x \\)", "\\( y = \\log_a x \\)", "\\( y = x^a \\)", "\\( y = \\sqrt{x} \\)"], ans: 1, topic: "Логарифмическая функция", diff: "easy" },
+        { q: "Область определения \\( y = \\log_a x \\):", opts: ["\\( \\mathbb{R} \\)", "\\( x \\geq 0 \\)", "\\( x > 0 \\)", "\\( x \\neq 0 \\)"], ans: 2, topic: "Логарифмическая функция", diff: "easy" },
+        { q: "Множество значений \\( y = \\log_a x \\):", opts: ["\\( \\mathbb{R} \\)", "\\( (0;+\\infty) \\)", "\\( [0;+\\infty) \\)", "\\( (0;1) \\)"], ans: 0, topic: "Логарифмическая функция", diff: "easy" },
+        { q: "Через какую точку проходит график \\( y = \\log_a x \\)?", opts: ["\\( (0;0) \\)", "\\( (1;0) \\)", "\\( (0;1) \\)", "\\( (1;1) \\)"], ans: 1, topic: "Логарифмическая функция", diff: "easy" },
+        { q: "При \\( a > 1 \\) функция \\( y = \\log_a x \\):", opts: ["Возрастает", "Убывает", "Постоянна", "Не монотонна"], ans: 0, topic: "Логарифмическая функция", diff: "easy" },
+        { q: "При \\( 0 < a < 1 \\) функция \\( y = \\log_a x \\):", opts: ["Возрастает", "Убывает", "Постоянна", "Не монотонна"], ans: 1, topic: "Логарифмическая функция", diff: "easy" },
+        { q: "Асимптота \\( y = \\log_a x \\):", opts: ["\\( y = 0 \\)", "\\( x = 0 \\)", "\\( y = x \\)", "\\( x = 1 \\)"], ans: 1, topic: "Логарифмическая функция", diff: "easy" },
+        { q: "Сравнить \\( \\log_2 3 \\) и \\( \\log_2 5 \\):", opts: ["\\( \\log_2 3 < \\log_2 5 \\)", "\\( \\log_2 3 > \\log_2 5 \\)", "\\( \\log_2 3 = \\log_2 5 \\)", "Невозможно сравнить"], ans: 0, topic: "Логарифмическая функция", diff: "easy" }
+    ];
+
+    // ================================================================
+    // ФУНКЦИЯ ОТКРЫТИЯ СПРАВОЧНИКА
+    // ================================================================
+
+    function openReference() {
+        window.location.href = referenceLink;
+    }
+
+    // ================================================================
+    // ОСНОВНЫЕ ФУНКЦИИ
+    // ================================================================
+
+    function shuffleArray(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        return arr;
+    }
+
+    function getLevelValue(diff) {
+        if (diff === 'easy') return 0;
+        if (diff === 'medium') return 1;
+        return 2;
+    }
+
+    function getLevelName(level) {
+        return levels[level] || 'Средний';
+    }
+
+    function getTimeForDifficulty(diff) {
+        if (currentMode === 'study') return 9999;
+        switch(diff) {
+            case 'easy': return 40;
+            case 'medium': return 70;
+            case 'hard': return 120;
+            default: return 70;
+        }
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelector('.mode-btn[data-mode="' + mode + '"]').classList.add('active');
+        if (mode === 'exam') document.querySelector('.mode-btn.exam').classList.add('active');
+    }
+
+    function getWeakTopics() {
+        var result = [];
+        for (var topic in state.topicStats) {
+            var stats = state.topicStats[topic];
+            if (stats.total > 2) {
+                var wrongPercent = stats.wrong / stats.total * 100;
+                if (wrongPercent > 40) {
+                    result.push({ topic: topic, wrongPercent: wrongPercent, wrong: stats.wrong, total: stats.total });
+                }
+            }
+        }
+        return result.sort(function(a, b) { return b.wrongPercent - a.wrongPercent; });
+    }
+
+    function getAvailableQuestions() {
+        return questionBank.filter(function(q) { return state.usedQuestions.indexOf(q.q) === -1; });
+    }
+
+    function getNextQuestion() {
+        var available = getAvailableQuestions();
+        if (available.length === 0) {
+            state.usedQuestions = [];
+            available = questionBank;
+        }
+
+        var weakTopics = getWeakTopics();
+        var question = null;
+
+        if (weakTopics.length > 0 && Math.random() < 0.6) {
+            var targetTopic = weakTopics[0].topic;
+            var topicAvailable = available.filter(function(q) { return q.topic === targetTopic; });
+            if (topicAvailable.length > 0) {
+                question = topicAvailable[Math.floor(Math.random() * topicAvailable.length)];
+            }
+        }
+
+        if (!question) {
+            var level = state.level;
+            var levelAvailable = available.filter(function(q) { return getLevelValue(q.diff) === level; });
+            if (levelAvailable.length > 0) {
+                question = levelAvailable[Math.floor(Math.random() * levelAvailable.length)];
+            } else {
+                question = available[Math.floor(Math.random() * available.length)];
+            }
+        }
+
+        return question;
+    }
+
+    // ================================================================
+    // ТАЙМЕР
+    // ================================================================
+
+    function startTimer(diff) {
+        if (currentMode === 'study') {
+            document.getElementById('timerContainer').style.display = 'none';
+            return;
+        }
+
+        totalTime = getTimeForDifficulty(diff);
+        timeLeft = totalTime;
+        document.getElementById('timerContainer').style.display = 'flex';
+        updateTimerDisplay();
+
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(function() {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                handleTimeUp();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        var percent = totalTime > 0 ? (timeLeft / totalTime) * 100 : 0;
+        document.getElementById('timerBarFill').style.width = Math.max(0, percent) + '%';
+        document.getElementById('timerText').textContent = Math.max(0, timeLeft) + ' сек';
+
+        var timerText = document.getElementById('timerText');
+        var timerBar = document.getElementById('timerBarFill');
+        if (percent < 15) {
+            timerText.className = 'timer-text danger';
+            timerBar.style.background = '#ef4444';
+        } else if (percent < 40) {
+            timerText.className = 'timer-text warning';
+            timerBar.style.background = '#fbbf24';
+        } else {
+            timerText.className = 'timer-text';
+            timerBar.style.background = '#34d399';
+        }
+    }
+
+    function handleTimeUp() {
+        if (state.isFinished) return;
+        var options = document.querySelectorAll('#optionsContainer button');
+        options.forEach(function(btn) { btn.disabled = true; });
+
+        var q = state.currentQuestion;
+        var correct = q.ans;
+        options.forEach(function(btn, idx) {
+            var realIdx = parseInt(btn.dataset.realIndex);
+            if (realIdx === correct) btn.className = 'correct';
+        });
+
+        var resultBox = document.getElementById('resultBox');
+        resultBox.className = 'result-box show wrong';
+        resultBox.innerHTML = '⏰ Время вышло! Правильный ответ: <strong>' + q.opts[correct] + '</strong>';
+
+        state.wrong++;
+        state.answered++;
+        state.streak = 0;
+        if (state.level > 0) state.level--;
+
+        if (!state.topicStats[q.topic]) {
+            state.topicStats[q.topic] = { correct: 0, wrong: 0, total: 0 };
+        }
+        state.topicStats[q.topic].wrong++;
+        state.topicStats[q.topic].total++;
+
+        state.usedQuestions.push(q.q);
+        updateStats();
+        updateTopicStats();
+        updateRecommendations();
+
+        if (state.answered >= state.questionLimit) {
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('finishBtn').style.display = 'block';
+        } else {
+            document.getElementById('nextBtn').disabled = false;
+        }
+    }
+
+    // ================================================================
+    // ТЕСТ
+    // ================================================================
+
+    function startTest() {
+        var startBtn = document.getElementById('startBtn');
+        startBtn.style.animation = 'none';
+        startBtn.style.boxShadow = 'none';
+        startBtn.disabled = true;
+        abortClicked = false;
+
+        var limitSelect = document.getElementById('questionLimit');
+        state.questionLimit = parseInt(limitSelect.value);
+        if (state.questionLimit === 0) state.questionLimit = questionBank.length;
+
+        state.correct = 0;
+        state.wrong = 0;
+        state.level = 0;
+        state.topicStats = {};
+        state.usedQuestions = [];
+        state.answered = 0;
+        state.isRunning = true;
+        state.isFinished = false;
+        state.streak = 0;
+        state.totalTimeSpent = 0;
+        state.timePerQuestion = [];
+        state.currentQuestion = null;
+
+        document.getElementById('settingsPanel').style.display = 'none';
+        document.getElementById('statsGrid').style.display = 'grid';
+        document.getElementById('progressContainer').style.display = 'block';
+        document.getElementById('questionArea').style.display = 'block';
+        document.getElementById('controlsPanel').style.display = 'flex';
+        document.getElementById('resultFinal').className = 'result-final';
+        document.getElementById('resultBox').className = 'result-box';
+        document.getElementById('recommendBox').className = 'recommend-box';
+        document.getElementById('topicStats').className = 'topic-stats';
+        document.getElementById('finishBtn').style.display = 'none';
+        document.getElementById('abortBtn').style.display = 'block';
+        document.getElementById('abortBtn').className = 'abort-btn';
+        document.getElementById('abortBtn').textContent = 'Прервать';
+
+        var q = getNextQuestion();
+        state.currentQuestion = q;
+        state.usedQuestions.push(q.q);
+        displayQuestion();
+        startTimer(q.diff);
+    }
+
+    // ================================================================
+    // displayQuestion — С ПЕРЕМЕШИВАНИЕМ ОТВЕТОВ
+    // ================================================================
+
+    function displayQuestion() {
+        var q = state.currentQuestion;
+        if (!q || state.answered >= state.questionLimit) {
+            finishTest();
+            return;
+        }
+
+        document.getElementById('qTopic').textContent = 'Тема: ' + q.topic;
+        var diffLevel = getLevelValue(q.diff);
+        document.getElementById('qDifficulty').textContent = getLevelName(diffLevel);
+        document.getElementById('qDifficulty').className = 'q-difficulty ' + q.diff;
+        document.getElementById('qNumber').textContent = 'Вопрос ' + (state.answered + 1) + ' из ' + state.questionLimit;
+        document.getElementById('qText').textContent = q.q;
+
+        // ===== ПЕРЕМЕШИВАЕМ ВАРИАНТЫ ОТВЕТОВ =====
+        var container = document.getElementById('optionsContainer');
+        container.innerHTML = '';
+
+        var indices = q.opts.map(function(_, idx) { return idx; });
+        for (var i = indices.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = indices[i];
+            indices[i] = indices[j];
+            indices[j] = temp;
+        }
+
+        var letters = ['А', 'Б', 'В', 'Г'];
+        for (var i = 0; i < indices.length; i++) {
+            var btn = document.createElement('button');
+            btn.textContent = letters[i] + '. ' + q.opts[indices[i]];
+            btn.dataset.index = i;
+            btn.dataset.realIndex = indices[i];
+            btn.onclick = function() {
+                if (this.disabled) return;
+                checkAnswer(parseInt(this.dataset.index), parseInt(this.dataset.realIndex));
+            };
+            container.appendChild(btn);
+        }
+
+        updateStats();
+        document.getElementById('nextBtn').disabled = true;
+        document.getElementById('resultBox').className = 'result-box';
+        updateTopicStats();
+        updateRecommendations();
+
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    // ================================================================
+    // checkAnswer — с учётом перемешанных ответов
+    // ================================================================
+
+    function checkAnswer(selected, realIndex) {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        var q = state.currentQuestion;
+        if (!q || state.isFinished) return;
+
+        var correct = q.ans;
+        var isCorrect = (realIndex === correct);
+        var timeSpent = totalTime > 0 ? totalTime - timeLeft : 0;
+        state.timePerQuestion.push(timeSpent);
+        state.totalTimeSpent += timeSpent;
+
+        if (isCorrect) {
+            state.correct++;
+            state.streak++;
+        } else {
+            state.wrong++;
+            state.streak = 0;
+        }
+        state.answered++;
+
+        if (!state.topicStats[q.topic]) {
+            state.topicStats[q.topic] = { correct: 0, wrong: 0, total: 0 };
+        }
+        if (isCorrect) {
+            state.topicStats[q.topic].correct++;
+        } else {
+            state.topicStats[q.topic].wrong++;
+        }
+        state.topicStats[q.topic].total++;
+
+        if (!isCorrect) {
+            if (state.level > 0) state.level--;
+        } else {
+            if (state.streak >= 5 && state.level < 2) {
+                state.level++;
+                state.streak = 0;
+            }
+        }
+
+        state.usedQuestions.push(q.q);
+
+        var resultBox = document.getElementById('resultBox');
+        var options = document.querySelectorAll('#optionsContainer button');
+        options.forEach(function(btn, idx) {
+            btn.disabled = true;
+            var btnRealIndex = parseInt(btn.dataset.realIndex);
+            if (btnRealIndex === correct) {
+                btn.className = 'correct';
+            } else if (idx === selected && !isCorrect) {
+                btn.className = 'wrong';
+            }
+        });
+
+        if (isCorrect) {
+            resultBox.className = 'result-box show correct';
+            resultBox.innerHTML = '✅ Правильно!' + (currentMode === 'exam' ? ' (' + timeSpent + ' сек)' : '');
+        } else {
+            resultBox.className = 'result-box show wrong';
+            resultBox.innerHTML = '❌ Неправильно. Правильный ответ: <strong>' + q.opts[correct] + '</strong>';
+        }
+
+        updateStats();
+        updateTopicStats();
+        updateRecommendations();
+
+        if (state.answered >= state.questionLimit) {
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('finishBtn').style.display = 'block';
+        } else {
+            document.getElementById('nextBtn').disabled = false;
+        }
+    }
+
+    function nextQuestion() {
+        if (state.answered >= state.questionLimit) {
+            finishTest();
+            return;
+        }
+        var q = getNextQuestion();
+        if (q) {
+            state.currentQuestion = q;
+            state.usedQuestions.push(q.q);
+            displayQuestion();
+            startTimer(q.diff);
+        } else {
+            finishTest();
+        }
+    }
+
+    // ================================================================
+    // ПРЕРЫВАНИЕ
+    // ================================================================
+
+    function abortTest() {
+        var btn = document.getElementById('abortBtn');
+
+        if (!abortClicked) {
+            abortClicked = true;
+            btn.textContent = '❌ Закончить?';
+            btn.className = 'abort-btn active';
+            return;
+        }
+
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        state.isFinished = true;
+        state.isRunning = false;
+        showFinalResult(true);
+    }
+
+    // ================================================================
+    // ФИНАЛЬНЫЙ РЕЗУЛЬТАТ
+    // ================================================================
+
+    function showFinalResult(aborted) {
+        document.getElementById('questionArea').style.display = 'none';
+        document.getElementById('controlsPanel').style.display = 'none';
+        document.getElementById('progressContainer').style.display = 'none';
+        document.getElementById('statsGrid').style.display = 'none';
+        document.getElementById('timerContainer').style.display = 'none';
+
+        var total = state.correct + state.wrong;
+        var pct = total > 0 ? Math.round((state.correct / total) * 100) : 0;
+
+        var gradeText = document.getElementById('gradeText');
+        var bigScore = document.getElementById('bigScore');
+        var resultDetails = document.getElementById('resultDetails');
+        var examResult = document.getElementById('examResult');
+
+        if (aborted) {
+            gradeText.textContent = '⏸️ Тест прерван';
+            gradeText.className = 'grade-text good';
+            bigScore.textContent = pct + '%';
+            bigScore.className = 'big-score good';
+            resultDetails.textContent = 'Отвечено: ' + total + ' вопросов · ' + state.correct + ' правильно · ' + state.wrong + ' ошибок';
+            document.getElementById('resultFinal').className = 'result-final show';
+        } else {
+            var difficultyBonus = 0;
+            if (state.level >= 2) difficultyBonus = 5;
+            else if (state.level >= 1) difficultyBonus = 2;
+            var adjustedPct = Math.min(100, pct + difficultyBonus);
+
+            var gradeClass = '';
+            var gradeNum = 2;
+
+            if (adjustedPct >= 90) {
+                gradeText.textContent = 'Отлично!';
+                gradeClass = 'excellent';
+                gradeNum = 5;
+            } else if (adjustedPct >= 75) {
+                gradeText.textContent = 'Хорошо!';
+                gradeClass = 'good';
+                gradeNum = 4;
+            } else if (adjustedPct >= 50) {
+                gradeText.textContent = 'Удовлетворительно';
+                gradeClass = 'good';
+                gradeNum = 3;
+            } else {
+                gradeText.textContent = 'Требуется повторение';
+                gradeClass = 'poor';
+                gradeNum = 2;
+            }
+
+            gradeText.className = 'grade-text ' + gradeClass;
+            bigScore.textContent = pct + '%';
+            bigScore.className = 'big-score ' + gradeClass;
+            resultDetails.textContent = total + ' вопросов · ' + state.correct + ' правильно · ' + state.wrong + ' ошибок';
+            document.getElementById('resultFinal').className = 'result-final show';
+
+            if (currentMode === 'exam' && state.timePerQuestion.length > 0) {
+                var avgTime = Math.round(state.totalTimeSpent / state.timePerQuestion.length);
+                examResult.textContent = '⏱️ Среднее время: ' + avgTime + ' сек на вопрос';
+            } else {
+                examResult.textContent = '📖 Режим: учебный (без таймера)';
+            }
+
+            saveResultAuto(gradeNum, pct, total);
+        }
+
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('settingsPanel').style.display = 'flex';
+
+        var startBtn = document.getElementById('startBtn');
+        startBtn.style.animation = 'pulse-glow 2s ease-in-out infinite';
+        startBtn.style.boxShadow = '0 0 14px rgba(26,188,156,0.2)';
+
+        updateTopicStats();
+        updateRecommendations();
+        loadHistory();
+        document.getElementById('resultFinal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function finishTest() {
+        if (state.isFinished) return;
+        state.isFinished = true;
+        state.isRunning = false;
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        showFinalResult(false);
+    }
+
+    // ================================================================
+    // СОХРАНЕНИЕ И ИСТОРИЯ
+    // ================================================================
+
+    function saveResultAuto(grade, pct, total) {
+        var history = JSON.parse(localStorage.getItem('logAdaptiveHistory') || '[]');
+        var entry = {
+            date: new Date().toLocaleString(),
+            grade: grade,
+            pct: pct,
+            total: total,
+            correct: state.correct,
+            wrong: state.wrong,
+            mode: currentMode === 'exam' ? 'Экзамен' : 'Учебный',
+            level: getLevelName(state.level)
+        };
+        history.push(entry);
+        if (history.length > 50) history.shift();
+        localStorage.setItem('logAdaptiveHistory', JSON.stringify(history));
+        loadHistory();
+    }
+
+    function loadHistory() {
+        var history = JSON.parse(localStorage.getItem('logAdaptiveHistory') || '[]');
+        var panel = document.getElementById('historyPanel');
+        var list = document.getElementById('historyList');
+
+        if (history.length === 0) {
+            panel.className = 'history';
+            return;
+        }
+
+        panel.className = 'history show';
+        var html = '';
+        for (var i = history.length - 1; i >= Math.max(0, history.length - 10); i--) {
+            var h = history[i];
+            var gradeClass = 'grade' + h.grade;
+            html += '<div class="history-item">';
+            html += '<span>' + h.date + ' · ' + h.mode + '</span>';
+            html += '<span>' + h.correct + '✅ / ' + h.wrong + '❌ (' + h.pct + '%) </span>';
+            html += '<span class="h-grade ' + gradeClass + '">' + h.grade + '</span>';
+            html += '</div>';
+        }
+        list.innerHTML = html;
+    }
+
+    function exportHistory() {
+        var history = JSON.parse(localStorage.getItem('logAdaptiveHistory') || '[]');
+        if (history.length === 0) { alert('История пуста!'); return; }
+        var blob = new Blob([JSON.stringify(history, null, 2)], {type: 'application/json'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'log_history_' + new Date().toISOString().slice(0,10) + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function importHistory(event) {
+        var file = event.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                var data = JSON.parse(e.target.result);
+                if (Array.isArray(data)) {
+                    localStorage.setItem('logAdaptiveHistory', JSON.stringify(data));
+                    loadHistory();
+                    alert('✅ История импортирована! (' + data.length + ' записей)');
+                } else {
+                    alert('❌ Неверный формат файла');
+                }
+            } catch(err) {
+                alert('❌ Ошибка чтения файла: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+        document.getElementById('importFile').value = '';
+    }
+
+    function clearHistory() {
+        if (confirm('Очистить всю историю результатов?')) {
+            localStorage.removeItem('logAdaptiveHistory');
+            loadHistory();
+        }
+    }
+
+    // ================================================================
+    // ОТПРАВКА
+    // ================================================================
+
+    function openShareModal() {
+        document.getElementById('shareModal').className = 'share-modal show';
+        document.getElementById('studentName').focus();
+    }
+
+    function closeShareModal() {
+        document.getElementById('shareModal').className = 'share-modal';
+    }
+
+    function sendShare() {
+        var name = document.getElementById('studentName').value.trim();
+        var group = document.getElementById('studentGroup').value.trim();
+
+        if (!name) {
+            alert('Пожалуйста, введите Фамилию и Имя');
+            document.getElementById('studentName').focus();
+            return;
+        }
+        if (!group) {
+            alert('Пожалуйста, введите номер группы/класса');
+            document.getElementById('studentGroup').focus();
+            return;
+        }
+
+        closeShareModal();
+
+        var text = getResultText(name, group);
+
+        if (window.Android && window.Android.shareAppFromJs) {
+            window.Android.shareAppFromJs(text);
+        } else if (navigator.share) {
+            navigator.share({
+                title: 'Результат адаптивного теста: Логарифмы',
+                text: text
+            }).catch(function(err) {
+                if (err.name !== 'AbortError') {
+                    copyToClipboard(text);
+                }
+            });
+        } else {
+            copyToClipboard(text);
+        }
+    }
+
+    function copyToClipboard(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('📋 Отчёт скопирован в буфер обмена!');
+            }).catch(function() {
+                fallbackCopy(text);
+            });
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.top = '-9999px';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            alert('📋 Отчёт скопирован в буфер обмена!');
+        } catch(e) {
+            alert('❌ Не удалось скопировать. Текст отчёта:\n\n' + text);
+        }
+        document.body.removeChild(textarea);
+    }
+
+    function getResultText(name, group) {
+        var grade = document.getElementById('gradeText').textContent;
+        var pct = document.getElementById('bigScore').textContent;
+        var details = document.getElementById('resultDetails').textContent;
+        var mode = currentMode === 'exam' ? 'Экзамен (с таймером)' : 'Учебный (без таймера)';
+        var date = new Date().toLocaleString('ru-RU');
+
+        var topicsText = '';
+        var topics = Object.keys(state.topicStats);
+        if (topics.length > 0) {
+            for (var i = 0; i < topics.length; i++) {
+                var stats = state.topicStats[topics[i]];
+                var pctTopic = Math.round((stats.correct / stats.total) * 100);
+                topicsText += '\n' + topics[i] + ' — ' + stats.correct + '✅ / ' + stats.wrong + '❌ (' + pctTopic + '%)';
+            }
+        } else {
+            topicsText = '\nНет данных';
+        }
+
+        var weakTopics = getWeakTopics();
+        var recText = '';
+        if (weakTopics.length > 0) {
+            recText = '\n\nРекомендации:\nПовторите тему(ы):';
+            for (var i = 0; i < weakTopics.length; i++) {
+                recText += '\n• ' + weakTopics[i].topic + ' (' + weakTopics[i].wrong + ' ошибок из ' + weakTopics[i].total + ')';
+            }
+        }
+
+        return 'Адаптивный тест: Логарифмы\n' +
+               'Студент: ' + name + '\n' +
+               'Группа: ' + group + '\n' +
+               'Дата: ' + date + '\n' +
+               'Режим: ' + mode + '\n' +
+               details + '\n' +
+               'Результат: ' + pct + '\n' +
+               grade + '\n' +
+               '\nСтатистика по темам:' + topicsText +
+               recText +
+               '\n\n#математика #логарифмы #тест';
+    }
+
+    // ================================================================
+    // СТАТИСТИКА И РЕКОМЕНДАЦИИ
+    // ================================================================
+
+    function updateStats() {
+        document.getElementById('qCount').textContent = state.answered;
+        document.getElementById('correctCount').textContent = state.correct;
+        document.getElementById('wrongCount').textContent = state.wrong;
+        document.getElementById('levelDisplay').textContent = getLevelName(state.level);
+        document.getElementById('levelDisplay').style.color = levelColors[state.level];
+        document.getElementById('remainCount').textContent = Math.max(0, state.questionLimit - state.answered);
+
+        var progress = state.questionLimit > 0 ? Math.round((state.answered / state.questionLimit) * 100) : 0;
+        document.getElementById('progressFill').style.width = Math.min(100, progress) + '%';
+        document.getElementById('progressText').textContent = 'Прогресс: ' + Math.min(100, progress) + '%';
+        document.getElementById('answeredText').textContent = state.answered + ' / ' + state.questionLimit;
+    }
+
+    function updateTopicStats() {
+        var container = document.getElementById('topicStatsContent');
+        var topics = Object.keys(state.topicStats);
+        if (topics.length === 0 || state.answered === 0) {
+            document.getElementById('topicStats').className = 'topic-stats';
+            return;
+        }
+        document.getElementById('topicStats').className = 'topic-stats show';
+
+        var html = '';
+        var sorted = topics.sort(function(a, b) {
+            var pctA = state.topicStats[a].correct / state.topicStats[a].total;
+            var pctB = state.topicStats[b].correct / state.topicStats[b].total;
+            return pctA - pctB;
+        });
+
+        for (var i = 0; i < sorted.length; i++) {
+            var topic = sorted[i];
+            var stats = state.topicStats[topic];
+            var pct = Math.round((stats.correct / stats.total) * 100);
+            var colorClass = pct >= 70 ? 'good' : (pct >= 50 ? 'medium' : 'poor');
+            var colorText = pct >= 70 ? '#34d399' : (pct >= 50 ? '#fbbf24' : '#f87171');
+            html += '<div class="topic-row">';
+            html += '<span class="name">' + topic + '</span>';
+            html += '<span class="stat ' + colorClass + '" style="color:' + colorText + ';">' + stats.correct + '✅ / ' + stats.wrong + '❌ (' + pct + '%)</span>';
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    function updateRecommendations() {
+        var weakTopics = getWeakTopics();
+        var box = document.getElementById('recommendBox');
+        var list = document.getElementById('recommendList');
+
+        if (weakTopics.length === 0 || state.answered < 3) {
+            box.className = 'recommend-box';
+            return;
+        }
+
+        box.className = 'recommend-box show';
+        var html = '';
+        for (var i = 0; i < Math.min(weakTopics.length, 3); i++) {
+            var wt = weakTopics[i];
+            html += '<li><strong>' + wt.topic + '</strong> — ' + wt.wrong + ' ошибок из ' + wt.total + ' (' + Math.round(wt.wrongPercent) + '%)</li>';
+        }
+        html += '<li style="margin-top:4px;color:#fbbf24;">Повторите эти темы в справочнике</li>';
+        list.innerHTML = html;
+    }
+
+    // ================================================================
+    // СБРОС
+    // ================================================================
+
+    function resetFull() {
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+
+        state.correct = 0;
+        state.wrong = 0;
+        state.level = 0;
+        state.topicStats = {};
+        state.usedQuestions = [];
+        state.answered = 0;
+        state.isRunning = false;
+        state.isFinished = false;
+        state.streak = 0;
+        state.currentQuestion = null;
+        state.totalTimeSpent = 0;
+        state.timePerQuestion = [];
+        abortClicked = false;
+
+        document.getElementById('settingsPanel').style.display = 'flex';
+        document.getElementById('statsGrid').style.display = 'none';
+        document.getElementById('progressContainer').style.display = 'none';
+        document.getElementById('questionArea').style.display = 'none';
+        document.getElementById('controlsPanel').style.display = 'none';
+        document.getElementById('resultFinal').className = 'result-final';
+        document.getElementById('resultBox').className = 'result-box';
+        document.getElementById('recommendBox').className = 'recommend-box';
+        document.getElementById('topicStats').className = 'topic-stats';
+        document.getElementById('timerContainer').style.display = 'none';
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('finishBtn').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'block';
+        document.getElementById('abortBtn').style.display = 'none';
+        document.getElementById('abortBtn').className = 'abort-btn';
+        document.getElementById('abortBtn').textContent = 'Прервать';
+
+        var startBtn = document.getElementById('startBtn');
+        startBtn.style.animation = 'pulse-glow 2s ease-in-out infinite';
+        startBtn.style.boxShadow = '0 0 14px rgba(26,188,156,0.2)';
+
+        document.getElementById('qText').textContent = 'Настройте параметры и нажмите "Начать тест"';
+        document.getElementById('optionsContainer').innerHTML = '';
+        loadHistory();
+    }
+
+    // ================================================================
+    // ТЕМА И ИЗБРАННОЕ
+    // ================================================================
+
+    function toggleTheme() {
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    var FAV_KEY = 'math_favorites';
+    function getFavorites() { var s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { var u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        var u = window.location.pathname.split('/').pop();
+        var f = getFavorites();
+        var btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(function(x) { return x !== u; });
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        var btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+
+    window.addEventListener('load', function() {
+        document.getElementById('qText').textContent = 'Настройте параметры и нажмите "Начать тест"';
+        document.getElementById('optionsContainer').innerHTML = '';
+        document.getElementById('abortBtn').style.display = 'none';
+        loadHistory();
+    });
+
+    document.getElementById('shareModal').addEventListener('click', function(e) {
+        if (e.target === this) closeShareModal();
+    });
+</script>
+</body>
+</html>

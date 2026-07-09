@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -6,309 +6,942 @@
   <title>Исследование функции с помощью производной</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
-
     :root {
         --bg: #1a2d3c;
         --card-bg: #1e3545;
         --text: #ffffff;
         --text-secondary: #8ba5b8;
         --accent: #1abc9c;
-        --border: rgba(46, 204, 113, 0.1);
-        --header-bg: linear-gradient(135deg, #1e3545, #162a38);
-        --formula-card-bg: #1e3545;
-        --example-bg: #1e3545;
-        --info-bg: #1e3545;
-        --info-border: #f39c12;
-        --svg-stroke: #ffffff;
-        --svg-fill: #ffffff;
-        --svg-text: #ffffff;
-        --svg-axis: #8ba5b8;
+        --border: rgba(139,92,246,0.1);
+        --header-bg: linear-gradient(135deg,#1e3545,#162a38);
+        --example-bg: #162a38;
+        --info-border: #8b5cf6;
+        --canvas-bg: #162a38;
+        --canvas-grid: rgba(139,165,184,0.2);
+        --canvas-axis: #8ba5b8;
+        --canvas-text: #fff;
+        --canvas-curve: #1abc9c;
+        --canvas-point: #e67e22;
+        --canvas-label: #f39c12;
+        --plus-color: #34d399;
+        --minus-color: #f87171;
+        --special-border: #8b5cf6;
+        --explain-bg: #1a2d3c;
+        --step-color: #a78bfa;
+        --formula-color: #a78bfa;
+        --highlight-color: #fbbf24;
+        --result-color: #c4b5fd;
     }
-
     :root.light-mode {
-        --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
-        --card-bg: white;
+        --bg: linear-gradient(145deg,#f5f7fc 0%,#eef2f8 100%);
+        --card-bg: #fff;
         --text: #1a2a3f;
         --text-secondary: #5a7a94;
         --accent: #1abc9c;
         --border: #eff3f8;
-        --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
-        --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+        --header-bg: linear-gradient(135deg,#fff,#f8fafc);
         --example-bg: #f8fafc;
-        --info-bg: #f0fdf4;
-        --info-border: #f39c12;
-        --svg-stroke: #1a2a3f;
-        --svg-fill: #1a2a3f;
-        --svg-text: #1a2a3f;
-        --svg-axis: #5a7a94;
+        --info-border: #7c3aed;
+        --canvas-bg: #f8fafc;
+        --canvas-grid: rgba(26,42,63,0.1);
+        --canvas-axis: #5a7a94;
+        --canvas-text: #1a2a3f;
+        --canvas-curve: #1abc9c;
+        --canvas-point: #e67e22;
+        --canvas-label: #f39c12;
+        --plus-color: #059669;
+        --minus-color: #dc2626;
+        --special-border: #7c3aed;
+        --explain-bg: #f0f4f8;
+        --step-color: #6d28d9;
+        --formula-color: #6d28d9;
+        --highlight-color: #d97706;
+        --result-color: #7c3aed;
     }
-
-    body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
-    .container{max-width:1000px;margin:0 auto;position:relative;}
-
-    .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+    body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);padding:8px;margin:0;transition:background .3s;}
+    .container{max-width:1200px;margin:0 auto;background:var(--card-bg);border-radius:24px;padding:16px;padding-top:50px;position:relative;box-shadow:0 12px 32px rgba(0,0,0,0.2);}
+    .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all .2s;z-index:100;color:var(--text);}
     .theme-toggle:hover{transform:scale(1.1);}
-
-    .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
-    h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
-    .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
-    .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
-    .section{margin-bottom:14px;}
-    .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--info-border);padding-left:12px;cursor:pointer;user-select:none;}
-    .section-title:hover{opacity:0.8;}
-    .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
-    .section.collapsed .section-title::after{transform:rotate(-90deg);}
-    .section-content{max-height:3000px;overflow:hidden;transition:max-height 0.4s ease;}
+    h1{font-size:1.5rem;color:var(--text);margin:0 auto 16px auto;padding-bottom:8px;border-bottom:4px solid var(--special-border);text-align:center;}
+    .section{margin-bottom:12px;}
+    .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--special-border);padding-left:12px;cursor:pointer;user-select:none;text-align:center;position:relative;}
+    .section-title .main-title{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;}
+    .section-title .main-title::after{content:"▼";margin-left:auto;font-size:.85rem;transition:transform .3s;color:var(--text-secondary);position:absolute;right:12px;}
+    .section.collapsed .section-title .main-title::after{transform:rotate(-90deg);}
+    .section-title .sub-title{font-size:.9rem;color:var(--text-secondary);font-weight:400;font-style:italic;}
+    .section-title:hover{opacity:.8;}
+    .section-content{max-height:5000px;overflow:hidden;transition:max-height .4s ease;}
     .section.collapsed .section-content{max-height:0;}
-
-    .algorithm-list{list-style:none;counter-reset:step;margin:12px 0;padding:0;}
-    .algorithm-list li{counter-increment:step;margin-bottom:8px;padding-left:26px;position:relative;font-size:0.95rem;line-height:1.35;color:var(--text);}
-    .algorithm-list li::before{content:counter(step) ".";position:absolute;left:0;font-weight:700;color:var(--info-border);}
+    .formula-block{background:var(--example-bg);padding:10px 14px;border-radius:12px;font-size:.9rem;margin:6px 0;border-left:4px solid var(--special-border);word-break:break-word;overflow-x:auto;line-height:2.0;color:var(--text);}
+    .example{background:var(--example-bg);padding:12px 16px;border-radius:12px;margin-top:6px;border-left:4px solid var(--special-border);font-size:.9rem;line-height:1.8;color:var(--text);}
+    .example .step{font-weight:700;color:var(--step-color);margin-top:6px;margin-bottom:2px;}
+    .example .result{margin-top:6px;font-weight:600;color:var(--result-color);}
+    .example .explain{color:var(--text-secondary);font-style:italic;display:block;padding-left:12px;border-left:2px solid var(--accent);margin:2px 0;font-size:.85rem;}
+    .example .formula{color:var(--formula-color);font-weight:600;}
+    .example .highlight{color:var(--highlight-color);font-weight:600;}
+    .important{background:var(--example-bg);border-left:4px solid #fbbf24;border-radius:12px;padding:8px 12px;margin:6px 0;color:var(--text);}
+    .important strong{color:#fbbf24;}
+    p{margin:4px 0;font-size:.9rem;line-height:1.5;color:var(--text);}
+    .back-link{display:inline-block;margin:12px 0 4px;padding:8px 18px;background:var(--special-border);color:#fff;text-decoration:none;font-weight:bold;border-radius:20px;font-size:.9rem;transition:background .2s;}
+    .back-link:hover{background:#6d28d9;}
+    mjx-container{font-size:1em!important;overflow-x:auto!important;max-width:100%!important;}
+    .canvas-container{background:var(--canvas-bg);border-radius:12px;margin:4px 0;padding:4px;border:1px solid var(--border);position:relative;width:100%;}
+    .canvas-container canvas{display:block;width:100%;height:auto;background:var(--canvas-bg);border-radius:10px;}
+    .graph-container canvas{aspect-ratio:650/360;}
+    .interval-container canvas{aspect-ratio:650/140;}
+    .favorite-btn{position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;z-index:1000;color:var(--text-secondary);transition:all .2s;backdrop-filter:blur(4px);}
+    .favorite-btn:hover{transform:scale(1.1);}
+    .favorite-btn.active{color:#facc15;}
+    .algorithm-list{list-style:none;counter-reset:step;margin:0;padding:0;}
+    .algorithm-list li{counter-increment:step;margin-bottom:6px;padding-left:26px;position:relative;font-size:.9rem;line-height:1.3;color:var(--text);}
+    .algorithm-list li::before{content:counter(step)".";position:absolute;left:0;font-weight:700;color:var(--info-border);}
     .algorithm-list li strong{color:var(--text);}
-    .algorithm-list li p{margin-top:2px;color:var(--text-secondary);font-size:0.85rem;}
-
-    .example-block{background:var(--example-bg);border-radius:16px;padding:14px 16px;border:1px solid var(--border);margin:8px 0;}
-    .math-example{background:var(--card-bg);padding:10px 14px;border-radius:14px;margin:6px 0;font-size:0.9rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text);}
+    .algorithm-list li p{margin:2px 0 0 0;color:var(--text-secondary);font-size:.8rem;line-height:1.3;}
+    .domain-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0;}
+    .domain-card{background:var(--example-bg);border-radius:8px;padding:6px 10px;border:1px solid var(--border);}
+    .domain-card .title{font-weight:700;color:var(--text);font-size:.85rem;}
+    .domain-card .example{color:var(--text-secondary);font-size:.75rem;font-family:'Courier New',monospace;padding:0;margin:0;border:none;background:transparent;line-height:1.4;}
+    .domain-card .desc{color:var(--text-secondary);font-size:.75rem;line-height:1.4;}
+    .math-example{background:var(--card-bg);padding:4px 10px;border-radius:10px;margin:3px 0;font-size:.85rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text);}
     .math-example strong{color:var(--text);}
-    .math-example mjx-container{font-size:1rem!important;}
-
-    .image-no-gap {
-        background: transparent;
-        border-radius: 14px;
-        padding: 0;
-        text-align: center;
-        margin: 8px 0;
-    }
-    .image-no-gap svg {
-        max-width: 100%;
-        height: auto;
-        display: block;
-        margin: 0 auto;
-    }
-
-    .back-link{display:inline-block;margin-top:16px;padding:10px 24px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
-    .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
-
-    @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.algorithm-list li{font-size:0.9rem;}.math-example{font-size:0.85rem;padding:8px 12px;}}
-    @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
-    .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
-  
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
-    </style>
+    .math-example .warning{color:#fbbf24;font-weight:700;}
+    .math-example .result{color:#34d399;font-weight:700;}
+    .math-example .formula{color:var(--formula-color);font-weight:600;}
+    .math-example .note{color:var(--text-secondary);font-style:italic;display:block;padding-left:12px;border-left:2px solid var(--accent);margin:2px 0;}
+    .math-example .rule{display:block;padding:3px 10px;margin:2px 0;background:var(--example-bg);border-radius:6px;border-left:3px solid var(--special-border);}
+    .math-example .rule strong{color:var(--special-border);}
+    .explain-block{background:var(--explain-bg);border-radius:8px;padding:6px 12px;margin:3px 0;border-left:3px solid #60a5fa;}
+    .explain-block .icon{color:#60a5fa;font-weight:700;}
+    @media(max-width:700px){.container{padding:12px;padding-top:44px;}h1{font-size:1.25rem;}.section-title{font-size:1rem;}.example{padding:10px 12px;}.domain-grid{grid-template-columns:1fr;}}
+  </style>
   <script>
     MathJax = {
         tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']],
-            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            inlineMath: [['$','$'],['\\(','\\)']],
+            displayMath: [['$$','$$'],['\\[','\\]']],
             processEscapes: true
         },
-        chtml: { scale: 1.05, displayAlign: 'center' },
-        startup: {
-            ready: function() {
-                MathJax.startup.defaultReady();
-                // После загрузки MathJax ждём и рисуем графики
-                setTimeout(function() {
-                    updateAllSVGs();
-                    MathJax.typesetPromise();
-                }, 300);
-            }
-        }
+        chtml: { scale: 1.0, displayAlign: 'center' }
     };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <script src="file:///android_asset/es5/tex-chtml.js" async></script>
 </head>
 <body>
 <div class="container">
-  <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+  <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+  <h1>📐 Исследование функции с помощью производной</h1>
 
-  <div class="header"><h1>Исследование функции с помощью производной</h1><div class="subtitle">Алгоритм · Пояснения · Пример с графиком</div></div>
-  <div class="content-card">
-
-    <div class="section">
-      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Алгоритм исследования функции</div>
-      <div class="section-content"><ol class="algorithm-list">
-        <li><strong>Найти область определения \(D(f)\).</strong><p>Исключаем точки, где знаменатель равен нулю, подкоренное выражение отрицательно.</p></li>
-        <li><strong>Найти производную \(f'(x)\).</strong><p>Используем таблицу производных и правила дифференцирования.</p></li>
-        <li><strong>Найти критические точки: \(f'(x) = 0\) или \(f'(x)\) не существует.</strong><p>Решаем уравнение, находим точки, принадлежащие области определения.</p></li>
-        <li><strong>Определить промежутки возрастания и убывания.</strong><p>Метод интервалов: если \(f'(x) > 0\) — возрастает, если \(f'(x) < 0\) — убывает.</p></li>
-        <li><strong>Найти точки экстремума и значения функции в них.</strong><p>Смена знака с «+» на «−» — максимум, с «−» на «+» — минимум.</p></li>
-        <li><strong>Найти точки пересечения с осями координат.</strong><p>С осью \(Oy\): \(x = 0\). С осью \(Ox\): \(f(x) = 0\).</p></li>
-        <li><strong>Построить график функции.</strong><p>На основе полученных данных строим эскиз графика.</p></li>
-      </ol></div>
+  <!-- АЛГОРИТМ -->
+  <div class="section">
+    <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+      <span class="main-title">📖 Алгоритм исследования функции</span>
     </div>
-
-    <div class="section">
-      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Пример: исследовать \(f(x) = x^3 - 3x\)</div>
-      <div class="section-content"><div class="example-block"><div class="math-example">
-        <strong>1. Область определения:</strong> \(D(f) = \mathbb{R}\) (\(x\) — любое число).<br>
-        <strong>2. Найдём производную, используя таблицу и правила:</strong><br>
-        \(f'(x) = (x^3)' - (3x)' = 3x^2 - 3\).<br>
-        <strong>3. Приравняем производную к нулю и решим уравнение:</strong><br>
-        \(f'(x) = 0\)<br>
-        \(3x^2 - 3 = 0\)<br>
-        \(3(x^2 - 1) = 0\)<br>
-        \(x^2 = 1\)<br>
-        \(x = -1,\; x = 1\).<br>
-        <strong>4. Метод интервалов:</strong>
+    <div class="section-content">
+      <div class="formula-block">
+        <ol class="algorithm-list">
+          <li><strong>Найти область определения \(D(f)\).</strong><p>Исключаем точки, где знаменатель равен нулю, подкоренное выражение отрицательно.</p></li>
+          <li><strong>Найти производную \(f'(x)\).</strong><p>Используем таблицу производных и правила дифференцирования.</p></li>
+          <li><strong>Найти критические точки: \(f'(x) = 0\) или \(f'(x)\) не существует.</strong><p>Решаем уравнение, находим точки, принадлежащие области определения.</p></li>
+          <li><strong>Определить промежутки возрастания и убывания.</strong><p>Метод интервалов: если \(f'(x) > 0\) — возрастает, если \(f'(x) < 0\) — убывает.</p></li>
+          <li><strong>Найти точки экстремума и значения функции в них.</strong><p>Смена знака с «+» на «−» — максимум, с «−» на «+» — минимум.</p></li>
+          <li><strong>Найти точки пересечения с осями координат.</strong><p>С осью \(Oy\): \(x = 0\). С осью \(Ox\): \(f(x) = 0\).</p></li>
+          <li><strong>Построить график функции.</strong><p>На основе полученных данных строим эскиз графика.</p></li>
+        </ol>
       </div>
-        <div class="image-no-gap" id="sign-svg-container">
-          <!-- SVG будет вставлен динамически -->
-        </div>
-        <div class="math-example">
-          Определим знаки производной и промежутки монотонности:<br>
-          • На \((-\infty, -1)\): \(f'(x) > 0\) ⇒ функция <strong>возрастает</strong>.<br>
-          • На \((-1, 1)\): \(f'(x) < 0\) ⇒ функция <strong>убывает</strong>.<br>
-          • На \((1, +\infty)\): \(f'(x) > 0\) ⇒ функция <strong>возрастает</strong>.<br>
-          <strong>5. Точки экстремума и координаты:</strong><br>
-          \(x = -1\): знак с «+» на «−» ⇒ <strong>максимум</strong>.<br>
-          \(f(-1) = (-1)^3 - 3(-1) = -1 + 3 = 2\). Координаты: \((-1, 2)\).<br>
-          \(x = 1\): знак с «−» на «+» ⇒ <strong>минимум</strong>.<br>
-          \(f(1) = 1^3 - 3\cdot 1 = 1 - 3 = -2\). Координаты: \((1, -2)\).<br>
-          <strong>6. Точки пересечения с осями:</strong><br>
-          С \(Oy\): \(f(0) = 0\) ⇒ \((0, 0)\).<br>
-          С \(Ox\): \(x^3 - 3x = 0\)<br>
-          \(x(x^2 - 3) = 0\)<br>
-          \(x = 0,\; x = \pm\sqrt{3}\).<br>
-          Координаты: \((-\sqrt{3}, 0)\), \((0, 0)\), \((\sqrt{3}, 0)\).<br>
-          <strong>7. График функции:</strong>
-        </div>
-        <div class="image-no-gap" id="graph-svg-container">
-          <!-- SVG будет вставлен динамически -->
-        </div>
-        <div class="math-example">
-          График — кубическая парабола, проходит через \((-\sqrt{3}, 0)\), \((0,0)\), \((\sqrt{3}, 0)\), максимум \((-1, 2)\), минимум \((1, -2)\).
-        </div></div></div>
     </div>
-
-    <a href="derivative.html" class="back-link">← Назад к производной</a>
   </div>
+
+  <!-- ОБЛАСТЬ ОПРЕДЕЛЕНИЯ -->
+  <div class="section collapsed">
+    <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+      <span class="main-title">📌 Область определения \(D(f)\)</span>
+    </div>
+    <div class="section-content">
+      <div class="formula-block">
+        <div class="rule"><strong>🔹 Многочлены</strong> — \(D(f)=\mathbb{R}\)<br><span style="color:var(--text-secondary);font-size:.8rem;">Пример: \(f(x)=x^3-3x\), \(D=(-\infty;+\infty)\)</span></div>
+        <div class="rule"><strong>🔹 Дроби \(\frac{P(x)}{Q(x)}\)</strong> — \(Q(x)\neq0\)<br><span style="color:var(--text-secondary);font-size:.8rem;">Пример: \(f(x)=\frac{1}{x}\), \(x\neq0\) → \(D=(-\infty;0)\cup(0;+\infty)\)</span></div>
+        <div class="rule"><strong>🔹 Корни чётной степени \(\sqrt[2n]{g(x)}\)</strong> — \(g(x)\geq0\)<br><span style="color:var(--text-secondary);font-size:.8rem;">Пример: \(f(x)=\sqrt{x}\), \(x\geq0\) → \(D=[0;+\infty)\)</span></div>
+        <div class="rule"><strong>🔹 Логарифмы \(\log_a g(x)\)</strong> — \(g(x)>0\)<br><span style="color:var(--text-secondary);font-size:.8rem;">Пример: \(f(x)=\ln x\), \(x>0\) → \(D=(0;+\infty)\)</span></div>
+        <div class="rule"><strong>🔹 Тригонометрические</strong> — \(\sin x,\cos x\): \(\mathbb{R}\); \(\tan x\): \(x\neq\frac{\pi}{2}+\pi k\)<br><span style="color:var(--text-secondary);font-size:.8rem;">Пример: \(f(x)=\tan x\), \(x\neq\frac{\pi}{2}+\pi k\)</span></div>
+        <div class="rule"><strong>🔹 Комбинации</strong> — пересечение областей всех частей<br><span style="color:var(--text-secondary);font-size:.8rem;">Пример: \(f(x)=\frac{\sqrt{x}}{x-1}\) → \(x\geq0\), \(x\neq1\) → \(D=[0;1)\cup(1;+\infty)\)</span></div>
+        <div class="rule"><strong>🔹 Показательные \(a^x\)</strong> — \(D(f)=\mathbb{R}\) (при \(a>0, a\neq1\))<br><span style="color:var(--text-secondary);font-size:.8rem;">Пример: \(f(x)=2^x\), \(D=\mathbb{R}\)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПРИМЕР 1 -->
+  <div class="section collapsed">
+    <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+      <span class="main-title">📖 Пример 1: \(f(x)=x^3-3x\)</span>
+    </div>
+    <div class="section-content">
+      <div class="example">
+        <strong>🔹 1. Область определения \(D(f)\)</strong><br>
+        <span class="formula">\(f(x)=x^3-3x\)</span> — это <span class="highlight">многочлен</span>.<br>
+        <div class="explain">💡 Многочлен — это выражение вида \(a_nx^n+a_{n-1}x^{n-1}+...+a_0\). Его можно вычислить при любом значении \(x\).</div>
+        <span class="formula">\(D(f)=\mathbb{R}=(-\infty;+\infty)\)</span><br><br>
+
+        <strong>🔹 2. Производная \(f'(x)\)</strong><br>
+        <span class="formula">\(f'(x)=(x^3)'-(3x)'\)</span><br>
+        <div class="explain">💡 Используем правило: \((x^n)'=n\cdot x^{n-1}\). Для \(x^3\): \(3x^{2}\). Для \(3x\): \(3\cdot1\cdot x^0=3\).</div>
+        <span class="formula">\(f'(x)=3x^2-3=3(x^2-1)\)</span><br><br>
+
+        <strong>🔹 3. Критические точки</strong><br>
+        <span class="formula">\(f'(x)=0\)</span> → \(3x^2-3=0\) → \(3(x^2-1)=0\) → \(x^2=1\)<br>
+        <span class="formula">\(x=-1\) и \(x=1\)</span><br>
+        <div class="explain">💡 Критические точки — это точки, где производная равна нулю или не существует. Здесь она существует везде, так как это многочлен.</div>
+        <span class="note">Обе точки принадлежат области определения.</span><br><br>
+
+        <strong>🔹 4. Метод интервалов</strong><br>
+        <div class="explain">💡 Метод интервалов: разбиваем числовую прямую критическими точками и определяем знак производной на каждом промежутке.</div>
+      </div>
+      <div class="canvas-container interval-container">
+        <canvas id="interval1" width="650" height="140"></canvas>
+      </div>
+      <div class="example">
+        <strong>🔹 5. Промежутки монотонности</strong><br>
+        <div class="explain">💡 Если \(f'(x)>0\) — функция <span class="highlight">возрастает</span> (график идёт вверх). Если \(f'(x)<0\) — <span class="highlight">убывает</span> (график идёт вниз).</div>
+        <span class="formula">\((-\infty;-1)\):</span> \(f'(x)>0\) → <strong>возрастает</strong> ↗<br>
+        <span class="formula">\((-1;1)\):</span> \(f'(x)<0\) → <strong>убывает</strong> ↘<br>
+        <span class="formula">\((1;+\infty)\):</span> \(f'(x)>0\) → <strong>возрастает</strong> ↗<br><br>
+
+        <strong>🔹 6. Точки экстремума</strong><br>
+        <div class="explain">💡 Если производная меняет знак с \(+\) на \(-\), это <span class="highlight">максимум</span> (вершина горки). Если с \(-\) на \(+\), это <span class="highlight">минимум</span> (дно ямки).</div>
+        <span class="formula">\(x=-1\):</span> \(+\) → \(-\) → <strong>максимум</strong><br>
+        \(f(-1)=(-1)^3-3(-1)=-1+3=2\) → <span class="result">\((-1;2)\)</span><br>
+        <span class="formula">\(x=1\):</span> \(-\) → \(+\) → <strong>минимум</strong><br>
+        \(f(1)=1^3-3\cdot1=1-3=-2\) → <span class="result">\((1;-2)\)</span><br><br>
+
+        <strong>🔹 7. Точки пересечения с осями</strong><br>
+        <div class="explain">💡 С осью \(Oy\): подставляем \(x=0\). С осью \(Ox\): решаем \(f(x)=0\).</div>
+        \(Oy\): \(f(0)=0\) → <span class="result">\((0;0)\)</span><br>
+        \(Ox\): \(x^3-3x=0\) → \(x(x^2-3)=0\) → \(x=0,\;\pm\sqrt{3}\)<br>
+        <span class="result">\((-\sqrt{3};0)\), \((0;0)\), \((\sqrt{3};0)\)</span><br><br>
+
+        <span class="result">✅ Ответ: максимум \((-1;2)\), минимум \((1;-2)\).</span>
+      </div>
+      <div class="canvas-container graph-container">
+        <canvas id="graph1" width="650" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПРИМЕР 2 -->
+  <div class="section collapsed">
+    <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+      <span class="main-title">📖 Пример 2: \(f(x)=x+\frac{1}{x}\)</span>
+    </div>
+    <div class="section-content">
+      <div class="example">
+        <strong>🔹 1. Область определения \(D(f)\)</strong><br>
+        <span class="formula">\(f(x)=x+\frac{1}{x}\)</span> — есть <span class="highlight">дробь</span> \(\frac{1}{x}\).<br>
+        <div class="explain">💡 Знаменатель дроби НЕ может быть равен нулю! На ноль делить нельзя.</div>
+        \(x\neq0\)<br>
+        <span class="formula">\(D(f)=(-\infty;0)\cup(0;+\infty)\)</span><br><br>
+
+        <strong>🔹 2. Производная \(f'(x)\)</strong><br>
+        <span class="formula">\(f'(x)=1-\frac{1}{x^2}\)</span><br>
+        <div class="explain">💡 Производная \(x\) равна \(1\). Производная \(\frac{1}{x}=x^{-1}\) равна \(-x^{-2}=-\frac{1}{x^2}\).</div>
+        <span class="formula">\(f'(x)=\frac{x^2-1}{x^2}=\frac{(x-1)(x+1)}{x^2}\)</span><br><br>
+
+        <strong>🔹 3. Критические точки</strong><br>
+        <span class="formula">\(f'(x)=0\)</span> → \(\frac{x^2-1}{x^2}=0\) → \(x^2-1=0\) → \(x=\pm1\)<br>
+        <span class="formula">\(x=-1\) и \(x=1\)</span><br>
+        <div class="explain">💡 Точка \(x=0\) не входит в область определения — там <span class="highlight">вертикальная асимптота</span> (график уходит в бесконечность).</div>
+        <br>
+
+        <strong>🔹 4. Метод интервалов</strong>
+      </div>
+      <div class="canvas-container interval-container">
+        <canvas id="interval2" width="650" height="140"></canvas>
+      </div>
+      <div class="example">
+        <strong>🔹 5. Промежутки монотонности</strong><br>
+        <span class="formula">\((-\infty;-1)\):</span> \(f'(x)>0\) → <strong>возрастает</strong> ↗<br>
+        <span class="formula">\((-1;0)\):</span> \(f'(x)<0\) → <strong>убывает</strong> ↘<br>
+        <span class="formula">\((0;1)\):</span> \(f'(x)<0\) → <strong>убывает</strong> ↘<br>
+        <span class="formula">\((1;+\infty)\):</span> \(f'(x)>0\) → <strong>возрастает</strong> ↗<br><br>
+
+        <strong>🔹 6. Точки экстремума</strong><br>
+        <span class="formula">\(x=-1\):</span> \(+\) → \(-\) → <strong>максимум</strong><br>
+        \(f(-1)=-1+\frac{1}{-1}=-1-1=-2\) → <span class="result">\((-1;-2)\)</span><br>
+        <span class="formula">\(x=1\):</span> \(-\) → \(+\) → <strong>минимум</strong><br>
+        \(f(1)=1+\frac{1}{1}=2\) → <span class="result">\((1;2)\)</span><br><br>
+
+        <strong>🔹 7. Точки пересечения с осями</strong><br>
+        \(Oy\): \(x=0\) не входит в ОДЗ → <span class="highlight">вертикальная асимптота</span> \(x=0\)<br>
+        \(Ox\): \(x+\frac{1}{x}=0\) → \(x^2+1=0\) → корней нет<br>
+        <div class="explain">💡 Дискриминант отрицательный, значит график НЕ пересекает ось \(Ox\).</div>
+        <br>
+        <span class="result">✅ Ответ: максимум \((-1;-2)\), минимум \((1;2)\).</span>
+      </div>
+      <div class="canvas-container graph-container">
+        <canvas id="graph2" width="650" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПРИМЕР 3 -->
+  <div class="section collapsed">
+    <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+      <span class="main-title">📖 Пример 3: \(f(x)=\sin x\)</span>
+    </div>
+    <div class="section-content">
+      <div class="example">
+        <strong>🔹 1. Область определения \(D(f)\)</strong><br>
+        <span class="formula">\(f(x)=\sin x\)</span> — <span class="highlight">тригонометрическая</span> функция.<br>
+        <div class="explain">💡 Синус определён при любом значении \(x\). Его можно посчитать для любого числа.</div>
+        <span class="formula">\(D(f)=\mathbb{R}=(-\infty;+\infty)\)</span><br><br>
+
+        <strong>🔹 2. Производная \(f'(x)\)</strong><br>
+        <div class="explain">💡 Производная синуса — это косинус: \((\sin x)'=\cos x\). Это табличная формула.</div>
+        <span class="formula">\(f'(x)=\cos x\)</span><br><br>
+
+        <strong>🔹 3. Критические точки</strong><br>
+        <span class="formula">\(\cos x=0\)</span> → \(x=\frac{\pi}{2}+\pi k,\;k\in\mathbb{Z}\)<br>
+        <div class="explain">💡 Косинус равен нулю в точках \(\frac{\pi}{2}\), \(\frac{3\pi}{2}\), \(-\frac{\pi}{2}\) и так далее (каждые \(\pi\) радиан).</div>
+        <span class="note">Для наглядности рассмотрим отрезок \([-\pi;\pi]\).</span><br><br>
+
+        <strong>🔹 4. Метод интервалов (на \([-\pi;\pi]\))</strong>
+      </div>
+      <div class="canvas-container interval-container">
+        <canvas id="interval3" width="650" height="140"></canvas>
+      </div>
+      <div class="example">
+        <strong>🔹 5. Промежутки монотонности (на \([-\pi;\pi]\))</strong><br>
+        <div class="explain">💡 \(\cos x>0\) — синус возрастает. \(\cos x<0\) — синус убывает.</div>
+        <span class="formula">\((-\pi;-\frac{\pi}{2})\):</span> \(\cos x<0\) → <strong>убывает</strong> ↘<br>
+        <span class="formula">\((-\frac{\pi}{2};\frac{\pi}{2})\):</span> \(\cos x>0\) → <strong>возрастает</strong> ↗<br>
+        <span class="formula">\((\frac{\pi}{2};\pi)\):</span> \(\cos x<0\) → <strong>убывает</strong> ↘<br><br>
+
+        <strong>🔹 6. Точки экстремума (на \([-\pi;\pi]\))</strong><br>
+        <span class="formula">\(x=-\frac{\pi}{2}\):</span> \(-\) → \(+\) → <strong>минимум</strong><br>
+        \(\sin(-\frac{\pi}{2})=-1\) → <span class="result">\((-\frac{\pi}{2};-1)\)</span><br>
+        <span class="formula">\(x=\frac{\pi}{2}\):</span> \(+\) → \(-\) → <strong>максимум</strong><br>
+        \(\sin(\frac{\pi}{2})=1\) → <span class="result">\((\frac{\pi}{2};1)\)</span><br><br>
+
+        <strong>🔹 7. Точки пересечения с осями</strong><br>
+        \(Oy\): \(\sin0=0\) → <span class="result">\((0;0)\)</span><br>
+        \(Ox\): \(\sin x=0\) → \(x=\pi k,\;k\in\mathbb{Z}\)<br>
+        <div class="explain">💡 Синус равен нулю в точках \(0\), \(\pm\pi\), \(\pm2\pi\) и так далее.</div>
+        <br>
+        <span class="result">✅ Ответ: минимумы \((-\frac{\pi}{2}+2\pi k;-1)\), максимумы \((\frac{\pi}{2}+2\pi k;1)\).</span>
+      </div>
+      <div class="canvas-container graph-container">
+        <canvas id="graph3" width="650" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПРИМЕР 4 -->
+  <div class="section collapsed">
+    <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+      <span class="main-title">⚠️ Пример 4: \(f(x)=x^3\) — нет экстремума!</span>
+    </div>
+    <div class="section-content">
+      <div class="example">
+        <div class="important">
+          <strong>⚠️ ВАЖНО!</strong> Если производная равна нулю в точке, это <strong>НЕ ОБЯЗАТЕЛЬНО</strong> означает экстремум! Там может быть <span class="highlight">точка перегиба</span>.
+        </div>
+
+        <strong>🔹 1. Область определения \(D(f)\)</strong><br>
+        <span class="formula">\(f(x)=x^3\)</span> — многочлен.<br>
+        <span class="formula">\(D(f)=\mathbb{R}=(-\infty;+\infty)\)</span><br><br>
+
+        <strong>🔹 2. Производная \(f'(x)\)</strong><br>
+        <span class="formula">\(f'(x)=3x^2\)</span><br>
+        <div class="explain">💡 Правило: \((x^3)'=3x^2\).</div><br>
+
+        <strong>🔹 3. Критические точки</strong><br>
+        <span class="formula">\(3x^2=0\)</span> → \(x=0\)<br>
+        <div class="explain">💡 Квадрат числа может быть равен нулю только если само число равно нулю.</div>
+        <span class="formula">\(x=0\)</span><br><br>
+
+        <strong>🔹 4. Метод интервалов</strong>
+      </div>
+      <div class="canvas-container interval-container">
+        <canvas id="interval4" width="650" height="140"></canvas>
+      </div>
+      <div class="example">
+        <strong>🔹 5. Промежутки монотонности</strong><br>
+        <span class="formula">\((-\infty;0)\):</span> \(3x^2>0\) → <strong>возрастает</strong> ↗<br>
+        <span class="formula">\((0;+\infty)\):</span> \(3x^2>0\) → <strong>возрастает</strong> ↗<br>
+        <div class="explain">💡 \(x^2\) всегда положителен (кроме \(x=0\), где он равен нулю). Поэтому производная везде ≥0.</div><br>
+
+        <strong>🔹 6. Смена знака производной</strong><br>
+        Слева от \(x=0\): \(f'(x)>0\)<br>
+        Справа от \(x=0\): \(f'(x)>0\)<br>
+        <span class="highlight">Знак НЕ меняется: \(+\) → \(+\)</span><br>
+        <div class="explain">💡 Для экстремума нужно, чтобы знак МЕНЯЛСЯ. Здесь он не меняется, значит <span class="highlight">экстремума нет</span>!</div>
+        <span class="warning">⚠️ Это точка перегиба, а не экстремум!</span><br><br>
+
+        <strong>🔹 7. Точки пересечения с осями</strong><br>
+        \(f(0)=0\) → <span class="result">\((0;0)\)</span><br>
+        <br>
+        <span class="result">✅ Ответ: экстремумов нет, \(x=0\) — точка перегиба.</span>
+      </div>
+      <div class="canvas-container graph-container">
+        <canvas id="graph4" width="650" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПРИМЕР 5 -->
+  <div class="section collapsed">
+    <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+      <span class="main-title">⭐ Пример 5: задача с параметром (ЕГЭ)</span>
+    </div>
+    <div class="section-content">
+      <div class="example">
+        <strong>🔹 Условие задачи</strong><br>
+        При каких значениях параметра \(a\) функция<br>
+        <span class="formula">\(f(x)=x^3-3ax^2+3x\)</span><br>
+        <span class="highlight">возрастает на всей области определения</span>?<br><br>
+
+        <strong>🔹 1. Область определения</strong><br>
+        <span class="formula">\(f(x)=x^3-3ax^2+3x\)</span> — это многочлен.<br>
+        <span class="formula">\(D(f)=\mathbb{R}=(-\infty;+\infty)\)</span><br>
+        <div class="explain">💡 Многочлен определён при любых \(x\), независимо от \(a\).</div><br>
+
+        <strong>🔹 2. Производная</strong><br>
+        <span class="formula">\(f'(x)=3x^2-6ax+3=3(x^2-2ax+1)\)</span><br>
+        <div class="explain">💡 Производная \(x^3\) → \(3x^2\). Производная \(-3ax^2\) → \(-6ax\). Производная \(3x\) → \(3\).</div><br>
+
+        <strong>🔹 3. Условие возрастания</strong><br>
+        <div class="explain">💡 Чтобы функция возрастала на всей области определения, нужно чтобы <span class="highlight">\(f'(x)\geq0\)</span> для всех \(x\).</div>
+        <span class="formula">\(x^2-2ax+1\geq0\)</span> для всех \(x\).<br><br>
+
+        <strong>🔹 4. Квадратный трёхчлен</strong><br>
+        <div class="explain">💡 Квадратный трёхчлен \(x^2-2ax+1\) неотрицателен при всех \(x\), если его <span class="highlight">дискриминант ≤ 0</span> (ветви параболы направлены вверх).</div>
+        \(D=(-2a)^2-4\cdot1\cdot1=4a^2-4=4(a^2-1)\)<br>
+        \(4(a^2-1)\leq0\) → \(a^2-1\leq0\) → \(-1\leq a\leq1\)<br>
+        <div class="explain">💡 Если \(a\) находится в этом промежутке, парабола либо касается оси \(Ox\), либо находится выше неё.</div>
+        <br>
+        <span class="result">✅ Ответ: \(a\in[-1;1]\).</span>
+      </div>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-link">← Назад к меню</a>
 </div>
 
 <script>
-  // Функция для получения текущих цветов темы из CSS переменных
-  function getCurrentThemeColors() {
-      const isLight = document.documentElement.classList.contains('light-mode');
+  function toggleTheme(){
+      const html=document.documentElement;
+      const btn=document.getElementById('themeBtn');
+      if(html.classList.contains('light-mode')){
+          html.classList.remove('light-mode');
+          localStorage.setItem('mathTheme','dark');
+          btn.textContent='🌙';
+      }else{
+          html.classList.add('light-mode');
+          localStorage.setItem('mathTheme','light');
+          btn.textContent='☀️';
+      }
+      drawAll();
+  }
+  (function(){
+      const saved=localStorage.getItem('mathTheme');
+      if(saved==='light'){
+          document.documentElement.classList.add('light-mode');
+          document.getElementById('themeBtn').textContent='☀️';
+      }else{
+          if(!saved) localStorage.setItem('mathTheme','dark');
+          document.getElementById('themeBtn').textContent='🌙';
+      }
+  })();
+
+  function getColors(){
+      const isLight=document.documentElement.classList.contains('light-mode');
       return {
-          stroke: isLight ? '#1a2a3f' : '#ffffff',
-          text: isLight ? '#1a2a3f' : '#ffffff',
-          axis: isLight ? '#5a7a94' : '#8ba5b8',
-          fill: isLight ? '#1a2a3f' : '#ffffff'
+          axis: isLight?'#5a7a94':'#8ba5b8',
+          text: isLight?'#1a2a3f':'#ffffff',
+          bg: isLight?'#f8fafc':'#162a38',
+          grid: isLight?'rgba(26,42,63,0.1)':'rgba(139,165,184,0.2)',
+          curve:'#1abc9c',
+          point:'#e67e22',
+          label:'#f39c12',
+          plus: isLight?'#059669':'#34d399',
+          minus: isLight?'#dc2626':'#f87171',
+          intervalLabel: isLight?'#334155':'#cbd5e1',
+          arrow: isLight?'#334155':'#cbd5e1',
+          dot: isLight?'#1a2a3f':'#ffffff',
+          maxDot:'#f97316',
+          minDot:'#34d399',
+          curvePlus: isLight?'#2563eb':'#60a5fa',
+          curveMinus: isLight?'#dc2626':'#f87171',
+          curvePlusFill: isLight?'rgba(37,99,235,0.15)':'rgba(96,165,250,0.15)',
+          curveMinusFill: isLight?'rgba(220,38,38,0.15)':'rgba(248,113,113,0.15)'
       };
   }
 
-  // SVG для метода интервалов (таблица знаков)
-  function renderSignSVG(colors) {
-      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="74.244 157.348 235.623 83.213">
-      <g>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="93.75 203.817 302.863 203.056"></polyline>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="293.228 205.532 302.863 202.83 292.96 200.58"></polyline>
-        <path style="fill: none; stroke: ${colors.stroke};" d="M 91.846 171.441 C 83.724 167.249 156.903 175.974 158.884 203.056 C 173.181 173.229 224.695 170.011 242.681 203.056 C 243.388 182.085 302.148 166.458 297.911 168.775"></path>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="107.843 190.105 123.841 190.105"></polyline>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="116.223 182.487 116.223 196.2"></polyline>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="191.26 193.152 204.972 193.152"></polyline>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="272.772 190.867 287.627 191.248"></polyline>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="281.152 183.249 280.771 196.58"></polyline>
-        <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="135.649" y="105.165" transform="matrix(0.504781, 0, 0, 0.487948, 82.792793, 175.239182)">-1</text>
-        <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="288.008" y="104.784" transform="matrix(0.464534, 0, 0, 0.496824, 105.082504, 174.699203)">1</text>
-        <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="397.707" y="152.396" transform="matrix(0.464524, 0, 0, 0.470435, 111.305885, 147.498901)">x</text>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="104.035 228.576 141.743 214.167"></polyline>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="181.357 211.055 213.353 229.513"></polyline>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="256.394 226.29 287.627 214.167"></polyline>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="134.39 214.078 141.743 214.077 136.751 220.229"></polyline>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="209.938 224.465 213.353 229.339 207.577 229.339"></polyline>
-        <polyline style="fill: none; stroke: ${colors.axis};" points="280.291 214.314 287.627 214.077 283.832 220.229"></polyline>
-      </g>
-      <polyline style="fill: none; stroke: ${colors.axis};" points="270.8680114746094 157.34800720214844"></polyline>
-      <polyline style="fill: none; stroke: ${colors.axis};" points="144.30599975585938 227.2989959716797"></polyline>
-    </svg>`;
-  }
+  function drawIntervalSimple(canvasId, points, signs, intervals, extremums){
+      const canvas=document.getElementById(canvasId);
+      if(!canvas) return;
+      const w=canvas.parentElement.clientWidth-8;
+      const h=w*140/650;
+      canvas.width=650;canvas.height=140;
+      canvas.style.width=w+'px';canvas.style.height=h+'px';
+      const ctx=canvas.getContext('2d');
+      const W=650,H=140;
+      const colors=getColors();
+      ctx.clearRect(0,0,W,H);
+      const yAxis=70;
 
-  // SVG для графика функции y = x^3 - 3x
-  function renderGraphSVG(colors) {
-      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="91.624 51.981 275.287 275.972">
-      <polyline style="fill: none; stroke: ${colors.axis};" points="99.327 210.526 359.435 210.642"></polyline>
-      <polyline style="fill: none; stroke: ${colors.axis}; transform-box: fill-box; transform-origin: 50% 50%;" points="207.666 62.259 207.317 321.206"></polyline>
-      <polyline style="fill: none; stroke: ${colors.axis};" points="205.392 132.221 215.019 132.221"></polyline>
-      <polyline style="fill: none; stroke: ${colors.axis};" points="251.60499572753906 121.30899810791016"></polyline>
-      <polyline style="fill: none; stroke: ${colors.axis};" points="203.466 284.981 211.635 284.894"></polyline>
-      <polyline style="fill: none; stroke: ${colors.axis};" points="176.508 207.317 176.508 213.736"></polyline>
-      <polyline style="fill: none; stroke: ${colors.axis};" points="241.321 206.675 241.321 215.019"></polyline>
-      <polyline style="fill: none; stroke: ${colors.axis};" points="350.864 208.671 358.523 210.494 352.323 213.412"></polyline>
-      <polyline style="fill: none; stroke: ${colors.axis};" points="205.238 68.897 207.791 62.333 209.979 69.262"></polyline>
-      <path style="fill: none; stroke: ${colors.stroke};" d="M 179.161 132.499 C 179.161 131.59 178.762 135.193 178.762 132.898"></path>
-      <path style="fill: none; stroke: ${colors.stroke};" d="M 135.627 249.524 C 166.829 122.508 182.326 85.795 207.78 211.179 C 217.853 260.795 228.49 280.257 238.164 282.707 C 256.641 287.387 272.729 228.477 281.408 188.415"></path>
-      <polyline style="fill: none; stroke: ${colors.axis};" points="333.7300109863281 250.322998046875"></polyline>
-      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="294.589" y="106.937" transform="matrix(0.589743, 0, 0, 0.448718, 61.745396, 182.076065)">1</text>
-      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="406.022" y="110.132" transform="matrix(0.486717, 0, 0, 0.424366, -30.438654, 181.879471)">-1</text>
-      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="412.412" y="144.88" transform="matrix(0.461538, 0, 0, 0.474359, 31.952198, 67.721321)">2</text>
-      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="410.016" y="190.812" transform="matrix(0.406516, 0, 0, 0.487179, 47.230976, 195.982529)">-2</text>
-      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="417.605" y="231.95" transform="matrix(0.372549, 0, 0, 0.397436, 191.731766, 131.792038)">х</text>
-      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="427.59" y="268.695" transform="matrix(0.34402, 0, 0, 0.344101, 53.629845, -15.183313)">y</text>
-      <text style="white-space: pre; fill: ${colors.text}; font-family: Arial, sans-serif; font-size: 28px;" x="348.508" y="126.907" transform="matrix(0.410237, 0, 0, 0.487419, 56.559628, 165.175354)">0</text>
-    </svg>`;
-  }
+      ctx.strokeStyle=colors.axis;
+      ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(25,yAxis);
+      ctx.lineTo(W-25,yAxis);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(W-25,yAxis);
+      ctx.lineTo(W-35,yAxis-5);
+      ctx.lineTo(W-35,yAxis+5);
+      ctx.closePath();
+      ctx.fillStyle=colors.axis;
+      ctx.fill();
+      ctx.fillStyle=colors.text;
+      ctx.font='12px Inter,sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='top';
+      ctx.fillText('x',W-20,yAxis+4);
 
-  function updateAllSVGs() {
-      const colors = getCurrentThemeColors();
-
-      const signContainer = document.getElementById('sign-svg-container');
-      if (signContainer) {
-          signContainer.innerHTML = renderSignSVG(colors);
+      const xPos=[];
+      const sp=(W-50)/(points.length+1);
+      for(let i=0;i<points.length;i++){
+          const x=25+(i+1)*sp;
+          xPos.push(x);
+          ctx.strokeStyle=colors.axis;
+          ctx.lineWidth=1.5;
+          ctx.beginPath();
+          ctx.moveTo(x,yAxis-5);
+          ctx.lineTo(x,yAxis+5);
+          ctx.stroke();
+          ctx.fillStyle=colors.dot;
+          ctx.beginPath();
+          ctx.arc(x,yAxis,3.5,0,Math.PI*2);
+          ctx.fill();
+          ctx.strokeStyle=colors.axis;
+          ctx.lineWidth=1;
+          ctx.stroke();
+          ctx.fillStyle=colors.text;
+          ctx.font='bold 11px Inter,sans-serif';
+          ctx.textAlign='center';
+          ctx.textBaseline='top';
+          ctx.fillText(points[i],x,yAxis+9);
       }
 
-      const graphContainer = document.getElementById('graph-svg-container');
-      if (graphContainer) {
-          graphContainer.innerHTML = renderGraphSVG(colors);
-      }
-
-      // Принудительно обновляем MathJax после вставки SVG
-      if (window.MathJax) {
-          MathJax.typesetPromise().catch(function(err) {
-              console.log('MathJax error:', err);
-          });
-      }
-  }
-
-  function toggleTheme() {
-      const html = document.documentElement;
-      const btn = document.getElementById('themeBtn');
-      if (html.classList.contains('light-mode')) {
-          html.classList.remove('light-mode');
-          localStorage.setItem('mathTheme', 'dark');
-          if (btn) btn.textContent = '🌙';
-      } else {
-          html.classList.add('light-mode');
-          localStorage.setItem('mathTheme', 'light');
-          if (btn) btn.textContent = '☀️';
-      }
-      updateAllSVGs();
-      if (window.MathJax) {
-          MathJax.typesetPromise();
-      }
-  }
-
-  (function() {
-      const savedTheme = localStorage.getItem('mathTheme');
-      if (savedTheme === 'light') {
-          document.documentElement.classList.add('light-mode');
-          const btn = document.getElementById('themeBtn');
-          if (btn) btn.textContent = '☀️';
-      } else {
-          if (!savedTheme) {
-              localStorage.setItem('mathTheme', 'dark');
+      const amp=26;
+      for(let i=0;i<signs.length;i++){
+          const xStart=(i===0)?25:xPos[i-1];
+          const xEnd=(i===signs.length-1)?W-25:xPos[i];
+          const isPlus=(signs[i]==='+');
+          ctx.beginPath();
+          ctx.strokeStyle=isPlus?colors.curvePlus:colors.curveMinus;
+          ctx.lineWidth=2;
+          ctx.fillStyle=isPlus?colors.curvePlusFill:colors.curveMinusFill;
+          for(let t=0;t<=1;t+=0.01){
+              const x=xStart+t*(xEnd-xStart);
+              const y=yAxis-amp*Math.sin(t*Math.PI);
+              if(t===0) ctx.moveTo(x,y);
+              else ctx.lineTo(x,y);
           }
-          const btn = document.getElementById('themeBtn');
-          if (btn) btn.textContent = '🌙';
+          ctx.lineTo(xEnd,yAxis);
+          ctx.lineTo(xStart,yAxis);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          const mid=(xStart+xEnd)/2;
+          ctx.fillStyle=isPlus?colors.plus:colors.minus;
+          ctx.font='bold 22px Inter,sans-serif';
+          ctx.textAlign='center';
+          ctx.textBaseline='middle';
+          ctx.fillText(signs[i],mid,yAxis-amp/2+2);
+          ctx.fillStyle=colors.intervalLabel;
+          ctx.font='10px Inter,sans-serif';
+          ctx.textBaseline='top';
+          ctx.textAlign='center';
+          ctx.fillText(intervals[i],mid,yAxis+16);
+          ctx.font='12px Inter,sans-serif';
+          ctx.textBaseline='middle';
+          ctx.fillStyle=colors.arrow;
+          ctx.fillText((signs[i]==='+')?'↗':'↘',mid,yAxis+32);
+          ctx.font='9px Inter,sans-serif';
+          ctx.fillText((signs[i]==='+')?'возрастает':'убывает',mid,yAxis+46);
       }
-      // Отрисовываем SVG после загрузки DOM
-      setTimeout(function() {
-          updateAllSVGs();
-      }, 200);
-  })();
-</script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+      if(extremums){
+          for(const e of extremums){
+              let idx=-1;
+              for(let i=0;i<points.length;i++){if(points[i]===e.x){idx=i;break;}}
+              if(idx===-1) continue;
+              const x=xPos[idx];
+              const isMax=(e.type==='max');
+              ctx.fillStyle=isMax?colors.maxDot:colors.minDot;
+              ctx.beginPath();
+              ctx.arc(x,yAxis,5.5,0,Math.PI*2);
+              ctx.fill();
+              ctx.strokeStyle=colors.axis;
+              ctx.lineWidth=1.5;
+              ctx.stroke();
+              ctx.fillStyle=colors.text;
+              ctx.font='bold 10px Inter,sans-serif';
+              ctx.textAlign='center';
+              ctx.textBaseline='bottom';
+              ctx.fillText(isMax?'max':'min',x,yAxis-7);
+          }
+      }
+      ctx.setLineDash([3,4]);
+      ctx.strokeStyle=colors.intervalLabel;
+      ctx.lineWidth=1;
+      ctx.globalAlpha=0.3;
+      for(const x of xPos){
+          ctx.beginPath();
+          ctx.moveTo(x,10);
+          ctx.lineTo(x,yAxis-4);
+          ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+      ctx.setLineDash([]);
+  }
+
+  function drawIntervalSin(canvasId){
+      const canvas=document.getElementById(canvasId);
+      if(!canvas) return;
+      const w=canvas.parentElement.clientWidth-8;
+      const h=w*140/650;
+      canvas.width=650;canvas.height=140;
+      canvas.style.width=w+'px';canvas.style.height=h+'px';
+      const ctx=canvas.getContext('2d');
+      const W=650,H=140;
+      const colors=getColors();
+      ctx.clearRect(0,0,W,H);
+      const yAxis=70;
+
+      ctx.strokeStyle=colors.axis;
+      ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(30,yAxis);
+      ctx.lineTo(W-30,yAxis);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(W-30,yAxis);
+      ctx.lineTo(W-40,yAxis-5);
+      ctx.lineTo(W-40,yAxis+5);
+      ctx.closePath();
+      ctx.fillStyle=colors.axis;
+      ctx.fill();
+      ctx.fillStyle=colors.text;
+      ctx.font='12px Inter,sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='top';
+      ctx.fillText('x',W-24,yAxis+4);
+
+      const totalW=W-60;
+      const segW=totalW/4;
+      const pts=[
+          {x:30,label:'-π'},
+          {x:30+segW,label:'-π/2'},
+          {x:30+2*segW,label:'0'},
+          {x:30+3*segW,label:'π/2'},
+          {x:30+4*segW,label:'π'}
+      ];
+      pts.forEach(p=>{
+          ctx.strokeStyle=colors.axis;
+          ctx.lineWidth=1.5;
+          ctx.beginPath();
+          ctx.moveTo(p.x,yAxis-5);
+          ctx.lineTo(p.x,yAxis+5);
+          ctx.stroke();
+          ctx.fillStyle=colors.dot;
+          ctx.beginPath();
+          ctx.arc(p.x,yAxis,3.5,0,Math.PI*2);
+          ctx.fill();
+          ctx.strokeStyle=colors.axis;
+          ctx.lineWidth=1;
+          ctx.stroke();
+          ctx.fillStyle=colors.text;
+          ctx.font='bold 11px Inter,sans-serif';
+          ctx.textAlign='center';
+          ctx.textBaseline='top';
+          ctx.fillText(p.label,p.x,yAxis+9);
+      });
+
+      const amp=26;
+      function drawPart(sIdx,eIdx,sign,type,behavior,label){
+          const sX=pts[sIdx].x,eX=pts[eIdx].x;
+          const isPlus=(type==='plus');
+          ctx.beginPath();
+          ctx.strokeStyle=isPlus?colors.curvePlus:colors.curveMinus;
+          ctx.lineWidth=2;
+          ctx.fillStyle=isPlus?colors.curvePlusFill:colors.curveMinusFill;
+          for(let t=0;t<=1;t+=0.01){
+              const x=sX+t*(eX-sX);
+              const y=yAxis-amp*Math.sin(t*Math.PI);
+              if(t===0) ctx.moveTo(x,y);
+              else ctx.lineTo(x,y);
+          }
+          ctx.lineTo(eX,yAxis);
+          ctx.lineTo(sX,yAxis);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          const mid=(sX+eX)/2;
+          ctx.fillStyle=isPlus?colors.plus:colors.minus;
+          ctx.font='bold 22px Inter,sans-serif';
+          ctx.textAlign='center';
+          ctx.textBaseline='middle';
+          ctx.fillText(sign,mid,yAxis-amp/2+2);
+          ctx.fillStyle=colors.intervalLabel;
+          ctx.font='10px Inter,sans-serif';
+          ctx.textBaseline='top';
+          ctx.textAlign='center';
+          ctx.fillText(label,mid,yAxis+16);
+          ctx.font='12px Inter,sans-serif';
+          ctx.textBaseline='middle';
+          ctx.fillStyle=colors.arrow;
+          ctx.fillText((behavior==='возрастает')?'↗':'↘',mid,yAxis+32);
+          ctx.font='9px Inter,sans-serif';
+          ctx.fillText(behavior,mid,yAxis+46);
+      }
+      drawPart(0,1,'-','minus','убывает','(-π; -π/2)');
+      drawPart(1,3,'+','plus','возрастает','(-π/2; π/2)');
+      drawPart(3,4,'-','minus','убывает','(π/2; π)');
+
+      const minX=pts[1].x;
+      ctx.fillStyle=colors.minDot;
+      ctx.beginPath();
+      ctx.arc(minX,yAxis,5.5,0,Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle=colors.axis;
+      ctx.lineWidth=1.5;
+      ctx.stroke();
+      ctx.fillStyle=colors.text;
+      ctx.font='bold 10px Inter,sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='bottom';
+      ctx.fillText('min',minX,yAxis-7);
+
+      const maxX=pts[3].x;
+      ctx.fillStyle=colors.maxDot;
+      ctx.beginPath();
+      ctx.arc(maxX,yAxis,5.5,0,Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle=colors.axis;
+      ctx.lineWidth=1.5;
+      ctx.stroke();
+      ctx.fillStyle=colors.text;
+      ctx.font='bold 10px Inter,sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='bottom';
+      ctx.fillText('max',maxX,yAxis-7);
+
+      ctx.setLineDash([3,4]);
+      ctx.strokeStyle=colors.intervalLabel;
+      ctx.lineWidth=1;
+      ctx.globalAlpha=0.2;
+      pts.forEach(p=>{
+          ctx.beginPath();
+          ctx.moveTo(p.x,10);
+          ctx.lineTo(p.x,yAxis-4);
+          ctx.stroke();
+      });
+      ctx.globalAlpha=1;
+      ctx.setLineDash([]);
+  }
+
+  function drawGraph(canvasId, fn, xMin, xMax, yMin, yMax, points, asymptotes, isTrig){
+      const canvas=document.getElementById(canvasId);
+      if(!canvas) return;
+      const w=canvas.parentElement.clientWidth-8;
+      const h=w*360/650;
+      canvas.width=650;canvas.height=360;
+      canvas.style.width=w+'px';canvas.style.height=h+'px';
+      const ctx=canvas.getContext('2d');
+      const W=650,H=360,pad=45;
+      const colors=getColors();
+      const isLight=document.documentElement.classList.contains('light-mode');
+      ctx.fillStyle=colors.bg;
+      ctx.fillRect(0,0,W,H);
+
+      const xRange=xMax-xMin,yRange=yMax-yMin;
+      const xScale=(W-2*pad)/xRange,yScale=(H-2*pad)/yRange;
+      const scale=Math.min(xScale,yScale)*0.88;
+      const newXRange=(W-2*pad)/scale,newYRange=(H-2*pad)/scale;
+      const cx=(xMin+xMax)/2,cy=(yMin+yMax)/2;
+      const fxMin=cx-newXRange/2,fxMax=cx+newXRange/2;
+      const fyMin=cy-newYRange/2,fyMax=cy+newYRange/2;
+
+      function toX(x){return pad+(x-fxMin)/(fxMax-fxMin)*(W-2*pad);}
+      function toY(y){return pad+(fyMax-y)/(fyMax-fyMin)*(H-2*pad);}
+
+      ctx.strokeStyle=colors.grid;
+      ctx.lineWidth=.5;
+      let stepX=1,stepY=1;
+      if(isTrig){stepX=Math.PI/2;stepY=.5;}
+      for(let x=Math.ceil(fxMin/stepX)*stepX;x<=fxMax;x+=stepX){
+          if(Math.abs(x)<.001) continue;
+          const xc=toX(x);
+          ctx.beginPath();ctx.moveTo(xc,pad);ctx.lineTo(xc,H-pad);ctx.stroke();
+          ctx.fillStyle=colors.text;
+          ctx.font='11px Inter,sans-serif';
+          ctx.textAlign='center';ctx.textBaseline='top';
+          if(isTrig){
+              if(Math.abs(x-Math.PI)<.01) ctx.fillText('π',xc,H-pad+4);
+              else if(Math.abs(x+Math.PI)<.01) ctx.fillText('-π',xc,H-pad+4);
+              else if(Math.abs(x-Math.PI/2)<.01) ctx.fillText('π/2',xc,H-pad+4);
+              else if(Math.abs(x+Math.PI/2)<.01) ctx.fillText('-π/2',xc,H-pad+4);
+              else if(Math.abs(x)<.01) ctx.fillText('0',xc,H-pad+4);
+          }else{
+              ctx.fillText(Number.isInteger(x)?x.toString():x.toFixed(1),xc,H-pad+4);
+          }
+      }
+      for(let y=Math.ceil(fyMin/stepY)*stepY;y<=fyMax;y+=stepY){
+          if(Math.abs(y)<.001) continue;
+          const yc=toY(y);
+          ctx.beginPath();ctx.moveTo(pad,yc);ctx.lineTo(W-pad,yc);ctx.stroke();
+          ctx.fillStyle=colors.text;
+          ctx.font='11px Inter,sans-serif';
+          ctx.textAlign='right';ctx.textBaseline='middle';
+          ctx.fillText(Number.isInteger(y)?y.toString():y.toFixed(1),pad-6,yc);
+      }
+
+      ctx.strokeStyle=colors.axis;
+      ctx.lineWidth=1.5;
+      const y0=toY(0);
+      if(y0>=pad&&y0<=H-pad){
+          ctx.beginPath();ctx.moveTo(pad,y0);ctx.lineTo(W-pad,y0);ctx.stroke();
+          ctx.beginPath();ctx.moveTo(W-pad,y0);ctx.lineTo(W-pad-8,y0-4);ctx.lineTo(W-pad-8,y0+4);ctx.closePath();ctx.fillStyle=colors.axis;ctx.fill();
+      }
+      const x0=toX(0);
+      if(x0>=pad&&x0<=W-pad){
+          ctx.beginPath();ctx.moveTo(x0,pad);ctx.lineTo(x0,H-pad);ctx.stroke();
+          ctx.beginPath();ctx.moveTo(x0,pad);ctx.lineTo(x0-4,pad+8);ctx.lineTo(x0+4,pad+8);ctx.closePath();ctx.fillStyle=colors.axis;ctx.fill();
+      }
+      ctx.fillStyle=colors.text;
+      ctx.font='13px Inter,sans-serif';
+      ctx.textAlign='left';ctx.textBaseline='bottom';
+      ctx.fillText('x',W-pad-4,y0-6);
+      ctx.fillText('y',x0+6,pad+10);
+      if(x0>=pad&&x0<=W-pad&&y0>=pad&&y0<=H-pad){
+          ctx.textAlign='right';ctx.textBaseline='top';
+          ctx.fillStyle=colors.text;
+          ctx.font='11px Inter,sans-serif';
+          ctx.fillText('0',x0-4,y0+3);
+      }
+
+      if(asymptotes){
+          ctx.strokeStyle='#e74c3c';
+          ctx.lineWidth=1;
+          ctx.setLineDash([5,5]);
+          for(const a of asymptotes){
+              const xc=toX(a);
+              if(xc>=pad&&xc<=W-pad){
+                  ctx.beginPath();ctx.moveTo(xc,pad);ctx.lineTo(xc,H-pad);ctx.stroke();
+                  ctx.fillStyle='#e74c3c';
+                  ctx.font='10px Inter,sans-serif';
+                  ctx.textAlign='center';ctx.textBaseline='bottom';
+                  ctx.fillText('x='+a,xc,pad-3);
+              }
+          }
+          ctx.setLineDash([]);
+      }
+
+      // График — тонкая линия
+      ctx.shadowColor='rgba(26,188,156,0.15)';
+      ctx.shadowBlur=4;
+      ctx.strokeStyle=colors.curve;
+      ctx.lineWidth=1.8;
+      ctx.beginPath();
+      let first=true;
+      const steps=1000;
+      for(let i=0;i<=steps;i++){
+          const t=i/steps;
+          const x=fxMin+t*(fxMax-fxMin);
+          const y=fn(x);
+          if(isNaN(y)||!isFinite(y)){first=true;continue;}
+          const xc=toX(x),yc=toY(y);
+          if(xc<pad||xc>W-pad||yc<pad||yc>H-pad){first=true;continue;}
+          if(first){ctx.moveTo(xc,yc);first=false;}else ctx.lineTo(xc,yc);
+      }
+      ctx.stroke();
+      ctx.shadowBlur=0;
+
+      if(points){
+          for(const p of points){
+              const xc=toX(p.x),yc=toY(p.y);
+              if(xc<pad||xc>W-pad||yc<pad||yc>H-pad) continue;
+              ctx.shadowColor='rgba(230,126,34,0.2)';
+              ctx.shadowBlur=4;
+              ctx.beginPath();
+              ctx.arc(xc,yc,3.5,0,2*Math.PI);
+              ctx.fillStyle=colors.point;
+              ctx.fill();
+              ctx.shadowBlur=0;
+              ctx.strokeStyle=isLight?'#fff':colors.bg;
+              ctx.lineWidth=1.5;
+              ctx.beginPath();
+              ctx.arc(xc,yc,3.5,0,2*Math.PI);
+              ctx.stroke();
+              if(p.label){
+                  ctx.fillStyle=colors.label;
+                  ctx.font='bold 12px Inter,sans-serif';
+                  ctx.textAlign='left';ctx.textBaseline='bottom';
+                  ctx.fillText(p.label,xc+8,yc-4);
+              }
+              ctx.setLineDash([3,4]);
+              ctx.strokeStyle=colors.point;
+              ctx.lineWidth=0.8;
+              ctx.globalAlpha=.2;
+              ctx.beginPath();ctx.moveTo(xc,yc);ctx.lineTo(xc,y0);ctx.stroke();
+              ctx.beginPath();ctx.moveTo(xc,yc);ctx.lineTo(x0,yc);ctx.stroke();
+              ctx.globalAlpha=1;
+              ctx.setLineDash([]);
+          }
+      }
+  }
+
+  function drawAll(){
+      drawIntervalSimple('interval1',['-1','1'],['+','-','+'],['(−∞; −1)','(−1; 1)','(1; +∞)'], [{x:'-1',type:'max'},{x:'1',type:'min'}]);
+      drawGraph('graph1',function(x){return x*x*x-3*x;},-2.8,2.8,-3.5,3.5,[{x:-1,y:2,label:'max'},{x:1,y:-2,label:'min'},{x:-1.732,y:0},{x:0,y:0},{x:1.732,y:0}],null,false);
+
+      drawIntervalSimple('interval2',['-1','0','1'],['+','-','-','+'],['(−∞; −1)','(−1; 0)','(0; 1)','(1; +∞)'], [{x:'-1',type:'max'},{x:'1',type:'min'}]);
+      drawGraph('graph2',function(x){return x+1/x;},-5,5,-5.5,5.5,[{x:-1,y:-2,label:'max'},{x:1,y:2,label:'min'}],[0],false);
+
+      drawIntervalSin('interval3');
+      drawGraph('graph3',Math.sin,-4.8,4.8,-1.8,1.8,[{x:-Math.PI/2,y:-1,label:'min'},{x:Math.PI/2,y:1,label:'max'},{x:-Math.PI,y:0},{x:0,y:0},{x:Math.PI,y:0}],null,true);
+
+      drawIntervalSimple('interval4',['0'],['+','+'],['(−∞; 0)','(0; +∞)'],[]);
+      drawGraph('graph4',function(x){return x*x*x;},-2.8,2.8,-3.5,3.5,[{x:0,y:0,label:'перегиб'}],null,false);
+  }
+
+  setTimeout(function(){drawAll();if(window.MathJax) MathJax.typesetPromise();},300);
+  window.addEventListener('resize',drawAll);
+  const observer=new MutationObserver(drawAll);
+  observer.observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+
+  const FAV_KEY='math_favorites';
+  function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}
+  function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}
+  function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}
+  function toggleFavorite(){
+      const u=window.location.pathname.split('/').pop();
+      let f=getFavorites();
+      const btn=document.getElementById('favoriteBtn');
+      if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}
+      else{f.push(u);btn.textContent='★';btn.classList.add('active');}
+      saveFavorites(f);
+  }
+  function updateFavoriteBtn(){
+      const btn=document.getElementById('favoriteBtn');
+      if(btn){
+          if(isFavorite()){btn.textContent='★';btn.classList.add('active');}
+          else{btn.textContent='☆';btn.classList.remove('active');}
+      }
+  }
+  updateFavoriteBtn();
+</script>
 </body>
 </html>

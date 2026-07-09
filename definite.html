@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>Определённый интеграл</title>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script src="file:///android_asset/es5/tex-chtml.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -23,6 +23,10 @@
             --special-bg: #1e3545;
             --special-border: #2e8b57;
             --property-bg: #1a2d3c;
+            /* Для таблицы свойств */
+            --property-even: #1e3545;
+            --property-odd: #162a38;
+            --property-hover: #2a4a5a;
         }
 
         :root.light-mode {
@@ -40,6 +44,9 @@
             --special-bg: #e8f0fe;
             --special-border: #2e8b57;
             --property-bg: white;
+            --property-even: #f8fafc;
+            --property-odd: #f1f5f9;
+            --property-hover: #e2e8f0;
         }
 
         body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; }
@@ -65,9 +72,31 @@
         .def-card strong { color: var(--text); }
         .special-case { background: var(--special-bg); border-left: 5px solid var(--special-border); }
         .special-badge { background: #2e8b57; color: white; font-size: 0.85rem; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; font-weight: 600; }
-        .property-card { background: var(--property-bg); border-radius: 16px; padding: 14px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; border-left: 5px solid var(--special-border); }
+
+        /* ===== СВОЙСТВА С ЧЕРЕДОВАНИЕМ ===== */
+        .property-card {
+            background: var(--property-bg);
+            border-radius: 16px;
+            padding: 14px 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            text-align: center;
+            border-left: 5px solid var(--special-border);
+            transition: background-color 0.2s ease;
+        }
+        .property-card:nth-child(even) {
+            background-color: var(--property-even);
+        }
+        .property-card:nth-child(odd) {
+            background-color: var(--property-odd);
+        }
+        .property-card:hover {
+            background-color: var(--property-hover) !important;
+            transition: background-color 0.1s ease;
+        }
         .property-name { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
         .property-formula { font-family: 'Times New Roman', monospace; font-size: 1.1rem; font-weight: bold; color: var(--text); overflow-x: auto; white-space: nowrap; padding: 5px 0; }
+
         .example-block { background: var(--example-bg); border-radius: 16px; padding: 12px 14px; margin: 10px 0; border: 1px solid var(--border); }
         .example-block p { margin: 2px 0; font-size: 1rem; line-height: 1.4; color: var(--text); }
         .example-block .step { color: var(--special-border); font-weight: 600; font-size: 0.95rem; }
@@ -76,7 +105,7 @@
         .note-box { background: var(--info-bg); border-left: 4px solid #2e8b57; border-radius: 16px; padding: 12px 14px; margin: 12px 0; font-size: 0.95rem; line-height: 1.5; color: var(--text); }
         .back-link { display: inline-block; margin: 20px 0 10px; padding: 10px 20px; background: #2e8b57; color: white; text-decoration: none; font-weight: bold; border-radius: 20px; }
         mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
-    
+
     .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
     .favorite-btn:hover { transform: scale(1.1); }
     .favorite-btn.active { color: #facc15; }
@@ -84,10 +113,12 @@
 </head>
 <body>
 <div class="container">
-<button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
 
     <h1>📐 Определённый интеграл</h1>
 
+    <!-- ОПРЕДЕЛЕНИЕ -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📘 Определение</div>
         <div class="section-content">
@@ -105,6 +136,7 @@
         </div>
     </div>
 
+    <!-- ФОРМУЛА НЬЮТОНА-ЛЕЙБНИЦА -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📏 Формула Ньютона-Лейбница</div>
         <div class="section-content">
@@ -117,6 +149,7 @@
         </div>
     </div>
 
+    <!-- АЛГОРИТМ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Алгоритм вычисления</div>
         <div class="section-content">
@@ -129,6 +162,7 @@
         </div>
     </div>
 
+    <!-- СВОЙСТВА -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚙️ Основные свойства</div>
         <div class="section-content">
@@ -161,6 +195,7 @@
         </div>
     </div>
 
+    <!-- ПРИМЕР -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример с подробным разбором</div>
         <div class="section-content">
@@ -193,9 +228,9 @@
     <a href="integral.html" class="back-link">← назад в меню</a>
 </div>
 <script>
-function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
-(function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
-function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+    function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
+    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
 </script>
 
 <script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
