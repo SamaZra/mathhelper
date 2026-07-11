@@ -397,7 +397,9 @@
     <div class="modal-content">
         <button class="modal-close" onclick="closeShareModal()">✕</button>
         <div class="modal-title">📝 Введите данные</div>
+        <label for="studentName" style="display:block;font-size:0.8rem;color:#8ba5b8;margin-bottom:2px;">Фамилия Имя</label>
         <input type="text" id="studentName" placeholder="Фамилия Имя">
+        <label for="studentGroup" style="display:block;font-size:0.8rem;color:#8ba5b8;margin-bottom:2px;margin-top:6px;">Группа / Класс</label>
         <input type="text" id="studentGroup" placeholder="Группа / Класс">
         <button class="modal-btn" id="shareSendBtn" onclick="sendShare()">📤 Отправить отчёт</button>
         <div class="modal-note">Откроется системное окно для выбора приложения</div>
@@ -1058,7 +1060,7 @@
     }
 
     // ================================================================
-    // ОТПРАВКА
+    // ОТПРАВКА (ИСПРАВЛЕННАЯ)
     // ================================================================
 
     function openShareModal() {
@@ -1089,24 +1091,25 @@
 
         var text = getResultText(name, group);
 
-        if (window.Android && window.Android.shareAppFromJs) {
-            window.Android.shareAppFromJs(text);
-        } else if (navigator.share) {
+        // ПЫТАЕМСЯ ИСПОЛЬЗОВАТЬ navigator.share (если есть)
+        if (navigator.share) {
             navigator.share({
                 title: 'Результат адаптивного теста: ФСУ и квадратные уравнения',
                 text: text
             }).catch(function(err) {
                 if (err.name !== 'AbortError') {
+                    // Если пользователь отменил — ничего не делаем, иначе копируем
                     copyToClipboard(text);
                 }
             });
         } else {
+            // ЕСЛИ navigator.share НЕТ — КОПИРУЕМ В БУФЕР
             copyToClipboard(text);
         }
     }
 
     function copyToClipboard(text) {
-        if (navigator.clipboard) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(function() {
                 alert('📋 Отчёт скопирован в буфер обмена!');
             }).catch(function() {

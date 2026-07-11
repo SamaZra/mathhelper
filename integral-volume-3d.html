@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>3D: Параболоид вращения</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --special-border: #8b5cf6;
+            --canvas-bg: #1a2d3c;
+            --slider-bg: #2c5a77;
+            --slider-fill: #1abc9c;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --special-border: #7c3aed;
+            --canvas-bg: #eef2f8;
+            --slider-bg: #e2e8f0;
+            --slider-fill: #1abc9c;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 12px; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .back-link { display: inline-block; margin: 12px 0 4px; padding: 8px 18px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.9rem; transition: 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+
+        .model-wrapper { position: relative; width: 100%; }
+        .model-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            min-height: 350px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: var(--canvas-bg);
+            transition: background 0.3s;
+        }
+        .model-container:fullscreen,
+        .model-container:-webkit-full-screen {
+            width: 100vw !important; height: 100vh !important;
+            aspect-ratio: auto !important; border-radius: 0 !important;
+            background: var(--canvas-bg) !important;
+            display: flex !important; flex-direction: column !important;
+            justify-content: center !important; align-items: center !important;
+            padding: 0 !important; overflow: hidden !important;
+        }
+        .model-container:fullscreen .model-canvas,
+        .model-container:-webkit-full-screen .model-canvas {
+            width: 100% !important; height: 100% !important; flex: 1 !important;
+        }
+        .model-canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; background: transparent; }
+        .model-canvas:active { cursor: grabbing; }
+        .fullscreen-btn {
+            position: absolute; bottom: 15px; right: 15px;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2); cursor: pointer; font-size: 22px;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 20; color: white; transition: 0.2s;
+        }
+        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+        .model-container:fullscreen .fullscreen-btn,
+        .model-container:-webkit-full-screen .fullscreen-btn {
+            position: fixed !important; top: 20px !important; right: 20px !important;
+            bottom: auto !important; left: auto !important; z-index: 10000 !important;
+            background: rgba(0,0,0,0.6) !important;
+        }
+        .fs-sliders-overlay { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(0,0,0,0.75); backdrop-filter: blur(12px); border-radius: 16px; padding: 14px 24px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 32px rgba(0,0,0,0.5); min-width: 300px; max-width: 90%; }
+        .model-container:fullscreen .fs-sliders-overlay,
+        .model-container:-webkit-full-screen .fs-sliders-overlay { display: block !important; }
+        .fs-sliders-overlay .slider-container { display: flex; align-items: center; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .fs-sliders-overlay .slider-container label { color: #ffffff !important; font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
+        .fs-sliders-overlay .slider-container input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 120px; max-width: 200px; height: 6px; border-radius: 3px; background: #4a6a7a; outline: none; cursor: pointer; }
+        .fs-sliders-overlay .slider-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #8b5cf6; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .fs-sliders-overlay .slider-value { font-weight: 700; color: #fbbf24 !important; min-width: 60px; text-align: center; font-size: 0.9rem; }
+        .fs-sliders-overlay .slider-label-h { color: #4ecdc4 !important; font-weight: 600; }
+        .fs-sliders-overlay .slider-label-x { color: #fbbf24 !important; font-weight: 600; }
+
+        .slider-wrapper { margin: 12px 0 8px; padding: 12px 20px; background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); }
+        .slider-container { display: flex; align-items: center; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .slider-container label { font-weight: 600; color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+        .slider-container input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 120px; max-width: 200px; height: 6px; border-radius: 3px; background: var(--slider-bg); outline: none; cursor: pointer; }
+        .slider-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #8b5cf6; cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .slider-value { font-weight: 700; color: var(--special-border); min-width: 60px; text-align: center; font-size: 0.9rem; }
+
+        .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 8px 0; }
+        .info-grid .item { background: var(--card-bg); padding: 8px 12px; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
+        .info-grid .item .label { color: var(--text-secondary); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-grid .item .value { font-weight: 700; color: var(--special-border); font-size: 1rem; }
+
+        .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin: 6px 0; font-size: 0.85rem; color: var(--text-secondary); }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-color { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
+
+        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 8px 0; }
+        .btn-show { padding: 10px 24px; border: none; border-radius: 40px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; color: white; }
+        .btn-show:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+        .btn-show.active { transform: scale(0.95); }
+        .btn-section { background: var(--special-border); }
+        .btn-section.active { background: #fbbf24; color: #1a2d3c; }
+        .btn-triangle { background: #ff6b6b; }
+        .btn-triangle.active { background: #fbbf24; color: #1a2d3c; }
+
+        .btn-rotate { padding: 10px 24px; border: none; border-radius: 40px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; color: white; background: #4ecdc4; }
+        .btn-rotate:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+        .btn-rotate.active { background: #fbbf24; color: #1a2d3c; }
+        .btn-rotate.playing { animation: pulse-btn 1s infinite; }
+        @keyframes pulse-btn { 0%,100% { box-shadow: 0 0 0 0 rgba(78, 205, 196, 0.4); } 50% { box-shadow: 0 0 0 10px rgba(78, 205, 196, 0); } }
+
+        .model-explanation {
+            background: var(--card-bg);
+            border-left: 4px solid var(--special-border);
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin: 12px 0;
+            color: var(--text);
+            line-height: 1.8;
+            font-size: 0.95rem;
+            border: 1px solid var(--border);
+        }
+        .model-explanation strong { color: var(--special-border); }
+        .model-explanation .highlight-r { color: #fbbf24; font-weight: 600; }
+        .model-explanation .highlight-s { color: #34d399; font-weight: 600; }
+        .model-explanation .highlight-axial { color: #ff6b6b; font-weight: 600; }
+        .model-explanation .highlight-link { color: #4ecdc4; font-weight: 600; }
+        .model-explanation .formula-inline { background: var(--card-bg); padding: 2px 10px; border-radius: 8px; font-family: monospace; }
+
+        .slider-label-h { color: #4ecdc4; font-weight: 600; }
+        .slider-label-x { color: #fbbf24; font-weight: 600; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.1rem; }
+            .model-container { min-height: 250px; }
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .slider-container input[type="range"] { min-width: 80px; max-width: 120px; }
+            .fs-sliders-overlay { padding: 10px 16px !important; min-width: 200px !important; bottom: 15px !important; }
+            .fs-sliders-overlay .slider-container { gap: 8px !important; flex-direction: column !important; }
+            .fs-sliders-overlay .slider-container input[type="range"] { min-width: 80px !important; max-width: 150px !important; }
+            .btn-rotate { padding: 8px 16px; font-size: 0.8rem; }
+            .model-explanation { font-size: 0.85rem; padding: 10px 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>🔄 Параболоид вращения — 3D-модель</h1>
+
+    <div class="model-explanation">
+        <strong>🔍 Как устроена 3D-модель:</strong><br>
+        <span class="highlight-axial">Красная парабола</span> — это <strong>осевое сечение</strong> (плоская фигура), которая вращается вокруг оси \(Ox\).<br>
+        При вращении она <span class="highlight-link">«заметает»</span> тело — <span style="color:rgba(139,92,246,0.6);">полупрозрачный параболоид</span>.<br>
+        <span class="highlight-r">Жёлтая линия \(r(x)\)</span> — это <strong>радиус</strong> поперечного сечения в точке \(x\).<br>
+        <span class="highlight-s">Жёлтый круг</span> — это поперечное сечение \(S(x)\) с площадью \(S(x) = \pi \cdot r^2(x)\).<br>
+        <strong>Объём тела</strong> — это <span class="highlight-link">сумма площадей всех поперечных сечений</span>:
+        <span class="formula-inline">$$V = \int_{a}^{b} S(x) \, dx = \pi \int_{a}^{b} [f(x)]^2 \, dx$$</span>
+        <br>
+        <span style="font-size:0.85rem; color:var(--text-secondary);">💡 Попробуйте нажать кнопку <strong>«Вращать осевое сечение»</strong> — увидите, как парабола «заметает» тело!</span>
+    </div>
+
+    <div class="model-wrapper">
+        <div class="model-container" id="container1">
+            <canvas id="canvas1" class="model-canvas"></canvas>
+            <button class="fullscreen-btn" id="fs1" title="Во весь экран">⛶</button>
+            <div class="fs-sliders-overlay" id="fsSlidersOverlay">
+                <div class="slider-container">
+                    <label><span class="slider-label-h">📏 H:</span></label>
+                    <input type="range" id="fsHeightSlider" min="0.5" max="6" step="0.1" value="4">
+                    <span class="slider-value" id="fsHeightValue">4.0</span>
+                </div>
+                <div class="slider-container" style="margin-top:6px;">
+                    <label><span class="slider-label-x">📐 x:</span></label>
+                    <input type="range" id="fsSectionSlider" min="0" max="6" step="0.1" value="2">
+                    <span class="slider-value" id="fsSliderValue">2.0</span>
+                </div>
+                <div class="slider-container" style="margin-top:6px;">
+                    <button class="btn-rotate" id="fsRotateBtn">🔄 Вращать осевое сечение</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slider-wrapper">
+            <div class="slider-container">
+                <label><span class="slider-label-h">📏 Высота H:</span></label>
+                <input type="range" id="heightSlider" min="0.5" max="6" step="0.1" value="4">
+                <span class="slider-value" id="heightValue">H = 4.0</span>
+            </div>
+            <div class="slider-container" style="margin-top:6px;">
+                <label><span class="slider-label-x">📐 Сечение x:</span></label>
+                <input type="range" id="sectionSlider" min="0" max="6" step="0.1" value="2">
+                <span class="slider-value" id="sliderValue">x = 2.0</span>
+            </div>
+            <div class="slider-container" style="margin-top:6px;">
+                <button class="btn-rotate" id="rotateBtn">🔄 Вращать осевое сечение</button>
+            </div>
+        </div>
+
+        <div class="info-grid" id="infoGrid">
+            <div class="item"><div class="label">Радиус \(r(x)\)</div><div class="value" id="infoR">1.225</div></div>
+            <div class="item"><div class="label">Площадь \(S(x)\)</div><div class="value" id="infoS">4.712</div></div>
+            <div class="item"><div class="label">Высота \(H\)</div><div class="value" id="infoH">4.000</div></div>
+            <div class="item"><div class="label">Объём \(V\)</div><div class="value" id="infoV">18.850</div></div>
+        </div>
+
+        <div class="legend">
+            <span class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span> Поперечное сечение \(S(x)\)</span>
+            <span class="legend-item"><span class="legend-color" style="background:#ff6b6b;"></span> Осевое сечение (парабола)</span>
+            <span class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span> Радиус \(r(x)\)</span>
+            <span class="legend-item"><span class="legend-color" style="background:#4ecdc4;"></span> <strong>OH — высота</strong></span>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-show btn-section active" id="showSectionBtn">✕ Скрыть сечение</button>
+            <button class="btn-show btn-triangle active" id="showTriangleBtn">✕ Скрыть осевое сечение</button>
+        </div>
+        <div class="graph-label" style="font-size:0.85rem; margin-top:4px; color:var(--text-secondary); text-align:center;">
+            🟡 Жёлтая линия — радиус \(r(x)\) | 🟡 Жёлтый круг — поперечное сечение \(S(x)\)<br>
+            🔴 Красная заливка — осевое сечение (парабола) до точки H
+        </div>
+    </div>
+
+    <a href="integral-volume.html" class="back-link">← Назад к объёмам</a>
+</div>
+
+<!-- ===== THREE.JS ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+    // ТЕМА
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        if (window._updateSceneBackground) window._updateSceneBackground();
+        updateLegendColors();
+    }
+
+    function updateLegendColors() {
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const legend = document.querySelector('.legend');
+        if (legend) {
+            legend.style.color = isLight ? '#1a2a3f' : '#8ba5b8';
+        }
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+        setTimeout(updateLegendColors, 100);
+    })();
+
+    // ИЗБРАННОЕ
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+
+    // ===== 3D СЦЕНА =====
+    (function() {
+        const container = document.getElementById('container1');
+        const canvas = document.getElementById('canvas1');
+        if (!container || !canvas) return;
+
+        const R = 3;
+        let currentH = 4;
+        let currentX = 2;
+        let sectionVisible = true;
+        let axialVisible = true;
+
+        let isRotating = false;
+        let rotationAngle = 0;
+        let rotationSpeed = 0.008;
+        let animationId = null;
+
+        let width = container.clientWidth || 400;
+        let height = container.clientHeight || 350;
+
+        const scene = new THREE.Scene();
+
+        function getSceneBgColor() {
+            const isLight = document.documentElement.classList.contains('light-mode');
+            return isLight ? 0xeef2f8 : 0x1a2d3c;
+        }
+
+        function updateSceneBackground() {
+            const color = getSceneBgColor();
+            scene.background = new THREE.Color(color);
+            const containerEl = document.getElementById('container1');
+            if (containerEl) {
+                const isLight = document.documentElement.classList.contains('light-mode');
+                containerEl.style.background = isLight ? '#eef2f8' : '#1a2d3c';
+            }
+        }
+
+        updateSceneBackground();
+        window._updateSceneBackground = updateSceneBackground;
+
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+        camera.position.set(6, 5, 10);
+        camera.lookAt(3, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.target.set(3, 0, 0);
+        controls.update();
+
+        const ambient = new THREE.AmbientLight(0x404060, 0.7);
+        scene.add(ambient);
+        const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+        dir.position.set(5, 8, 6);
+        scene.add(dir);
+        const back = new THREE.DirectionalLight(0x8888ff, 0.4);
+        back.position.set(-3, 2, -4);
+        scene.add(back);
+
+        const mainGroup = new THREE.Group();
+        scene.add(mainGroup);
+
+        let paraboloid = null, wireframe = null, ring = null;
+        let sectionGroup = null, axialGroup = null;
+        let dotH = null;
+
+        const axialRotationGroup = new THREE.Group();
+        mainGroup.add(axialRotationGroup);
+
+        function createAxisWithLabel(from, to, color, label, offset) {
+            const line = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(from.x, from.y, from.z), new THREE.Vector3(to.x, to.y, to.z)]),
+                new THREE.LineBasicMaterial({ color })
+            );
+            mainGroup.add(line);
+            const dir = new THREE.Vector3(to.x - from.x, to.y - from.y, to.z - from.z).normalize();
+            const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 8), new THREE.MeshBasicMaterial({ color }));
+            arrow.position.copy(new THREE.Vector3(to.x, to.y, to.z));
+            arrow.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir));
+            mainGroup.add(arrow);
+            const c = document.createElement('canvas');
+            c.width = 128; c.height = 128;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 56px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.8)';
+            ctx.shadowBlur = 8;
+            ctx.fillText(label, 64, 64);
+            const texture = new THREE.CanvasTexture(c);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }));
+            sprite.position.set(to.x + offset.x, to.y + offset.y, to.z + offset.z);
+            sprite.scale.set(1.0, 1.0, 1);
+            mainGroup.add(sprite);
+        }
+
+        createAxisWithLabel({ x: 0, y: 0, z: 0 }, { x: 7, y: 0, z: 0 }, 0xff6b6b, 'X', { x: 0.4, y: -0.2, z: 0 });
+        createAxisWithLabel({ x: 0, y: 0, z: 0 }, { x: 0, y: 4, z: 0 }, 0x4ecdc4, 'Y', { x: 0, y: 0.4, z: 0 });
+        createAxisWithLabel({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 4 }, 0x45b7d1, 'Z', { x: 0, y: -0.2, z: 0.4 });
+
+        const dotO = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+        dotO.position.set(0, 0, 0);
+        mainGroup.add(dotO);
+
+        function makeLabel(text, pos, color = '#fbbf24', scale = 1.2) {
+            const c = document.createElement('canvas');
+            c.width = 128; c.height = 128;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = color;
+            ctx.font = 'bold 56px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.8)';
+            ctx.shadowBlur = 8;
+            ctx.fillText(text, 64, 64);
+            const texture = new THREE.CanvasTexture(c);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }));
+            sprite.position.set(pos.x, pos.y, pos.z);
+            sprite.scale.set(scale, scale, 1);
+            return sprite;
+        }
+
+        let globalLabels = [];
+
+        function updateLabels(H) {
+            globalLabels.forEach(l => mainGroup.remove(l));
+            globalLabels = [];
+            globalLabels.push(makeLabel('O', { x: -0.4, y: -0.4, z: 0 }, '#fbbf24', 1.2));
+            globalLabels.push(makeLabel('H', { x: H + 0.3, y: -0.3, z: 0 }, '#4ecdc4', 1.2));
+            globalLabels.push(makeLabel('R', { x: H, y: R / 2 + 0.6, z: 0 }, '#fbbf24', 1.2));
+            globalLabels.push(makeLabel('a = 0', { x: 0, y: -0.7, z: 0 }, '#ff6b6b', 0.8));
+            globalLabels.push(makeLabel('b = H', { x: H, y: -0.7, z: 0 }, '#ff6b6b', 0.8));
+            globalLabels.forEach(l => mainGroup.add(l));
+        }
+
+        function buildParaboloid(H) {
+            if (paraboloid) { mainGroup.remove(paraboloid); paraboloid.geometry.dispose(); paraboloid.material.dispose(); }
+            if (wireframe) { mainGroup.remove(wireframe); wireframe.geometry.dispose(); wireframe.material.dispose(); }
+            if (ring) { mainGroup.remove(ring); ring.geometry.dispose(); ring.material.dispose(); }
+            if (sectionGroup) { mainGroup.remove(sectionGroup); }
+            if (axialGroup) { mainGroup.remove(axialGroup); }
+            if (dotH) { mainGroup.remove(dotH); dotH = null; }
+
+            while (axialRotationGroup.children.length > 0) {
+                const child = axialRotationGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+                axialRotationGroup.remove(child);
+            }
+
+            const seg = 64;
+            const geo = new THREE.BufferGeometry();
+            const verts = [], idx = [], norms = [], uvs = [];
+            for (let i = 0; i <= seg; i++) {
+                const t = i / seg;
+                const x = t * H;
+                const r = R * Math.sqrt(t);
+                for (let j = 0; j <= seg; j++) {
+                    const theta = (j / seg) * Math.PI * 2;
+                    verts.push(x, r * Math.cos(theta), r * Math.sin(theta));
+                    uvs.push(t, j / seg);
+                    const nx = R / (2 * Math.sqrt(H * x + 0.001)) || 0;
+                    const ny = Math.cos(theta), nz = Math.sin(theta);
+                    const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+                    norms.push(nx / len, ny / len, nz / len);
+                }
+            }
+            for (let i = 0; i < seg; i++) {
+                for (let j = 0; j < seg; j++) {
+                    const a = i * (seg + 1) + j, b = i * (seg + 1) + j + 1;
+                    const c = (i + 1) * (seg + 1) + j, d = (i + 1) * (seg + 1) + j + 1;
+                    idx.push(a, b, c);
+                    idx.push(b, d, c);
+                }
+            }
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+            geo.setAttribute('normal', new THREE.Float32BufferAttribute(norms, 3));
+            geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+            geo.setIndex(idx);
+            geo.computeVertexNormals();
+
+            const texCanvas = document.createElement('canvas');
+            texCanvas.width = 512; texCanvas.height = 512;
+            const ctx = texCanvas.getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, texCanvas.width, texCanvas.height);
+            grad.addColorStop(0, 'rgba(139, 92, 246, 0.7)');
+            grad.addColorStop(0.5, 'rgba(59, 130, 246, 0.7)');
+            grad.addColorStop(1, 'rgba(16, 185, 129, 0.7)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, texCanvas.width, texCanvas.height);
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 20; i++) {
+                const pos = (i / 20) * texCanvas.width;
+                ctx.beginPath(); ctx.moveTo(pos, 0); ctx.lineTo(pos, texCanvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, pos); ctx.lineTo(texCanvas.width, pos); ctx.stroke();
+            }
+            const texture = new THREE.CanvasTexture(texCanvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(2, 4);
+
+            const mat = new THREE.MeshPhongMaterial({
+                map: texture,
+                transparent: true,
+                opacity: 0.45,
+                side: THREE.DoubleSide,
+                shininess: 60,
+                emissive: 0x1a0a2a,
+                emissiveIntensity: 0.1,
+                specular: 0x6666aa,
+                specularIntensity: 0.4
+            });
+            paraboloid = new THREE.Mesh(geo, mat);
+            mainGroup.add(paraboloid);
+
+            const edges = new THREE.EdgesGeometry(geo);
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x6d28d9, transparent: true, opacity: 0.1 });
+            wireframe = new THREE.LineSegments(edges, edgeMat);
+            mainGroup.add(wireframe);
+
+            const ringPoints = [];
+            for (let i = 0; i <= 48; i++) {
+                const theta = (i / 48) * Math.PI * 2;
+                ringPoints.push(new THREE.Vector3(H, R * Math.cos(theta), R * Math.sin(theta)));
+            }
+            const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPoints);
+            const ringMat = new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 3 });
+            ring = new THREE.Line(ringGeo, ringMat);
+            mainGroup.add(ring);
+
+            dotH = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshBasicMaterial({ color: 0x4ecdc4 }));
+            dotH.position.set(H, 0, 0);
+            mainGroup.add(dotH);
+
+            sectionGroup = new THREE.Group();
+            mainGroup.add(sectionGroup);
+            axialGroup = new THREE.Group();
+            axialRotationGroup.add(axialGroup);
+
+            if (isRotating) {
+                axialGroup.rotation.x = rotationAngle;
+            }
+
+            updateSection(currentX, H);
+            updateAxial(H);
+            updateLabels(H);
+        }
+
+        function updateSection(x, H) {
+            if (!sectionGroup) return;
+            while (sectionGroup.children.length > 0) {
+                const child = sectionGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+                sectionGroup.remove(child);
+            }
+            const sectionR = R * Math.sqrt(x / H);
+            if (x > H || x < 0) return;
+
+            const sectionGeo = new THREE.CircleGeometry(sectionR, 32);
+            const sectionMat = new THREE.MeshBasicMaterial({
+                color: 0xfbbf24,
+                transparent: true,
+                opacity: 0.25,
+                side: THREE.DoubleSide,
+                depthTest: false,
+                depthWrite: false
+            });
+            const sectionMesh = new THREE.Mesh(sectionGeo, sectionMat);
+            sectionMesh.position.set(x, 0, 0);
+            sectionMesh.rotation.y = Math.PI / 2;
+            sectionMesh.renderOrder = 999;
+            sectionGroup.add(sectionMesh);
+            sectionGroup.visible = sectionVisible;
+
+            const ringPoints = [];
+            for (let i = 0; i <= 48; i++) {
+                const theta = (i / 48) * Math.PI * 2;
+                ringPoints.push(new THREE.Vector3(x, sectionR * Math.cos(theta), sectionR * Math.sin(theta)));
+            }
+            const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPoints);
+            const ringMat = new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 2 });
+            const ringLine = new THREE.Line(ringGeo, ringMat);
+            ringLine.renderOrder = 999;
+            sectionGroup.add(ringLine);
+
+            const rLinePoints = [new THREE.Vector3(x, 0, 0), new THREE.Vector3(x, sectionR, 0)];
+            const rLineGeo = new THREE.BufferGeometry().setFromPoints(rLinePoints);
+            const rLineMat = new THREE.LineBasicMaterial({
+                color: 0xfbbf24,
+                linewidth: 3,
+                transparent: true,
+                depthTest: false,
+                depthWrite: false
+            });
+            const rLine = new THREE.Line(rLineGeo, rLineMat);
+            rLine.renderOrder = 1001;
+            sectionGroup.add(rLine);
+
+            const dotMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24, depthTest: false });
+            const dotA = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), dotMat);
+            dotA.position.set(x, 0, 0);
+            dotA.renderOrder = 1001;
+            sectionGroup.add(dotA);
+            const dotB = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), dotMat);
+            dotB.position.set(x, sectionR, 0);
+            dotB.renderOrder = 1001;
+            sectionGroup.add(dotB);
+
+            sectionGroup.add(makeLabel('A', { x, y: -0.5, z: 0 }, '#fbbf24', 0.9));
+            sectionGroup.add(makeLabel('B', { x, y: sectionR + 0.5, z: 0 }, '#fbbf24', 0.9));
+            sectionGroup.add(makeLabel('r(x)', { x: x + 0.6, y: sectionR / 2 + 0.6, z: 0 }, '#fbbf24', 1.2));
+            sectionGroup.add(makeLabel('S(x)', { x: x - 0.8, y: sectionR + 0.8, z: 0 }, '#fbbf24', 0.9));
+
+            document.getElementById('infoR').textContent = sectionR.toFixed(3);
+            document.getElementById('infoS').textContent = (Math.PI * sectionR * sectionR).toFixed(3);
+            document.getElementById('infoH').textContent = H.toFixed(3);
+            document.getElementById('infoV').textContent = ((Math.PI * R * R * H) / 2).toFixed(3);
+            document.getElementById('sliderValue').innerHTML = 'x = ' + x.toFixed(1);
+
+            const fsSliderValue = document.getElementById('fsSliderValue');
+            if (fsSliderValue) fsSliderValue.textContent = x.toFixed(1);
+        }
+
+        function updateAxial(H) {
+            if (!axialGroup) return;
+            while (axialGroup.children.length > 0) {
+                const child = axialGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+                axialGroup.remove(child);
+            }
+
+            const pts = [];
+            const seg = 64;
+            for (let i = 0; i <= seg; i++) {
+                const t = i / seg;
+                const x = t * H;
+                const r = R * Math.sqrt(t);
+                pts.push(new THREE.Vector3(x, r, 0));
+            }
+            pts.push(new THREE.Vector3(H, 0, 0));
+
+            const shape = new THREE.Shape();
+            shape.moveTo(0, 0);
+            for (let i = 0; i < pts.length; i++) {
+                if (i === 0) shape.moveTo(pts[i].x, pts[i].y);
+                else shape.lineTo(pts[i].x, pts[i].y);
+            }
+            shape.lineTo(0, 0);
+
+            const shapeGeo = new THREE.ShapeGeometry(shape);
+            const shapeMat = new THREE.MeshBasicMaterial({
+                color: 0xff6b6b,
+                transparent: true,
+                opacity: 0.35,
+                side: THREE.DoubleSide,
+                depthTest: false,
+                depthWrite: false
+            });
+            const mesh = new THREE.Mesh(shapeGeo, shapeMat);
+            mesh.renderOrder = 998;
+            axialGroup.add(mesh);
+
+            const linePts = [];
+            for (let i = 0; i <= seg; i++) {
+                const t = i / seg;
+                const x = t * H;
+                const r = R * Math.sqrt(t);
+                linePts.push(new THREE.Vector3(x, r, 0));
+            }
+            const lineGeo = new THREE.BufferGeometry().setFromPoints(linePts);
+            const lineMat = new THREE.LineBasicMaterial({
+                color: 0xff6b6b,
+                linewidth: 3,
+                transparent: true,
+                opacity: 1,
+                depthTest: false,
+                depthWrite: false
+            });
+            const line = new THREE.Line(lineGeo, lineMat);
+            line.renderOrder = 999;
+            axialGroup.add(line);
+
+            const basePts = [new THREE.Vector3(H, 0, 0), new THREE.Vector3(H, R, 0)];
+            const baseGeo = new THREE.BufferGeometry().setFromPoints(basePts);
+            const baseMat = new THREE.LineBasicMaterial({
+                color: 0xff6b6b,
+                linewidth: 2,
+                transparent: true,
+                opacity: 0.6,
+                depthTest: false,
+                depthWrite: false
+            });
+            const baseLine = new THREE.Line(baseGeo, baseMat);
+            baseLine.renderOrder = 999;
+            axialGroup.add(baseLine);
+
+            axialGroup.visible = axialVisible;
+        }
+
+        buildParaboloid(currentH);
+
+        const heightSlider = document.getElementById('heightSlider');
+        const sectionSlider = document.getElementById('sectionSlider');
+        const fsHeightSlider = document.getElementById('fsHeightSlider');
+        const fsSectionSlider = document.getElementById('fsSectionSlider');
+        const fsHeightValue = document.getElementById('fsHeightValue');
+        const fsSliderValue = document.getElementById('fsSliderValue');
+
+        heightSlider.addEventListener('input', function() {
+            currentH = parseFloat(this.value);
+            document.getElementById('heightValue').textContent = 'H = ' + currentH.toFixed(1);
+
+            if (fsHeightSlider) {
+                fsHeightSlider.value = currentH;
+                if (fsHeightValue) fsHeightValue.textContent = currentH.toFixed(1);
+            }
+            if (fsSectionSlider) {
+                fsSectionSlider.max = currentH;
+                if (parseFloat(fsSectionSlider.value) > currentH) {
+                    fsSectionSlider.value = currentH;
+                    currentX = currentH;
+                }
+            }
+
+            sectionSlider.max = currentH;
+            if (parseFloat(sectionSlider.value) > currentH) {
+                sectionSlider.value = currentH;
+                currentX = currentH;
+            }
+
+            buildParaboloid(currentH);
+            updateSection(parseFloat(sectionSlider.value), currentH);
+            updateLabels(currentH);
+        });
+
+        sectionSlider.addEventListener('input', function() {
+            currentX = parseFloat(this.value);
+            if (currentX > currentH) currentX = currentH;
+            document.getElementById('sliderValue').textContent = 'x = ' + currentX.toFixed(1);
+
+            if (fsSectionSlider) {
+                fsSectionSlider.value = currentX;
+                if (fsSliderValue) fsSliderValue.textContent = currentX.toFixed(1);
+            }
+
+            updateSection(currentX, currentH);
+        });
+
+        if (fsHeightSlider) {
+            fsHeightSlider.addEventListener('input', function() {
+                const val = parseFloat(this.value);
+                if (fsHeightValue) fsHeightValue.textContent = val.toFixed(1);
+                heightSlider.value = val;
+                document.getElementById('heightValue').textContent = 'H = ' + val.toFixed(1);
+                heightSlider.dispatchEvent(new Event('input'));
+            });
+        }
+
+        if (fsSectionSlider) {
+            fsSectionSlider.addEventListener('input', function() {
+                const val = parseFloat(this.value);
+                if (fsSliderValue) fsSliderValue.textContent = val.toFixed(1);
+                sectionSlider.value = val;
+                document.getElementById('sliderValue').textContent = 'x = ' + val.toFixed(1);
+                sectionSlider.dispatchEvent(new Event('input'));
+            });
+        }
+
+        const rotateBtn = document.getElementById('rotateBtn');
+        const fsRotateBtn = document.getElementById('fsRotateBtn');
+
+        function toggleRotation() {
+            isRotating = !isRotating;
+            updateRotateButtonUI();
+            if (isRotating) {
+                rotationAngle = 0;
+                if (axialGroup) {
+                    axialGroup.rotation.x = 0;
+                    axialGroup.rotation.y = 0;
+                    axialGroup.rotation.z = 0;
+                }
+                startRotationLoop();
+            } else {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                if (axialGroup) {
+                    axialGroup.rotation.x = 0;
+                    axialGroup.rotation.y = 0;
+                    axialGroup.rotation.z = 0;
+                }
+            }
+        }
+
+        function updateRotateButtonUI() {
+            const btns = [rotateBtn, fsRotateBtn];
+            btns.forEach(btn => {
+                if (btn) {
+                    if (isRotating) {
+                        btn.textContent = '⏹ Остановить вращение';
+                        btn.classList.add('active');
+                        btn.classList.add('playing');
+                    } else {
+                        btn.textContent = '🔄 Вращать осевое сечение';
+                        btn.classList.remove('active');
+                        btn.classList.remove('playing');
+                    }
+                }
+            });
+        }
+
+        function startRotationLoop() {
+            if (animationId) cancelAnimationFrame(animationId);
+
+            function step() {
+                if (!isRotating) {
+                    animationId = null;
+                    return;
+                }
+                rotationAngle += rotationSpeed;
+                if (axialGroup) {
+                    axialGroup.rotation.x = rotationAngle;
+                    axialGroup.rotation.y = Math.sin(rotationAngle * 0.2) * 0.03;
+                }
+                animationId = requestAnimationFrame(step);
+            }
+            step();
+        }
+
+        rotateBtn.addEventListener('click', toggleRotation);
+        if (fsRotateBtn) {
+            fsRotateBtn.addEventListener('click', toggleRotation);
+        }
+
+        const btnSection = document.getElementById('showSectionBtn');
+        const btnAxial = document.getElementById('showTriangleBtn');
+
+        btnSection.addEventListener('click', function() {
+            sectionVisible = !sectionVisible;
+            if (sectionGroup) sectionGroup.visible = sectionVisible;
+            if (sectionVisible) {
+                btnSection.textContent = '✕ Скрыть сечение';
+                btnSection.classList.add('active');
+            } else {
+                btnSection.textContent = '📐 Поперечное сечение (круг)';
+                btnSection.classList.remove('active');
+            }
+        });
+
+        btnAxial.addEventListener('click', function() {
+            axialVisible = !axialVisible;
+            if (axialGroup) axialGroup.visible = axialVisible;
+            if (axialVisible) {
+                btnAxial.textContent = '✕ Скрыть осевое сечение';
+                btnAxial.classList.add('active');
+            } else {
+                btnAxial.textContent = '🔺 Осевое сечение (парабола)';
+                btnAxial.classList.remove('active');
+            }
+        });
+
+        const fsBtn = document.getElementById('fs1');
+        if (fsBtn) {
+            fsBtn.addEventListener('click', async () => {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    try {
+                        await container.requestFullscreen();
+                        fsBtn.textContent = '✖';
+                        setTimeout(updateSize, 100);
+                    } catch (e) {}
+                } else {
+                    if (document.exitFullscreen) await document.exitFullscreen();
+                    else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                    fsBtn.textContent = '⛶';
+                    setTimeout(updateSize, 100);
+                }
+            });
+            document.addEventListener('fullscreenchange', () => {
+                const isFullscreen = document.fullscreenElement === container || document.webkitFullscreenElement === container;
+                fsBtn.textContent = isFullscreen ? '✖' : '⛶';
+                setTimeout(updateSize, 100);
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window._resize3d = function() { updateSize(); };
+        window.addEventListener('resize', updateSize);
+        new ResizeObserver(() => updateSize()).observe(container);
+        setTimeout(updateSize, 100);
+
+        function updateSize() {
+            const rect = container.getBoundingClientRect();
+            let rw = rect.width, rh = rect.height;
+
+            if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
+                rw = window.innerWidth;
+                rh = window.innerHeight;
+            }
+
+            if (rw < 10) rw = 800;
+            if (rh < 10) rh = 450;
+
+            canvas.width = rw;
+            canvas.height = rh;
+            renderer.setSize(rw, rh);
+            camera.aspect = rw / rh;
+            camera.updateProjectionMatrix();
+            updateSceneBackground();
+        }
+    })();
+</script>
+
+</body>
+</html>

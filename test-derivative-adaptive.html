@@ -210,7 +210,7 @@
     <script>
         MathJax = {tex:{inlineMath:[['$','$'],['\\(','\\)']]},chtml:{scale:0.95}};
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 <body>
 
@@ -396,7 +396,9 @@
     <div class="modal-content">
         <button class="modal-close" onclick="closeShareModal()">✕</button>
         <div class="modal-title">📝 Введите данные</div>
+        <label style="display:block;font-size:0.8rem;color:#8ba5b8;margin-bottom:2px;">Фамилия Имя</label>
         <input type="text" id="studentName" placeholder="Фамилия Имя">
+        <label style="display:block;font-size:0.8rem;color:#8ba5b8;margin-bottom:2px;margin-top:6px;">Группа / Класс</label>
         <input type="text" id="studentGroup" placeholder="Группа / Класс">
         <button class="modal-btn" id="shareSendBtn" onclick="sendShare()">📤 Отправить отчёт</button>
         <div class="modal-note">Откроется системное окно для выбора приложения</div>
@@ -987,6 +989,11 @@
         resultBox.className = 'result-box show wrong';
         resultBox.innerHTML = '⏰ Время вышло! Правильный ответ: <strong>' + q.opts[correct] + '</strong>';
 
+        // ===== ПРИНУДИТЕЛЬНЫЙ РЕНДЕРИНГ MATHJAX =====
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+
         state.wrong++;
         state.answered++;
         state.streak = 0;
@@ -1172,6 +1179,11 @@
         } else {
             resultBox.className = 'result-box show wrong';
             resultBox.innerHTML = '❌ Неправильно. Правильный ответ: <strong>' + q.opts[correct] + '</strong>';
+        }
+
+        // ===== ПРИНУДИТЕЛЬНЫЙ РЕНДЕРИНГ MATHJAX =====
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
         }
 
         updateStats();
