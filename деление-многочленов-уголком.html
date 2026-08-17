@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Деление многочленов уголком — 7-9 класс</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --info-border: #2c7cb6;
+            --example-bg: #162a38;
+            --step-color: #a78bfa;
+            --result-color: #34d399;
+            --explain-color: #34d399;
+            --info-bg: #1a4a5a;
+            --special-border: #2c7cb6;
+            --canvas-bg: #162a38;
+            --calc-bg: #1a2d3c;
+            --calc-input-bg: #1e3545;
+            --definition-text: #ffffff;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --info-border: #2c7cb6;
+            --example-bg: #f8fafc;
+            --step-color: #7c3aed;
+            --result-color: #059669;
+            --explain-color: #059669;
+            --info-bg: #e8f0fe;
+            --special-border: #2c7cb6;
+            --canvas-bg: #f8fafc;
+            --calc-bg: #f8fafc;
+            --calc-input-bg: white;
+            --definition-text: #1a2a3f;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:1000px;margin:0 auto;position:relative;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--info-border);padding-left:12px;text-align:center;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title .main-title{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;color:var(--text);}
+        .section-title .sub-title{font-size:0.85rem;color:var(--text-secondary);font-weight:400;font-style:italic;margin-top:2px;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:10000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:16px 20px;border-radius:16px;margin:12px 0;}
+        .definition-block p{font-size:1rem;line-height:1.6;color:var(--definition-text);}
+        .definition-block p strong{color:var(--definition-text);}
+        .definition-block ul{padding-left:20px;margin:6px 0;font-size:0.95rem;line-height:1.6;color:var(--definition-text);}
+        .definition-block ul li{margin:2px 0;color:var(--definition-text);}
+
+        .example{background:var(--example-bg);padding:16px 20px;border-radius:14px;margin-top:10px;border-left:5px solid var(--special-border);font-size:0.95rem;line-height:2.0;color:var(--text);}
+        .example .step{font-weight:700;color:var(--step-color);margin-top:10px;margin-bottom:2px;display:block;}
+        .example .result{margin-top:10px;font-weight:600;color:var(--result-color);display:block;}
+        .example .explain{color:var(--explain-color);font-style:italic;margin:4px 0 8px 16px;border-left:2px solid var(--explain-color);padding-left:12px;display:block;}
+        .example .formula-line{display:block;margin:4px 0;word-break:break-word;color:var(--text);}
+
+        .important{background:var(--info-bg);border-left:4px solid #fbbf24;border-radius:14px;padding:12px 16px;margin:12px 0;color:var(--text);}
+        .important strong{color:#fbbf24;}
+
+        .back-link{display:inline-block;margin:16px 0 8px;padding:10px 20px;background:var(--special-border);color:white;text-decoration:none;font-weight:bold;border-radius:20px;font-size:0.95rem;transition:background 0.2s;}
+        .back-link:hover{background:#1a6b8a;}
+
+        .favorite-btn{position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;z-index:1000;color:var(--text-secondary);transition:all 0.2s;backdrop-filter:blur(4px);}
+        .favorite-btn:hover{transform:scale(1.1);}
+        .favorite-btn.active{color:#facc15;}
+
+        .canvas-wrapper{background:var(--canvas-bg);border-radius:16px;padding:12px;margin:12px 0;border:1px solid var(--border);overflow-x:auto;text-align:center;}
+        .canvas-wrapper canvas{display:block;margin:0 auto;background:var(--canvas-bg);border-radius:8px;width:100%;height:auto;max-width:100%;}
+
+        .calc-card{background:var(--calc-bg);border-radius:24px;padding:20px;margin-top:20px;border:1px solid var(--border);}
+        .calc-title{font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--accent);padding-left:12px;}
+        .calc-inputs{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;justify-content:center;}
+        .calc-input{flex:1;min-width:180px;}
+        .calc-input label{display:block;color:var(--text-secondary);font-size:0.75rem;margin-bottom:4px;text-align:center;}
+        .calc-input input{width:100%;padding:10px 12px;background:var(--calc-input-bg);border:1px solid var(--border);border-radius:12px;font-size:0.95rem;color:var(--text);text-align:center;outline:none;}
+        .calc-input input:focus{border-color:var(--accent);}
+        .calc-btn{display:block;width:100%;max-width:300px;margin:0 auto 16px;background:var(--accent);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:1rem;font-weight:600;cursor:pointer;}
+        .calc-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(26,188,156,0.3);}
+        .calc-btn:active{transform:scale(0.97);}
+        .calc-result{background:var(--bg);border-radius:16px;padding:12px 16px;text-align:center;border:1px solid var(--border);}
+        .calc-result .result-title{color:var(--text-secondary);font-size:0.8rem;margin-bottom:4px;}
+        .calc-result .result-data{color:var(--text);font-size:1rem;font-weight:600;line-height:2;word-break:break-word;}
+        .calc-result .result-data mjx-container{display:inline-block !important;}
+
+        .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px;padding:8px 12px;background:var(--bg);border-radius:12px;justify-content:center;}
+        .legend-item{display:flex;align-items:center;gap:6px;color:var(--text-secondary);font-size:12px;}
+        .legend-item .dot{width:14px;height:14px;border-radius:3px;display:inline-block;}
+        .legend-item .dot.quotient{background:#34d399;}
+        .legend-item .dot.sub{background:#fbbf24;}
+        .legend-item .dot.remainder{background:#f87171;}
+        .legend-item .dot.divisor{background:#60a5fa;}
+        .legend-item .dot.dividend{background:#ffffff;}
+
+        .calc-result .result-data .quotient{color:var(--result-color);font-weight:700;}
+        .calc-result .result-data .remainder{color:#f87171;font-weight:700;}
+
+        mjx-container{font-size:0.95em !important;display:inline-block !important;}
+
+        @media (max-width:700px){
+            body{padding:20px 14px 36px;}
+            .content-card{padding:14px 16px;}
+            .section-title{font-size:1rem;}
+            .example{padding:12px 14px;font-size:0.9rem;}
+            .calc-input{min-width:120px;}
+            .calc-input input{font-size:0.85rem;padding:8px 10px;}
+            .calc-btn{font-size:0.9rem;padding:10px 20px;max-width:100%;}
+            .canvas-wrapper{padding:6px;}
+            .canvas-wrapper canvas{min-height:200px;}
+            .legend{gap:8px;font-size:10px;}
+            .legend-item .dot{width:10px;height:10px;}
+            .header h1{font-size:1.2rem;}
+            .header{padding:16px 16px;margin-bottom:20px;}
+        }
+
+        @media (max-width:400px){
+            body{padding:12px 6px 30px;}
+            .content-card{padding:8px 8px;}
+            .example{padding:8px 10px;font-size:0.8rem;}
+            .calc-input{min-width:80px;}
+            .calc-input input{font-size:0.75rem;padding:6px 8px;}
+            .calc-btn{font-size:0.8rem;padding:8px 16px;}
+            .canvas-wrapper canvas{min-height:150px;}
+        }
+
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    </style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { skipHtmlTypes: 'script' },
+            chtml: { scale: 0.9 }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header"><h1>Деление многочленов уголком</h1><div class="subtitle">Правило · Алгоритм · Примеры · Калькулятор</div></div>
+    <div class="content-card">
+
+        <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📖 Что такое деление уголком?</span>
+            </div>
+            <div class="section-content">
+                <p style="color:var(--text);"><strong style="color:var(--text);">Деление многочленов уголком</strong><span style="color:var(--text);"> (или </span><strong style="color:var(--text);">деление столбиком</strong><span style="color:var(--text);">) — это способ разделить один многочлен на другой, подобно тому, как мы делим числа в столбик.</span></p>
+
+                <div class="important">
+                    <strong>📌 Когда применяется:</strong><br>
+                    • Для нахождения <strong>наклонной асимптоты</strong> графика функции<br>
+                    • Для <strong>упрощения</strong> рациональных выражений<br>
+                    • Для <strong>решения</strong> уравнений высших степеней
+                </div>
+
+                <div class="definition-block">
+                    <p><strong>Что такое деление многочленов?</strong></p>
+                    <p>Разделить многочлен \(P(x)\) на многочлен \(Q(x)\) — значит найти такие многочлены \(C(x)\) (частное) и \(R(x)\) (остаток), что:</p>
+                    <p style="text-align:center;font-size:1.1rem;margin-top:8px;">$$ P(x) = Q(x) \cdot C(x) + R(x) $$</p>
+                    <p style="margin-top:8px;">где степень \(R(x)\) < степени \(Q(x)\).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== АЛГОРИТМ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">Алгоритм деления уголком</span>
+                <span class="sub-title">пошаговая инструкция</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Как делить многочлены уголком:</strong><br><br>
+
+                    <span class="step">1️⃣ <strong>Записать</strong> делимое и делитель в порядке убывания степеней.</span>
+                    <div class="explain">💡 Если какой-то степени нет, ставим 0.</div>
+
+                    <span class="step">2️⃣ <strong>Разделить</strong> старший член делимого на старший член делителя.</span>
+                    <div class="explain">💡 Это будет первый член частного.</div>
+
+                    <span class="step">3️⃣ <strong>Умножить</strong> делитель на полученный член частного.</span>
+                    <div class="explain">💡 Записываем под делимым.</div>
+
+                    <span class="step">4️⃣ <strong>Вычесть</strong> полученное произведение из делимого.</span>
+                    <div class="explain">💡 Получаем новый остаток.</div>
+
+                    <span class="step">5️⃣ <strong>Повторять</strong> шаги 2–4, пока степень остатка не станет меньше степени делителя.</span>
+                    <div class="explain">💡 Когда степень остатка < степени делителя — деление закончено.</div>
+
+                    <span class="step">6️⃣ <strong>Записать ответ</strong>: частное + остаток.</span>
+                    <div class="explain">💡 Ответ: \(P(x) = Q(x) \cdot C(x) + R(x)\).</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 1 ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 1. \((2x^3 + 3x^2 - 5x + 1) : (x - 2)\)</span>
+                <span class="sub-title">с подробным пошаговым решением</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Записываем делимое и делитель:</span>
+                    <div class="formula-line">Делимое: \(2x^3 + 3x^2 - 5x + 1\)</div>
+                    <div class="formula-line">Делитель: \(x - 2\)</div>
+
+                    <span class="step">Шаг 2. Делим старший член:</span>
+                    <div class="formula-line">\(\frac{2x^3}{x} = 2x^2\)</div>
+
+                    <span class="step">Шаг 3. Умножаем делитель на \(2x^2\):</span>
+                    <div class="formula-line">\(2x^2 \cdot (x - 2) = 2x^3 - 4x^2\)</div>
+
+                    <span class="step">Шаг 4. Вычитаем:</span>
+                    <div class="formula-line">\((2x^3 + 3x^2) - (2x^3 - 4x^2) = 7x^2\)</div>
+                    <div class="formula-line">Сносим \(-5x\): \(7x^2 - 5x\)</div>
+
+                    <span class="step">Шаг 5. Делим дальше:</span>
+                    <div class="formula-line">\(\frac{7x^2}{x} = 7x\)</div>
+                    <div class="formula-line">\(7x \cdot (x - 2) = 7x^2 - 14x\)</div>
+                    <div class="formula-line">\((7x^2 - 5x) - (7x^2 - 14x) = 9x\)</div>
+                    <div class="formula-line">Сносим \(+1\): \(9x + 1\)</div>
+
+                    <span class="step">Шаг 6. Делим дальше:</span>
+                    <div class="formula-line">\(\frac{9x}{x} = 9\)</div>
+                    <div class="formula-line">\(9 \cdot (x - 2) = 9x - 18\)</div>
+                    <div class="formula-line">\((9x + 1) - (9x - 18) = 19\)</div>
+
+                    <span class="result">Ответ:</span>
+                    <div class="formula-line">Частное: \(2x^2 + 7x + 9\)</div>
+                    <div class="formula-line">Остаток: \(19\)</div>
+                    <div class="formula-line">\(2x^3 + 3x^2 - 5x + 1 = (x - 2)(2x^2 + 7x + 9) + 19\)</div>
+                </div>
+
+                <div class="canvas-wrapper">
+                    <canvas id="divisionCanvas1" width="1200" height="600"></canvas>
+                </div>
+                <div class="legend">
+                    <span class="legend-item"><span class="dot quotient"></span> частное</span>
+                    <span class="legend-item"><span class="dot sub"></span> вычитаемое</span>
+                    <span class="legend-item"><span class="dot remainder"></span> остаток</span>
+                    <span class="legend-item"><span class="dot divisor"></span> делитель</span>
+                    <span class="legend-item"><span class="dot dividend"></span> делимое</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 2 ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 2. \((x^3 - 2x^2 - 5x + 6) : (x - 3)\)</span>
+                <span class="sub-title">деление без остатка</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Записываем делимое и делитель:</span>
+                    <div class="formula-line">Делимое: \(x^3 - 2x^2 - 5x + 6\)</div>
+                    <div class="formula-line">Делитель: \(x - 3\)</div>
+
+                    <span class="step">Шаг 2. Делим:</span>
+                    <div class="formula-line">\(\frac{x^3}{x} = x^2\)</div>
+                    <div class="formula-line">\(x^2 \cdot (x - 3) = x^3 - 3x^2\)</div>
+                    <div class="formula-line">\((x^3 - 2x^2) - (x^3 - 3x^2) = x^2\)</div>
+                    <div class="formula-line">Сносим \(-5x\): \(x^2 - 5x\)</div>
+
+                    <span class="step">Шаг 3. Делим дальше:</span>
+                    <div class="formula-line">\(\frac{x^2}{x} = x\)</div>
+                    <div class="formula-line">\(x \cdot (x - 3) = x^2 - 3x\)</div>
+                    <div class="formula-line">\((x^2 - 5x) - (x^2 - 3x) = -2x\)</div>
+                    <div class="formula-line">Сносим \(+6\): \(-2x + 6\)</div>
+
+                    <span class="step">Шаг 4. Делим дальше:</span>
+                    <div class="formula-line">\(\frac{-2x}{x} = -2\)</div>
+                    <div class="formula-line">\(-2 \cdot (x - 3) = -2x + 6\)</div>
+                    <div class="formula-line">\((-2x + 6) - (-2x + 6) = 0\)</div>
+                    <div class="explain">💡 Остаток равен 0 → деление <strong>без остатка</strong>.</div>
+
+                    <span class="result">Ответ:</span>
+                    <div class="formula-line">Частное: \(x^2 + x - 2\)</div>
+                    <div class="formula-line">Остаток: \(0\)</div>
+                    <div class="formula-line">\(x^3 - 2x^2 - 5x + 6 = (x - 3)(x^2 + x - 2)\)</div>
+                </div>
+
+                <div class="canvas-wrapper">
+                    <canvas id="divisionCanvas2" width="1200" height="540"></canvas>
+                </div>
+                <div class="legend">
+                    <span class="legend-item"><span class="dot quotient"></span> частное</span>
+                    <span class="legend-item"><span class="dot sub"></span> вычитаемое</span>
+                    <span class="legend-item"><span class="dot remainder"></span> остаток</span>
+                    <span class="legend-item"><span class="dot divisor"></span> делитель</span>
+                    <span class="legend-item"><span class="dot dividend"></span> делимое</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== КАЛЬКУЛЯТОР (только ответ) ===== -->
+        <div class="calc-card">
+            <div class="calc-title">🧮 Калькулятор</div>
+            <div style="color:var(--text-secondary);font-size:0.85rem;text-align:center;margin-bottom:12px;">
+                Введите коэффициенты в порядке убывания степени (от старшей к младшей)<br>
+                Например: \(2x^3 + 3x^2 - 5x + 1\) → <strong>2, 3, -5, 1</strong>
+            </div>
+
+            <div class="calc-inputs">
+                <div class="calc-input">
+                    <label>Делимое (коэффициенты)</label>
+                    <input type="text" id="dividendCoeffs" placeholder="2, 3, -5, 1" value="2, 3, -5, 1">
+                </div>
+                <div class="calc-input">
+                    <label>Делитель (коэффициенты)</label>
+                    <input type="text" id="divisorCoeffs" placeholder="1, -2" value="1, -2">
+                </div>
+            </div>
+            <button class="calc-btn" onclick="polynomialDivision()">📐 РАЗДЕЛИТЬ</button>
+
+            <div id="calcResult" class="calc-result">
+                <div class="result-title">📊 Результат</div>
+                <div id="calcResultData" class="result-data">
+                    Введите коэффициенты и нажмите «РАЗДЕЛИТЬ»
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    // ===== ИЗБРАННОЕ =====
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) { btn.textContent = isFavorite() ? '★' : '☆'; if (isFavorite()) btn.classList.add('active'); else btn.classList.remove('active'); }
+    }
+
+    // ===== ТЕМА =====
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        setTimeout(function() { drawAll(); }, 300);
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+        updateFavoriteBtn();
+    })();
+
+    // ===== РИСОВАНИЕ (УВЕЛИЧЕНО) =====
+    function drawDivisionCanvas(canvasId, dividend, divisor, quotient, steps, height) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = height || 540;
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const bgColor = isLight ? '#f8fafc' : '#162a38';
+        const textColor = isLight ? '#1a2a3f' : '#ffffff';
+        const textSecondary = isLight ? '#5a7a94' : '#8ba5b8';
+        const quotientColor = '#34d399';
+        const divisorColor = '#60a5fa';
+        const subColor = '#fbbf24';
+        const remainderColor = '#f87171';
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, w, h);
+
+        // Увеличенные параметры
+        const leftX = 60;
+        const vertX = 480;
+        const topY = 25;
+        const lineHeight = 50;
+        const fontSize = 36;
+
+        ctx.textBaseline = 'top';
+        ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
+
+        ctx.fillStyle = textColor;
+        ctx.textAlign = 'left';
+        ctx.fillText(dividend, leftX, topY);
+
+        ctx.strokeStyle = textColor;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(vertX, topY - 4);
+        ctx.lineTo(vertX, topY + lineHeight * 2 + 24);
+        ctx.stroke();
+
+        ctx.fillStyle = divisorColor;
+        ctx.textAlign = 'left';
+        ctx.fillText(divisor, vertX + 14, topY);
+
+        const divisorWidth = ctx.measureText(divisor).width;
+        ctx.strokeStyle = textColor;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(vertX + 10, topY + lineHeight + 4);
+        ctx.lineTo(vertX + 14 + divisorWidth + 34, topY + lineHeight + 4);
+        ctx.stroke();
+
+        ctx.fillStyle = quotientColor;
+        ctx.textAlign = 'left';
+        ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
+        ctx.fillText(quotient, vertX + 14, topY + lineHeight + 16);
+
+        let currentY = topY + lineHeight + 16;
+
+        for (let i = 0; i < steps.length; i++) {
+            const step = steps[i];
+            const isSub = step.type === 'sub';
+            const isLine = step.type === 'line';
+            const isRemainder = step.type === 'remainder';
+            const offset = step.offset || 0;
+
+            ctx.textAlign = 'left';
+
+            if (isLine) {
+                ctx.fillStyle = textSecondary;
+                ctx.font = fontSize + 'px Courier New, monospace';
+                ctx.fillText(step.text, leftX + offset, currentY);
+                currentY += lineHeight;
+                continue;
+            }
+
+            if (isRemainder) {
+                ctx.fillStyle = remainderColor;
+                ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
+            } else if (isSub) {
+                ctx.fillStyle = subColor;
+                ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
+            } else {
+                ctx.fillStyle = textColor;
+                ctx.font = fontSize + 'px Courier New, monospace';
+            }
+
+            ctx.fillText(step.text, leftX + offset, currentY);
+            currentY += lineHeight;
+        }
+    }
+
+    function drawExample1() {
+        drawDivisionCanvas('divisionCanvas1',
+            '2x³ + 3x² − 5x + 1',
+            'x − 2',
+            '2x² + 7x + 9',
+            [
+                { text: '2x³ − 4x²',   type: 'sub', offset: 0 },
+                { text: '────────────', type: 'line', offset: 0 },
+                { text: '    7x² − 5x', type: 'normal', offset: 28 },
+                { text: '    7x² − 14x', type: 'sub', offset: 28 },
+                { text: '    ────────────', type: 'line', offset: 24 },
+                { text: '         9x + 1', type: 'normal', offset: 60 },
+                { text: '         9x − 18', type: 'sub', offset: 60 },
+                { text: '         ──────', type: 'line', offset: 60 },
+                { text: '              19', type: 'remainder', offset: 60 }
+            ],
+            600
+        );
+    }
+
+    function drawExample2() {
+        drawDivisionCanvas('divisionCanvas2',
+            'x³ − 2x² − 5x + 6',
+            'x − 3',
+            'x² + x − 2',
+            [
+                { text: 'x³ − 3x²',   type: 'sub', offset: 0 },
+                { text: '────────────', type: 'line', offset: 0 },
+                { text: '    x² − 5x', type: 'normal', offset: 24 },
+                { text: '    x² − 3x', type: 'sub', offset: 24 },
+                { text: '   ────────────', type: 'line', offset: 20 },
+                { text: '        -2x + 6', type: 'normal', offset: 52 },
+                { text: '        -2x + 6', type: 'sub', offset: 52 },
+                { text: '       ──────', type: 'line', offset: 52 },
+                { text: '            0', type: 'remainder', offset: 52 }
+            ],
+            540
+        );
+    }
+
+    function drawAll() {
+        drawExample1();
+        drawExample2();
+    }
+
+    // ===== КАЛЬКУЛЯТОР — ТОЛЬКО ОТВЕТ =====
+    function polynomialDivision() {
+        const dividendInput = document.getElementById('dividendCoeffs').value.trim();
+        const divisorInput = document.getElementById('divisorCoeffs').value.trim();
+        const resultDiv = document.getElementById('calcResultData');
+
+        if (!dividendInput || !divisorInput) {
+            resultDiv.innerHTML = '❌ Введите коэффициенты обоих многочленов!';
+            return;
+        }
+
+        const dividend = dividendInput.split(',').map(s => { const v = parseFloat(s.trim()); return isNaN(v) ? 0 : v; });
+        const divisor = divisorInput.split(',').map(s => { const v = parseFloat(s.trim()); return isNaN(v) ? 0 : v; });
+
+        if (dividend.length === 0 || divisor.length === 0 || dividend.every(c => c === 0) || divisor.every(c => c === 0)) {
+            resultDiv.innerHTML = '❌ Введите корректные коэффициенты (числа через запятую)';
+            return;
+        }
+
+        while (dividend.length > 1 && Math.abs(dividend[0]) < 1e-10) dividend.shift();
+        while (divisor.length > 1 && Math.abs(divisor[0]) < 1e-10) divisor.shift();
+
+        if (divisor.length === 0 || divisor.every(c => c === 0)) {
+            resultDiv.innerHTML = '❌ Делитель не может быть нулевым!';
+            return;
+        }
+
+        let remainder = [...dividend];
+        const quotient = [];
+        const divisorDegree = divisor.length - 1;
+        const divisorLeading = divisor[0];
+
+        while (remainder.length - 1 >= divisorDegree && remainder.length > 0 && Math.abs(remainder[0]) > 1e-10) {
+            const coeff = remainder[0] / divisorLeading;
+            quotient.push(coeff);
+
+            for (let i = 0; i < divisor.length; i++) {
+                if (i < remainder.length) {
+                    remainder[i] -= coeff * divisor[i];
+                }
+            }
+
+            while (remainder.length > 1 && Math.abs(remainder[0]) < 1e-10) {
+                remainder.shift();
+            }
+        }
+
+        if (quotient.length === 0) {
+            resultDiv.innerHTML = 'Частное: 0<br>Остаток: ' + formatPoly(dividend);
+            if (window.MathJax) MathJax.typesetPromise();
+            return;
+        }
+
+        const roundedQuotient = quotient.map(c => Math.round(c * 10000) / 10000);
+        const roundedRemainder = remainder.map(c => Math.round(c * 10000) / 10000);
+
+        const quotientStr = formatPoly(roundedQuotient);
+        const remainderStr = (roundedRemainder.length === 1 && Math.abs(roundedRemainder[0]) < 1e-10) ? '0' : formatPoly(roundedRemainder);
+        const dividendStr = formatPoly(dividend);
+        const divisorStr = formatPoly(divisor);
+
+        let html = '';
+
+        html += '<div>';
+        html += '<span style="color:var(--text-secondary);font-weight:400;">Частное: </span>';
+        html += '<span class="quotient">' + quotientStr + '</span>';
+        html += '</div>';
+
+        html += '<div>';
+        html += '<span style="color:var(--text-secondary);font-weight:400;">Остаток: </span>';
+        if (remainderStr === '0') {
+            html += '<span class="remainder">0</span>';
+        } else {
+            html += '<span class="remainder">' + remainderStr + '</span>';
+        }
+        html += '</div>';
+
+        if (remainderStr === '0') {
+            html += '<div style="color:var(--result-color);font-size:0.9rem;margin-top:4px;">✅ Деление без остатка</div>';
+        }
+
+        html += '<div style="color:var(--text-secondary);font-size:0.85rem;margin-top:6px;">';
+        html += dividendStr + ' = (' + divisorStr + ')(' + quotientStr + ')';
+        if (remainderStr !== '0') {
+            html += ' + ' + remainderStr;
+        }
+        html += '</div>';
+
+        resultDiv.innerHTML = html;
+
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    function formatPoly(coeffs) {
+        if (!coeffs || coeffs.length === 0 || coeffs.every(c => Math.abs(c) < 1e-10)) return '0';
+        const n = coeffs.length;
+        let parts = [];
+        for (let i = 0; i < n; i++) {
+            const coeff = coeffs[i];
+            if (Math.abs(coeff) < 1e-10) continue;
+            const degree = n - i - 1;
+            let term = '';
+            if (degree === 0) {
+                term = String(coeff);
+            } else if (Math.abs(coeff) === 1) {
+                term = (coeff < 0 ? '-' : '') + 'x';
+            } else {
+                term = coeff + 'x';
+            }
+            if (degree > 1) term += '^' + degree;
+            parts.push(term);
+        }
+        if (parts.length === 0) return '0';
+        let result = '';
+        for (let i = 0; i < parts.length; i++) {
+            let term = parts[i];
+            if (i === 0) {
+                result = term;
+            } else {
+                if (term.startsWith('-')) result += ' − ' + term.substring(1);
+                else result += ' + ' + term;
+            }
+        }
+        result = result.replace(/(?<!\d)1x/g, 'x').replace(/-1x/g, '-x');
+        result = result.replace(/\+ −/g, '− ');
+        return result;
+    }
+
+    // ===== ЗАПУСК =====
+    window.addEventListener('load', function() {
+        updateFavoriteBtn();
+        setTimeout(function() {
+            drawAll();
+            setTimeout(polynomialDivision, 300);
+        }, 400);
+    });
+</script>
+</body>
+</html>

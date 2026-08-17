@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Радианная мера угла</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --info-border: #2c7cb6;
+            --example-bg: #162a38;
+            --step-color: #a78bfa;
+            --result-color: #34d399;
+            --explain-color: #34d399;
+            --info-bg: #1a4a5a;
+            --special-border: #2c7cb6;
+            --table-bg: #1e3545;
+            --table-even: #233e50;
+            --table-odd: #1e3545;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --info-border: #2c7cb6;
+            --example-bg: #f8fafc;
+            --step-color: #7c3aed;
+            --result-color: #059669;
+            --explain-color: #059669;
+            --info-bg: #e8f0fe;
+            --special-border: #2c7cb6;
+            --table-bg: white;
+            --table-even: #f0f4fa;
+            --table-odd: white;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:1000px;margin:0 auto;position:relative;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--info-border);padding-left:12px;text-align:center;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title .main-title{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;color:var(--text);}
+        .section-title .sub-title{font-size:0.85rem;color:var(--text-secondary);font-weight:400;font-style:italic;margin-top:2px;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:10000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:16px 20px;border-radius:16px;margin:12px 0;}
+        .definition-block p{font-size:1rem;line-height:1.5;color:var(--text);}
+        .definition-block p strong{color:var(--text);}
+        .definition-block ul{padding-left:20px;margin:6px 0;font-size:0.95rem;line-height:1.5;color:var(--text);}
+        .definition-block ul li{margin:2px 0;}
+
+        .definition-radian{background:var(--info-bg);border-left:4px solid #60a5fa;padding:16px 20px;border-radius:16px;margin:12px 0;}
+        .definition-radian p{font-size:1rem;line-height:1.5;color:var(--text);}
+        .definition-radian p strong{color:var(--text);}
+
+        .formula-block{background:var(--bg);padding:20px 24px;border-radius:16px;font-size:1.3rem;margin:12px 0;border-left:6px solid var(--special-border);word-break:break-word;overflow-x:visible;line-height:2.4;color:var(--text);text-align:center;}
+        .formula-block mjx-container{font-size:1.4rem !important;}
+
+        .example{background:var(--example-bg);padding:16px 20px;border-radius:14px;margin-top:10px;border-left:5px solid var(--special-border);font-size:1.05rem;line-height:2.0;color:var(--text);word-break:break-word;overflow-x:visible;}
+        .example mjx-container{font-size:1.2rem !important;}
+        .example .step{font-weight:700;color:var(--step-color);margin-top:10px;margin-bottom:2px;display:block;font-size:1.1rem;}
+        .example .result{margin-top:10px;font-weight:600;color:var(--result-color);display:block;font-size:1.15rem;}
+        .example .explain{color:var(--explain-color);font-style:italic;margin:4px 0 8px 16px;border-left:2px solid var(--explain-color);padding-left:12px;display:block;font-size:1rem;}
+        .example .formula-line{display:block;margin:4px 0;word-break:break-word;font-size:1.1rem;}
+        p{margin:8px 0;font-size:1rem;line-height:1.6;color:var(--text);}
+        .important{background:var(--info-bg);border-left:4px solid #fbbf24;border-radius:14px;padding:12px 16px;margin:12px 0;color:var(--text);font-size:1rem;}
+        .important strong{color:#fbbf24;}
+        .important a{color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;}
+        .important a:hover{color:#93c5fd;}
+
+        .angle-table{width:100%;border-collapse:collapse;background:var(--table-bg);border-radius:16px;overflow:hidden;text-align:center;margin:12px 0;}
+        .angle-table th{background:#1a2d3c;color:white;padding:12px 4px;font-weight:700;font-size:0.9rem;}
+        .angle-table td{padding:12px 4px;border:1px solid var(--border);font-family:'Times New Roman',monospace;font-size:1.05rem;color:var(--text);}
+        .angle-table tr:nth-child(even){background:var(--table-even);}
+        .angle-table tr:nth-child(odd){background:var(--table-odd);}
+        .angle-table .highlight{background:var(--info-bg);font-weight:700;}
+
+        .circle-container{display:flex;justify-content:center;margin:16px 0;padding:12px;background:var(--info-bg);border-radius:20px;border:1px solid var(--border);}
+        .circle-svg{max-width:100%;height:auto;border-radius:12px;}
+
+        .back-link{display:inline-block;margin:16px 0 8px;padding:10px 20px;background:var(--special-border);color:white;text-decoration:none;font-weight:bold;border-radius:20px;font-size:0.95rem;transition:background 0.2s;}
+        .back-link:hover{background:#1a6b8a;}
+        mjx-container{font-size:1.1em !important;overflow-x:visible !important;max-width:100% !important;}
+
+        .favorite-btn{position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;z-index:1000;color:var(--text-secondary);transition:all 0.2s;backdrop-filter:blur(4px);}
+        .favorite-btn:hover{transform:scale(1.1);}
+        .favorite-btn.active{color:#facc15;}
+
+        @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.definition-block p{font-size:0.95rem;}.definition-radian p{font-size:0.95rem;}.example{padding:12px 14px;font-size:0.95rem;}.formula-block{padding:14px 16px;font-size:1.1rem;}.formula-block mjx-container{font-size:1.2rem !important;}.example mjx-container{font-size:1.05rem !important;}.angle-table th,.angle-table td{padding:8px 2px;font-size:0.85rem;}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    </style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                macros: {
+                    tg: '\\mathop{\\mathrm{tg}}',
+                    ctg: '\\mathop{\\mathrm{ctg}}'
+                }
+            },
+            options: { skipHtmlTypes: 'script', ignoreHtmlClass: 'no-mathjax' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header">
+        <h1>Радианная мера угла</h1>
+        <div class="subtitle">Что такое радиан · Перевод градусов в радианы и обратно</div>
+    </div>
+
+    <div class="content-card">
+
+        <!-- ===== ЧТО ТАКОЕ ТРИГОНОМЕТРИЯ ===== -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📖 Что такое тригонометрия?</span>
+            </div>
+            <div class="section-content">
+                <p><strong>Тригонометрия</strong> (от греч. τρίγωνον — треугольник и μετρέω — измеряю) — это раздел математики, изучающий <strong>связи между сторонами и углами треугольников</strong>, а также <strong>тригонометрические функции</strong>.</p>
+
+                <div class="important">
+                    <strong>📌 Основные тригонометрические функции:</strong><br>
+                    • <strong>Синус</strong> \(\sin \alpha\)<br>
+                    • <strong>Косинус</strong> \(\cos \alpha\)<br>
+                    • <strong>Тангенс</strong> \(\tg \alpha = \dfrac{\sin \alpha}{\cos \alpha}\)<br>
+                    • <strong>Котангенс</strong> \(\ctg \alpha = \dfrac{\cos \alpha}{\sin \alpha}\)
+                </div>
+
+                <div class="definition-block">
+                    <p><strong>Где применяется:</strong></p>
+                    <ul>
+                        <li>📐 Геометрия — решение треугольников</li>
+                        <li>📈 Физика — колебания, волны, оптика</li>
+                        <li>🔧 Инженерия — строительство, механика</li>
+                        <li>🛰 Астрономия — навигация, космос</li>
+                        <li>🎵 Музыка — звуковые волны</li>
+                    </ul>
+                </div>
+
+                <div class="important">
+                    <strong>🔗 Связанные разделы:</strong><br>
+                    • <a href="Значения тригонометрических функций.html">📊 Таблица значений тригонометрических функций</a><br>
+                    • <a href="Знаки тригонометрических функций.html">📐 Знаки по четвертям</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== РАДИАНЫ ===== -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Что такое радиан?</span>
+            </div>
+            <div class="section-content">
+                <div class="definition-radian">
+                    <p><strong>Радиан</strong> — это угол, соответствующий дуге окружности, длина которой равна радиусу этой окружности.</p>
+                    <p style="margin-top:6px;">Один радиан равен примерно \(57.2958^\circ\).</p>
+                </div>
+
+                <div class="important">
+                    <strong>💡 Почему радиан удобен?</strong><br>
+                    • В радианах длина дуги вычисляется просто: \(l = \alpha \cdot R\)<br>
+                    • В математическом анализе производные тригонометрических функций имеют простой вид<br>
+                    • Естественно описывает колебательные и волновые процессы в физике
+                </div>
+
+                <div class="formula-block" style="border-left-color: #fbbf24;">
+                    <strong>Основные соотношения:</strong>
+                    <span class="formula-line">$$ \pi \text{ радиан} = 180^\circ $$</span>
+                    <span class="formula-line">$$ 2\pi \text{ радиан} = 360^\circ $$</span>
+                </div>
+
+                <!-- ===== ТАБЛИЦА ОСНОВНЫХ УГЛОВ ===== -->
+                <div style="margin:16px 0;">
+                    <p style="font-weight:700;color:var(--text);margin-bottom:8px;">📊 Таблица основных углов:</p>
+                    <table class="angle-table">
+                        <thead>
+                        <tr>
+                            <th>Градусы</th>
+                            <th>0°</th>
+                            <th>30°</th>
+                            <th>45°</th>
+                            <th>60°</th>
+                            <th>90°</th>
+                            <th>180°</th>
+                            <th>270°</th>
+                            <th>360°</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><strong>Радианы</strong></td>
+                            <td>0</td>
+                            <td>\(\dfrac{\pi}{6}\)</td>
+                            <td>\(\dfrac{\pi}{4}\)</td>
+                            <td>\(\dfrac{\pi}{3}\)</td>
+                            <td>\(\dfrac{\pi}{2}\)</td>
+                            <td>\(\pi\)</td>
+                            <td>\(\dfrac{3\pi}{2}\)</td>
+                            <td>\(2\pi\)</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ===== ЕДИНИЧНАЯ ОКРУЖНОСТЬ ===== -->
+                <div class="circle-container">
+                    <svg class="circle-svg" width="380" height="380" viewBox="-190 -190 380 380" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Оси -->
+                        <line x1="-160" y1="0" x2="160" y2="0" stroke="var(--text-secondary)" stroke-width="1.5"/>
+                        <line x1="0" y1="-160" x2="0" y2="160" stroke="var(--text-secondary)" stroke-width="1.5"/>
+                        <!-- Окружность -->
+                        <circle cx="0" cy="0" r="140" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+                        <!-- Центр -->
+                        <circle cx="0" cy="0" r="3" fill="var(--accent)"/>
+
+                        <!-- Метки радиан -->
+                        <text x="155" y="5" font-size="13" fill="var(--text-secondary)" font-weight="bold">0</text>
+                        <text x="8" y="-150" font-size="13" fill="var(--text-secondary)" font-weight="bold">π/2</text>
+                        <text x="-165" y="5" font-size="13" fill="var(--text-secondary)" font-weight="bold">π</text>
+                        <text x="8" y="160" font-size="13" fill="var(--text-secondary)" font-weight="bold">3π/2</text>
+                        <text x="155" y="20" font-size="13" fill="var(--text-secondary)" font-weight="bold">2π</text>
+
+                        <!-- Точки на окружности -->
+                        <!-- 30° = π/6 -->
+                        <circle cx="121.2" cy="-70" r="3" fill="#e74c3c"/>
+                        <text x="128" y="-78" font-size="11" fill="#e74c3c">π/6</text>
+                        <!-- 45° = π/4 -->
+                        <circle cx="99" cy="-99" r="3" fill="#f39c12"/>
+                        <text x="108" y="-112" font-size="11" fill="#f39c12">π/4</text>
+                        <!-- 60° = π/3 -->
+                        <circle cx="70" cy="-121.2" r="3" fill="#2ecc71"/>
+                        <text x="78" y="-138" font-size="11" fill="#2ecc71">π/3</text>
+                        <!-- 90° = π/2 -->
+                        <circle cx="0" cy="-140" r="4" fill="#e74c3c"/>
+
+                        <!-- 120° = 2π/3 -->
+                        <circle cx="-70" cy="-121.2" r="3" fill="#2ecc71"/>
+                        <text x="-100" y="-138" font-size="11" fill="#2ecc71">2π/3</text>
+                        <!-- 135° = 3π/4 -->
+                        <circle cx="-99" cy="-99" r="3" fill="#f39c12"/>
+                        <text x="-130" y="-112" font-size="11" fill="#f39c12">3π/4</text>
+                        <!-- 150° = 5π/6 -->
+                        <circle cx="-121.2" cy="-70" r="3" fill="#e74c3c"/>
+                        <text x="-148" y="-78" font-size="11" fill="#e74c3c">5π/6</text>
+                        <!-- 180° = π -->
+                        <circle cx="-140" cy="0" r="4" fill="#e74c3c"/>
+
+                        <!-- 210° = 7π/6 -->
+                        <circle cx="-121.2" cy="70" r="3" fill="#e74c3c"/>
+                        <text x="-148" y="84" font-size="11" fill="#e74c3c">7π/6</text>
+                        <!-- 225° = 5π/4 -->
+                        <circle cx="-99" cy="99" r="3" fill="#f39c12"/>
+                        <text x="-130" y="118" font-size="11" fill="#f39c12">5π/4</text>
+                        <!-- 240° = 4π/3 -->
+                        <circle cx="-70" cy="121.2" r="3" fill="#2ecc71"/>
+                        <text x="-100" y="142" font-size="11" fill="#2ecc71">4π/3</text>
+                        <!-- 270° = 3π/2 -->
+                        <circle cx="0" cy="140" r="4" fill="#e74c3c"/>
+
+                        <!-- 300° = 5π/3 -->
+                        <circle cx="70" cy="121.2" r="3" fill="#2ecc71"/>
+                        <text x="78" y="146" font-size="11" fill="#2ecc71">5π/3</text>
+                        <!-- 315° = 7π/4 -->
+                        <circle cx="99" cy="99" r="3" fill="#f39c12"/>
+                        <text x="108" y="118" font-size="11" fill="#f39c12">7π/4</text>
+                        <!-- 330° = 11π/6 -->
+                        <circle cx="121.2" cy="70" r="3" fill="#e74c3c"/>
+                        <text x="130" y="84" font-size="11" fill="#e74c3c">11π/6</text>
+                        <!-- 360° = 2π -->
+                        <circle cx="140" cy="0" r="4" fill="#e74c3c"/>
+
+                        <!-- Подписи четвертей -->
+                        <text x="55" y="-55" font-size="18" fill="#2ecc71" font-weight="bold">I</text>
+                        <text x="-70" y="-55" font-size="18" fill="#e74c3c" font-weight="bold">II</text>
+                        <text x="-70" y="65" font-size="18" fill="#e74c3c" font-weight="bold">III</text>
+                        <text x="55" y="65" font-size="18" fill="#2ecc71" font-weight="bold">IV</text>
+                    </svg>
+                </div>
+                <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);margin-top:-4px;">
+                    📐 Единичная окружность с основными углами в радианах
+                </p>
+
+                <div class="example">
+                    <span class="step">🔹 Часто встречающиеся углы:</span>
+                    <div class="formula-line">\(\dfrac{\pi}{6} = 30^\circ\)</div>
+                    <div class="formula-line">\(\dfrac{\pi}{4} = 45^\circ\)</div>
+                    <div class="formula-line">\(\dfrac{\pi}{3} = 60^\circ\)</div>
+                    <div class="formula-line">\(\dfrac{\pi}{2} = 90^\circ\)</div>
+                    <div class="formula-line">\(\pi = 180^\circ\)</div>
+                    <div class="formula-line">\(\dfrac{3\pi}{2} = 270^\circ\)</div>
+                    <div class="formula-line">\(2\pi = 360^\circ\)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ФОРМУЛЫ ПЕРЕВОДА ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Формулы перевода</span>
+                <span class="sub-title">градусы ⟷ радианы</span>
+            </div>
+            <div class="section-content">
+
+                <!-- ===== ФОРМУЛА 1 ===== -->
+                <div class="formula-block" style="border-left-color: #34d399;">
+                    <strong style="font-size:1.1rem;">Из градусов в радианы</strong>
+                    <span class="formula-line" style="font-size:1.4rem;">$$ \text{рад} = \text{град} \cdot \frac{\pi}{180} $$</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 1. Перевести \(30^\circ\) в радианы</span>
+                    <div class="formula-line">$$ 30^\circ \cdot \frac{\pi}{180} = \frac{30\pi}{180} = \frac{\pi}{6} $$</div>
+                    <span class="result">✅ Ответ: \(\dfrac{\pi}{6}\)</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 2. Перевести \(120^\circ\) в радианы</span>
+                    <div class="formula-line">$$ 120^\circ \cdot \frac{\pi}{180} = \frac{120\pi}{180} = \frac{2\pi}{3} $$</div>
+                    <span class="result">✅ Ответ: \(\dfrac{2\pi}{3}\)</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 3. Перевести \(45^\circ\) в радианы</span>
+                    <div class="formula-line">$$ 45^\circ \cdot \frac{\pi}{180} = \frac{45\pi}{180} = \frac{\pi}{4} $$</div>
+                    <span class="result">✅ Ответ: \(\dfrac{\pi}{4}\)</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 4. Перевести \(225^\circ\) в радианы</span>
+                    <div class="formula-line">$$ 225^\circ \cdot \frac{\pi}{180} = \frac{225\pi}{180} = \frac{5\pi}{4} $$</div>
+                    <span class="result">✅ Ответ: \(\dfrac{5\pi}{4}\)</span>
+                </div>
+
+                <!-- ===== ФОРМУЛА 2 ===== -->
+                <div class="formula-block" style="border-left-color: #f87171; margin-top:20px;">
+                    <strong style="font-size:1.1rem;">Из радиан в градусы</strong>
+                    <span class="formula-line" style="font-size:1.4rem;">$$ \text{град} = \text{рад} \cdot \frac{180}{\pi} $$</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 5. Перевести \(\dfrac{\pi}{3}\) в градусы</span>
+                    <div class="formula-line">$$ \frac{\pi}{3} \cdot \frac{180}{\pi} = \frac{180}{3} = 60^\circ $$</div>
+                    <span class="result">✅ Ответ: \(60^\circ\)</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 6. Перевести \(\dfrac{3\pi}{4}\) в градусы</span>
+                    <div class="formula-line">$$ \frac{3\pi}{4} \cdot \frac{180}{\pi} = \frac{3 \cdot 180}{4} = 135^\circ $$</div>
+                    <span class="result">✅ Ответ: \(135^\circ\)</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 7. Перевести \(\dfrac{5\pi}{6}\) в градусы</span>
+                    <div class="formula-line">$$ \frac{5\pi}{6} \cdot \frac{180}{\pi} = \frac{5 \cdot 180}{6} = 150^\circ $$</div>
+                    <span class="result">✅ Ответ: \(150^\circ\)</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 8. Перевести \(\dfrac{7\pi}{6}\) в градусы</span>
+                    <div class="formula-line">$$ \frac{7\pi}{6} \cdot \frac{180}{\pi} = \frac{7 \cdot 180}{6} = 210^\circ $$</div>
+                    <span class="result">✅ Ответ: \(210^\circ\)</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 9. Перевести \(\dfrac{\pi}{12}\) в градусы</span>
+                    <div class="formula-line">$$ \frac{\pi}{12} \cdot \frac{180}{\pi} = \frac{180}{12} = 15^\circ $$</div>
+                    <span class="result">✅ Ответ: \(15^\circ\)</span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <a href="trigonometry.html" class="back-link">← Назад к тригонометрии</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    // ИЗБРАННОЕ
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>

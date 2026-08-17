@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Метод оценки (мажорант) — метод решения</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --method-card: rgba(139,92,246,0.08);
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --method-card: rgba(124,58,237,0.06);
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .method-card {
+            background: var(--method-card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border-left: 4px solid var(--special-border);
+        }
+        .method-card .method-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .method-card .method-name .badge {
+            background: var(--special-border);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .method-card .algorithm {
+            margin: 8px 0 4px 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+        .method-card .algorithm li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 20px;
+        }
+        .method-card .algorithm li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--special-border);
+            font-weight: 700;
+        }
+
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .danger { color: #f87171; font-weight: 600; }
+        .example-no-border .success { color: #34d399; font-weight: 600; }
+        .example-no-border .highlight { color: #fbbf24; font-weight: 600; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .method-card { padding: 12px 14px; }
+            mjx-container { font-size: 1em !important; }
+        }
+    </style>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>📊 Метод оценки (мажорант)</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое метод оценки?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Метод оценки (мажорант)</strong> — это метод, при котором мы находим <span style="color: #fbbf24; font-weight: 700;">верхнюю</span> оценку одной части уравнения и <span style="color: #fbbf24; font-weight: 700;">нижнюю</span> оценку другой. Если они совпадают — мы нашли решение.</p>
+            <div class="important">
+                <strong>🎯 Главная идея:</strong> Если \(f(x) \le M\) и \(g(x) \ge M\), то уравнение \(f(x) = g(x)\) имеет решение только при \(f(x) = M\) и \(g(x) = M\).
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📋 Алгоритм метода мажорант</span>
+        </div>
+        <div class="section-content">
+            <div class="method-card">
+                <div class="method-name">
+                    <span>📌 Пошаговый алгоритм</span>
+                    <span class="badge">Ключевой</span>
+                </div>
+                <div class="algorithm">
+                    <li><strong>Шаг 1.</strong> Преобразовать уравнение к виду \(f(x) = g(x)\).</li>
+                    <li><strong>Шаг 2.</strong> Найти <span style="color: #34d399; font-weight: 700;">максимальное</span> значение \(f(x)\) (обозначим \(M\)).</li>
+                    <li><strong>Шаг 3.</strong> Найти <span style="color: #f87171; font-weight: 700;">минимальное</span> значение \(g(x)\) (обозначим \(m\)).</li>
+                    <li><strong>Шаг 4.</strong> Если \(M < m\) → решений нет.</li>
+                    <li><strong>Шаг 5.</strong> Если \(M = m\) → решаем систему \(f(x) = M\) и \(g(x) = M\).</li>
+                    <li><strong>Шаг 6.</strong> Проверить, что найденные корни подходят.</li>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1: КЛАССИЧЕСКИЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. \(x^2 + y^2 = 0\)</span>
+            <span class="sub-title">простейший случай</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Оцениваем</span>
+                <div class="formula-line">\(x^2 \ge 0\), \(y^2 \ge 0\)</div>
+                <div class="formula-line">Значит, \(x^2 + y^2 \ge 0\)</div>
+
+                <span class="step">🔹 Шаг 2. Находим точку равенства</span>
+                <div class="explain">💡 Равенство \(= 0\) достигается только когда \(x^2 = 0\) и \(y^2 = 0\).</div>
+                <div class="formula-line">\(x = 0\), \(y = 0\)</div>
+
+                <span class="result">✅ Ответ: \((0; 0)\)</span>
+                <div class="explain success">💡 Оценка \(x^2 + y^2 \ge 0\) даёт ответ мгновенно!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2: СИНУС И КВАДРАТ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. \(\sin x + x^2 = 1\)</span>
+            <span class="sub-title">комбинация ограниченных функций</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Оцениваем каждую часть</span>
+                <div class="formula-line">\(\sin x \le 1\)</div>
+                <div class="formula-line">\(x^2 \ge 0\)</div>
+                <div class="explain">💡 \(\sin x + x^2\) может принимать разные значения, но оценим:</div>
+                <div class="formula-line">\(\sin x + x^2 \le 1 + x^2\) — не помогает.</div>
+
+                <span class="step">🔹 Шаг 2. Ищем другой подход</span>
+                <div class="explain">💡 Заметим, что \(\sin x \le 1\), а \(x^2 \ge 0\).</div>
+                <div class="explain">💡 Для равенства \(= 1\) нужно, чтобы \(\sin x = 1\) и \(x^2 = 0\).</div>
+                <div class="formula-line">Из \(x^2 = 0\) → \(x = 0\).</div>
+                <div class="formula-line">Но \(\sin 0 = 0 \neq 1\).</div>
+
+                <span class="result">✅ Ответ: решений нет</span>
+                <div class="explain danger">⚠️ Здесь метод мажорант показывает, что решений нет!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3: КЛАССИЧЕСКАЯ МАЖОРАНТА ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. \(x^2 - 2x + 2 + \sqrt{x^2-2x+3} = 2\)</span>
+            <span class="sub-title">сложная мажоранта</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Замечаем полный квадрат</span>
+                <div class="formula-line">\(x^2 - 2x + 2 = (x-1)^2 + 1\)</div>
+                <div class="formula-line">\(x^2 - 2x + 3 = (x-1)^2 + 2\)</div>
+
+                <span class="step">🔹 Шаг 2. Переписываем уравнение</span>
+                <div class="formula-line">\((x-1)^2 + 1 + \sqrt{(x-1)^2 + 2} = 2\)</div>
+                <div class="formula-line">\((x-1)^2 + \sqrt{(x-1)^2 + 2} = 1\)</div>
+
+                <span class="step">🔹 Шаг 3. Оцениваем</span>
+                <div class="formula-line">\((x-1)^2 \ge 0\)</div>
+                <div class="formula-line">\(\sqrt{(x-1)^2 + 2} \ge \sqrt{2}\)</div>
+                <div class="explain">💡 Сумма \(\ge \sqrt{2} \approx 1.414\). Но правая часть \(= 1\).</div>
+                <div class="formula-line">\(\sqrt{2} > 1\), значит левая часть всегда больше 1.</div>
+
+                <span class="result">✅ Ответ: решений нет</span>
+                <div class="explain success">💡 Оценка снизу показала, что левая часть всегда больше правой.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4: С ЕДИНСТВЕННЫМ РЕШЕНИЕМ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. \(x^2 + y^2 - 2x - 4y + 5 = 0\)</span>
+            <span class="sub-title">выделение полных квадратов</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Выделяем полные квадраты</span>
+                <div class="formula-line">\(x^2 - 2x + y^2 - 4y + 5 = 0\)</div>
+                <div class="formula-line">\((x-1)^2 - 1 + (y-2)^2 - 4 + 5 = 0\)</div>
+                <div class="formula-line">\((x-1)^2 + (y-2)^2 = 0\)</div>
+
+                <span class="step">🔹 Шаг 2. Оцениваем</span>
+                <div class="formula-line">\((x-1)^2 \ge 0\), \((y-2)^2 \ge 0\)</div>
+                <div class="explain">💡 Сумма равна 0 только когда оба квадрата равны 0.</div>
+                <div class="formula-line">\(x-1 = 0\) → \(x = 1\)</div>
+                <div class="formula-line">\(y-2 = 0\) → \(y = 2\)</div>
+
+                <span class="result">✅ Ответ: \((1; 2)\)</span>
+                <div class="explain success">💡 Метод оценки через полные квадраты — один из самых эффективных приёмов!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 5: НЕРАВЕНСТВО ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5. \(x^2 + y^2 \ge 2xy\)</span>
+            <span class="sub-title">неравенство через оценку</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Преобразуем</span>
+                <div class="formula-line">\(x^2 + y^2 - 2xy \ge 0\)</div>
+                <div class="formula-line">\((x-y)^2 \ge 0\)</div>
+
+                <span class="step">🔹 Шаг 2. Оцениваем</span>
+                <div class="explain">💡 Квадрат всегда \(\ge 0\). Значит неравенство верно при всех \(x, y\).</div>
+                <div class="explain">💡 Равенство достигается при \(x = y\).</div>
+
+                <span class="result">✅ Ответ: верно при всех \(x, y \in \mathbb{R}\); равенство при \(x = y\)</span>
+                <div class="explain success">💡 Метод оценки позволяет доказывать неравенства и находить точки равенства.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ШПАРГАЛКА ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📌 Когда применять метод оценки</span>
+        </div>
+        <div class="section-content">
+            <div class="important">
+                <strong>🎯 Признаки того, что нужен метод оценки:</strong><br><br>
+                📌 В уравнении есть <span style="color: #fbbf24; font-weight: 700;">сумма квадратов</span> → \(\ge 0\).<br>
+                📌 Есть <span style="color: #fbbf24; font-weight: 700;">\(\sin x\)</span> или <span style="color: #fbbf24; font-weight: 700;">\(\cos x\)</span> → \( \le 1\).<br>
+                📌 Есть <span style="color: #fbbf24; font-weight: 700;">корень</span> → \(\sqrt{x} \ge 0\).<br>
+                📌 Есть <span style="color: #fbbf24; font-weight: 700;">модуль</span> → \(|x| \ge 0\).<br>
+                📌 Нужно <span style="color: #fbbf24; font-weight: 700;">доказать</span>, что решений нет или найти единственное решение.<br><br>
+
+                <strong style="color: #34d399;">✅ Частые приёмы:</strong><br>
+                • \(a^2 + b^2 = 0 \iff a = 0, b = 0\)<br>
+                • \(\sin x + \cos x \le \sqrt{2}\)<br>
+                • \(\sqrt{x} + \frac{1}{\sqrt{x}} \ge 2\) (при \(x > 0\))<br>
+                • \(x^2 - 2x + 2 = (x-1)^2 + 1 \ge 1\)
+            </div>
+        </div>
+    </div>
+
+    <a href="nonstandard-methods.html" class="back-link">← Назад к нестандартным методам</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>

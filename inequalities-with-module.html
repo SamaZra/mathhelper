@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Неравенства с модулем — ЕГЭ (профиль)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --interval-method-bg: rgba(251,191,36,0.12);
+            --interval-method-border: #fbbf24;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --interval-method-bg: rgba(251,191,36,0.10);
+            --interval-method-border: #fbbf24;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: visible; line-height: 2.2; color: var(--text); }
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            border-left: 5px solid var(--special-border);
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .star { color: #fbbf24; font-size: 1.2rem; margin-right: 4px; }
+        .example .star { color: #fbbf24; font-size: 1.2rem; margin-right: 4px; }
+        .example-no-border .interval-method { color: #fbbf24; font-weight: 700; background: var(--interval-method-bg); padding: 2px 10px; border-radius: 6px; display: inline-block; border-left: 3px solid var(--interval-method-border); }
+        .example .interval-method { color: #fbbf24; font-weight: 700; background: var(--interval-method-bg); padding: 2px 10px; border-radius: 6px; display: inline-block; border-left: 3px solid var(--interval-method-border); }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; font-size: 0.9rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .formula-block { padding: 12px 14px; font-size: 0.9rem; }
+            mjx-container { font-size: 1em !important; }
+        }
+    </style>
+
+    <!-- MathJax — локальное подключение -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>|x| Неравенства с модулем (ЕГЭ)</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое неравенство с модулем?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Неравенство с модулем</strong> — это неравенство, содержащее переменную под знаком модуля.</p>
+            <div class="important">
+                <strong>📌 Основные методы решения неравенств с модулем:</strong><br>
+                1️⃣ <strong>Формулы</strong> — \(|x| < a \iff -a < x < a\) (при \(a > 0\)).<br>
+                2️⃣ <strong>Метод интервалов</strong> — для суммы модулей.<br>
+                3️⃣ <strong>Раскрытие по определению</strong> — разбиение на два случая.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1 (ПРОСТОЙ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. \(|2x-1| < 3\)</span>
+            <span class="sub-title">метод — формула \(|x| < a\)</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 1. Используем формулу</span>
+                <div class="explain">💡 \(|2x-1| < 3 \iff -3 < 2x-1 < 3\)</div>
+                <div class="formula-line">\(-3 < 2x-1 < 3\)</div>
+                <div class="formula-line">\(-2 < 2x < 4\)</div>
+                <div class="formula-line">\(-1 < x < 2\)</div>
+
+                <span class="result">✅ Ответ: \(x \in (-1; 2)\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2 (ЕГЭ). \(|x^2-4x| < 3\)</span>
+            <span class="sub-title">метод — <span class="interval-method">метод интервалов</span></span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 1. Используем формулу</span>
+                <div class="explain">💡 \(|x^2-4x| < 3 \iff -3 < x^2-4x < 3\)</div>
+                <div class="formula-line">\(x^2-4x < 3\) и \(x^2-4x > -3\)</div>
+
+                <span class="step">🔹 2. Решаем первое неравенство</span>
+                <div class="formula-line">\(x^2-4x-3 < 0\)</div>
+                <div class="formula-line">\(x = 2 \pm \sqrt{7}\)</div>
+                <div class="explain">💡 Корни: \(2-\sqrt{7} \approx -0.65\), \(2+\sqrt{7} \approx 4.65\)</div>
+                <div class="formula-line">\(x \in (2-\sqrt{7}; 2+\sqrt{7})\)</div>
+
+                <span class="step">🔹 3. Решаем второе неравенство</span>
+                <div class="formula-line">\(x^2-4x+3 > 0\)</div>
+                <div class="formula-line">\((x-1)(x-3) > 0\)</div>
+                <div class="formula-line">\(x \in (-\infty; 1) \cup (3; +\infty)\)</div>
+
+                <span class="step">🔹 4. Пересекаем</span>
+                <div class="formula-line">\(x \in (2-\sqrt{7}; 1) \cup (3; 2+\sqrt{7})\)</div>
+
+                <span class="result">✅ Ответ: \(x \in (2-\sqrt{7}; 1) \cup (3; 2+\sqrt{7})\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3 (ЕГЭ). \(\left|\frac{x+1}{x-1}\right| \le \frac{2x}{x+3}\)</span>
+            <span class="sub-title">метод — раскрытие + ОДЗ + <span class="interval-method">метод интервалов</span></span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 1. ОДЗ</span>
+                <div class="formula-line">\(x \neq 1,\; x \neq -3\)</div>
+                <div class="explain">💡 Правая часть \(\frac{2x}{x+3}\) должна быть \(\ge 0\).</div>
+                <div class="formula-line">\(\frac{2x}{x+3} \ge 0\)</div>
+                <div class="explain">💡 Решаем методом интервалов: \(x \le -3\) или \(x \ge 0\).</div>
+
+                <span class="step">🔹 2. Раскрываем модуль</span>
+                <div class="explain">💡 \(\left|\frac{x+1}{x-1}\right| \le \frac{2x}{x+3} \Rightarrow -\frac{2x}{x+3} \le \frac{x+1}{x-1} \le \frac{2x}{x+3}\)</div>
+
+                <span class="step">🔹 3. Решаем левое неравенство</span>
+                <div class="formula-line">\(-\frac{2x}{x+3} \le \frac{x+1}{x-1}\)</div>
+                <div class="formula-line">\(\frac{x+1}{x-1} + \frac{2x}{x+3} \ge 0\)</div>
+                <div class="formula-line">\(\frac{(x+1)(x+3) + 2x(x-1)}{(x-1)(x+3)} \ge 0\)</div>
+                <div class="formula-line">\(\frac{x^2+4x+3 + 2x^2-2x}{(x-1)(x+3)} \ge 0\)</div>
+                <div class="formula-line">\(\frac{3x^2+2x+3}{(x-1)(x+3)} \ge 0\)</div>
+                <div class="explain">💡 \(3x^2+2x+3 > 0\) при всех \(x\) (дискриминант \(D = 4-36 < 0\)).</div>
+                <div class="formula-line">\((x-1)(x+3) > 0 \Rightarrow x \in (-\infty; -3) \cup (1; +\infty)\)</div>
+
+                <span class="step">🔹 4. Решаем правое неравенство</span>
+                <div class="formula-line">\(\frac{x+1}{x-1} \le \frac{2x}{x+3}\)</div>
+                <div class="formula-line">\(\frac{x+1}{x-1} - \frac{2x}{x+3} \le 0\)</div>
+                <div class="formula-line">\(\frac{(x+1)(x+3) - 2x(x-1)}{(x-1)(x+3)} \le 0\)</div>
+                <div class="formula-line">\(\frac{x^2+4x+3 - 2x^2+2x}{(x-1)(x+3)} \le 0\)</div>
+                <div class="formula-line">\(\frac{-x^2+6x+3}{(x-1)(x+3)} \le 0\)</div>
+                <div class="formula-line">\(\frac{x^2-6x-3}{(x-1)(x+3)} \ge 0\)</div>
+                <div class="explain">💡 Корни числителя: \(x = 3 \pm 2\sqrt{3}\)</div>
+                <div class="formula-line">\(x \in [-0.46; 1) \cup [6.46; +\infty)\)</div>
+
+                <span class="step">🔹 5. Пересекаем с ОДЗ</span>
+                <div class="explain">💡 ОДЗ: \(x \le -3\) или \(x \ge 0\)</div>
+                <div class="formula-line">\(x \in [0; 1) \cup [3+2\sqrt{3}; +\infty)\)</div>
+
+                <span class="result">✅ Ответ: \(x \in [0; 1) \cup [3+2\sqrt{3}; +\infty)\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4 (ЕГЭ). \(|2^{x+1} - 4| \le 2^x\)</span>
+            <span class="sub-title">метод — замена \(t = 2^x\)</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 1. Замена \(t = 2^x > 0\)</span>
+                <div class="formula-line">\(|2t - 4| \le t\)</div>
+
+                <span class="step">🔹 2. Раскрываем модуль</span>
+                <div class="explain">💡 \(|2t-4| \le t \iff -t \le 2t-4 \le t\)</div>
+                <div class="formula-line">\(-t \le 2t-4\) и \(2t-4 \le t\)</div>
+                <div class="formula-line">\(-3t \le -4 \Rightarrow t \ge \frac{4}{3}\)</div>
+                <div class="formula-line">\(t \le 4\)</div>
+                <div class="formula-line">\(\frac{4}{3} \le t \le 4\)</div>
+
+                <span class="step">🔹 3. Возвращаемся к \(x\)</span>
+                <div class="formula-line">\(\frac{4}{3} \le 2^x \le 4\)</div>
+                <div class="formula-line">\(\log_2 \frac{4}{3} \le x \le 2\)</div>
+
+                <span class="result">✅ Ответ: \(x \in [\log_2 \frac{4}{3}; 2]\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 5 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5 (ЕГЭ). \(|\log_3 x - 2| + |\log_3 x + 1| \le 3\)</span>
+            <span class="sub-title">метод — <span class="interval-method">метод интервалов</span></span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 1. ОДЗ</span>
+                <div class="formula-line">\(x > 0\)</div>
+
+                <span class="step">🔹 2. Замена \(t = \log_3 x\)</span>
+                <div class="formula-line">\(|t-2| + |t+1| \le 3\)</div>
+                <div class="explain">💡 Точки смены знака: \(t = -1\) и \(t = 2\).</div>
+
+                <span class="step">🔹 3. <span class="interval-method">Метод интервалов</span></span>
+                <div class="formula-line"><strong>1) \(t \le -1\)</strong></div>
+                <div class="formula-line">\(|t-2| = -t+2,\; |t+1| = -t-1\)</div>
+                <div class="formula-line">\(-t+2 - t - 1 \le 3\)</div>
+                <div class="formula-line">\(-2t + 1 \le 3 \Rightarrow t \ge -1\)</div>
+                <div class="explain">💡 С учётом \(t \le -1\): \(t = -1\).</div>
+
+                <div class="formula-line"><strong>2) \(-1 < t \le 2\)</strong></div>
+                <div class="formula-line">\(|t-2| = -t+2,\; |t+1| = t+1\)</div>
+                <div class="formula-line">\(-t+2 + t+1 \le 3\)</div>
+                <div class="formula-line">\(3 \le 3\) — верно для всех \(t \in (-1; 2]\)</div>
+
+                <div class="formula-line"><strong>3) \(t > 2\)</strong></div>
+                <div class="formula-line">\(|t-2| = t-2,\; |t+1| = t+1\)</div>
+                <div class="formula-line">\(t-2 + t+1 \le 3\)</div>
+                <div class="formula-line">\(2t - 1 \le 3 \Rightarrow t \le 2\)</div>
+                <div class="explain">💡 С учётом \(t > 2\): решений нет.</div>
+
+                <span class="step">🔹 4. Объединяем</span>
+                <div class="formula-line">\(t \in [-1; 2]\)</div>
+
+                <span class="step">🔹 5. Возвращаемся к \(x\)</span>
+                <div class="formula-line">\(-1 \le \log_3 x \le 2\)</div>
+                <div class="formula-line">\(\frac{1}{3} \le x \le 9\)</div>
+
+                <span class="result">✅ Ответ: \(x \in [\frac{1}{3}; 9]\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 6 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 6 (ЕГЭ). \(\left|x^2-5x+6\right| + \left|x^2-5x+4\right| < 2\)</span>
+            <span class="sub-title">метод — <span class="interval-method">метод интервалов</span> + замена</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 1. Замена \(t = x^2-5x\)</span>
+                <div class="formula-line">\(|t+6| + |t+4| < 2\)</div>
+                <div class="explain">💡 Точки смены знака: \(t = -6\) и \(t = -4\).</div>
+
+                <span class="step">🔹 2. <span class="interval-method">Метод интервалов</span></span>
+                <div class="formula-line"><strong>1) \(t \le -6\)</strong></div>
+                <div class="formula-line">\(|t+6| = -t-6,\; |t+4| = -t-4\)</div>
+                <div class="formula-line">\(-t-6 - t - 4 < 2\)</div>
+                <div class="formula-line">\(-2t - 10 < 2 \Rightarrow t > -6\)</div>
+                <div class="explain">💡 С учётом \(t \le -6\): решений нет.</div>
+
+                <div class="formula-line"><strong>2) \(-6 < t \le -4\)</strong></div>
+                <div class="formula-line">\(|t+6| = t+6,\; |t+4| = -t-4\)</div>
+                <div class="formula-line">\(t+6 - t - 4 < 2\)</div>
+                <div class="formula-line">\(2 < 2\) — неверно → решений нет.</div>
+
+                <div class="formula-line"><strong>3) \(t > -4\)</strong></div>
+                <div class="formula-line">\(|t+6| = t+6,\; |t+4| = t+4\)</div>
+                <div class="formula-line">\(t+6 + t+4 < 2\)</div>
+                <div class="formula-line">\(2t + 10 < 2 \Rightarrow t < -4\)</div>
+                <div class="explain">💡 С учётом \(t > -4\): решений нет.</div>
+
+                <span class="step">🔹 3. Итог</span>
+                <div class="explain">💡 Решений нет, так как минимальное значение суммы модулей равно 2 (при \(t \in [-6; -4]\)).</div>
+
+                <span class="result">✅ Ответ: \(\varnothing\) (решений нет)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 7 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 7 (ЕГЭ). \(|\sin x - \cos x| \le \frac{1}{2}\)</span>
+            <span class="sub-title">метод — преобразование + <span class="interval-method">метод интервалов</span></span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 1. Преобразуем \(\sin x - \cos x\)</span>
+                <div class="explain">💡 \(\sin x - \cos x = \sqrt{2}\sin(x - \frac{\pi}{4})\)</div>
+                <div class="formula-line">\(\sqrt{2}\left|\sin\left(x - \frac{\pi}{4}\right)\right| \le \frac{1}{2}\)</div>
+                <div class="formula-line">\(\left|\sin\left(x - \frac{\pi}{4}\right)\right| \le \frac{1}{2\sqrt{2}}\)</div>
+
+                <span class="step">🔹 2. Решаем</span>
+                <div class="explain">💡 \(|\sin t| \le a \iff -a \le \sin t \le a\)</div>
+                <div class="formula-line">\(-\frac{1}{2\sqrt{2}} \le \sin\left(x - \frac{\pi}{4}\right) \le \frac{1}{2\sqrt{2}}\)</div>
+                <div class="explain">💡 \(\arcsin\frac{1}{2\sqrt{2}} = \alpha\), где \(\alpha \approx 0.36\) рад.</div>
+                <div class="formula-line">\(-\alpha \le x - \frac{\pi}{4} \le \alpha\) (на основном промежутке)</div>
+                <div class="formula-line">\(\frac{\pi}{4} - \alpha + 2\pi k \le x \le \frac{\pi}{4} + \alpha + 2\pi k\)</div>
+                <div class="formula-line">и \(\frac{3\pi}{4} - \alpha + 2\pi k \le x \le \frac{3\pi}{4} + \alpha + 2\pi k\)</div>
+
+                <span class="result">✅ Ответ: \(x \in [\frac{\pi}{4} - \alpha + 2\pi k; \frac{\pi}{4} + \alpha + 2\pi k] \cup [\frac{3\pi}{4} - \alpha + 2\pi k; \frac{3\pi}{4} + \alpha + 2\pi k]\), где \(\alpha = \arcsin\frac{1}{2\sqrt{2}}\)</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к главному меню</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        updateLegendColors();
+    }
+    function updateLegendColors() {
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const legend = document.querySelector('.legend');
+        if (legend) legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+        setTimeout(updateLegendColors, 100);
+    })();
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>

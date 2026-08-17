@@ -1282,7 +1282,7 @@
         }
     }
 
-    // ===== ОТПРАВКА ОТЧЁТА =====
+    // ===== ОТПРАВКА ОТЧЁТА (КАК В ABOUT.HTML) =====
     function openReference() {
         window.location.href = referenceLink;
     }
@@ -1297,51 +1297,51 @@
     }
 
     function sendShare() {
-        var name = document.getElementById('studentName').value.trim();
-        var group = document.getElementById('studentGroup').value.trim();
+    var name = document.getElementById('studentName').value.trim();
+    var group = document.getElementById('studentGroup').value.trim();
 
-        if (!name) {
-            alert('Пожалуйста, введите Фамилию и Имя');
-            document.getElementById('studentName').focus();
-            return;
-        }
-        if (!group) {
-            alert('Пожалуйста, введите номер группы/класса');
-            document.getElementById('studentGroup').focus();
-            return;
-        }
-
-        closeShareModal();
-
-        var total = state.correct + state.wrong;
-        var pct = total > 0 ? Math.round((state.correct / total) * 100) : 0;
-        var date = new Date().toLocaleString('ru-RU');
-
-        var text = '📊 Адаптивный тест: Показательная функция\n' +
-                   '👤 Студент: ' + name + '\n' +
-                   '📚 Группа: ' + group + '\n' +
-                   '📅 Дата: ' + date + '\n' +
-                   '✅ Правильно: ' + state.correct + '\n' +
-                   '❌ Ошибок: ' + state.wrong + '\n' +
-                   '📈 Результат: ' + pct + '%\n' +
-                   '\n#математика #показательная_функция #тест';
-
-        if (navigator.share) {
-            navigator.share({
-                title: 'Результат адаптивного теста: Показательная функция',
-                text: text
-            }).catch(function(err) {
-                if (err.name !== 'AbortError') {
-                    copyToClipboard(text);
-                }
-            });
-        } else {
-            copyToClipboard(text);
-        }
+    if (!name) {
+        alert('Пожалуйста, введите Фамилию и Имя');
+        document.getElementById('studentName').focus();
+        return;
+    }
+    if (!group) {
+        alert('Пожалуйста, введите номер группы/класса');
+        document.getElementById('studentGroup').focus();
+        return;
     }
 
+    closeShareModal();
+
+    var total = state.correct + state.wrong;
+    var pct = total > 0 ? Math.round((state.correct / total) * 100) : 0;
+    var date = new Date().toLocaleString('ru-RU');
+
+    var text = '📊 Адаптивный тест: Показательная функция\n' +
+               '👤 Студент: ' + name + '\n' +
+               '📚 Группа: ' + group + '\n' +
+               '📅 Дата: ' + date + '\n' +
+               '✅ Правильно: ' + state.correct + '\n' +
+               '❌ Ошибок: ' + state.wrong + '\n' +
+               '📈 Результат: ' + pct + '%\n' +
+               '\n#математика #показательная_функция #тест';
+
+    // ===== ЧЕРЕЗ ANDROID-МОСТ =====
+    if (window.Android && window.Android.shareText) {
+        window.Android.shareText(text);
+    } else if (navigator.share) {
+        navigator.share({
+            title: 'Результат адаптивного теста: Показательная функция',
+            text: text
+        }).catch(function(err) {
+            console.log('Share cancelled or error:', err);
+        });
+    } else {
+        copyToClipboard(text);
+    }
+}
     function copyToClipboard(text) {
-        if (navigator.clipboard) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(function() {
                 alert('📋 Отчёт скопирован в буфер обмена!');
             }).catch(function() {

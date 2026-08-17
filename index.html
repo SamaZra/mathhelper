@@ -12,7 +12,33 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MathHelper">
     <meta name="theme-color" content="#1abc9c">
-    <!-- ===== КОНЕЦ PWA ===== -->
+
+    <!-- ===== MATHJAX (ЛОКАЛЬНЫЙ) ===== -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 0.9,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        console.log('✅ MathJax готов');
+                    });
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,6 +58,9 @@
             --menu-item-hover: #233e50;
             --group-header-bg: #2c4a6e;
             --search-bg: #1a2d3c;
+            --test-bg: rgba(26, 188, 156, 0.08);
+            --test-border: rgba(26, 188, 156, 0.25);
+            --test-accent: #1abc9c;
         }
 
         :root.light-mode {
@@ -49,6 +78,9 @@
             --menu-item-hover: linear-gradient(95deg, #f8fafd, #ffffff);
             --group-header-bg: #e2e8f0;
             --search-bg: #f1f5f9;
+            --test-bg: rgba(13, 148, 136, 0.06);
+            --test-border: rgba(13, 148, 136, 0.3);
+            --test-accent: #0d9488;
         }
 
         body {
@@ -58,14 +90,29 @@
             color: var(--text);
         }
 
-        /* ===== ЗАСТАВКА (splash screen) ===== */
+        /* ===== MathJax в подписях ===== */
+        .math-inline mjx-container {
+            display: inline-block !important;
+            font-size: 0.85rem !important;
+            vertical-align: middle !important;
+        }
+
+        .math-inline mjx-container[jax="CHTML"][display="false"] {
+            color: var(--text) !important;
+        }
+
+        .light-mode .math-inline mjx-container[jax="CHTML"][display="false"] {
+            color: #1a2a3f !important;
+        }
+
+        /* ===== ЗАСТАВКА ===== */
         .splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(145deg, #1a2d3c 0%, #2c5a77 100%);
+            background: #0f1e2b;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -74,19 +121,176 @@
             transition: opacity 0.6s ease-out;
             overflow: hidden;
         }
+        .splash-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('заставка1.jpeg') center center / cover no-repeat;
+            opacity: 0.85;
+            z-index: 0;
+        }
+        .splash-screen::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 30, 43, 0.4);
+            z-index: 1;
+        }
         .splash-screen.fade-out { opacity: 0; pointer-events: none; }
-        .splash-shape { position: absolute; width: 350px; height: 350px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); bottom: -120px; right: -120px; z-index: 1; }
-        .splash-shape-2 { position: absolute; width: 250px; height: 250px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%); top: -80px; left: -80px; z-index: 1; }
-        .aktt-badge { position: absolute; top: 30px; left: 0; right: 0; text-align: center; padding: 0 20px; z-index: 10; }
-        .aktt-badge span { font-size: 0.9rem; font-weight: 500; letter-spacing: 1.5px; color: rgba(255,255,255,0.7); background: rgba(20,40,50,0.5); backdrop-filter: blur(8px); padding: 10px 24px; border-radius: 40px; border: 1px solid rgba(46,204,113,0.2); display: inline-block; }
-        .splash-content { text-align: center; z-index: 10; padding: 0 20px; }
-        .splash-icon { width: 120px; height: 120px; border-radius: 60px; object-fit: cover; border: 2px solid rgba(46,204,113,0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.3); margin-bottom: 32px; animation: float 3.5s ease-in-out infinite; }
+
+        .aktt-badge {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 0 20px;
+            z-index: 10;
+        }
+        .aktt-badge span {
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.8);
+            background: rgba(20,40,50,0.5);
+            backdrop-filter: blur(8px);
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: 1px solid rgba(46,204,113,0.2);
+            display: inline-block;
+        }
+        .splash-content {
+            text-align: center;
+            z-index: 10;
+            padding: 0 20px;
+            position: relative;
+        }
+        .splash-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 60px;
+            object-fit: cover;
+            border: 2px solid rgba(46,204,113,0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            margin-bottom: 32px;
+            animation: float 3.5s ease-in-out infinite;
+        }
         @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
-        .splash-title { font-size: 2rem; font-weight: 700; letter-spacing: 4px; color: white; margin-bottom: 12px; text-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-        .splash-subtitle { color: rgba(255,255,255,0.8); font-size: 1rem; font-weight: 400; letter-spacing: 2px; text-transform: lowercase; opacity: 0.9; margin-bottom: 40px; }
-        .splash-footer { position: absolute; bottom: 40px; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.9rem; font-weight: 400; letter-spacing: 2px; }
-        .splash-progress { position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.08); z-index: 10; }
-        .splash-progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #1abc9c, #2ecc71, #1abc9c); background-size: 200% 100%; box-shadow: 0 0 6px rgba(46,204,113,0.6); transition: width 3.5s linear; }
+        .splash-title {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: white;
+            margin-bottom: 12px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+        .splash-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: lowercase;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+
+        /* ===== ПРОГРЕСС-БАР (ВНИЗУ) ===== */
+        .progress-wrapper {
+            width: 260px;
+            margin: 40px auto 0 auto;
+            position: relative;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0d9488, #1abc9c, #fbbf24, #1abc9c, #0d9488);
+            background-size: 300% 100%;
+            border-radius: 4px;
+            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            animation: shimmerProgress 2s linear infinite;
+            box-shadow: 0 0 20px rgba(26, 188, 156, 0.25);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            animation: glowSweep 1.5s ease-in-out infinite;
+        }
+
+        .progress-label {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 12px;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        .progress-percent {
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-top: 4px;
+            font-variant-numeric: tabular-nums;
+            font-weight: 300;
+        }
+
+        @keyframes shimmerProgress {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 300% 0%; }
+        }
+
+        @keyframes glowSweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .light-mode .progress-track {
+            background: rgba(0, 0, 0, 0.06);
+        }
+        .light-mode .progress-label {
+            color: rgba(0, 0, 0, 0.2);
+        }
+        .light-mode .progress-percent {
+            color: rgba(0, 0, 0, 0.15);
+        }
+
+        .splash-footer {
+            position: absolute;
+            bottom: 40px;
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+            z-index: 10;
+        }
 
         .main-content { padding: 32px 20px 48px; min-height: 100vh; background: var(--bg); }
         .container { max-width: 720px; margin: 0 auto; position: relative; }
@@ -100,7 +304,6 @@
         :root.light-mode .header h1 { background: linear-gradient(135deg, #1a2a3f, #2c5a77); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .subtitle { color: var(--text-secondary); font-size: 0.8rem; font-weight: 400; letter-spacing: 1px; text-transform: lowercase; }
 
-        /* ПОИСКОВАЯ СТРОКА */
         .search-bar {
             background: var(--menu-card-bg);
             border-radius: 32px;
@@ -118,10 +321,7 @@
             padding: 4px 4px 4px 20px;
             border: 1px solid var(--border);
         }
-        .search-input-wrapper .search-icon {
-            font-size: 20px;
-            color: var(--text-secondary);
-        }
+        .search-input-wrapper .search-icon { font-size: 20px; color: var(--text-secondary); }
         .search-input {
             flex: 1;
             background: transparent;
@@ -131,10 +331,7 @@
             color: var(--text);
             outline: none;
         }
-        .search-input::placeholder {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
+        .search-input::placeholder { color: var(--text-secondary); font-size: 0.9rem; }
         .search-clear {
             background: none;
             border: none;
@@ -145,18 +342,14 @@
             border-radius: 40px;
             transition: all 0.2s;
         }
-        .search-clear:hover {
-            color: var(--accent);
-        }
+        .search-clear:hover { color: var(--accent); }
         .search-results {
             margin-top: 16px;
             max-height: 400px;
             overflow-y: auto;
             display: none;
         }
-        .search-results.show {
-            display: block;
-        }
+        .search-results.show { display: block; }
         .search-result-item {
             display: flex;
             align-items: center;
@@ -170,35 +363,12 @@
             background: var(--menu-item-hover);
             transform: translateX(4px);
         }
-        .search-result-icon {
-            font-size: 24px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .search-result-content {
-            flex: 1;
-        }
-        .search-result-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text);
-        }
-        .search-result-category {
-            font-size: 0.7rem;
-            color: var(--accent);
-        }
-        .search-result-desc {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-        }
-        .search-no-results {
-            padding: 20px;
-            text-align: center;
-            color: var(--text-secondary);
-        }
+        .search-result-icon { font-size: 24px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .search-result-content { flex: 1; }
+        .search-result-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+        .search-result-category { font-size: 0.7rem; color: var(--accent); }
+        .search-result-desc { font-size: 0.7rem; color: var(--text-secondary); }
+        .search-no-results { padding: 20px; text-align: center; color: var(--text-secondary); }
 
         .menu-card { background: var(--menu-card-bg); border-radius: 32px; overflow: hidden; box-shadow: 0 20px 40px -12px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.04); animation: fadeInUp 0.4s ease-out 0.15s backwards; }
 
@@ -211,7 +381,7 @@
         .group-arrow { font-size: 22px; color: var(--text-secondary); transition: transform 0.3s ease; flex-shrink: 0; }
         .group-header.open .group-arrow { transform: rotate(90deg); }
         .submenu { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-        .submenu.open { max-height: 600px; }
+        .submenu.open { max-height: 800px; }
 
         .submenu-item { display: flex; align-items: center; padding: 14px 22px 14px 52px; border-bottom: 1px solid var(--border); text-decoration: none; transition: all 0.2s ease; background: var(--menu-item-bg); color: var(--text); }
         .submenu-item:hover { background: var(--menu-item-hover); transform: translateX(4px); }
@@ -231,6 +401,24 @@
         .arrow { font-size: 22px; color: var(--text-secondary); transition: all 0.2s ease; flex-shrink: 0; }
         .menu-item:hover .arrow { transform: translateX(5px); color: var(--accent); }
 
+        .menu-item.test-item {
+            background: var(--test-bg);
+            border-left: 3px solid var(--test-accent);
+            border-bottom: 1px solid var(--test-border);
+            margin: 0;
+            border-radius: 0;
+        }
+        .menu-item.test-item:hover {
+            background: var(--menu-item-hover);
+            border-left-color: var(--accent-hover);
+        }
+        .menu-item.test-item .menu-icon { color: var(--test-accent); }
+        .menu-item.test-item .item-title::after {
+            content: ' ✦';
+            color: var(--test-accent);
+            font-size: 0.9rem;
+        }
+
         .footer { text-align: center; margin-top: 28px; padding: 14px 20px; }
         .footer p { color: var(--text-secondary); font-size: 0.7rem; font-weight: 400; }
 
@@ -247,6 +435,7 @@
             .search-bar { padding: 12px 16px; }
             .search-input-wrapper { padding: 2px 2px 2px 16px; }
             .search-input { padding: 10px 0; font-size: 0.9rem; }
+            .progress-wrapper { width: 200px; margin-top: 30px; }
         }
 
         @keyframes fadeInUp {
@@ -255,25 +444,30 @@
         }
         .header { animation: fadeInUp 0.4s ease-out 0.2s backwards; }
 
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
     </style>
 </head>
 <body>
 
 <!-- ===== ЗАСТАВКА ===== -->
 <div id="splash" class="splash-screen">
-    <div class="splash-shape"></div>
-    <div class="splash-shape-2"></div>
     <div class="aktt-badge"><span>АКТТ</span></div>
     <div class="splash-content">
         <img class="splash-icon" src="logo.png" alt="logo">
         <div class="splash-title">МАТЕМАТИЧЕСКИЙ<br>СПРАВОЧНИК</div>
         <div class="splash-subtitle">формулы, которые всегда под рукой</div>
+
+        <div class="progress-wrapper">
+            <div class="progress-track">
+                <div class="progress-fill" id="splashProgress"></div>
+            </div>
+            <div class="progress-label">Загрузка</div>
+            <div class="progress-percent" id="progressPercent">0%</div>
+        </div>
     </div>
     <div class="splash-footer"></div>
-    <div class="splash-progress"><div class="splash-progress-bar"></div></div>
 </div>
 
 <div class="main-content">
@@ -297,12 +491,12 @@
         </div>
 
         <div class="menu-card" id="menuCard">
-            <!-- АЛГЕБРА -->
+            <!-- ===== АЛГЕБРА ===== -->
             <div class="group-header" onclick="toggleGroup(this)">
                 <div class="group-icon">×</div>
                 <div class="group-content">
                     <div class="group-title">Алгебра</div>
-                    <div class="group-desc">ФСУ, степени, логарифмы, показательная функция</div>
+                    <div class="group-desc">ФСУ, степени, логарифмы, показательная функция, тригонометрия</div>
                 </div>
                 <div class="group-arrow">›</div>
             </div>
@@ -319,7 +513,7 @@
                     <div class="submenu-icon">√</div>
                     <div class="submenu-content">
                         <div class="submenu-title">Степени, корни и степенная функция</div>
-                        <div class="submenu-desc">Свойства степеней и корней, y = x^p</div>
+                        <div class="submenu-desc">Свойства степеней и корней, <span class="math-inline">\(y = x^p\)</span></div>
                     </div>
                     <div class="submenu-arrow">›</div>
                 </a>
@@ -327,7 +521,7 @@
                     <div class="submenu-icon log-icon" style="font-size:18px;font-weight:500;">log</div>
                     <div class="submenu-content">
                         <div class="submenu-title">Логарифмы и логарифмическая функция</div>
-                        <div class="submenu-desc">Определение, свойства, y = log_a x</div>
+                        <div class="submenu-desc">Определение, свойства, <span class="math-inline">\(y = \log_a x\)</span></div>
                     </div>
                     <div class="submenu-arrow">›</div>
                 </a>
@@ -335,33 +529,81 @@
                     <div class="submenu-icon">aˣ</div>
                     <div class="submenu-content">
                         <div class="submenu-title">Показательная функция</div>
-                        <div class="submenu-desc">y = a^x, свойства, графики, уравнения</div>
+                        <div class="submenu-desc"><span class="math-inline">\(y = a^x\)</span>, свойства, графики, уравнения</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="trigonometry.html" class="submenu-item">
+                    <div class="submenu-icon">△</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Тригонометрия</div>
+                        <div class="submenu-desc">Тождества, формулы, уравнения, таблицы</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="methods-equations-inequalities.html" class="submenu-item">
+                    <div class="submenu-icon">▣</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Методы решений уравнений и неравенств</div>
+                        <div class="submenu-desc">Рациональные, с модулем, с параметром, графический</div>
                     </div>
                     <div class="submenu-arrow">›</div>
                 </a>
             </div>
 
-            <!-- ТРИГОНОМЕТРИЯ -->
-            <a href="trigonometry.html" class="menu-item">
-                <div class="menu-icon">△</div>
-                <div class="item-content">
-                    <div class="item-title">Тригонометрия</div>
-                    <div class="item-desc">Все разделы: тождества, формулы, уравнения, таблицы</div>
+            <!-- ===== ГЕОМЕТРИЯ ===== -->
+            <div class="group-header" onclick="toggleGroup(this)">
+                <div class="group-icon">□</div>
+                <div class="group-content">
+                    <div class="group-title">Геометрия</div>
+                    <div class="group-desc">Многогранники, тела вращения, прямые и плоскости, векторы</div>
                 </div>
-                <div class="arrow">›</div>
-            </a>
+                <div class="group-arrow">›</div>
+            </div>
+            <div class="submenu">
+                <a href="polyhedrons.html" class="submenu-item">
+                    <div class="submenu-icon">◫</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Многогранники</div>
+                        <div class="submenu-desc">Призма, пирамида, параллелепипед — формулы объёма и площади</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="solids.html" class="submenu-item">
+                    <div class="submenu-icon">◯</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Тела вращения</div>
+                        <div class="submenu-desc">Цилиндр, конус, шар — формулы и свойства</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="Многоугольники.html" class="submenu-item">
+                    <div class="submenu-icon">△</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Многоугольники</div>
+                        <div class="submenu-desc">Треугольники, четырёхугольники, правильные многоугольники — формулы площадей</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="stereo.html" class="submenu-item">
+                    <div class="submenu-icon">∥</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Прямые и плоскости в пространстве</div>
+                        <div class="submenu-desc">Аксиомы, параллельность, перпендикулярность, теоремы</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="vectors.html" class="submenu-item">
+                    <div class="submenu-icon">→</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Координаты и векторы</div>
+                        <div class="submenu-desc">Векторы в пространстве, координаты, длина, скалярное произведение, расстояние между точками</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+            </div>
 
-            <!-- ГЕОМЕТРИЯ -->
-            <a href="geometry.html" class="menu-item">
-                <div class="menu-icon">□</div>
-                <div class="item-content">
-                    <div class="item-title">Геометрия</div>
-                    <div class="item-desc">Многогранники, тела вращения, прямые и плоскости, векторы</div>
-                </div>
-                <div class="arrow">›</div>
-            </a>
-
-            <!-- НАЧАЛА АНАЛИЗА -->
+            <!-- ===== НАЧАЛА АНАЛИЗА ===== -->
             <div class="group-header" onclick="toggleGroup(this)">
                 <div class="group-icon">∫</div>
                 <div class="group-content">
@@ -389,9 +631,9 @@
                 </a>
             </div>
 
-            <!-- ===== ТЕСТЫ ДЛЯ ПРОВЕРКИ ЗНАНИЙ ===== -->
-            <a href="tests.html" class="menu-item">
-                <div class="menu-icon">☑</div>
+            <!-- ===== ТЕСТЫ ===== -->
+            <a href="tests.html" class="menu-item test-item">
+                <div class="menu-icon">✓</div>
                 <div class="item-content">
                     <div class="item-title">Тесты для проверки знаний</div>
                     <div class="item-desc">Проверьте свои знания по каждой теме</div>
@@ -399,7 +641,7 @@
                 <div class="arrow">›</div>
             </a>
 
-            <!-- ИНСТРУМЕНТЫ -->
+            <!-- ===== ИНСТРУМЕНТЫ ===== -->
             <div class="group-header" onclick="toggleGroup(this)">
                 <div class="group-icon">⎚</div>
                 <div class="group-content">
@@ -409,6 +651,14 @@
                 <div class="group-arrow">›</div>
             </div>
             <div class="submenu">
+                <a href="favorites.html" class="submenu-item">
+                    <div class="submenu-icon">⭐</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Избранное</div>
+                        <div class="submenu-desc">Ваши сохранённые страницы</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
                 <a href="calculator.html" class="submenu-item">
                     <div class="submenu-icon">🖩</div>
                     <div class="submenu-content">
@@ -433,17 +683,17 @@
                     </div>
                     <div class="submenu-arrow">›</div>
                 </a>
-                <a href="favorites.html" class="submenu-item">
-                    <div class="submenu-icon">⭐</div>
+                <a href="bradis.html" class="submenu-item">
+                    <div class="submenu-icon">≈</div>
                     <div class="submenu-content">
-                        <div class="submenu-title">Избранное</div>
-                        <div class="submenu-desc">Ваши сохранённые страницы</div>
+                        <div class="submenu-title">Таблица Брадиса</div>
+                        <div class="submenu-desc">Калькулятор sin, cos, tg, ctg — тригонометрические функции</div>
                     </div>
                     <div class="submenu-arrow">›</div>
                 </a>
             </div>
 
-            <!-- О ПРИЛОЖЕНИИ -->
+            <!-- ===== О ПРИЛОЖЕНИИ ===== -->
             <a href="about.html" class="menu-item">
                 <div class="menu-icon">ⓘ</div>
                 <div class="item-content">
@@ -462,307 +712,360 @@
 
 <script>
     // ============================================================
-// 1. ВСТРОЕННАЯ БАЗА ДАННЫХ ДЛЯ ПОИСКА (FALLBACK)
-// ============================================================
-const FALLBACK_DATA = [
-    // ===== СТЕРЕОМЕТРИЯ =====
-    { "title": "Основные понятия стереометрии", "url": "01-basic.html", "category": "Стереометрия", "icon": "📐", "desc": "Аксиомы стереометрии, следствия, способы задания плоскости", "keywords": ["аксиома", "плоскость", "точка", "прямая", "стереометрия", "следствие"] },
-    { "title": "Параллельные, пересекающиеся, скрещивающиеся прямые", "url": "02-lines.html", "category": "Стереометрия", "icon": "📏", "desc": "Классификация прямых в пространстве", "keywords": ["параллельные", "пересекающиеся", "скрещивающиеся", "прямые", "угол между прямыми"] },
-    { "title": "Расположение прямых и плоскостей", "url": "03-positions.html", "category": "Стереометрия", "icon": "📐", "desc": "Все случаи расположения прямой и плоскости, двух плоскостей", "keywords": ["прямая в плоскости", "пересекает плоскость", "параллельна плоскости", "плоскости пересекаются", "плоскости параллельны"] },
-    { "title": "Параллельность прямых, прямой и плоскости", "url": "04-parallel-line-plane.html", "category": "Стереометрия", "icon": "∥", "desc": "Признаки параллельности, лемма, свойства", "keywords": ["параллельность", "лемма о параллельных", "признак параллельности"] },
-    { "title": "Параллельность плоскостей", "url": "05-parallel-planes.html", "category": "Стереометрия", "icon": "∥", "desc": "Признак параллельности плоскостей, свойства", "keywords": ["параллельность плоскостей", "признак"] },
-    { "title": "Перпендикулярность прямой и плоскости", "url": "06-perpendicular-line-plane.html", "category": "Стереометрия", "icon": "⟂", "desc": "Определение, признак перпендикулярности, свойства", "keywords": ["перпендикулярность", "прямая перпендикулярна плоскости", "признак"] },
-    { "title": "Перпендикулярные прямые в пространстве", "url": "07-perpendicular-lines.html", "category": "Стереометрия", "icon": "⟂", "desc": "Лемма и теоремы о перпендикулярных прямых", "keywords": ["перпендикулярные прямые", "лемма", "теорема"] },
-    { "title": "Признак перпендикулярности прямой и плоскости", "url": "08-sign-perpendicular.html", "category": "Стереометрия", "icon": "✅", "desc": "Теорема и следствия", "keywords": ["признак перпендикулярности", "теорема"] },
-    { "title": "Теорема о трёх перпендикулярах", "url": "09-three-perpendiculars.html", "category": "Стереометрия", "icon": "📐", "desc": "Прямая и обратная теоремы, понятия перпендикуляра, наклонной, проекции", "keywords": ["три перпендикуляра", "теорема", "перпендикуляр", "наклонная"] },
-    { "title": "Двугранный угол", "url": "10-dihedral-angle.html", "category": "Стереометрия", "icon": "📐", "desc": "Линейный угол, обозначения", "keywords": ["двугранный угол", "линейный угол", "ребро"] },
-    { "title": "Перпендикулярность плоскостей", "url": "11-perpendicular-planes.html", "category": "Стереометрия", "icon": "⟂", "desc": "Признак перпендикулярности плоскостей, свойства", "keywords": ["перпендикулярность плоскостей", "признак"] },
+    // 1. АНИМАЦИЯ ПРОГРЕСС-БАРА (3.5 СЕКУНДЫ)
+    // ============================================================
+    (function() {
+        const progressBar = document.getElementById('splashProgress');
+        const percentDisplay = document.getElementById('progressPercent');
+        const splash = document.getElementById('splash');
 
-    // ===== ТЕЛА ВРАЩЕНИЯ =====
-    { "title": "Конус", "url": "cone.html", "category": "Тела вращения", "icon": "△", "desc": "Конус: определение, элементы, сечения, формулы, свойства", "keywords": ["конус", "образующая", "высота", "радиус", "объём", "площадь", "осевое сечение"] },
-    { "title": "Цилиндр", "url": "cylinder.html", "category": "Тела вращения", "icon": "⊡", "desc": "Цилиндр: определение, элементы, сечения, формулы, свойства", "keywords": ["цилиндр", "образующая", "высота", "радиус", "объём", "площадь", "осевое сечение"] },
-    { "title": "Усечённый конус", "url": "truncated-cone.html", "category": "Тела вращения", "icon": "⏢", "desc": "Усечённый конус: определение, элементы, формулы, свойства", "keywords": ["усечённый конус", "образующая", "высота", "радиус", "объём", "площадь"] },
-    { "title": "Сфера и шар", "url": "sphere.html", "category": "Тела вращения", "icon": "○", "desc": "Сфера и шар: определение, элементы, формулы, свойства, сечения", "keywords": ["сфера", "шар", "радиус", "диаметр", "объём", "площадь", "сечение"] },
+        // Начинаем с 0%
+        let progress = 0;
+        const duration = 3500; // 3.5 секунды
+        const startTime = Date.now();
 
-    // ===== МНОГОГРАННИКИ =====
-    { "title": "Прямоугольный параллелепипед", "url": "cuboid.html", "category": "Многогранники", "icon": "□", "desc": "Прямоугольный параллелепипед: формулы объёма, площади, диагонали", "keywords": ["параллелепипед", "прямоугольный", "объём", "площадь", "диагональ"] },
-    { "title": "Правильная четырёхугольная пирамида", "url": "pyramid.html", "category": "Многогранники", "icon": "△", "desc": "Пирамида: объём, апофема, боковое ребро, сечения", "keywords": ["пирамида", "правильная пирамида", "апофема", "высота", "объём"] },
-    { "title": "Пятиугольная призма", "url": "prism.html", "category": "Многогранники", "icon": "▭", "desc": "Призма: объём, площадь, свойства", "keywords": ["призма", "пятиугольная", "объём", "площадь"] },
-    { "title": "Правильные многогранники (Платоновы тела)", "url": "platonic.html", "category": "Многогранники", "icon": "⬟", "desc": "Пять правильных многогранников: тетраэдр, куб, октаэдр, додекаэдр, икосаэдр", "keywords": ["правильные многогранники", "Платоновы тела", "тетраэдр", "куб", "октаэдр"] },
-    { "title": "Усечённая пирамида", "url": "truncated-pyramid.html", "category": "Многогранники", "icon": "⏢", "desc": "Правильная пятиугольная усечённая пирамида: объём, площадь", "keywords": ["усечённая пирамида", "объём", "площадь"] },
+        function updateProgress() {
+            const elapsed = Date.now() - startTime;
+            const rawProgress = Math.min((elapsed / duration) * 100, 100);
 
-    // ===== ВЕКТОРЫ =====
-    { "title": "Вектор и действия над векторами", "url": "block1.html", "category": "Векторы", "icon": "→", "desc": "Определение вектора, коллинеарные, компланарные, сложение, вычитание, умножение", "keywords": ["вектор", "коллинеарные", "компланарные", "сложение", "вычитание", "умножение"] },
-    { "title": "Декартовы координаты в пространстве", "url": "block2.html", "category": "Векторы", "icon": "⌖", "desc": "Прямоугольная система координат, координаты точки, разложение по базису", "keywords": ["координаты", "декартовы", "базис", "i j k"] },
-    { "title": "Простейшие задачи в координатах", "url": "block3.html", "category": "Векторы", "icon": "⊙", "desc": "Середина отрезка, длина вектора, расстояние, деление отрезка, центр масс", "keywords": ["середина", "расстояние", "центр масс", "деление отрезка"] },
-    { "title": "Скалярное произведение векторов", "url": "block4.html", "category": "Векторы", "icon": "⋅", "desc": "Определение, косинус угла, ортогональность, знак скалярного произведения", "keywords": ["скалярное произведение", "угол", "ортогональность", "косинус"] },
+            // Плавная кривая: сначала быстро, потом медленнее
+            // Используем кубическую функцию для реалистичности
+            const t = rawProgress / 100;
+            // easeOutCubic: 1 - (1-t)^3
+            const eased = 1 - Math.pow(1 - t, 2.5);
+            const currentProgress = Math.round(eased * 100);
 
-    // ===== АЛГЕБРА =====
-    { "title": "Формулы сокращённого умножения", "url": "formulas.html", "category": "Алгебра", "icon": "×", "desc": "ФСУ, дискриминант, теорема Виета, разложение на множители", "keywords": ["фсу", "квадрат суммы", "разность квадратов", "дискриминант", "теорема Виета"] },
+            if (progressBar) {
+                progressBar.style.width = currentProgress + '%';
+            }
+            if (percentDisplay) {
+                percentDisplay.textContent = currentProgress + '%';
+            }
 
-    // ===== СТЕПЕНИ, КОРНИ И СТЕПЕННАЯ ФУНКЦИЯ =====
-    { "title": "Степени и корни", "url": "powers.html", "category": "Алгебра", "icon": "√", "desc": "Свойства степеней и корней, рациональные степени, примеры", "keywords": ["степени", "корни", "свойства", "рациональная степень", "степенная", "корень", "степень"] },
-    { "title": "Степенная функция y = x^p", "url": "степенная-функция.html", "category": "Алгебра", "icon": "↗", "desc": "Виды степенной функции, свойства, графики, сравнение чисел", "keywords": ["степенная функция", "степенная", "x^p", "график", "свойства", "степень", "корень"] },
-    { "title": "Иррациональные уравнения", "url": "иррациональные-уравнения.html", "category": "Алгебра", "icon": "=", "desc": "Методы решения: замена, возведение в степень, уединение радикала", "keywords": ["иррациональные уравнения", "замена", "возведение в степень", "радикал", "корень", "уравнение", "иррациональное"] },
-    { "title": "Иррациональные неравенства", "url": "иррациональные-неравенства.html", "category": "Алгебра", "icon": "≠", "desc": "Равносильные переходы, системы неравенств", "keywords": ["иррациональные неравенства", "равносильные переходы", "системы", "корень", "неравенство", "иррациональное"] },
+            if (elapsed < duration) {
+                requestAnimationFrame(updateProgress);
+            } else {
+                // Достигли 100%
+                if (progressBar) progressBar.style.width = '100%';
+                if (percentDisplay) percentDisplay.textContent = '100%';
 
-    // ===== ЛОГАРИФМЫ =====
-    { "title": "Логарифмы", "url": "logarithms.html", "category": "Алгебра", "icon": "log", "desc": "Определение, свойства, примеры, тест", "keywords": ["логарифм", "ln", "lg", "свойства логарифмов", "логарифмическая", "логарифмический", "log"] },
-    { "title": "Логарифмическая функция y = log_a x", "url": "логарифмическая-функция.html", "category": "Алгебра", "icon": "↗", "desc": "Свойства, графики, сравнение чисел, примеры", "keywords": ["логарифмическая функция", "логарифмическая", "log_a x", "график", "логарифм", "log"] },
-    { "title": "Логарифмические уравнения", "url": "логарифмические-уравнения.html", "category": "Алгебра", "icon": "=", "desc": "Потенцирование, замена, приведение к одному основанию", "keywords": ["логарифмические уравнения", "потенцирование", "замена", "логарифм", "уравнение", "log", "логарифмическое"] },
-    { "title": "Логарифмические неравенства", "url": "логарифмические-неравенства.html", "category": "Алгебра", "icon": "≠", "desc": "Равносильные переходы, учёт ОДЗ и основания", "keywords": ["логарифмические неравенства", "ОДЗ", "равносильные переходы", "логарифм", "неравенство", "log", "логарифмическое"] },
+                // Убираем заставку через 200мс после 100%
+                setTimeout(function() {
+                    if (splash) {
+                        splash.classList.add('fade-out');
+                        setTimeout(function() {
+                            if (splash) splash.remove();
+                            sessionStorage.setItem('splashShown', 'true');
+                        }, 600);
+                    }
+                }, 200);
+            }
+        }
 
-    // ===== ПОКАЗАТЕЛЬНАЯ ФУНКЦИЯ =====
-    { "title": "Показательная функция y = a^x", "url": "показательная-функция.html", "category": "Алгебра", "icon": "↗", "desc": "Свойства, графики, сравнение чисел, примеры", "keywords": ["показательная функция", "показательная", "a^x", "график", "показатель", "экспонента"] },
-    { "title": "Показательные уравнения", "url": "показательные-уравнения.html", "category": "Алгебра", "icon": "=", "desc": "Приведение к одному основанию, замена, логарифмирование", "keywords": ["показательные уравнения", "замена", "логарифмирование", "показатель", "уравнение", "показательное", "экспонента"] },
-    { "title": "Показательные неравенства", "url": "показательные-неравенства.html", "category": "Алгебра", "icon": "≠", "desc": "Знак сохраняется/меняется, замена, однородные", "keywords": ["показательные неравенства", "знак сохраняется", "знак меняется", "показатель", "неравенство", "показательное", "экспонента"] },
+        // Если заставка уже показывалась — сразу удаляем
+        if (sessionStorage.getItem('splashShown')) {
+            if (splash) splash.remove();
+            return;
+        }
 
-    // ===== АНАЛИЗ =====
-    { "title": "Производная", "url": "derivative.html", "category": "Анализ", "icon": "ƒ′", "desc": "Таблица производных, правила, экстремумы, исследование", "keywords": ["производная", "дифференцирование", "таблица производных", "экстремум"] },
-    { "title": "Таблица и правила дифференцирования", "url": "производная-таблица-правила.html", "category": "Анализ", "icon": "ƒ′", "desc": "Таблица производных, правила дифференцирования, примеры", "keywords": ["производная", "таблица производных", "правила дифференцирования"] },
-    { "title": "Производная сложной функции", "url": "производная-сложная-функция.html", "category": "Анализ", "icon": "∘", "desc": "Формула, примеры, алгоритм нахождения", "keywords": ["сложная функция", "производная", "цепное правило"] },
-    { "title": "Экстремумы функции", "url": "экстремумы-функции.html", "category": "Анализ", "icon": "▲", "desc": "Максимум, минимум, алгоритм нахождения", "keywords": ["экстремум", "максимум", "минимум", "алгоритм"] },
-    { "title": "Исследование функции", "url": "исследование-функции.html", "category": "Анализ", "icon": "↗", "desc": "Полное исследование функции: алгоритм и пример", "keywords": ["исследование функции", "алгоритм", "график"] },
-    { "title": "Наибольшее и наименьшее значение функции", "url": "наибольшее-наименьшее-значение.html", "category": "Анализ", "icon": "⇅", "desc": "Нахождение наибольшего и наименьшего значения на отрезке", "keywords": ["наибольшее значение", "наименьшее значение", "отрезок"] },
-    { "title": "Калькулятор производных", "url": "derivative-calculator.html", "category": "Инструменты", "icon": "∂", "desc": "Вычисление производных любого порядка", "keywords": ["калькулятор производных", "производная"] },
-    { "title": "Первообразная", "url": "primitive.html", "category": "Анализ", "icon": "ƒ", "desc": "Таблица первообразных, правила нахождения", "keywords": ["первообразная", "F(x)", "таблица первообразных"] },
-    { "title": "Неопределённый интеграл", "url": "indefinite.html", "category": "Анализ", "icon": "∫", "desc": "Таблица интегралов, методы интегрирования", "keywords": ["неопределённый интеграл", "таблица интегралов"] },
-    { "title": "Определённый интеграл", "url": "definite.html", "category": "Анализ", "icon": "∫ₐᵇ", "desc": "Формула Ньютона-Лейбница, свойства, примеры", "keywords": ["определённый интеграл", "Ньютон-Лейбниц"] },
-    { "title": "Площадь криволинейной трапеции", "url": "area.html", "category": "Анализ", "icon": "▧", "desc": "Геометрический смысл интеграла, площадь под графиком", "keywords": ["площадь", "криволинейная трапеция", "геометрический смысл"] },
-    { "title": "Калькулятор интегралов", "url": "integral-calculator.html", "category": "Инструменты", "icon": "∫", "desc": "Вычисление определённых и неопределённых интегралов", "keywords": ["калькулятор интегралов", "интеграл"] },
-    { "title": "Объём через интеграл", "url": "integral-volume.html", "category": "Анализ", "icon": "V", "desc": "Тела вращения, поперечные сечения, V = ∫ S(x) dx", "keywords": ["объём", "интеграл", "тела вращения", "поперечное сечение", "параболоид", "конус"] },
+        // Стартуем анимацию
+        requestAnimationFrame(updateProgress);
 
-    // ===== ТРИГОНОМЕТРИЯ =====
-    { "title": "Тригонометрия", "url": "trigonometry.html", "category": "Тригонометрия", "icon": "△", "desc": "Все разделы тригонометрии", "keywords": ["тригонометрия", "sin", "cos", "tg", "ctg"] },
-    { "title": "Основные тригонометрические тождества", "url": "Тождества.html", "category": "Тригонометрия", "icon": "≡", "desc": "Основные тождества, связь между функциями", "keywords": ["тождества", "sin²+cos²=1", "tg"] },
-    { "title": "Сумма и разность углов", "url": "Сумма и разность углов.html", "category": "Тригонометрия", "icon": "+", "desc": "Формулы синуса, косинуса, тангенса суммы и разности углов", "keywords": ["сумма углов", "разность углов", "sin(α±β)"] },
-    { "title": "Двойной аргумент", "url": "Двойной угол.html", "category": "Тригонометрия", "icon": "2α", "desc": "Формулы двойного аргумента", "keywords": ["двойной аргумент", "sin2α", "cos2α"] },
-    { "title": "Половинный аргумент", "url": "Половинный аргумент.html", "category": "Тригонометрия", "icon": "½α", "desc": "Формулы половинного аргумента", "keywords": ["половинный аргумент", "sin²(α/2)", "cos²(α/2)"] },
-    { "title": "Сумма и разность функций", "url": "Ссумма и разность функций.html", "category": "Тригонометрия", "icon": "±", "desc": "Преобразование суммы и разности функций в произведение", "keywords": ["сумма функций", "разность функций"] },
-    { "title": "Произведение функций", "url": "Произведение функций.html", "category": "Тригонометрия", "icon": "×", "desc": "Преобразование произведения функций в сумму", "keywords": ["произведение функций"] },
-    { "title": "Знаки тригонометрических функций по четвертям", "url": "Знаки тригонометрических функций.html", "category": "Тригонометрия", "icon": "◉", "desc": "Знаки sin, cos, tg, ctg по четвертям", "keywords": ["знаки", "четверти"] },
-    { "title": "Формулы приведения", "url": "Формулы приведения.html", "category": "Тригонометрия", "icon": "↻", "desc": "Формулы приведения для sin, cos, tg, ctg", "keywords": ["формулы приведения"] },
-    { "title": "Чётность и нечётность тригонометрических функций", "url": "Четность функции.html", "category": "Тригонометрия", "icon": "∓", "desc": "Чётность и нечётность sin, cos, tg, ctg", "keywords": ["чётность", "нечётность"] },
-    { "title": "Таблица значений тригонометрических функций", "url": "Значения тригонометрических функций.html", "category": "Тригонометрия", "icon": "⊞", "desc": "Таблица sin, cos, tg, ctg для углов 0°–360°", "keywords": ["таблица", "значения"] },
-    { "title": "Простейшие тригонометрические уравнения", "url": "простейшие тригонометрические уравнения.html", "category": "Тригонометрия", "icon": "=", "desc": "Решение уравнений sin x = a, cos x = a, tg x = a, ctg x = a", "keywords": ["тригонометрические уравнения", "sin x = a", "cos x = a"] },
-    { "title": "Тригонометрические уравнения, сводящиеся к алгебраическим", "url": "тригонометрические-уравнения-сводящиеся-к-алгебраическим.html", "category": "Тригонометрия", "icon": "=", "desc": "Замена переменной, однородные, введение вспомогательного аргумента", "keywords": ["тригонометрические уравнения", "замена", "однородные", "вспомогательный аргумент"] },
-    { "title": "Тригонометрические неравенства", "url": "тригонометрические-неравенства.html", "category": "Тригонометрия", "icon": "≠", "desc": "Решение с использованием единичной окружности и линии тангенсов", "keywords": ["тригонометрические неравенства", "единичная окружность", "линия тангенсов"] },
+        // Запасной вариант — если что-то пойдёт не так
+        setTimeout(function() {
+            if (splash && !splash.classList.contains('fade-out')) {
+                if (progressBar) progressBar.style.width = '100%';
+                if (percentDisplay) percentDisplay.textContent = '100%';
+                splash.classList.add('fade-out');
+                setTimeout(function() {
+                    if (splash) splash.remove();
+                    sessionStorage.setItem('splashShown', 'true');
+                }, 600);
+            }
+        }, 4000);
+    })();
 
-    // ===== ГЕОМЕТРИЯ =====
-    { "title": "Геометрия", "url": "geometry.html", "category": "Геометрия", "icon": "□", "desc": "Навигация по геометрии", "keywords": ["геометрия", "многогранники", "тела вращения"] },
-    { "title": "Многоугольники", "url": "Многоугольники.html", "category": "Геометрия", "icon": "△", "desc": "Треугольники, четырёхугольники, правильные многоугольники, формулы площадей", "keywords": ["многоугольники", "треугольник", "квадрат", "прямоугольник", "площадь"] },
-    { "title": "Прямые и плоскости в пространстве", "url": "stereo.html", "category": "Геометрия", "icon": "∥", "desc": "Аксиомы, параллельность, перпендикулярность, теоремы", "keywords": ["стереометрия", "прямые", "плоскости"] },
+    // ============================================================
+    // 2. ВСТРОЕННАЯ БАЗА ДАННЫХ ДЛЯ ПОИСКА (FALLBACK)
+    // ============================================================
+    const FALLBACK_DATA = [
+        { "title": "Основные понятия стереометрии", "url": "01-basic.html", "category": "Стереометрия", "icon": "📐", "desc": "Аксиомы стереометрии, следствия, способы задания плоскости", "keywords": ["аксиома", "плоскость", "точка", "прямая", "стереометрия", "следствие"] },
+        { "title": "Параллельные, пересекающиеся, скрещивающиеся прямые", "url": "02-lines.html", "category": "Стереометрия", "icon": "📏", "desc": "Классификация прямых в пространстве", "keywords": ["параллельные", "пересекающиеся", "скрещивающиеся", "прямые", "угол между прямыми"] },
+        { "title": "Расположение прямых и плоскостей", "url": "03-positions.html", "category": "Стереометрия", "icon": "📐", "desc": "Все случаи расположения прямой и плоскости, двух плоскостей", "keywords": ["прямая в плоскости", "пересекает плоскость", "параллельна плоскости", "плоскости пересекаются", "плоскости параллельны"] },
+        { "title": "Параллельность прямых, прямой и плоскости", "url": "04-parallel-line-plane.html", "category": "Стереометрия", "icon": "∥", "desc": "Признаки параллельности, лемма, свойства", "keywords": ["параллельность", "лемма о параллельных", "признак параллельности"] },
+        { "title": "Параллельность плоскостей", "url": "05-parallel-planes.html", "category": "Стереометрия", "icon": "∥", "desc": "Признак параллельности плоскостей, свойства", "keywords": ["параллельность плоскостей", "признак"] },
+        { "title": "Перпендикулярность прямой и плоскости", "url": "06-perpendicular-line-plane.html", "category": "Стереометрия", "icon": "⟂", "desc": "Определение, признак перпендикулярности, свойства", "keywords": ["перпендикулярность", "прямая перпендикулярна плоскости", "признак"] },
+        { "title": "Перпендикулярные прямые в пространстве", "url": "07-perpendicular-lines.html", "category": "Стереометрия", "icon": "⟂", "desc": "Лемма и теоремы о перпендикулярных прямых", "keywords": ["перпендикулярные прямые", "лемма", "теорема"] },
+        { "title": "Признак перпендикулярности прямой и плоскости", "url": "08-sign-perpendicular.html", "category": "Стереометрия", "icon": "✅", "desc": "Теорема и следствия", "keywords": ["признак перпендикулярности", "теорема"] },
+        { "title": "Теорема о трёх перпендикулярах", "url": "09-three-perpendiculars.html", "category": "Стереометрия", "icon": "📐", "desc": "Прямая и обратная теоремы, понятия перпендикуляра, наклонной, проекции", "keywords": ["три перпендикуляра", "теорема", "перпендикуляр", "наклонная"] },
+        { "title": "Двугранный угол", "url": "10-dihedral-angle.html", "category": "Стереометрия", "icon": "📐", "desc": "Линейный угол, обозначения", "keywords": ["двугранный угол", "линейный угол", "ребро"] },
+        { "title": "Перпендикулярность плоскостей", "url": "11-perpendicular-planes.html", "category": "Стереометрия", "icon": "⟂", "desc": "Признак перпендикулярности плоскостей, свойства", "keywords": ["перпендикулярность плоскостей", "признак"] },
+        { "title": "Конус", "url": "cone.html", "category": "Тела вращения", "icon": "△", "desc": "Конус: определение, элементы, сечения, формулы, свойства", "keywords": ["конус", "образующая", "высота", "радиус", "объём", "площадь", "осевое сечение"] },
+        { "title": "Цилиндр", "url": "cylinder.html", "category": "Тела вращения", "icon": "⊡", "desc": "Цилиндр: определение, элементы, сечения, формулы, свойства", "keywords": ["цилиндр", "образующая", "высота", "радиус", "объём", "площадь", "осевое сечение"] },
+        { "title": "Усечённый конус", "url": "truncated-cone.html", "category": "Тела вращения", "icon": "⏢", "desc": "Усечённый конус: определение, элементы, формулы, свойства", "keywords": ["усечённый конус", "образующая", "высота", "радиус", "объём", "площадь"] },
+        { "title": "Сфера и шар", "url": "sphere.html", "category": "Тела вращения", "icon": "○", "desc": "Сфера и шар: определение, элементы, формулы, свойства, сечения", "keywords": ["сфера", "шар", "радиус", "диаметр", "объём", "площадь", "сечение"] },
+        { "title": "Прямоугольный параллелепипед", "url": "cuboid.html", "category": "Многогранники", "icon": "□", "desc": "Прямоугольный параллелепипед: формулы объёма, площади, диагонали", "keywords": ["параллелепипед", "прямоугольный", "объём", "площадь", "диагональ"] },
+        { "title": "Правильная четырёхугольная пирамида", "url": "pyramid.html", "category": "Многогранники", "icon": "△", "desc": "Пирамида: объём, апофема, боковое ребро, сечения", "keywords": ["пирамида", "правильная пирамида", "апофема", "высота", "объём"] },
+        { "title": "Пятиугольная призма", "url": "prism.html", "category": "Многогранники", "icon": "▭", "desc": "Призма: объём, площадь, свойства", "keywords": ["призма", "пятиугольная", "объём", "площадь"] },
+        { "title": "Правильные многогранники", "url": "platonic.html", "category": "Многогранники", "icon": "⬟", "desc": "Пять правильных многогранников: тетраэдр, куб, октаэдр, додекаэдр, икосаэдр", "keywords": ["правильные многогранники", "Платоновы тела", "тетраэдр", "куб", "октаэдр"] },
+        { "title": "Усечённая пирамида", "url": "truncated-pyramid.html", "category": "Многогранники", "icon": "⏢", "desc": "Правильная пятиугольная усечённая пирамида: объём, площадь", "keywords": ["усечённая пирамида", "объём", "площадь"] },
+        { "title": "Вектор и действия над векторами", "url": "block1.html", "category": "Векторы", "icon": "→", "desc": "Определение вектора, коллинеарные, компланарные, сложение, вычитание, умножение", "keywords": ["вектор", "коллинеарные", "компланарные", "сложение", "вычитание", "умножение"] },
+        { "title": "Декартовы координаты в пространстве", "url": "block2.html", "category": "Векторы", "icon": "⌖", "desc": "Прямоугольная система координат, координаты точки, разложение по базису", "keywords": ["координаты", "декартовы", "базис", "i j k"] },
+        { "title": "Простейшие задачи в координатах", "url": "block3.html", "category": "Векторы", "icon": "⊙", "desc": "Середина отрезка, длина вектора, расстояние, деление отрезка, центр масс", "keywords": ["середина", "расстояние", "центр масс", "деление отрезка"] },
+        { "title": "Скалярное произведение векторов", "url": "block4.html", "category": "Векторы", "icon": "⋅", "desc": "Определение, косинус угла, ортогональность, знак скалярного произведения", "keywords": ["скалярное произведение", "угол", "ортогональность", "косинус"] },
+        { "title": "Формулы сокращённого умножения", "url": "formulas.html", "category": "Алгебра", "icon": "×", "desc": "ФСУ, дискриминант, теорема Виета, разложение на множители", "keywords": ["фсу", "квадрат суммы", "разность квадратов", "дискриминант", "теорема Виета"] },
+        { "title": "Степени и корни", "url": "powers.html", "category": "Алгебра", "icon": "√", "desc": "Свойства степеней и корней, рациональные степени, примеры", "keywords": ["степени", "корни", "свойства", "рациональная степень", "степенная", "корень", "степень"] },
+        { "title": "Степенная функция y = x^p", "url": "степенная-функция.html", "category": "Алгебра", "icon": "↗", "desc": "Виды степенной функции, свойства, графики, сравнение чисел", "keywords": ["степенная функция", "степенная", "x^p", "график", "свойства", "степень", "корень"] },
+        { "title": "Иррациональные уравнения", "url": "иррациональные-уравнения.html", "category": "Алгебра", "icon": "=", "desc": "Методы решения: замена, возведение в степень, уединение радикала", "keywords": ["иррациональные уравнения", "замена", "возведение в степень", "радикал", "корень", "уравнение", "иррациональное"] },
+        { "title": "Иррациональные неравенства", "url": "иррациональные-неравенства.html", "category": "Алгебра", "icon": "≠", "desc": "Равносильные переходы, системы неравенств", "keywords": ["иррациональные неравенства", "равносильные переходы", "системы", "корень", "неравенство", "иррациональное"] },
+        { "title": "Логарифмы", "url": "logarithms.html", "category": "Алгебра", "icon": "log", "desc": "Определение, свойства, примеры, тест", "keywords": ["логарифм", "ln", "lg", "свойства логарифмов", "логарифмическая", "логарифмический", "log"] },
+        { "title": "Логарифмическая функция y = log_a x", "url": "логарифмическая-функция.html", "category": "Алгебра", "icon": "↗", "desc": "Свойства, графики, сравнение чисел, примеры", "keywords": ["логарифмическая функция", "логарифмическая", "log_a x", "график", "логарифм", "log"] },
+        { "title": "Логарифмические уравнения", "url": "логарифмические-уравнения.html", "category": "Алгебра", "icon": "=", "desc": "Потенцирование, замена, приведение к одному основанию", "keywords": ["логарифмические уравнения", "потенцирование", "замена", "логарифм", "уравнение", "log", "логарифмическое"] },
+        { "title": "Логарифмические неравенства", "url": "логарифмические-неравенства.html", "category": "Алгебра", "icon": "≠", "desc": "Равносильные переходы, учёт ОДЗ и основания", "keywords": ["логарифмические неравенства", "ОДЗ", "равносильные переходы", "логарифм", "неравенство", "log", "логарифмическое"] },
+        { "title": "Показательная функция y = a^x", "url": "показательная-функция.html", "category": "Алгебра", "icon": "↗", "desc": "Свойства, графики, сравнение чисел, примеры", "keywords": ["показательная функция", "показательная", "a^x", "график", "показатель", "экспонента"] },
+        { "title": "Показательные уравнения", "url": "показательные-уравнения.html", "category": "Алгебра", "icon": "=", "desc": "Приведение к одному основанию, замена, логарифмирование", "keywords": ["показательные уравнения", "замена", "логарифмирование", "показатель", "уравнение", "показательное", "экспонента"] },
+        { "title": "Показательные неравенства", "url": "показательные-неравенства.html", "category": "Алгебра", "icon": "≠", "desc": "Знак сохраняется/меняется, замена, однородные", "keywords": ["показательные неравенства", "знак сохраняется", "знак меняется", "показатель", "неравенство", "показательное", "экспонента"] },
+        { "title": "Тригонометрия", "url": "trigonometry.html", "category": "Алгебра", "icon": "△", "desc": "Все разделы тригонометрии", "keywords": ["тригонометрия", "sin", "cos", "tg", "ctg"] },
+        { "title": "Основные тригонометрические тождества", "url": "Тождества.html", "category": "Алгебра", "icon": "≡", "desc": "Основные тождества, связь между функциями", "keywords": ["тождества", "sin²+cos²=1", "tg"] },
+        { "title": "Сумма и разность углов", "url": "Сумма и разность углов.html", "category": "Алгебра", "icon": "+", "desc": "Формулы синуса, косинуса, тангенса суммы и разности углов", "keywords": ["сумма углов", "разность углов", "sin(α±β)"] },
+        { "title": "Двойной аргумент", "url": "Двойной угол.html", "category": "Алгебра", "icon": "2α", "desc": "Формулы двойного аргумента", "keywords": ["двойной аргумент", "sin2α", "cos2α"] },
+        { "title": "Половинный аргумент", "url": "Половинный аргумент.html", "category": "Алгебра", "icon": "½α", "desc": "Формулы половинного аргумента", "keywords": ["половинный аргумент", "sin²(α/2)", "cos²(α/2)"] },
+        { "title": "Сумма и разность функций", "url": "Ссумма и разность функций.html", "category": "Алгебра", "icon": "±", "desc": "Преобразование суммы и разности функций в произведение", "keywords": ["сумма функций", "разность функций"] },
+        { "title": "Произведение функций", "url": "Произведение функций.html", "category": "Алгебра", "icon": "×", "desc": "Преобразование произведения функций в сумму", "keywords": ["произведение функций"] },
+        { "title": "Знаки тригонометрических функций по четвертям", "url": "Знаки тригонометрических функций.html", "category": "Алгебра", "icon": "◉", "desc": "Знаки sin, cos, tg, ctg по четвертям", "keywords": ["знаки", "четверти"] },
+        { "title": "Формулы приведения", "url": "Формулы приведения.html", "category": "Алгебра", "icon": "↻", "desc": "Формулы приведения для sin, cos, tg, ctg", "keywords": ["формулы приведения"] },
+        { "title": "Чётность и нечётность тригонометрических функций", "url": "Четность функции.html", "category": "Алгебра", "icon": "∓", "desc": "Чётность и нечётность sin, cos, tg, ctg", "keywords": ["чётность", "нечётность"] },
+        { "title": "Таблица значений тригонометрических функций", "url": "Значения тригонометрических функций.html", "category": "Алгебра", "icon": "⊞", "desc": "Таблица sin, cos, tg, ctg для углов 0°–360°", "keywords": ["таблица", "значения"] },
+        { "title": "Простейшие тригонометрические уравнения", "url": "простейшие тригонометрические уравнения.html", "category": "Алгебра", "icon": "=", "desc": "Решение уравнений sin x = a, cos x = a, tg x = a, ctg x = a", "keywords": ["тригонометрические уравнения", "sin x = a", "cos x = a"] },
+        { "title": "Тригонометрические уравнения, сводящиеся к алгебраическим", "url": "тригонометрические-уравнения-сводящиеся-к-алгебраическим.html", "category": "Алгебра", "icon": "=", "desc": "Замена переменной, однородные, введение вспомогательного аргумента", "keywords": ["тригонометрические уравнения", "замена", "однородные", "вспомогательный аргумент"] },
+        { "title": "Тригонометрические неравенства", "url": "тригонометрические-неравенства.html", "category": "Алгебра", "icon": "≠", "desc": "Решение с использованием единичной окружности и линии тангенсов", "keywords": ["тригонометрические неравенства", "единичная окружность", "линия тангенсов"] },
+        { "title": "Радианная мера угла", "url": "radian.html", "category": "Тригонометрия", "icon": "📐", "desc": "Что такое радиан, перевод градусов в радианы и обратно", "keywords": ["радиан", "градусы", "радианы", "перевод", "угол", "π", "пи", "тригонометрия"] },
+        { "title": "Геометрия", "url": "geometry.html", "category": "Геометрия", "icon": "□", "desc": "Навигация по геометрии", "keywords": ["геометрия", "многогранники", "тела вращения"] },
+        { "title": "Многоугольники", "url": "Многоугольники.html", "category": "Геометрия", "icon": "△", "desc": "Треугольники, четырёхугольники, правильные многоугольники, формулы площадей", "keywords": ["многоугольники", "треугольник", "квадрат", "прямоугольник", "площадь"] },
+        { "title": "Прямые и плоскости в пространстве", "url": "stereo.html", "category": "Геометрия", "icon": "∥", "desc": "Аксиомы, параллельность, перпендикулярность, теоремы", "keywords": ["стереометрия", "прямые", "плоскости"] },
+        { "title": "Многогранники", "url": "polyhedrons.html", "category": "Геометрия", "icon": "◫", "desc": "Призма, пирамида, параллелепипед — формулы объёма и площади", "keywords": ["многогранники", "призма", "пирамида", "параллелепипед"] },
+        { "title": "Тела вращения", "url": "solids.html", "category": "Геометрия", "icon": "◯", "desc": "Цилиндр, конус, шар — формулы и свойства", "keywords": ["тела вращения", "цилиндр", "конус", "шар"] },
+        { "title": "Координаты и векторы", "url": "vectors.html", "category": "Геометрия", "icon": "→", "desc": "Векторы в пространстве, координаты, длина, скалярное произведение", "keywords": ["векторы", "координаты", "скалярное произведение"] },
+        { "title": "Производная", "url": "derivative.html", "category": "Анализ", "icon": "ƒ′", "desc": "Таблица производных, правила, экстремумы, исследование", "keywords": ["производная", "дифференцирование", "таблица производных", "экстремум"] },
+        { "title": "Таблица и правила дифференцирования", "url": "производная-таблица-правила.html", "category": "Анализ", "icon": "ƒ′", "desc": "Таблица производных, правила дифференцирования, примеры", "keywords": ["производная", "таблица производных", "правила дифференцирования"] },
+        { "title": "Производная сложной функции", "url": "производная-сложная-функция.html", "category": "Анализ", "icon": "∘", "desc": "Формула, примеры, алгоритм нахождения", "keywords": ["сложная функция", "производная", "цепное правило"] },
+        { "title": "Экстремумы функции", "url": "экстремумы-функции.html", "category": "Анализ", "icon": "▲", "desc": "Максимум, минимум, алгоритм нахождения", "keywords": ["экстремум", "максимум", "минимум", "алгоритм"] },
+        { "title": "Исследование функции", "url": "исследование-функции.html", "category": "Анализ", "icon": "↗", "desc": "Полное исследование функции: алгоритм и пример", "keywords": ["исследование функции", "алгоритм", "график"] },
+        { "title": "Наибольшее и наименьшее значение функции", "url": "наибольшее-наименьшее-значение.html", "category": "Анализ", "icon": "⇅", "desc": "Нахождение наибольшего и наименьшего значения на отрезке", "keywords": ["наибольшее значение", "наименьшее значение", "отрезок"] },
+        { "title": "Калькулятор производных", "url": "derivative-calculator.html", "category": "Инструменты", "icon": "∂", "desc": "Вычисление производных любого порядка", "keywords": ["калькулятор производных", "производная"] },
+        { "title": "Первообразная", "url": "primitive.html", "category": "Анализ", "icon": "ƒ", "desc": "Таблица первообразных, правила нахождения", "keywords": ["первообразная", "F(x)", "таблица первообразных"] },
+        { "title": "Неопределённый интеграл", "url": "indefinite.html", "category": "Анализ", "icon": "∫", "desc": "Таблица интегралов, методы интегрирования", "keywords": ["неопределённый интеграл", "таблица интегралов"] },
+        { "title": "Определённый интеграл", "url": "definite.html", "category": "Анализ", "icon": "∫ₐᵇ", "desc": "Формула Ньютона-Лейбница, свойства, примеры", "keywords": ["определённый интеграл", "Ньютон-Лейбниц"] },
+        { "title": "Площадь криволинейной трапеции", "url": "area.html", "category": "Анализ", "icon": "▧", "desc": "Геометрический смысл интеграла, площадь под графиком", "keywords": ["площадь", "криволинейная трапеция", "геометрический смысл"] },
+        { "title": "Калькулятор интегралов", "url": "integral-calculator.html", "category": "Инструменты", "icon": "∫", "desc": "Вычисление определённых и неопределённых интегралов", "keywords": ["калькулятор интегралов", "интеграл"] },
+        { "title": "Объём через интеграл", "url": "integral-volume.html", "category": "Анализ", "icon": "V", "desc": "Тела вращения, поперечные сечения, V = ∫ S(x) dx", "keywords": ["объём", "интеграл", "тела вращения", "поперечное сечение", "параболоид", "конус"] },
+        { "title": "Калькулятор", "url": "calculator.html", "category": "Инструменты", "icon": "🖩", "desc": "Обычный, инженерный, программист", "keywords": ["калькулятор", "инженерный"] },
+        { "title": "Калькулятор квадратных уравнений", "url": "quadratic.html", "category": "Инструменты", "icon": "📐", "desc": "Решение квадратных уравнений с дискриминантом", "keywords": ["квадратное уравнение", "дискриминант"] },
+        { "title": "Калькулятор радикалов", "url": "radical.html", "category": "Инструменты", "icon": "√", "desc": "Вычисление корней любой степени, упрощение", "keywords": ["радикалы", "корни"] },
+        { "title": "Конвертер величин", "url": "конвертер.html", "category": "Инструменты", "icon": "⇄", "desc": "Конвертация валют, длины, массы, площади, времени, температур", "keywords": ["конвертер", "валюта", "длина", "масса"] },
+        { "title": "Построитель графиков", "url": "plotter.html", "category": "Инструменты", "icon": "📈", "desc": "Построение графиков функций y = f(x)", "keywords": ["график", "функция"] },
+        { "title": "Поиск и избранное", "url": "search.html", "category": "Инструменты", "icon": "🔍", "desc": "Поиск по справочнику и избранные страницы", "keywords": ["поиск", "избранное"] },
+        { "title": "Таблица Брадиса", "url": "bradis.html", "category": "Инструменты", "icon": "📐", "desc": "Калькулятор sin, cos, tg, ctg — тригонометрические функции", "keywords": ["брадис", "таблица брадиса", "синус", "косинус", "тангенс", "котангенс", "sin", "cos", "tg", "ctg", "тригонометрический калькулятор"] },
+        { "title": "О приложении", "url": "about.html", "category": "Общее", "icon": "ⓘ", "desc": "Информация о приложении, автор, контакты", "keywords": ["о приложении", "автор", "версия"] },
+        { "title": "Методы решений", "url": "methods-equations-inequalities.html", "category": "Алгебра", "icon": "🧩", "desc": "Все основные методы: рациональные, с модулем, с параметром, графический", "keywords": ["методы", "уравнения", "неравенства", "рациональные", "модуль", "параметр", "графический"] },
+        { "title": "Стандартные методы решения", "url": "standard-methods.html", "category": "Алгебра", "icon": "▣", "desc": "Метод интервалов, замена, разложение, рационализация", "keywords": ["стандартные методы", "метод интервалов", "замена переменной", "разложение на множители", "рационализация"] },
+        { "title": "Нестандартные методы решения", "url": "nonstandard-methods.html", "category": "Алгебра", "icon": "◈", "desc": "Графики, монотонность, ограниченность, мажоранты", "keywords": ["нестандартные методы", "графический метод", "монотонность", "ограниченность", "мажорант", "оценка"] },
+        { "title": "Использование монотонности", "url": "monotonicity-method.html", "category": "Алгебра", "icon": "📈", "desc": "Возрастание/убывание функций, единственность корня", "keywords": ["монотонность", "возрастает", "убывает", "единственность корня"] },
+        { "title": "Использование ограниченности", "url": "boundedness-method.html", "category": "Алгебра", "icon": "🔒", "desc": "Ограниченные функции, синус, косинус, квадрат", "keywords": ["ограниченность", "синус", "косинус", "максимум", "минимум"] },
+        { "title": "Метод оценки (мажорант)", "url": "estimation-method.html", "category": "Алгебра", "icon": "📊", "desc": "Верхняя и нижняя оценка, мажоранта", "keywords": ["оценка", "мажорант", "верхняя оценка", "нижняя оценка"] },
+        { "title": "Использование ОДЗ", "url": "domain-method.html", "category": "Алгебра", "icon": "🔍", "desc": "Область допустимых значений, сужение поиска", "keywords": ["ОДЗ", "область допустимых значений", "сужение", "проверка корней"] },
+        { "title": "Замена переменной", "url": "substitution-method.html", "category": "Алгебра", "icon": "🔄", "desc": "Биквадратные, показательные, логарифмические уравнения", "keywords": ["замена переменной", "биквадратное", "показательное", "логарифмическое"] },
+        { "title": "Разложение на множители", "url": "factorization-method.html", "category": "Алгебра", "icon": "🧩", "desc": "Вынесение, формулы сокращённого умножения, группировка", "keywords": ["разложение на множители", "фсу", "группировка", "вынесение"] },
+        { "title": "Равносильные преобразования", "url": "equivalent-transformations.html", "category": "Алгебра", "icon": "⚖️", "desc": "Что можно и что нельзя делать с уравнениями", "keywords": ["равносильные преобразования", "возведение в квадрат", "умножение на переменную", "ОДЗ"] },
+        { "title": "Метод рационализации", "url": "rationalization-method.html", "category": "Алгебра", "icon": "🧮", "desc": "Показательные и логарифмические неравенства", "keywords": ["рационализация", "логарифмические неравенства", "показательные неравенства"] },
+        { "title": "Деление многочленов уголком", "url": "деление-многочленов-уголком.html", "category": "Алгебра", "icon": "📐", "desc": "Деление многочленов столбиком, нахождение асимптот", "keywords": ["деление уголком", "деление многочленов", "столбик", "асимптоты"] },
+        { "title": "Рациональные уравнения", "url": "rational-equations.html", "category": "Алгебра", "icon": "ƒ=", "desc": "Общий знаменатель, замена, ОДЗ, примеры из ЕГЭ", "keywords": ["рациональные уравнения", "ОДЗ", "общий знаменатель", "замена", "ЕГЭ"] },
+        { "title": "Рациональные неравенства", "url": "rational-inequalities.html", "category": "Алгебра", "icon": "ƒ<", "desc": "Метод интервалов, дроби, примеры из ЕГЭ", "keywords": ["рациональные неравенства", "метод интервалов", "дроби", "ЕГЭ"] },
+        { "title": "Уравнения с модулем", "url": "equations-with-module.html", "category": "Алгебра", "icon": "|x|=", "desc": "Раскрытие по определению, метод интервалов, примеры из ЕГЭ", "keywords": ["уравнения с модулем", "модуль", "раскрытие", "метод интервалов", "ЕГЭ"] },
+        { "title": "Неравенства с модулем", "url": "inequalities-with-module.html", "category": "Алгебра", "icon": "|x|<", "desc": "Раскрытие по определению, метод интервалов, примеры из ЕГЭ", "keywords": ["неравенства с модулем", "модуль", "раскрытие", "метод интервалов", "ЕГЭ"] },
+        { "title": "Уравнения с параметром", "url": "equations-with-parameter.html", "category": "Алгебра", "icon": "α=", "desc": "Линейные, квадратные, с разными функциями, примеры из ЕГЭ", "keywords": ["уравнения с параметром", "параметр", "линейные", "квадратные", "ЕГЭ"] },
+        { "title": "Неравенства с параметром", "url": "inequalities-with-parameter.html", "category": "Алгебра", "icon": "α<", "desc": "Линейные, квадратные, с разными функциями, примеры из ЕГЭ", "keywords": ["неравенства с параметром", "параметр", "линейные", "квадратные", "ЕГЭ"] },
+        { "title": "Графическое решение уравнений", "url": "graphical-solutions.html", "category": "Алгебра", "icon": "↗", "desc": "Построение графиков, точки пересечения, анимация", "keywords": ["графическое решение", "графики", "точки пересечения", "анимация"] },
+        { "title": "Асимптоты", "url": "asymptotes.html", "category": "Анализ", "icon": "📈", "desc": "Вертикальные, горизонтальные, наклонные асимптоты, правила, примеры", "keywords": ["асимптоты", "вертикальные", "горизонтальные", "наклонные", "предел"] },
+        { "title": "Выпуклость и точки перегиба", "url": "convexity.html", "category": "Анализ", "icon": "∪", "desc": "Выпуклость вверх/вниз, точки перегиба, вторая производная, метод интервалов", "keywords": ["выпуклость", "точки перегиба", "вторая производная", "метод интервалов"] },
+        { "title": "Тригонометрическая окружность","url": "trig_circle.htm", "category": "Тригонометрия", "icon": "◯","desc": "Интерактивный тригонометрический круг: углы, значения sin, cos, tg, ctg", "keywords": ["тригонометрический круг", "окружность", "sin", "cos", "tg", "ctg", "углы", "радианы", "тригонометрия"] },
+        { "title": "Таблица Брадиса", "url": "bradis.html", "category": "Инструменты", "icon": "📐", "desc": "Калькулятор sin, cos, tg, ctg — тригонометрические функции", "keywords": ["брадис", "таблица брадиса", "синус", "косинус", "тангенс", "котангенс", "sin", "cos", "tg", "ctg", "тригонометрический калькулятор"]},
+        { "title": "Производные высших порядков", "url": "derivative-higher.html", "category": "Анализ", "icon": "ƒⁿ", "desc": "Производные 2-го, 3-го и n-го порядка, формулы, физический смысл", "keywords": ["производные высших порядков", "вторая производная", "третья производная", "n-я производная"] },
+    ];
 
-    // ===== ИНСТРУМЕНТЫ =====
-    { "title": "Калькулятор", "url": "calculator.html", "category": "Инструменты", "icon": "🖩", "desc": "Обычный, инженерный, программист", "keywords": ["калькулятор", "инженерный"] },
-    { "title": "Калькулятор квадратных уравнений", "url": "quadratic.html", "category": "Инструменты", "icon": "📐", "desc": "Решение квадратных уравнений с дискриминантом", "keywords": ["квадратное уравнение", "дискриминант"] },
-    { "title": "Калькулятор радикалов", "url": "radical.html", "category": "Инструменты", "icon": "√", "desc": "Вычисление корней любой степени, упрощение", "keywords": ["радикалы", "корни"] },
-    { "title": "Конвертер величин", "url": "конвертер.html", "category": "Инструменты", "icon": "⇄", "desc": "Конвертация валют, длины, массы, площади, времени, температур", "keywords": ["конвертер", "валюта", "длина", "масса"] },
-    { "title": "Построитель графиков", "url": "plotter.html", "category": "Инструменты", "icon": "📈", "desc": "Построение графиков функций y = f(x)", "keywords": ["график", "функция"] },
-    { "title": "Поиск и избранное", "url": "search.html", "category": "Инструменты", "icon": "🔍", "desc": "Поиск по справочнику и избранные страницы", "keywords": ["поиск", "избранное"] },
+    // ============================================================
+    // 3. ПЕРЕМЕННЫЕ
+    // ============================================================
+    let pagesData = [];
+    let searchTimeout;
 
-    // ===== ОБЩЕЕ =====
-    { "title": "О приложении", "url": "about.html", "category": "Общее", "icon": "ⓘ", "desc": "Информация о приложении, автор, контакты", "keywords": ["о приложении", "автор", "версия"] }
-];
-
-// ============================================================
-// 2. ПЕРЕМЕННЫЕ
-// ============================================================
-let pagesData = [];
-let searchTimeout;
-
-// ============================================================
-// 3. ЗАГРУЗКА ДАННЫХ (пытаемся загрузить pages.json, если нет — используем FALLBACK_DATA)
-// ============================================================
-async function loadPagesData() {
-    try {
-        const response = await fetch('data/pages.json');
-        if (response.ok) {
-            pagesData = await response.json();
-            console.log('✅ pages.json загружен успешно');
-        } else {
-            console.warn('⚠️ pages.json не найден, используем встроенные данные');
+    // ============================================================
+    // 4. ЗАГРУЗКА ДАННЫХ
+    // ============================================================
+    async function loadPagesData() {
+        try {
+            const response = await fetch('data/pages.json');
+            if (response.ok) {
+                pagesData = await response.json();
+                console.log('✅ pages.json загружен успешно');
+            } else {
+                console.warn('⚠️ pages.json не найден, используем встроенные данные');
+                pagesData = FALLBACK_DATA;
+            }
+        } catch (error) {
+            console.warn('⚠️ Ошибка загрузки pages.json, используем встроенные данные:', error);
             pagesData = FALLBACK_DATA;
         }
-    } catch (error) {
-        console.warn('⚠️ Ошибка загрузки pages.json, используем встроенные данные:', error);
-        pagesData = FALLBACK_DATA;
-    }
-    // Показываем все страницы при загрузке
-    performSearch();
-}
-
-// ============================================================
-// 4. ПОИСК
-// ============================================================
-function performSearch() {
-    const query = document.getElementById('searchInput').value.toLowerCase().trim();
-    const resultsContainer = document.getElementById('searchResults');
-    const menuCard = document.getElementById('menuCard');
-
-    if (query === '') {
-        resultsContainer.classList.remove('show');
-        menuCard.style.display = 'block';
-        return;
-    }
-
-    const results = pagesData.filter(page => {
-        return page.title.toLowerCase().includes(query) ||
-               (page.keywords && page.keywords.some(kw => kw.toLowerCase().includes(query))) ||
-               page.category.toLowerCase().includes(query) ||
-               (page.desc && page.desc.toLowerCase().includes(query));
-    });
-
-    if (results.length === 0) {
-        resultsContainer.innerHTML = '<div class="search-no-results">😕 Ничего не найдено</div>';
-        resultsContainer.classList.add('show');
-        menuCard.style.display = 'none';
-        return;
-    }
-
-    resultsContainer.innerHTML = results.map(page => `
-        <a href="${page.url}" class="search-result-item">
-            <div class="search-result-icon">${page.icon || '📄'}</div>
-            <div class="search-result-content">
-                <div class="search-result-title">${highlightText(page.title, query)}</div>
-                <div class="search-result-category">${page.category}</div>
-                <div class="search-result-desc">${page.desc || ''}</div>
-            </div>
-            <div class="submenu-arrow">›</div>
-        </a>
-    `).join('');
-
-    resultsContainer.classList.add('show');
-    menuCard.style.display = 'none';
-}
-
-function highlightText(text, query) {
-    if (!query) return text;
-    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    return text.replace(regex, '<mark style="background: var(--accent); color: white; padding: 0 4px; border-radius: 4px;">$1</mark>');
-}
-
-function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('searchResults').classList.remove('show');
-    document.getElementById('menuCard').style.display = 'block';
-}
-
-// ============================================================
-// 5. ЗАСТАВКА
-// ============================================================
-(function() {
-    var progressBar = document.querySelector('.splash-progress-bar');
-    if (progressBar) setTimeout(function() { progressBar.style.width = '100%'; }, 50);
-})();
-(function() {
-    if (sessionStorage.getItem('splashShown')) {
-        var splash = document.getElementById('splash');
-        if (splash) splash.remove();
-    } else {
-        sessionStorage.setItem('splashShown', 'true');
-        setTimeout(function() {
-            var splash = document.getElementById('splash');
-            if (splash) {
-                splash.classList.add('fade-out');
-                setTimeout(function() { if (splash) splash.remove(); }, 600);
-            }
-        }, 3500);
-    }
-})();
-
-// ============================================================
-// 6. ТЕМА
-// ============================================================
-(function() {
-    var savedTheme = localStorage.getItem('mathTheme');
-    if (savedTheme === 'light') {
-        document.documentElement.classList.add('light-mode');
-        var btn = document.getElementById('themeBtn');
-        if (btn) btn.textContent = '☀️';
-    }
-})();
-function toggleTheme() {
-    var html = document.documentElement;
-    var btn = document.getElementById('themeBtn');
-    if (html.classList.contains('light-mode')) {
-        html.classList.remove('light-mode');
-        localStorage.setItem('mathTheme', 'dark');
-        if (btn) btn.textContent = '🌙';
-    } else {
-        html.classList.add('light-mode');
-        localStorage.setItem('mathTheme', 'light');
-        if (btn) btn.textContent = '☀️';
-    }
-}
-
-// ============================================================
-// 7. ГРУППЫ МЕНЮ
-// ============================================================
-function toggleGroup(header) {
-    header.classList.toggle('open');
-    var submenu = header.nextElementSibling;
-    if (submenu && submenu.classList.contains('submenu')) submenu.classList.toggle('open');
-}
-(function() {
-    var savedGroups = localStorage.getItem('openGroups');
-    if (savedGroups) {
-        var openIndices = JSON.parse(savedGroups);
-        var groups = document.querySelectorAll('.group-header');
-        groups.forEach(function(group, idx) {
-            if (openIndices.includes(idx)) {
-                group.classList.add('open');
-                var submenu = group.nextElementSibling;
-                if (submenu && submenu.classList.contains('submenu')) submenu.classList.add('open');
-            }
-        });
-    }
-})();
-var allGroups = document.querySelectorAll('.group-header');
-allGroups.forEach(function(group, idx) {
-    group.addEventListener('click', function() {
-        setTimeout(function() {
-            var openGroups = [];
-            document.querySelectorAll('.group-header').forEach(function(g, i) {
-                if (g.classList.contains('open')) openGroups.push(i);
-            });
-            localStorage.setItem('openGroups', JSON.stringify(openGroups));
-        }, 50);
-    });
-});
-
-// ============================================================
-// 8. ОБРАБОТЧИКИ ПОИСКА
-// ============================================================
-document.getElementById('searchInput').addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(performSearch, 300);
-});
-document.getElementById('searchInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        clearTimeout(searchTimeout);
         performSearch();
     }
-});
 
-// ============================================================
-// 9. PWA: РЕГИСТРАЦИЯ SERVICE WORKER
-// ============================================================
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-        .then(function(registration) {
-            console.log('✅ Service Worker зарегистрирован успешно');
-        })
-        .catch(function(error) {
-            console.log('❌ Ошибка регистрации Service Worker:', error);
+    // ============================================================
+    // 5. ПОИСК
+    // ============================================================
+    function performSearch() {
+        var query = document.getElementById('searchInput').value.toLowerCase().trim();
+        var resultsContainer = document.getElementById('searchResults');
+        var menuCard = document.getElementById('menuCard');
+
+        if (query === '') {
+            resultsContainer.classList.remove('show');
+            menuCard.style.display = 'block';
+            return;
+        }
+
+        var results = pagesData.filter(function(page) {
+            return page.title.toLowerCase().includes(query) ||
+                   (page.keywords && page.keywords.some(function(kw) { return kw.toLowerCase().includes(query); })) ||
+                   page.category.toLowerCase().includes(query) ||
+                   (page.desc && page.desc.toLowerCase().includes(query));
         });
-}
 
-// ============================================================
-// 10. ИНИЦИАЛИЗАЦИЯ
-// ============================================================
-loadPagesData();
+        if (results.length === 0) {
+            resultsContainer.innerHTML = '<div class="search-no-results">😕 Ничего не найдено</div>';
+            resultsContainer.classList.add('show');
+            menuCard.style.display = 'none';
+            return;
+        }
 
+        resultsContainer.innerHTML = results.map(function(page) {
+            return '<a href="' + page.url + '" class="search-result-item">' +
+                '<div class="search-result-icon">' + (page.icon || '📄') + '</div>' +
+                '<div class="search-result-content">' +
+                '<div class="search-result-title">' + highlightText(page.title, query) + '</div>' +
+                '<div class="search-result-category">' + page.category + '</div>' +
+                '<div class="search-result-desc">' + (page.desc || '') + '</div>' +
+                '</div>' +
+                '<div class="submenu-arrow">›</div>' +
+                '</a>';
+        }).join('');
+
+        resultsContainer.classList.add('show');
+        menuCard.style.display = 'none';
+    }
+
+    function highlightText(text, query) {
+        if (!query) return text;
+        var regex = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+        return text.replace(regex, '<mark style="background: var(--accent); color: white; padding: 0 4px; border-radius: 4px;">$1</mark>');
+    }
+
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('searchResults').classList.remove('show');
+        document.getElementById('menuCard').style.display = 'block';
+    }
+
+    // ============================================================
+    // 6. ТЕМА
+    // ============================================================
+    (function() {
+        var savedTheme = localStorage.getItem('mathTheme');
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+            var btn = document.getElementById('themeBtn');
+            if (btn) btn.textContent = '☀️';
+        }
+    })();
+
+    function toggleTheme() {
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            if (btn) btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            if (btn) btn.textContent = '☀️';
+        }
+    }
+
+    // ============================================================
+    // 7. ГРУППЫ МЕНЮ
+    // ============================================================
+    function toggleGroup(header) {
+        header.classList.toggle('open');
+        var submenu = header.nextElementSibling;
+        if (submenu && submenu.classList.contains('submenu')) submenu.classList.toggle('open');
+    }
+
+    (function() {
+        var savedGroups = localStorage.getItem('openGroups');
+        if (savedGroups) {
+            var openIndices = JSON.parse(savedGroups);
+            var groups = document.querySelectorAll('.group-header');
+            groups.forEach(function(group, idx) {
+                if (openIndices.includes(idx)) {
+                    group.classList.add('open');
+                    var submenu = group.nextElementSibling;
+                    if (submenu && submenu.classList.contains('submenu')) submenu.classList.add('open');
+                }
+            });
+        }
+    })();
+
+    var allGroups = document.querySelectorAll('.group-header');
+    allGroups.forEach(function(group, idx) {
+        group.addEventListener('click', function() {
+            setTimeout(function() {
+                var openGroups = [];
+                document.querySelectorAll('.group-header').forEach(function(g, i) {
+                    if (g.classList.contains('open')) openGroups.push(i);
+                });
+                localStorage.setItem('openGroups', JSON.stringify(openGroups));
+            }, 50);
+        });
+    });
+
+    // ============================================================
+    // 8. ОБРАБОТЧИКИ ПОИСКА
+    // ============================================================
+    document.getElementById('searchInput').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(performSearch, 300);
+    });
+
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            clearTimeout(searchTimeout);
+            performSearch();
+        }
+    });
+
+    // ============================================================
+    // 9. PWA
+    // ============================================================
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+            .then(function() { console.log('✅ Service Worker зарегистрирован'); })
+            .catch(function() { console.log('❌ Ошибка регистрации Service Worker'); });
+    }
+
+    // ============================================================
+    // 10. ИНИЦИАЛИЗАЦИЯ
+    // ============================================================
+    loadPagesData();
 </script>
 </body>
 </html>

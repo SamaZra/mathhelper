@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Тест: ФСУ и квадратные уравнения</title>
+    <title>Тест: ФСУ, квадратные уравнения и метод интервалов</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Segoe UI',Roboto,sans-serif;background:#1a2d3c;padding:8px;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;}
@@ -43,13 +43,10 @@
         .controls .btn-repeat{background:var(--warning);text-decoration:none;display:inline-block;padding:10px 20px;border-radius:40px;color:white;font-weight:bold;font-size:0.85rem;transition:0.2s;}
         .controls .btn-repeat:hover{background:#d97706;}
 
-        .mode-selector,.difficulty-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
-        .mode-btn,.diff-btn{padding:6px 14px;border-radius:20px;border:2px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.8rem;transition:0.2s;}
-        .mode-btn:hover,.diff-btn:hover{border-color:var(--text-secondary);color:var(--text);}
+        .mode-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+        .mode-btn{padding:6px 14px;border-radius:20px;border:2px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.8rem;transition:0.2s;}
+        .mode-btn:hover{border-color:var(--text-secondary);color:var(--text);}
         .mode-btn.active{border-color:#ffffff;color:#ffffff;background:rgba(255,255,255,0.1);}
-        .diff-btn.active{border-color:var(--warning);color:var(--warning);background:rgba(245,158,11,0.15);}
-        .diff-btn.easy.active{border-color:var(--success);color:var(--success);background:rgba(52,211,153,0.15);}
-        .diff-btn.hard.active{border-color:var(--danger);color:var(--danger);background:rgba(239,68,68,0.15);}
 
         .card{background:var(--card-bg);border-radius:24px;padding:20px;margin-top:60px;border:1px solid var(--border);}
 
@@ -121,7 +118,7 @@
         .light-mode .result.poor{background:#fee2e2;color:#991b1b;border-color:#dc2626;}
         .light-mode .controls select{background:#f1f5f9;color:#1a2a3f;border-color:#e2e8f0;}
 
-       @media(max-width:700px){.container{padding:12px;}.card{padding:14px;margin-top:55px;}.fixed-timer{padding:6px 12px;}.fixed-timer .time{font-size:1rem;min-width:50px;}.mode-btn,.diff-btn{font-size:0.7rem;padding:4px 10px;}.controls select{font-size:0.8rem;padding:6px 10px;}.controls .btn-generate{padding:8px 16px;font-size:0.9rem;}.header h1{font-size:1.2rem;}}
+       @media(max-width:700px){.container{padding:12px;}.card{padding:14px;margin-top:55px;}.fixed-timer{padding:6px 12px;}.fixed-timer .time{font-size:1rem;min-width:50px;}.mode-btn{font-size:0.7rem;padding:4px 10px;}.controls select{font-size:0.8rem;padding:6px 10px;}.controls .btn-generate{padding:8px 16px;font-size:0.9rem;}.header h1{font-size:1.2rem;}}
    /* ===== СВЕТЛАЯ ТЕМА ===== */
 .light-mode body{background:#f5f7fc;}
 .light-mode .container{background:white;}
@@ -139,10 +136,6 @@
 .light-mode .controls select{background:#e2e8f0;color:#1a2a3f;}
 .light-mode .mode-btn{border-color:#e2e8f0;color:#5a7a94;}
 .light-mode .mode-btn.active{border-color:#1abc9c;color:#1abc9c;background:#e8f8f5;}
-.light-mode .diff-btn{border-color:#e2e8f0;color:#5a7a94;}
-.light-mode .diff-btn.active{border-color:#fbbf24;color:#fbbf24;background:#fef3c7;}
-.light-mode .diff-btn.easy.active{border-color:#34d399;color:#34d399;background:#d1fae5;}
-.light-mode .diff-btn.hard.active{border-color:#ef4444;color:#ef4444;background:#fee2e2;}
 .light-mode .question{background:#f8fafc;}
 .light-mode .question p{color:#1a2a3f;}
 .light-mode .question .opts label{background:white;border:1px solid #eff3f8;color:#1a2a3f;}
@@ -188,8 +181,8 @@
     <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
 
     <div class="header">
-        <h1>Тест: ФСУ и квадратные уравнения</h1>
-        <div class="sub">200+ заданий · 2 режима </div>
+        <h1>Тест: ФСУ, квадратные уравнения и метод интервалов</h1>
+        <div class="sub">200+ заданий · 3 темы</div>
     </div>
 
     <div class="fixed-timer" id="fixedTimer">
@@ -227,6 +220,8 @@
         <div class="mode-selector" id="modeSelector">
             <button class="mode-btn active" data-mode="fsu">Формулы сокращённого умножения</button>
             <button class="mode-btn" data-mode="quadratic">Квадратные уравнения</button>
+            <button class="mode-btn" data-mode="interval">Метод интервалов</button>
+            <button class="mode-btn" data-mode="all">Все темы</button>
         </div>
 
         <div id="testContainer"></div>
@@ -240,9 +235,10 @@
     function shuffleArray(arr){for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var temp=arr[i];arr[i]=arr[j];arr[j]=temp;}return arr;}
 
     // ================================================================
-    // БАНК 1: ФОРМУЛЫ СОКРАЩЁННОГО УМНОЖЕНИЯ (100)
+    // БАНК 1: ФОРМУЛЫ СОКРАЩЁННОГО УМНОЖЕНИЯ (74 вопроса — +20 интерактивных)
     // ================================================================
     var fsuBank = [
+        // === Базовые (54 вопроса из предыдущей версии) ===
         { q: "\\( (a+b)^2 = ? \\)", opts: ["\\( a^2 + b^2 \\)", "\\( a^2 + 2ab + b^2 \\)", "\\( a^2 - 2ab + b^2 \\)", "\\( a^2 + ab + b^2 \\)"], ans: 1, diff: 'easy' },
         { q: "\\( (x+3)^2 \\) равно:", opts: ["\\( x^2 + 9 \\)", "\\( x^2 + 6x + 9 \\)", "\\( x^2 - 6x + 9 \\)", "\\( x^2 + 3x + 9 \\)"], ans: 1, diff: 'easy' },
         { q: "\\( (2x+1)^2 \\) равно:", opts: ["\\( 4x^2 + 1 \\)", "\\( 4x^2 + 4x + 1 \\)", "\\( 4x^2 - 4x + 1 \\)", "\\( 2x^2 + 4x + 1 \\)"], ans: 1, diff: 'medium' },
@@ -297,11 +293,33 @@
         { q: "\\( (2a+3b)(2a-3b) \\) равно:", opts: ["\\( 4a^2 - 9b^2 \\)", "\\( 4a^2 + 9b^2 \\)", "\\( 2a^2 - 3b^2 \\)", "\\( 4a^2 - 6ab + 9b^2 \\)"], ans: 0, diff: 'medium' },
         { q: "\\( (x+7)(x-7) \\) равно:", opts: ["\\( x^2 + 49 \\)", "\\( x^2 - 49 \\)", "\\( x^2 - 7x + 49 \\)", "\\( x^2 + 7x + 49 \\)"], ans: 1, diff: 'easy' },
         { q: "\\( (4x+5)(4x-5) \\) равно:", opts: ["\\( 16x^2 + 25 \\)", "\\( 16x^2 - 25 \\)", "\\( 16x^2 - 20x + 25 \\)", "\\( 16x^2 + 20x + 25 \\)"], ans: 1, diff: 'hard' },
-        { q: "\\( (-a - b)^2 = ? \\)", opts: ["\\( -(a+b)^2 \\)", "\\( a^2 - 2ab + b^2 \\)", "\\( a^2 + 2ab + b^2 \\)", "\\( -a^2 - 2ab - b^2 \\)"], ans: 2, diff: 'medium' }
+        { q: "\\( (-a - b)^2 = ? \\)", opts: ["\\( -(a+b)^2 \\)", "\\( a^2 - 2ab + b^2 \\)", "\\( a^2 + 2ab + b^2 \\)", "\\( -a^2 - 2ab - b^2 \\)"], ans: 2, diff: 'medium' },
+
+        // === НОВЫЕ ИНТЕРАКТИВНЫЕ ВОПРОСЫ (+20) ===
+        { q: "Чему равно \\( (x+2)^2 \\)?", opts: ["\\( x^2 + 4 \\)", "\\( x^2 + 4x + 4 \\)", "\\( x^2 - 4x + 4 \\)", "\\( x^2 + 2x + 4 \\)"], ans: 1, diff: 'easy' },
+        { q: "Чему равно \\( (2x-5)^2 \\)?", opts: ["\\( 4x^2 - 25 \\)", "\\( 4x^2 - 20x + 25 \\)", "\\( 4x^2 + 20x + 25 \\)", "\\( 2x^2 - 10x + 25 \\)"], ans: 1, diff: 'medium' },
+        { q: "Чему равно \\( (3x+1)(3x-1) \\)?", opts: ["\\( 9x^2 - 1 \\)", "\\( 9x^2 + 1 \\)", "\\( 9x^2 - 6x + 1 \\)", "\\( 9x^2 + 6x + 1 \\)"], ans: 0, diff: 'medium' },
+        { q: "Чему равно \\( (x-4)(x+4) \\)?", opts: ["\\( x^2 - 16 \\)", "\\( x^2 + 16 \\)", "\\( x^2 - 8x + 16 \\)", "\\( x^2 + 8x + 16 \\)"], ans: 0, diff: 'easy' },
+        { q: "Разложите \\( a^2 - 25 \\):", opts: ["\\( (a-5)(a+5) \\)", "\\( (a-5)^2 \\)", "\\( (a+5)^2 \\)", "\\( a^2 - 5 \\)"], ans: 0, diff: 'easy' },
+        { q: "Разложите \\( 4x^2 - 9 \\):", opts: ["\\( (2x-3)(2x+3) \\)", "\\( (2x-3)^2 \\)", "\\( (2x+3)^2 \\)", "\\( 4x^2 - 3 \\)"], ans: 0, diff: 'medium' },
+        { q: "Чему равно \\( (x+6)^2 \\)?", opts: ["\\( x^2 + 36 \\)", "\\( x^2 + 12x + 36 \\)", "\\( x^2 - 12x + 36 \\)", "\\( x^2 + 6x + 36 \\)"], ans: 1, diff: 'easy' },
+        { q: "Чему равно \\( (3x-2)(3x+2) \\)?", opts: ["\\( 9x^2 - 4 \\)", "\\( 9x^2 + 4 \\)", "\\( 9x^2 - 6x + 4 \\)", "\\( 9x^2 + 6x + 4 \\)"], ans: 0, diff: 'medium' },
+        { q: "Чему равно \\( (x+1)^3 \\)?", opts: ["\\( x^3 + 1 \\)", "\\( x^3 + 3x^2 + 3x + 1 \\)", "\\( x^3 - 3x^2 + 3x - 1 \\)", "\\( x^3 + x^2 + x + 1 \\)"], ans: 1, diff: 'hard' },
+        { q: "Чему равно \\( (x-2)^3 \\)?", opts: ["\\( x^3 - 8 \\)", "\\( x^3 - 6x^2 + 12x - 8 \\)", "\\( x^3 + 6x^2 + 12x + 8 \\)", "\\( x^3 - 2x^2 + 4x - 8 \\)"], ans: 1, diff: 'hard' },
+        { q: "Разложите \\( x^3 + 27 \\):", opts: ["\\( (x+3)(x^2 - 3x + 9) \\)", "\\( (x-3)(x^2 + 3x + 9) \\)", "\\( (x+3)^3 \\)", "\\( (x+3)(x^2 - 6x + 9) \\)"], ans: 0, diff: 'hard' },
+        { q: "Разложите \\( 8x^3 - 1 \\):", opts: ["\\( (2x-1)(4x^2 + 2x + 1) \\)", "\\( (2x+1)(4x^2 - 2x + 1) \\)", "\\( (2x-1)^3 \\)", "\\( (2x-1)(4x^2 - 4x + 1) \\)"], ans: 0, diff: 'hard' },
+        { q: "Чему равно \\( (x+5)(x-5) \\)?", opts: ["\\( x^2 - 25 \\)", "\\( x^2 + 25 \\)", "\\( x^2 - 10x + 25 \\)", "\\( x^2 + 10x + 25 \\)"], ans: 0, diff: 'easy' },
+        { q: "Чему равно \\( (2x+7)^2 \\)?", opts: ["\\( 4x^2 + 49 \\)", "\\( 4x^2 + 28x + 49 \\)", "\\( 4x^2 - 28x + 49 \\)", "\\( 2x^2 + 14x + 49 \\)"], ans: 1, diff: 'medium' },
+        { q: "Чему равно \\( (5x+2)(5x-2) \\)?", opts: ["\\( 25x^2 - 4 \\)", "\\( 25x^2 + 4 \\)", "\\( 25x^2 - 10x + 4 \\)", "\\( 25x^2 + 10x + 4 \\)"], ans: 0, diff: 'hard' },
+        { q: "Разложите \\( a^2 - 16b^2 \\):", opts: ["\\( (a-4b)(a+4b) \\)", "\\( (a-4b)^2 \\)", "\\( (a+4b)^2 \\)", "\\( a^2 - 4b \\)"], ans: 0, diff: 'medium' },
+        { q: "Чему равно \\( (x-7)^2 \\)?", opts: ["\\( x^2 - 49 \\)", "\\( x^2 - 14x + 49 \\)", "\\( x^2 + 14x + 49 \\)", "\\( x^2 - 7x + 49 \\)"], ans: 1, diff: 'easy' },
+        { q: "Чему равно \\( (3x+5)^2 \\)?", opts: ["\\( 9x^2 + 25 \\)", "\\( 9x^2 + 30x + 25 \\)", "\\( 9x^2 - 30x + 25 \\)", "\\( 3x^2 + 15x + 25 \\)"], ans: 1, diff: 'medium' },
+        { q: "Разложите \\( x^2 - 64 \\):", opts: ["\\( (x-8)(x+8) \\)", "\\( (x-8)^2 \\)", "\\( (x+8)^2 \\)", "\\( x^2 - 8 \\)"], ans: 0, diff: 'easy' },
+        { q: "Разложите \\( 9x^2 - 25y^2 \\):", opts: ["\\( (3x-5y)(3x+5y) \\)", "\\( (3x-5y)^2 \\)", "\\( (3x+5y)^2 \\)", "\\( 9x^2 - 5y \\)"], ans: 0, diff: 'hard' }
     ];
 
     // ================================================================
-    // БАНК 2: КВАДРАТНЫЕ УРАВНЕНИЯ (100)
+    // БАНК 2: КВАДРАТНЫЕ УРАВНЕНИЯ (84 вопроса — без изменений)
     // ================================================================
     var quadraticBank = [
         { q: "Дискриминант \\( ax^2+bx+c=0 \\):", opts: ["\\( D = b^2 - 4ac \\)", "\\( D = b^2 + 4ac \\)", "\\( D = 4ac - b^2 \\)", "\\( D = a^2 - 4bc \\)"], ans: 0, diff: 'easy' },
@@ -380,9 +398,78 @@
     ];
 
     // ================================================================
+    // БАНК 3: МЕТОД ИНТЕРВАЛОВ (60 вопросов, 30 интерактивных)
+    // ================================================================
+    var intervalBank = [
+        // === БАЗОВЫЕ (30 вопросов — теория + простые примеры) ===
+        { q: "Метод интервалов используется для решения:", opts: ["уравнений", "неравенств", "систем уравнений", "тождеств"], ans: 1, diff: 'easy' },
+        { q: "Первый шаг метода интервалов:", opts: ["найти нули функции", "начертить график", "определить знак на промежутках", "записать ответ"], ans: 0, diff: 'easy' },
+        { q: "Второй шаг метода интервалов:", opts: ["найти нули функции", "начертить график", "определить знак на промежутках", "записать ответ"], ans: 2, diff: 'easy' },
+        { q: "При решении \\( (x-2)(x+3) > 0 \\) корни:", opts: ["2 и -3", "2 и 3", "-2 и 3", "-2 и -3"], ans: 0, diff: 'easy' },
+        { q: "При \\( (x-2)(x+3) > 0 \\) знаки на промежутках:", opts: ["+ - +", "- + -", "+ + -", "- - +"], ans: 0, diff: 'easy' },
+        { q: "Решение \\( (x-2)(x+3) > 0 \\):", opts: ["\\( (-∞; -3) ∪ (2; +∞) \\)", "\\( (-3; 2) \\)", "\\( (-∞; 2) ∪ (3; +∞) \\)", "\\( (-3; 2) ∪ (2; +∞) \\)"], ans: 0, diff: 'medium' },
+        { q: "При \\( (x-1)(x-4) < 0 \\) решение:", opts: ["(1; 4)", "(-∞; 1) ∪ (4; +∞)", "(-∞; 1)", "(4; +∞)"], ans: 0, diff: 'medium' },
+        { q: "При \\( x^2 - 5x + 6 > 0 \\) корни:", opts: ["2 и 3", "2 и -3", "-2 и 3", "-2 и -3"], ans: 0, diff: 'easy' },
+        { q: "При \\( x^2 - 5x + 6 > 0 \\) (ветви вверх) знаки:", opts: ["+ - +", "- + -", "+ + -", "- - +"], ans: 0, diff: 'easy' },
+        { q: "Решение \\( x^2 - 5x + 6 > 0 \\):", opts: ["\\( (-∞; 2) ∪ (3; +∞) \\)", "(2; 3)", "\\( (-∞; 3) \\)", "\\( (2; +∞) \\)"], ans: 0, diff: 'medium' },
+        { q: "Решение \\( x^2 - 5x + 6 < 0 \\):", opts: ["(2; 3)", "\\( (-∞; 2) ∪ (3; +∞) \\)", "\\( (-∞; 3) \\)", "\\( (2; +∞) \\)"], ans: 0, diff: 'medium' },
+        { q: "При \\( x^2 + 3x + 2 > 0 \\) корни:", opts: ["-1 и -2", "1 и 2", "-1 и 2", "1 и -2"], ans: 0, diff: 'easy' },
+        { q: "Решение \\( x^2 + 3x + 2 > 0 \\):", opts: ["\\( (-∞; -2) ∪ (-1; +∞) \\)", "(-2; -1)", "\\( (-∞; -1) ∪ (-2; +∞) \\)", "(-1; 2)"], ans: 0, diff: 'medium' },
+        { q: "При \\( -x^2 + 4x - 3 ≥ 0 \\) корни:", opts: ["1 и 3", "1 и -3", "-1 и 3", "-1 и -3"], ans: 0, diff: 'medium' },
+        { q: "При \\( -x^2 + 4x - 3 ≥ 0 \\) (ветви вниз) знаки:", opts: ["- + -", "+ - +", "+ + -", "- - +"], ans: 0, diff: 'hard' },
+        { q: "Решение \\( -x^2 + 4x - 3 ≥ 0 \\):", opts: ["[1; 3]", "\\( (-∞; 1] ∪ [3; +∞) \\)", "[1; 3]", "\\( (-∞; 1) ∪ (3; +∞) \\)"], ans: 0, diff: 'hard' },
+        { q: "При строгом неравенстве (> или <) корни:", opts: ["не входят в ответ", "входят в ответ", "всегда входят", "зависит от D"], ans: 0, diff: 'easy' },
+        { q: "При нестрогом неравенстве (≥ или ≤) корни:", opts: ["входят в ответ", "не входят в ответ", "всегда исключаются", "зависит от D"], ans: 0, diff: 'easy' },
+        { q: "Если функция дробная, дополнительно исключаются:", opts: ["точки, где знаменатель равен 0", "точки, где числитель равен 0", "все точки", "ничего не исключается"], ans: 0, diff: 'easy' },
+        { q: "Сколько промежутков при двух различных корнях?", opts: ["3", "2", "4", "1"], ans: 0, diff: 'easy' },
+        { q: "Сколько промежутков при одном корне (D=0)?", opts: ["2", "1", "3", "0"], ans: 0, diff: 'easy' },
+        { q: "При \\( a > 0 \\) (ветви вверх) знаки квадратного трёхчлена:", opts: ["+ − +", "− + −", "+ + −", "− − +"], ans: 0, diff: 'easy' },
+        { q: "При \\( a < 0 \\) (ветви вниз) знаки квадратного трёхчлена:", opts: ["− + −", "+ − +", "+ + −", "− − +"], ans: 0, diff: 'easy' },
+        { q: "Решение \\( (x+1)(x-4) > 0 \\):", opts: ["\\( (-∞; -1) ∪ (4; +∞) \\)", "(-1; 4)", "\\( (-∞; 4) \\)", "\\( (-1; +∞) \\)"], ans: 0, diff: 'medium' },
+        { q: "Решение \\( (x+1)(x-4) < 0 \\):", opts: ["(-1; 4)", "\\( (-∞; -1) ∪ (4; +∞) \\)", "\\( (-∞; -1) \\)", "(4; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решение \\( x^2 - 4x + 4 ≤ 0 \\):", opts: ["{2}", "[2; +∞)", "(-∞; 2]", "∅"], ans: 0, diff: 'hard' },
+        { q: "Решение \\( x^2 - 4x + 4 < 0 \\):", opts: ["∅", "{2}", "[2; +∞)", "(-∞; 2]"], ans: 0, diff: 'hard' },
+        { q: "Решение \\( (x-3)^2 ≥ 0 \\):", opts: ["\\( (-∞; +∞) \\)", "{3}", "\\( (-∞; 3) ∪ (3; +∞) \\)", "∅"], ans: 0, diff: 'medium' },
+        { q: "Решение \\( (x-3)^2 > 0 \\):", opts: ["\\( (-∞; 3) ∪ (3; +∞) \\)", "\\( (-∞; +∞) \\)", "{3}", "∅"], ans: 0, diff: 'medium' },
+        { q: "Решение \\( (x-3)^2 ≤ 0 \\):", opts: ["{3}", "\\( (-∞; +∞) \\)", "\\( (-∞; 3) ∪ (3; +∞) \\)", "∅"], ans: 0, diff: 'medium' },
+
+        // === ИНТЕРАКТИВНЫЕ ВОПРОСЫ (30) ===
+        { q: "Решить \\( (x+2)(x-5) > 0 \\):", opts: ["\\( (-∞; -2) ∪ (5; +∞) \\)", "(-2; 5)", "\\( (-∞; 5) \\)", "\\( (-2; +∞) \\)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( (x+2)(x-5) < 0 \\):", opts: ["(-2; 5)", "\\( (-∞; -2) ∪ (5; +∞) \\)", "\\( (-∞; -2) \\)", "(5; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( (x+3)(x-1) > 0 \\):", opts: ["\\( (-∞; -3) ∪ (1; +∞) \\)", "(-3; 1)", "\\( (-∞; 1) \\)", "\\( (-3; +∞) \\)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( (x+3)(x-1) < 0 \\):", opts: ["(-3; 1)", "\\( (-∞; -3) ∪ (1; +∞) \\)", "\\( (-∞; -3) \\)", "(1; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 - 3x + 2 > 0 \\):", opts: ["\\( (-∞; 1) ∪ (2; +∞) \\)", "(1; 2)", "\\( (-∞; 2) \\)", "(1; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 - 3x + 2 < 0 \\):", opts: ["(1; 2)", "\\( (-∞; 1) ∪ (2; +∞) \\)", "\\( (-∞; 1) \\)", "(2; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 - 6x + 8 > 0 \\):", opts: ["\\( (-∞; 2) ∪ (4; +∞) \\)", "(2; 4)", "\\( (-∞; 4) \\)", "(2; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 - 6x + 8 < 0 \\):", opts: ["(2; 4)", "\\( (-∞; 2) ∪ (4; +∞) \\)", "\\( (-∞; 2) \\)", "(4; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 - 7x + 12 ≥ 0 \\):", opts: ["\\( (-∞; 3] ∪ [4; +∞) \\)", "[3; 4]", "\\( (-∞; 4] \\)", "[3; +∞)"], ans: 0, diff: 'hard' },
+        { q: "Решить \\( x^2 - 7x + 12 ≤ 0 \\):", opts: ["[3; 4]", "\\( (-∞; 3] ∪ [4; +∞) \\)", "\\( (-∞; 3] \\)", "[4; +∞)"], ans: 0, diff: 'hard' },
+        { q: "Решить \\( -x^2 + 2x + 3 ≥ 0 \\):", opts: ["[-1; 3]", "\\( (-∞; -1] ∪ [3; +∞) \\)", "[-1; 3]", "\\( (-∞; -1) ∪ (3; +∞) \\)"], ans: 0, diff: 'hard' },
+        { q: "Решить \\( -x^2 + 2x + 3 < 0 \\):", opts: ["\\( (-∞; -1) ∪ (3; +∞) \\)", "(-1; 3)", "\\( (-∞; -1] ∪ [3; +∞) \\)", "[-1; 3]"], ans: 0, diff: 'hard' },
+        { q: "Решить \\( x^2 + 4x + 4 > 0 \\):", opts: ["\\( (-∞; -2) ∪ (-2; +∞) \\)", "\\( (-∞; +∞) \\)", "{-2}", "∅"], ans: 0, diff: 'hard' },
+        { q: "Решить \\( x^2 + 4x + 4 < 0 \\):", opts: ["∅", "\\( (-∞; -2) ∪ (-2; +∞) \\)", "{-2}", "\\( (-∞; +∞) \\)"], ans: 0, diff: 'hard' },
+        { q: "Решить \\( x^2 + 4x + 4 ≥ 0 \\):", opts: ["\\( (-∞; +∞) \\)", "{-2}", "\\( (-∞; -2) ∪ (-2; +∞) \\)", "∅"], ans: 0, diff: 'hard' },
+        { q: "Решить \\( (x-4)(x+1) ≥ 0 \\):", opts: ["\\( (-∞; -1] ∪ [4; +∞) \\)", "[-1; 4]", "\\( (-∞; 4] \\)", "[-1; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( (x-4)(x+1) < 0 \\):", opts: ["(-1; 4)", "\\( (-∞; -1) ∪ (4; +∞) \\)", "\\( (-∞; -1) \\)", "(4; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 + 2x - 8 > 0 \\):", opts: ["\\( (-∞; -4) ∪ (2; +∞) \\)", "(-4; 2)", "\\( (-∞; 2) \\)", "(-4; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 + 2x - 8 < 0 \\):", opts: ["(-4; 2)", "\\( (-∞; -4) ∪ (2; +∞) \\)", "\\( (-∞; -4) \\)", "(2; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( (x+5)(x-3) > 0 \\):", opts: ["\\( (-∞; -5) ∪ (3; +∞) \\)", "(-5; 3)", "\\( (-∞; 3) \\)", "(-5; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( (x+5)(x-3) < 0 \\):", opts: ["(-5; 3)", "\\( (-∞; -5) ∪ (3; +∞) \\)", "\\( (-∞; -5) \\)", "(3; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 - 8x + 15 > 0 \\):", opts: ["\\( (-∞; 3) ∪ (5; +∞) \\)", "(3; 5)", "\\( (-∞; 5) \\)", "(3; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 - 8x + 15 < 0 \\):", opts: ["(3; 5)", "\\( (-∞; 3) ∪ (5; +∞) \\)", "\\( (-∞; 3) \\)", "(5; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( -x^2 + 6x - 8 ≥ 0 \\):", opts: ["[2; 4]", "\\( (-∞; 2] ∪ [4; +∞) \\)", "[2; 4]", "\\( (-∞; 2) ∪ (4; +∞) \\)"], ans: 0, diff: 'hard' },
+        { q: "Решить \\( -x^2 + 6x - 8 < 0 \\):", opts: ["\\( (-∞; 2) ∪ (4; +∞) \\)", "(2; 4)", "\\( (-∞; 2] ∪ [4; +∞) \\)", "[2; 4]"], ans: 0, diff: 'hard' },
+        { q: "Решить \\( (x-6)(x+2) ≥ 0 \\):", opts: ["\\( (-∞; -2] ∪ [6; +∞) \\)", "[-2; 6]", "\\( (-∞; 6] \\)", "[-2; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( (x-6)(x+2) < 0 \\):", opts: ["(-2; 6)", "\\( (-∞; -2) ∪ (6; +∞) \\)", "\\( (-∞; -2) \\)", "(6; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 + x - 6 > 0 \\):", opts: ["\\( (-∞; -3) ∪ (2; +∞) \\)", "(-3; 2)", "\\( (-∞; 2) \\)", "(-3; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 + x - 6 < 0 \\):", opts: ["(-3; 2)", "\\( (-∞; -3) ∪ (2; +∞) \\)", "\\( (-∞; -3) \\)", "(2; +∞)"], ans: 0, diff: 'medium' },
+        { q: "Решить \\( x^2 - x - 12 > 0 \\):", opts: ["\\( (-∞; -3) ∪ (4; +∞) \\)", "(-3; 4)", "\\( (-∞; 4) \\)", "(-3; +∞)"], ans: 0, diff: 'medium' }
+    ];
+
+    // ================================================================
     // СБОРКА ПОЛНОГО БАНКА
     // ================================================================
-    var fullBank = fsuBank.concat(quadraticBank);
+    var fullBank = fsuBank.concat(quadraticBank).concat(intervalBank);
 
     // ================================================================
     // РЕЖИМЫ ВЫБОРКИ
@@ -399,26 +486,27 @@
     });
 
     function getQuestionsByMode(mode, count) {
-    var source = [];
-    switch(mode) {
-        case 'fsu':
-            source = fsuBank;
-            break;
-        case 'quadratic':
-            source = quadraticBank;
-            break;
-        default:
-            source = fullBank;
-            break;
-    }
+        var source = [];
+        switch(mode) {
+            case 'fsu':
+                source = fsuBank;
+                break;
+            case 'quadratic':
+                source = quadraticBank;
+                break;
+            case 'interval':
+                source = intervalBank;
+                break;
+            default:
+                source = fullBank;
+                break;
+        }
 
-    if (source.length === 0) {
-        source = fullBank;
-    }
+        if (source.length === 0) source = fullBank;
 
-    var pool = shuffleArray(source.slice());
-    return pool.slice(0, count);
-}
+        var pool = shuffleArray(source.slice());
+        return pool.slice(0, count);
+    }
 
     // ================================================================
     // ТАЙМЕР И ЛОГИКА ТЕСТА
@@ -701,6 +789,7 @@
     // ИЗБРАННОЕ
     // ================================================================
     var FAV_KEY = 'math_favorites';
+
     function getFavorites() { var s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
     function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
     function isFavorite() { var u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }

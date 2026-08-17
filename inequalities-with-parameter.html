@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Неравенства с параметром — ЕГЭ (профиль)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --interval-method-bg: rgba(251,191,36,0.12);
+            --interval-method-border: #fbbf24;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --interval-method-bg: rgba(251,191,36,0.10);
+            --interval-method-border: #fbbf24;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: visible; line-height: 2.2; color: var(--text); }
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            border-left: 5px solid var(--special-border);
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .star { color: #fbbf24; font-size: 1.2rem; margin-right: 4px; }
+        .example .star { color: #fbbf24; font-size: 1.2rem; margin-right: 4px; }
+        .example-no-border .interval-method { color: #fbbf24; font-weight: 700; background: var(--interval-method-bg); padding: 2px 10px; border-radius: 6px; display: inline-block; border-left: 3px solid var(--interval-method-border); }
+        .example .interval-method { color: #fbbf24; font-weight: 700; background: var(--interval-method-bg); padding: 2px 10px; border-radius: 6px; display: inline-block; border-left: 3px solid var(--interval-method-border); }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; font-size: 0.9rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .formula-block { padding: 12px 14px; font-size: 0.9rem; }
+            mjx-container { font-size: 1em !important; }
+        }
+    </style>
+
+    <!-- MathJax — локальное подключение -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>⭐ Неравенства с параметром (ЕГЭ)</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое неравенство с параметром?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Неравенство с параметром</strong> — это неравенство, содержащее переменную \(x\) и параметр \(a\).</p>
+            <div class="important">
+                <strong>📌 Основные методы:</strong><br>
+                1️⃣ <strong>Линейные</strong> — исследование коэффициента при \(x\).<br>
+                2️⃣ <strong>Квадратные</strong> — анализ дискриминанта и знака старшего коэффициента.<br>
+                3️⃣ <strong>Метод интервалов</strong> — с учётом параметра.<br>
+                4️⃣ <strong>Показательные и логарифмические</strong> — учёт ОДЗ и свойств функций.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1 (ПРОСТОЙ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. \(ax < 6\)</span>
+            <span class="sub-title">линейное неравенство с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Неравенство: \(ax < 6\)</span>
+                <div class="explain">💡 Слева — произведение параметра \(a\) на переменную \(x\). Справа — число 6.</div>
+
+                <span class="step">🔹 Почему здесь важен параметр?</span>
+                <div class="explain">💡 Параметр \(a\) может быть любым числом. От его значения зависит знак неравенства.</div>
+
+                <span class="step">🔹 Как решать такие неравенства?</span>
+                <div class="explain">💡 Главное — понять, чему равен коэффициент при \(x\). Если он положительный, знак сохраняется. Если отрицательный — знак меняется. Если нулевой — неравенство становится \(0 < 6\).</div>
+
+                <span class="step">🔹 Разбираем случаи:</span>
+
+                <div class="formula-line"><strong>Случай 1: \(a > 0\)</strong></div>
+                <div class="explain">💡 Делим обе части на положительное число \(a\). Знак неравенства не меняется.</div>
+                <div class="formula-line">\(x < \frac{6}{a}\)</div>
+                <div class="explain">💡 При любом \(a > 0\) получаем бесконечное множество решений.</div>
+
+                <div class="formula-line"><strong>Случай 2: \(a < 0\)</strong></div>
+                <div class="explain">💡 Делим обе части на отрицательное число \(a\). Знак неравенства меняется на противоположный.</div>
+                <div class="formula-line">\(x > \frac{6}{a}\)</div>
+                <div class="explain">💡 При любом \(a < 0\) получаем бесконечное множество решений.</div>
+
+                <div class="formula-line"><strong>Случай 3: \(a = 0\)</strong></div>
+                <div class="explain">💡 Если \(a = 0\), то неравенство принимает вид \(0 < 6\). Это верно всегда.</div>
+                <div class="formula-line">\(x \in \mathbb{R}\)</div>
+
+                <span class="result">✅ Ответ: при \(a > 0\): \(x \in (-\infty; \frac{6}{a})\); при \(a < 0\): \(x \in (\frac{6}{a}; +\infty)\); при \(a = 0\): \(x \in \mathbb{R}\).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2 (ЕГЭ). \(x^2 - 2ax + a^2 - 4 > 0\)</span>
+            <span class="sub-title">квадратное неравенство с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Неравенство: \(x^2 - 2ax + a^2 - 4 > 0\)</span>
+                <div class="explain">💡 Это квадратное неравенство. Замечаем, что левая часть — это разность квадратов.</div>
+
+                <span class="step">🔹 Преобразуем левую часть</span>
+                <div class="explain">💡 Заметим, что \(x^2 - 2ax + a^2 = (x-a)^2\).</div>
+                <div class="formula-line">\((x-a)^2 - 4 > 0\)</div>
+                <div class="explain">💡 Это разность квадратов: \((x-a)^2 - 2^2 > 0\).</div>
+                <div class="formula-line">\((x-a-2)(x-a+2) > 0\)</div>
+
+                <span class="step">🔹 Решаем методом интервалов</span>
+                <div class="explain">💡 Нули: \(x = a-2\) и \(x = a+2\).</div>
+                <div class="explain">💡 Так как коэффициент при \(x^2\) положительный, парабола направлена вверх.</div>
+                <div class="explain">💡 Неравенство \(>0\) выполняется вне отрезка между корнями.</div>
+                <div class="formula-line">\(x < a - 2\) или \(x > a + 2\)</div>
+
+                <span class="result">✅ Ответ: при любом \(a\): \(x \in (-\infty; a-2) \cup (a+2; +\infty)\).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3 (ЕГЭ). \(x^2 - 2ax + a^2 - a > 0\) при всех \(x\)</span>
+            <span class="sub-title">найти значения параметра</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Неравенство: \(x^2 - 2ax + a^2 - a > 0\)</span>
+                <div class="explain">💡 Требуется, чтобы неравенство выполнялось для всех \(x\).</div>
+
+                <span class="step">🔹 Что это значит?</span>
+                <div class="explain">💡 Квадратный трёхчлен \(x^2 - 2ax + a^2 - a\) должен быть положителен при всех \(x\).</div>
+                <div class="explain">💡 Это возможно только если дискриминант отрицательный и старший коэффициент положительный.</div>
+
+                <span class="step">🔹 Находим дискриминант</span>
+                <div class="explain">💡 Коэффициенты: \(A = 1\), \(B = -2a\), \(C = a^2 - a\).</div>
+                <div class="formula-line">\(D = (-2a)^2 - 4 \cdot 1 \cdot (a^2 - a) = 4a^2 - 4a^2 + 4a = 4a\)</div>
+                <div class="explain">💡 Дискриминант равен \(4a\).</div>
+
+                <span class="step">🔹 Условие \(D < 0\)</span>
+                <div class="explain">💡 Для того чтобы трёхчлен был положителен при всех \(x\), нужно \(D < 0\).</div>
+                <div class="formula-line">\(4a < 0 \Rightarrow a < 0\)</div>
+                <div class="explain">💡 При \(a < 0\) дискриминант отрицателен, и старший коэффициент \(1 > 0\).</div>
+
+                <span class="result">✅ Ответ: при \(a < 0\) неравенство верно для всех \(x\).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4 (ЕГЭ). \(\frac{x-a}{x-2} > 0\)</span>
+            <span class="sub-title">дробно-рациональное неравенство</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Неравенство: \(\frac{x-a}{x-2} > 0\)</span>
+                <div class="explain">💡 В знаменателе стоит \(x-2\). Это значит, что \(x \neq 2\) — на ноль делить нельзя.</div>
+
+                <span class="step">🔹 ОДЗ</span>
+                <div class="formula-line">\(x \neq 2\)</div>
+
+                <span class="step">🔹 <span class="interval-method">Метод интервалов</span></span>
+                <div class="explain">💡 Нули числителя: \(x = a\).</div>
+                <div class="explain">💡 Нули знаменателя: \(x = 2\) (выколотая точка).</div>
+                <div class="explain">💡 Важно: взаимное расположение точек \(a\) и \(2\) определяет ответ.</div>
+
+                <span class="step">🔹 Разбираем случаи в зависимости от \(a\)</span>
+
+                <div class="formula-line"><strong>Случай 1: \(a > 2\)</strong></div>
+                <div class="explain">💡 На числовой прямой: \((-\infty; 2)\) — знак \(+\) (так как оба множителя отрицательны); \((2; a)\) — знак \(-\); \((a; +\infty)\) — знак \(+\).</div>
+                <div class="formula-line">\(x \in (-\infty; 2) \cup (a; +\infty)\)</div>
+
+                <div class="formula-line"><strong>Случай 2: \(a < 2\)</strong></div>
+                <div class="explain">💡 На числовой прямой: \((-\infty; a)\) — знак \(+\); \((a; 2)\) — знак \(-\); \((2; +\infty)\) — знак \(+\).</div>
+                <div class="formula-line">\(x \in (-\infty; a) \cup (2; +\infty)\)</div>
+
+                <div class="formula-line"><strong>Случай 3: \(a = 2\)</strong></div>
+                <div class="explain">💡 При \(a = 2\) дробь равна \(\frac{x-2}{x-2} = 1\) при \(x \neq 2\).</div>
+                <div class="explain">💡 \(1 > 0\) — верно для всех \(x \neq 2\).</div>
+                <div class="formula-line">\(x \in (-\infty; 2) \cup (2; +\infty)\)</div>
+
+                <span class="result">✅ Ответ: при \(a > 2\): \(x \in (-\infty; 2) \cup (a; +\infty)\); при \(a < 2\): \(x \in (-\infty; a) \cup (2; +\infty)\); при \(a = 2\): \(x \in (-\infty; 2) \cup (2; +\infty)\).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 5 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5 (ЕГЭ). \(2^x > a\)</span>
+            <span class="sub-title">показательное неравенство с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Неравенство: \(2^x > a\)</span>
+                <div class="explain">💡 Показательная функция \(2^x\) всегда положительна: \(2^x > 0\) для любого \(x\).</div>
+
+                <span class="step">🔹 Анализируем возможные значения \(a\)</span>
+
+                <div class="formula-line"><strong>Случай 1: \(a \le 0\)</strong></div>
+                <div class="explain">💡 Если \(a \le 0\), то \(2^x > 0 \ge a\). Это верно для всех \(x\).</div>
+                <div class="formula-line">\(x \in \mathbb{R}\)</div>
+
+                <div class="formula-line"><strong>Случай 2: \(a > 0\)</strong></div>
+                <div class="explain">💡 Если \(a > 0\), то логарифмируем обе части по основанию 2. Так как основание \(2 > 1\), знак неравенства сохраняется.</div>
+                <div class="formula-line">\(x > \log_2 a\)</div>
+
+                <span class="result">✅ Ответ: при \(a \le 0\): \(x \in \mathbb{R}\); при \(a > 0\): \(x \in (\log_2 a; +\infty)\).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 6 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 6 (ЕГЭ). \(\log_2 x > a\)</span>
+            <span class="sub-title">логарифмическое неравенство с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Неравенство: \(\log_2 x > a\)</span>
+                <div class="explain">💡 Логарифм определён только для положительных чисел: \(x > 0\).</div>
+
+                <span class="step">🔹 ОДЗ</span>
+                <div class="formula-line">\(x > 0\)</div>
+
+                <span class="step">🔹 Решаем неравенство</span>
+                <div class="explain">💡 По определению логарифма: \(\log_2 x > a \Rightarrow x > 2^a\) (основание \(2 > 1\), знак сохраняется).</div>
+                <div class="formula-line">\(x > 2^a\)</div>
+
+                <span class="step">🔹 Проверяем ОДЗ</span>
+                <div class="explain">💡 \(2^a > 0\) всегда, поэтому условие \(x > 2^a\) автоматически включает \(x > 0\).</div>
+
+                <span class="result">✅ Ответ: при любом \(a\): \(x \in (2^a; +\infty)\).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 7 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 7 (ЕГЭ). \(\cos x > a\)</span>
+            <span class="sub-title">тригонометрическое неравенство с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Неравенство: \(\cos x > a\)</span>
+                <div class="explain">💡 Косинус принимает значения только в отрезке \([-1; 1]\).</div>
+
+                <span class="step">🔹 Анализируем возможные значения \(a\)</span>
+
+                <div class="formula-line"><strong>Случай 1: \(a < -1\)</strong></div>
+                <div class="explain">💡 Если \(a < -1\), то \(\cos x > a\) верно для всех \(x\), так как \(\cos x \ge -1 > a\).</div>
+                <div class="formula-line">\(x \in \mathbb{R}\)</div>
+
+                <div class="formula-line"><strong>Случай 2: \(-1 \le a < 1\)</strong></div>
+                <div class="explain">💡 Здесь решение — это интервалы, где косинус больше \(a\).</div>
+                <div class="formula-line">\(x \in (-\arccos a + 2\pi k;\; \arccos a + 2\pi k),\; k \in \mathbb{Z}\)</div>
+                <div class="explain">💡 \(\arccos a\) — угол, косинус которого равен \(a\).</div>
+
+                <div class="formula-line"><strong>Случай 3: \(a \ge 1\)</strong></div>
+                <div class="explain">💡 Если \(a \ge 1\), то неравенство \(\cos x > 1\) невозможно, так как \(\cos x \le 1\).</div>
+                <div class="formula-line">Решений нет.</div>
+
+                <span class="result">✅ Ответ: при \(a < -1\): \(x \in \mathbb{R}\); при \(-1 \le a < 1\): \(x \in (-\arccos a + 2\pi k;\; \arccos a + 2\pi k)\); при \(a \ge 1\): решений нет.</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к главному меню</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        updateLegendColors();
+    }
+    function updateLegendColors() {
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const legend = document.querySelector('.legend');
+        if (legend) legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+        setTimeout(updateLegendColors, 100);
+    })();
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>

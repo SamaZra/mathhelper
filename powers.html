@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Степени и корни — справочник</title>
+    <title>Степени и корни</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
 
@@ -15,15 +15,13 @@
             --accent: #1abc9c;
             --border: rgba(46, 204, 113, 0.1);
             --header-bg: linear-gradient(135deg, #1e3545, #162a38);
-            --formula-card-bg: #1e3545;
-            --example-bg: #1e3545;
-            --example-border: #1abc9c;
-            --section-border: #e67e22;
-            --timer-bg: #2c5a77;
-            --timer-warning: #f39c12;
-            --timer-danger: #e74c3c;
-            --progress-bg: #2c5a77;
-            --progress-fill: #1abc9c;
+            --info-border: #2c7cb6;
+            --example-bg: #162a38;
+            --step-color: #a78bfa;
+            --result-color: #34d399;
+            --explain-color: #34d399;
+            --info-bg: #1a4a5a;
+            --special-border: #2c7cb6;
         }
 
         :root.light-mode {
@@ -34,374 +32,373 @@
             --accent: #1abc9c;
             --border: #eff3f8;
             --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
-            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --info-border: #2c7cb6;
             --example-bg: #f8fafc;
-            --example-border: #16a085;
-            --section-border: #e67e22;
-            --timer-bg: #e2e8f0;
-            --progress-bg: #e2e8f0;
-            --progress-fill: #1abc9c;
+            --step-color: #7c3aed;
+            --result-color: #059669;
+            --explain-color: #059669;
+            --info-bg: #e8f0fe;
+            --special-border: #2c7cb6;
         }
 
         body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
         .container{max-width:1000px;margin:0 auto;position:relative;}
 
-        .theme-toggle{position:absolute;top:0;right:0;width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
         .theme-toggle:hover{transform:scale(1.1);}
 
         .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
         h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
         .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
         .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
-        .section{margin-bottom:20px;}
-        .section-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--section-border);padding-left:12px;cursor:pointer;user-select:none;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--info-border);padding-left:12px;text-align:center;cursor:pointer;user-select:none;}
         .section-title:hover{opacity:0.8;}
+        .section-title .main-title{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;color:var(--text);}
+        .section-title .sub-title{font-size:0.85rem;color:var(--text-secondary);font-weight:400;font-style:italic;margin-top:2px;}
         .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
         .section.collapsed .section-title::after{transform:rotate(-90deg);}
-        .section-content{max-height:2000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section-content{max-height:10000px;overflow:hidden;transition:max-height 0.4s ease;}
         .section.collapsed .section-content{max-height:0;}
-        .section-powers .section-title{border-left-color:#e67e22;}
-        .section-roots .section-title{border-left-color:#8e44ad;}
-        .section-examples .section-title{border-left-color:#16a085;}
-        .formula-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:16px;}
-        .formula-card{background:var(--formula-card-bg);border-radius:20px;padding:16px 12px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.04);border:1px solid var(--border);transition:transform 0.2s;}
-        .formula-card:hover{transform:translateY(-3px);}
-        .formula-card p{font-family:'Times New Roman','Courier New',monospace;font-size:1.1rem;font-weight:600;color:var(--text);margin:0;word-break:break-word;}
-        .example-grid{display:flex;flex-direction:column;gap:12px;}
-        .example-item{background:var(--example-bg);border-left:4px solid var(--example-border);border-radius:16px;padding:12px 18px;transition:0.2s;}
-        .example-item:hover{background:var(--card-bg);box-shadow:0 4px 12px rgba(0,0,0,0.05);}
-        .example-title{font-weight:700;color:#0e6655;font-size:0.95rem;margin-bottom:6px;}
-        .example-formula{font-family:'Times New Roman','Courier New',monospace;font-size:1rem;font-weight:600;color:var(--text);word-break:break-word;}
 
-        /* Секция теста */
-        .test-section{margin-top:24px;text-align:center;}
-        .test-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);color:white;border:none;padding:14px 28px;border-radius:40px;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,0.1);transition:all 0.2s;}
-        .test-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,0.15);}
+        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:16px 20px;border-radius:16px;margin:12px 0;}
+        .definition-block p{font-size:1rem;line-height:1.5;color:var(--text);}
+        .definition-block p strong{color:var(--text);}
+        .definition-block ul{padding-left:20px;margin:6px 0;font-size:0.95rem;line-height:1.5;color:var(--text);}
+        .definition-block ul li{margin:2px 0;}
 
-        /* Таймер */
-        .timer-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--timer-bg);border-radius:14px;}
-        .timer-icon{font-size:1.2rem;}
-        .timer-text{font-weight:600;color:var(--text);font-size:0.9rem;}
-        .timer-text.warning{color:var(--timer-warning);}
-        .timer-text.danger{color:var(--timer-danger);animation:pulse 1s infinite;}
-        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+        .formula-block{background:var(--bg);padding:18px 22px;border-radius:16px;font-size:1.3rem;margin:10px 0;border-left:6px solid var(--special-border);word-break:break-word;overflow-x:visible;line-height:2.4;color:var(--text);text-align:center;}
+        .formula-block mjx-container{font-size:1.5rem !important;}
 
-        /* Прогресс-бар */
-        .progress-container{margin-bottom:16px;}
-        .progress-info{display:flex;justify-content:space-between;margin-bottom:6px;color:var(--text-secondary);font-size:0.8rem;}
-        .progress-bar{height:8px;background:var(--progress-bg);border-radius:10px;overflow:hidden;}
-        .progress-fill{height:100%;background:var(--progress-fill);border-radius:10px;transition:width 0.3s ease;}
+        .example{background:var(--example-bg);padding:16px 20px;border-radius:14px;margin-top:10px;border-left:5px solid var(--special-border);font-size:0.95rem;line-height:2.0;color:var(--text);word-break:break-word;overflow-x:visible;}
+        .example mjx-container{font-size:1.1rem !important;}
+        .example .step{font-weight:700;color:var(--step-color);margin-top:10px;margin-bottom:2px;display:block;font-size:1.05rem;}
+        .example .result{margin-top:10px;font-weight:600;color:var(--result-color);display:block;font-size:1.1rem;}
+        .example .explain{color:var(--explain-color);font-style:italic;margin:4px 0 8px 16px;border-left:2px solid var(--explain-color);padding-left:12px;display:block;font-size:0.95rem;}
+        .example .formula-line{display:block;margin:4px 0;word-break:break-word;font-size:1.05rem;}
+        .example-short{background:var(--example-bg);padding:12px 18px;border-radius:12px;margin-top:6px;border-left:4px solid var(--special-border);font-size:0.95rem;line-height:1.8;color:var(--text);word-break:break-word;}
+        .example-short .formula-line{display:block;margin:2px 0;word-break:break-word;font-size:1rem;}
+        .example-short .result{margin-top:4px;font-weight:600;color:var(--result-color);display:block;font-size:1rem;}
 
-        .test-container{margin-top:20px;background:var(--card-bg);border-radius:24px;padding:20px;border:1px solid var(--border);text-align:left;}
-        .test-container h3{font-size:1.2rem;color:var(--text);margin-bottom:6px;}
-        .test-info{color:var(--text-secondary);margin-bottom:20px;font-size:0.85rem;}
-        .question{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
-        .question:last-of-type{border-bottom:none;margin-bottom:12px;padding-bottom:0;}
-        .question p{font-weight:600;color:var(--text);margin-bottom:10px;font-size:1rem;}
-        .options{display:flex;flex-direction:column;gap:6px;}
-        .options label{display:block;padding:10px 14px;background:var(--formula-card-bg);border-radius:14px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;font-size:0.95rem;color:var(--text);}
-        .options label:hover{background:var(--card-bg);border-color:var(--accent);}
-        .options input{margin-right:10px;accent-color:var(--accent);}
-        .test-submit{background:var(--accent);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:0.95rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all 0.2s;width:100%;}
-        .test-submit:hover{background:#16a085;}
-        .test-submit:disabled{opacity:0.5;cursor:not-allowed;}
-        .test-result{margin-top:16px;padding:14px;border-radius:18px;text-align:center;font-weight:600;font-size:1rem;}
-        .test-result.excellent{background:#d1fae5;color:#065f46;}
-        .test-result.good{background:#fef3c7;color:#92400e;}
-        .test-result.poor{background:#fee2e2;color:#991b1b;}
-        .restart-btn{background:linear-gradient(135deg,#1a2d3c,#2c5a77);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:0.9rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all 0.2s;width:100%;}
-        .restart-btn:hover{transform:translateY(-2px);}
-        .back-link{display:inline-block;margin-top:24px;padding:10px 24px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
-        .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
-        @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:18px;}.section-title{font-size:1.1rem;}.formula-card p{font-size:1rem;}}
+        p{margin:8px 0;font-size:1rem;line-height:1.6;color:var(--text);}
+        .important{background:var(--info-bg);border-left:4px solid #fbbf24;border-radius:14px;padding:12px 16px;margin:12px 0;color:var(--text);font-size:1rem;}
+        .important strong{color:#fbbf24;}
+
+        .back-link{display:inline-block;margin:16px 0 8px;padding:10px 20px;background:var(--special-border);color:white;text-decoration:none;font-weight:bold;border-radius:20px;font-size:0.95rem;transition:background 0.2s;}
+        .back-link:hover{background:#1a6b8a;}
+        mjx-container{font-size:1.1em !important;overflow-x:visible !important;max-width:100% !important;}
+
+        .favorite-btn{position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;z-index:1000;color:var(--text-secondary);transition:all 0.2s;backdrop-filter:blur(4px);}
+        .favorite-btn:hover{transform:scale(1.1);}
+        .favorite-btn.active{color:#facc15;}
+
+        .property-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0;}
+        .property-card{background:var(--bg);border-radius:14px;padding:14px 16px;border:1px solid var(--border);text-align:center;transition:all 0.2s;}
+        .property-card:hover{transform:translateY(-2px);border-color:var(--accent);}
+        .property-card .prop-name{color:var(--text-secondary);font-size:0.8rem;font-weight:600;margin-bottom:4px;}
+        .property-card .prop-formula{color:var(--text);font-size:1.2rem;font-weight:600;}
+        .property-card .prop-formula mjx-container{font-size:1.2rem !important;}
+
+        .special-block{background:var(--bg);border-radius:14px;padding:16px 20px;margin:12px 0;border-left:5px solid #60a5fa;}
+        .special-block .label{color:#60a5fa;font-weight:700;font-size:1.1rem;}
+        .special-block .label2{color:#f59e0b;font-weight:700;font-size:1.1rem;}
+        .special-block .definition-formula{font-size:1.5rem;text-align:center;padding:10px 0;color:var(--text);}
+        .special-block .definition-formula mjx-container{font-size:1.5rem !important;}
+        .special-block .small-text{font-size:1rem;text-align:center;padding:4px 0;color:var(--text);}
+        .special-block .small-text mjx-container{font-size:1.1rem !important;}
+        .special-block .desc{color:var(--text-secondary);font-size:0.9rem;text-align:center;}
+
+        @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.definition-block p{font-size:0.95rem;}.example{padding:12px 14px;font-size:0.9rem;}.formula-block{padding:14px 16px;font-size:1.1rem;}.formula-block mjx-container{font-size:1.2rem !important;}.property-grid{grid-template-columns:1fr;}mjx-container{font-size:0.9em !important;}.special-block .definition-formula{font-size:1.2rem;}.special-block .definition-formula mjx-container{font-size:1.2rem !important;}}
         @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
         .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
-    
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
     </style>
     <script>
-        MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.05,displayAlign:'center'},startup:{ready:()=>{MathJax.startup.defaultReady();}}};
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { skipHtmlTypes: 'script', ignoreHtmlClass: 'no-mathjax' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
 
-    <div class="header">
-        <h1>Степени и корни</h1>
-        <div class="subtitle">Определения, свойства, примеры — полный справочник</div>
-    </div>
+    <div class="header"><h1>Степени и корни</h1><div class="subtitle">Определения · Свойства · Примеры с подробным решением</div></div>
     <div class="content-card">
-        <div class="section section-powers">
-            <div class="section-title" onclick="toggleSection(this)">Степени</div>
+
+        <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📖 Что такое степень?</span>
+            </div>
             <div class="section-content">
-                <div class="formula-grid">
-                    <div class="formula-card"><p>\(a^0 = 1\)</p></div>
-                    <div class="formula-card"><p>\((ab)^n = a^n b^n\)</p></div>
-                    <div class="formula-card"><p>\(a^n \cdot a^k = a^{n+k}\)</p></div>
-                    <div class="formula-card"><p>\(\left(\dfrac{a}{b}\right)^n = \dfrac{a^n}{b^n}\)</p></div>
-                    <div class="formula-card"><p>\(\dfrac{a^n}{a^k} = a^{n-k}\)</p></div>
-                    <div class="formula-card"><p>\((a^n)^k = a^{nk}\)</p></div>
-                    <div class="formula-card"><p>\(a^{-n} = \dfrac{1}{a^n}\)</p></div>
+                <div class="definition-block">
+                    <p><strong>Степенью</strong> числа \(a\) с натуральным показателем \(n\) называется произведение \(n\) множителей, каждый из которых равен \(a\):</p>
+                    <p style="text-align:center;font-size:1.5rem;margin-top:12px;">$$ a^n = \underbrace{a \cdot a \cdot \ldots \cdot a}_{n \text{ раз}} $$</p>
+                    <p style="margin-top:8px;">где \(a\) — основание степени, \(n\) — показатель степени.</p>
+                </div>
+
+                <div class="important">
+                    <strong>📌 Важно запомнить:</strong><br>
+                    • \(a^0 = 1\) (при \(a \neq 0\))<br>
+                    • \(a^1 = a\)<br>
+                    • \(a^{-n} = \dfrac{1}{a^n}\) (при \(a \neq 0\))<br>
+                    • \(a^{1/n} = \sqrt[n]{a}\) (при \(a \ge 0\) для чётных \(n\))
                 </div>
             </div>
         </div>
-        <div class="section section-roots collapsed">
-            <div class="section-title" onclick="toggleSection(this)">Корни и рациональные степени</div>
+
+        <!-- ===== СВОЙСТВА СТЕПЕНЕЙ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📋 Свойства степеней</span>
+            </div>
             <div class="section-content">
-                <div class="formula-grid">
-                    <div class="formula-card"><p>\(\sqrt[n]{a} = a^{1/n}\)</p></div>
-                    <div class="formula-card"><p>\(\sqrt[n]{ab} = \sqrt[n]{a} \cdot \sqrt[n]{b}\)</p></div>
-                    <div class="formula-card"><p>\(\sqrt[n]{\dfrac{a}{b}} = \dfrac{\sqrt[n]{a}}{\sqrt[n]{b}}\)</p></div>
-                    <div class="formula-card"><p>\(\sqrt[n]{a^k} = (\sqrt[n]{a})^k = a^{k/n}\)</p></div>
-                    <div class="formula-card"><p>\(\sqrt[n]{\sqrt[m]{a}} = \sqrt[nm]{a}\)</p></div>
-                    <div class="formula-card"><p>\(a^{m/n} = \sqrt[n]{a^m} = (\sqrt[n]{a})^m\)</p></div>
+                <div class="property-grid">
+                    <div class="property-card">
+                        <div class="prop-name">Умножение степеней</div>
+                        <div class="prop-formula">\(a^n \cdot a^k = a^{n+k}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Деление степеней</div>
+                        <div class="prop-formula">\(\dfrac{a^n}{a^k} = a^{n-k}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Степень произведения</div>
+                        <div class="prop-formula">\((ab)^n = a^n b^n\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Степень частного</div>
+                        <div class="prop-formula">\(\left(\dfrac{a}{b}\right)^n = \dfrac{a^n}{b^n}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Степень степени</div>
+                        <div class="prop-formula">\((a^n)^k = a^{nk}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Нулевая степень</div>
+                        <div class="prop-formula">\(a^0 = 1\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Отрицательная степень</div>
+                        <div class="prop-formula">\(a^{-n} = \dfrac{1}{a^n}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Степень с рациональным показателем</div>
+                        <div class="prop-formula">\(a^{m/n} = \sqrt[n]{a^m}\)</div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="section section-examples collapsed">
-            <div class="section-title" onclick="toggleSection(this)">Примеры</div>
+
+        <!-- ===== КОРНИ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📖 Что такое корень?</span>
+            </div>
             <div class="section-content">
-                <div class="example-grid">
-                    <div class="example-item"><div class="example-title">Пример 1 (степени):</div><div class="example-formula">\(2^3 \cdot 2^4 = 2^{3+4} = 2^7 = 128\)</div></div>
-                    <div class="example-item"><div class="example-title">Пример 2 (отрицательная степень):</div><div class="example-formula">\(5^{-2} = \dfrac{1}{5^2} = \dfrac{1}{25} = 0,04\)</div></div>
-                    <div class="example-item"><div class="example-title">Пример 3 (степень произведения):</div><div class="example-formula">\((2x)^4 = 2^4 \cdot x^4 = 16x^4\)</div></div>
-                    <div class="example-item"><div class="example-title">Пример 4 (корни):</div><div class="example-formula">\(\sqrt{72} = \sqrt{36 \cdot 2} = 6\sqrt{2}\)</div></div>
-                    <div class="example-item"><div class="example-title">Пример 5 (рациональная степень):</div><div class="example-formula">\(8^{2/3} = \sqrt[3]{8^2} = \sqrt[3]{64} = 4\)</div></div>
-                    <div class="example-item"><div class="example-title">Пример 6 (вложенные корни):</div><div class="example-formula">\(\sqrt{\sqrt[3]{64}} = \sqrt[6]{64} = 2\)</div></div>
+                <div class="definition-block">
+                    <p><strong>Корнем \(n\)-й степени</strong> из числа \(a\) называется число \(b\), такое что \(b^n = a\):</p>
+                    <p style="text-align:center;font-size:1.5rem;margin-top:12px;">$$ \sqrt[n]{a} = b \quad \Longleftrightarrow \quad b^n = a $$</p>
+                    <p style="margin-top:8px;">где \(n\) — показатель корня, \(a\) — подкоренное выражение.</p>
+                </div>
+
+                <div class="important">
+                    <strong>📌 Связь корня и степени:</strong><br>
+                    • \(\sqrt[n]{a} = a^{1/n}\)<br>
+                    • \(\sqrt[n]{a^m} = a^{m/n}\)<br>
+                    • \((\sqrt[n]{a})^m = \sqrt[n]{a^m}\)
                 </div>
             </div>
         </div>
-        <div class="test-section">
-            <button class="test-btn" onclick="startTest()">ПРОВЕРИТЬ ЗНАНИЯ</button>
-            <div id="testContainer" class="test-container" style="display:none;"></div>
+
+        <!-- ===== СВОЙСТВА КОРНЕЙ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📋 Свойства корней</span>
+            </div>
+            <div class="section-content">
+                <div class="property-grid">
+                    <div class="property-card">
+                        <div class="prop-name">Корень из произведения</div>
+                        <div class="prop-formula">\(\sqrt[n]{ab} = \sqrt[n]{a} \cdot \sqrt[n]{b}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Корень из частного</div>
+                        <div class="prop-formula">\(\sqrt[n]{\dfrac{a}{b}} = \dfrac{\sqrt[n]{a}}{\sqrt[n]{b}}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Корень из степени</div>
+                        <div class="prop-formula">\(\sqrt[n]{a^k} = (\sqrt[n]{a})^k = a^{k/n}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Корень из корня</div>
+                        <div class="prop-formula">\(\sqrt[m]{\sqrt[n]{a}} = \sqrt[mn]{a}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Связь корня и степени</div>
+                        <div class="prop-formula">\(\sqrt[n]{a} = a^{1/n}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Степень с рациональным показателем</div>
+                        <div class="prop-formula">\(a^{m/n} = \sqrt[n]{a^m} = (\sqrt[n]{a})^m\)</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <a href="index.html" class="back-link">← Назад к меню</a>
+
+        <!-- ===== ПРИМЕРЫ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📚 Примеры с подробным решением</span>
+            </div>
+            <div class="section-content">
+
+                <!-- ===== ПРИМЕР 1 ===== -->
+                <div class="example">
+                    <span class="step">📌 Пример 1. \(2^3 \cdot 2^4\)</span>
+                    <div class="explain">💡 Используем свойство \(a^n \cdot a^k = a^{n+k}\)</div>
+                    <div class="formula-line">\(2^3 \cdot 2^4 = 2^{3+4} = 2^7 = 128\)</div>
+                    <span class="result">✅ Ответ: \(128\)</span>
+                </div>
+
+                <!-- ===== ПРИМЕР 2 ===== -->
+                <div class="example">
+                    <span class="step">📌 Пример 2. \(\dfrac{5^6}{5^3}\)</span>
+                    <div class="explain">💡 Используем свойство \(\dfrac{a^n}{a^k} = a^{n-k}\)</div>
+                    <div class="formula-line">\(\dfrac{5^6}{5^3} = 5^{6-3} = 5^3 = 125\)</div>
+                    <span class="result">✅ Ответ: \(125\)</span>
+                </div>
+
+                <!-- ===== ПРИМЕР 3 ===== -->
+                <div class="example">
+                    <span class="step">📌 Пример 3. \((3^2)^3\)</span>
+                    <div class="explain">💡 Используем свойство \((a^n)^k = a^{nk}\)</div>
+                    <div class="formula-line">\((3^2)^3 = 3^{2 \cdot 3} = 3^6 = 729\)</div>
+                    <span class="result">✅ Ответ: \(729\)</span>
+                </div>
+
+                <!-- ===== ПРИМЕР 4 ===== -->
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(2^{-3}\)</span>
+                    <div class="formula-line">\(2^{-3} = \dfrac{1}{2^3} = \dfrac{1}{8}\)</div>
+                    <span class="result">✅ Ответ: \(\dfrac{1}{8}\)</span>
+                </div>
+
+                <!-- ===== ПРИМЕР 5 ===== -->
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(\sqrt{16}\)</span>
+                    <div class="formula-line">\(\sqrt{16} = 4\) (так как \(4^2 = 16\))</div>
+                    <span class="result">✅ Ответ: \(4\)</span>
+                </div>
+
+                <!-- ===== ПРИМЕР 6 ===== -->
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(\sqrt[3]{27}\)</span>
+                    <div class="formula-line">\(\sqrt[3]{27} = 3\) (так как \(3^3 = 27\))</div>
+                    <span class="result">✅ Ответ: \(3\)</span>
+                </div>
+
+                <!-- ===== ПРИМЕР 7 ===== -->
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(\sqrt[3]{8 \cdot 27}\)</span>
+                    <div class="explain">💡 \(\sqrt[3]{ab} = \sqrt[3]{a} \cdot \sqrt[3]{b}\)</div>
+                    <div class="formula-line">\(\sqrt[3]{8 \cdot 27} = \sqrt[3]{8} \cdot \sqrt[3]{27} = 2 \cdot 3 = 6\)</div>
+                    <span class="result">✅ Ответ: \(6\)</span>
+                </div>
+
+                <!-- ===== ПРИМЕР 8 ===== -->
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(\sqrt{\dfrac{25}{16}}\)</span>
+                    <div class="explain">💡 \(\sqrt{\dfrac{a}{b}} = \dfrac{\sqrt{a}}{\sqrt{b}}\)</div>
+                    <div class="formula-line">\(\sqrt{\dfrac{25}{16}} = \dfrac{\sqrt{25}}{\sqrt{16}} = \dfrac{5}{4}\)</div>
+                    <span class="result">✅ Ответ: \(\dfrac{5}{4}\)</span>
+                </div>
+
+                <!-- ===== ПРИМЕР 9 ===== -->
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \((2a^2)^3\)</span>
+                    <div class="explain">💡 \((ab)^n = a^n b^n\)</div>
+                    <div class="formula-line">\((2a^2)^3 = 2^3 \cdot (a^2)^3 = 8a^6\)</div>
+                    <span class="result">✅ Ответ: \(8a^6\)</span>
+                </div>
+
+                <!-- ===== ПРИМЕР 10 ===== -->
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(\sqrt[3]{64}\)</span>
+                    <div class="formula-line">\(\sqrt[3]{64} = 4\) (так как \(4^3 = 64\))</div>
+                    <span class="result">✅ Ответ: \(4\)</span>
+                </div>
+
+            </div>
+        </div>
+
     </div>
+    <a href="index.html" class="back-link">← Назад к меню</a>
 </div>
+
 <script>
-    function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
-    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
-    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
-
-    // Банк из 30 вопросов
-    const questionBank=[
-    // Нулевая и единичная степень (4 вопроса)
-    {question:"\\( a^0 = ? \\) (при \\( a \\neq 0 \\))",options:["\\( 0 \\)","\\( 1 \\)","\\( a \\)","\\( -a \\)"],correct:1},
-    {question:"\\( 15^0 \\) равно:",options:["0","1","15","-15"],correct:1},
-    {question:"\\( (-7)^0 \\) равно:",options:["-7","0","1","-1"],correct:2},
-    {question:"\\( a^1 = ? \\)",options:["\\( 1 \\)","\\( 0 \\)","\\( a \\)","\\( a^2 \\)"],correct:2},
-
-    // Умножение степеней (4 вопроса)
-    {question:"\\( a^n \\cdot a^k = ? \\)",options:["\\( a^{n-k} \\)","\\( a^{n+k} \\)","\\( a^{nk} \\)","\\( (a^n)^k \\)"],correct:1},
-    {question:"\\( x^3 \\cdot x^5 \\) равно:",options:["\\( x^{15} \\)","\\( x^8 \\)","\\( x^2 \\)","\\( 2x^8 \\)"],correct:1},
-    {question:"\\( 2^4 \\cdot 2^3 \\) равно:",options:["\\( 2^7 \\)","\\( 2^{12} \\)","\\( 4^7 \\)","\\( 2^1 \\)"],correct:0},
-    {question:"\\( y^2 \\cdot y \\cdot y^4 \\) равно:",options:["\\( y^8 \\)","\\( y^6 \\)","\\( y^7 \\)","\\( 3y^7 \\)"],correct:2},
-
-    // Деление степеней (4 вопроса)
-    {question:"\\( \\frac{a^n}{a^k} = ? \\)",options:["\\( a^{n+k} \\)","\\( a^{nk} \\)","\\( a^{n-k} \\)","\\( a^{k-n} \\)"],correct:2},
-    {question:"\\( \\frac{x^8}{x^3} \\) равно:",options:["\\( x^{11} \\)","\\( x^5 \\)","\\( x^{24} \\)","\\( \\frac{8}{3}x \\)"],correct:1},
-    {question:"\\( \\frac{5^7}{5^4} \\) равно:",options:["\\( 5^3 \\)","\\( 5^{11} \\)","\\( 5^{28} \\)","\\( 1^3 \\)"],correct:0},
-    {question:"\\( \\frac{a^6}{a^6} \\) равно:",options:["\\( a \\)","\\( 0 \\)","\\( 1 \\)","\\( a^{12} \\)"],correct:2},
-
-    // Возведение степени в степень (4 вопроса)
-    {question:"\\( (a^n)^k = ? \\)",options:["\\( a^{n+k} \\)","\\( a^{n-k} \\)","\\( a^{nk} \\)","\\( a^{n/k} \\)"],correct:2},
-    {question:"\\( (x^2)^5 \\) равно:",options:["\\( x^7 \\)","\\( x^{10} \\)","\\( x^{25} \\)","\\( 2x^5 \\)"],correct:1},
-    {question:"\\( (3^2)^4 \\) равно:",options:["\\( 3^6 \\)","\\( 3^8 \\)","\\( 3^{16} \\)","\\( 6^4 \\)"],correct:1},
-    {question:"\\( (y^3)^3 \\) равно:",options:["\\( y^6 \\)","\\( y^9 \\)","\\( 3y^3 \\)","\\( y^{27} \\)"],correct:1},
-
-    // Отрицательная степень (5 вопросов)
-    {question:"\\( a^{-n} = ? \\)",options:["\\( -a^n \\)","\\( \\frac{1}{a^n} \\)","\\( a^{1/n} \\)","\\( (-a)^n \\)"],correct:1},
-    {question:"\\( 5^{-2} \\) равно:",options:["\\( -25 \\)","\\( -10 \\)","\\( \\frac{1}{25} \\)","\\( \\frac{1}{10} \\)"],correct:2},
-    {question:"\\( x^{-3} \\) равно:",options:["\\( -x^3 \\)","\\( \\frac{1}{x^3} \\)","\\( \\sqrt[3]{x} \\)","\\( -3x \\)"],correct:1},
-    {question:"\\( 2^{-3} \\) равно:",options:["\\( -8 \\)","\\( -6 \\)","\\( \\frac{1}{8} \\)","\\( \\frac{1}{6} \\)"],correct:2},
-    {question:"\\( 10^{-1} \\) равно:",options:["\\( -10 \\)","\\( 0,1 \\)","\\( 1 \\)","\\( -0,1 \\)"],correct:1},
-
-    // Степень произведения и частного (4 вопроса)
-    {question:"\\( (ab)^n = ? \\)",options:["\\( a^n b \\)","\\( a b^n \\)","\\( a^n b^n \\)","\\( a^n + b^n \\)"],correct:2},
-    {question:"\\( \\left(\\frac{a}{b}\\right)^n = ? \\)",options:["\\( \\frac{a^n}{b} \\)","\\( \\frac{a}{b^n} \\)","\\( \\frac{a^n}{b^n} \\)","\\( a^n - b^n \\)"],correct:2},
-    {question:"\\( (2x)^3 \\) равно:",options:["\\( 6x^3 \\)","\\( 8x^3 \\)","\\( 2x^3 \\)","\\( 8x \\)"],correct:1},
-    {question:"\\( \\left(\\frac{3}{y}\\right)^2 \\) равно:",options:["\\( \\frac{9}{y^2} \\)","\\( \\frac{6}{y^2} \\)","\\( \\frac{3}{y^2} \\)","\\( \\frac{9}{y} \\)"],correct:0},
-
-    // Корни (5 вопросов)
-    {question:"\\( \\sqrt[n]{a} = ? \\)",options:["\\( a^n \\)","\\( a^{-n} \\)","\\( a^{1/n} \\)","\\( a^{n/2} \\)"],correct:2},
-    {question:"\\( \\sqrt[n]{ab} = ? \\)",options:["\\( \\sqrt[n]{a} + \\sqrt[n]{b} \\)","\\( \\sqrt[n]{a} \\cdot \\sqrt[n]{b} \\)","\\( a\\sqrt[n]{b} \\)","\\( \\frac{\\sqrt[n]{a}}{\\sqrt[n]{b}} \\)"],correct:1},
-    {question:"\\( \\sqrt[3]{27} \\) равно:",options:["9","3","6","81"],correct:1},
-    {question:"\\( \\sqrt{50} \\) упрощается до:",options:["\\( 25\\sqrt{2} \\)","\\( 5\\sqrt{2} \\)","\\( 2\\sqrt{5} \\)","\\( 10\\sqrt{5} \\)"],correct:1},
-    {question:"\\( \\sqrt[4]{16} \\) равно:",options:["4","2","8","\\( \\frac{1}{2} \\)"],correct:1},
-
-    // Рациональные степени и вложенные корни (без повторений)
-    {question:"\\( a^{m/n} = ? \\)",options:["\\( \\sqrt[m]{a^n} \\)","\\( \\sqrt[n]{a^m} \\)","\\( a^{m-n} \\)","\\( (a^m)^n \\)"],correct:1},
-    {question:"\\( \\sqrt[n]{\\sqrt[m]{a}} = ? \\)",options:["\\( \\sqrt[n+m]{a} \\)","\\( \\sqrt[n-m]{a} \\)","\\( \\sqrt[nm]{a} \\)","\\( \\sqrt[n/m]{a} \\)"],correct:2},
-    {question:"\\( 9^{1/2} \\) равно:",options:["3","4.5","18","\\( \\frac{1}{3} \\)"],correct:0},
-    {question:"\\( 27^{2/3} \\) равно:",options:["3","6","9","18"],correct:2},
-    {question:"\\( \\sqrt{\\sqrt{16}} \\) равно:",options:["4","2","8","\\( \\sqrt{2} \\)"],correct:1}
-    ];
-
-    let currentQuestions=[];
-    let timerInterval=null;
-    let timeLeft=0;
-    const TOTAL_TIME=600; // 10 минут
-
-    function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
-
-    function formatTime(seconds){
-        const min=Math.floor(seconds/60);
-        const sec=seconds%60;
-        return `${min}:${sec.toString().padStart(2,'0')}`;
-    }
-
-    function updateTimerDisplay(){
-        const timerText=document.getElementById('timerText');
-        if(!timerText) return;
-        timerText.textContent=formatTime(timeLeft);
-        timerText.classList.remove('warning','danger');
-        if(timeLeft<=60) timerText.classList.add('danger');
-        else if(timeLeft<=180) timerText.classList.add('warning');
-    }
-
-    function updateProgress(){
-        const total=currentQuestions.length;
-        const answered=currentQuestions.filter((q,idx)=>{
-            const sel=document.querySelector(`input[name="q${idx}"]:checked`);
-            return sel!==null;
-        }).length;
-        const percent=Math.round((answered/total)*100);
-        const progressText=document.getElementById('progressText');
-        const progressPercent=document.getElementById('progressPercent');
-        const progressFill=document.getElementById('progressFill');
-        if(progressText) progressText.textContent=`Вопросов отвечено: ${answered} из ${total}`;
-        if(progressPercent) progressPercent.textContent=`${percent}%`;
-        if(progressFill) progressFill.style.width=`${percent}%`;
-    }
-
-    function timeExpired(){
-        const submitBtn=document.getElementById('submitBtn');
-        if(submitBtn) submitBtn.disabled=true;
-        const resultDiv=document.getElementById('testResult');
-        if(resultDiv){
-            resultDiv.innerHTML='⏰ Время вышло! Тест автоматически завершён.';
-            resultDiv.className='test-result poor';
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
         }
-        checkAnswers(true);
     }
 
-    function startTest(){
-        if(timerInterval) clearInterval(timerInterval);
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
 
-        const questionCount=10;
-        const shuffledBank=shuffleArray([...questionBank]);
-        const selectedQuestions=shuffledBank.slice(0, questionCount);
-
-        currentQuestions=selectedQuestions.map(q=>{
-            const opts=q.options.map((o,i)=>({text:o, idx:i}));
-            const shOpts=shuffleArray([...opts]);
-            const newCorrect=shOpts.findIndex(o=>o.idx===q.correct);
-            return {
-                question: q.question,
-                options: shOpts.map(o=>o.text),
-                correct: newCorrect
-            };
-        });
-
-        timeLeft=TOTAL_TIME;
-        updateTimerDisplay();
-
-        let html=`
-            <h3>Тест по степеням и корням</h3>
-            <div class="test-info">${questionCount} случайных вопросов из 30</div>
-
-            <div class="timer-bar">
-                <span class="timer-icon">⏱️</span>
-                <span class="timer-text" id="timerText">${formatTime(timeLeft)}</span>
-            </div>
-
-            <div class="progress-container">
-                <div class="progress-info">
-                    <span id="progressText">Вопросов отвечено: 0 из ${questionCount}</span>
-                    <span id="progressPercent">0%</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
-                </div>
-            </div>
-
-            <div id="questions"></div>
-            <button class="test-submit" id="submitBtn" onclick="checkAnswers(false)">ПРОВЕРИТЬ ОТВЕТЫ</button>
-            <div id="testResult" class="test-result"></div>
-        `;
-
-        document.getElementById('testContainer').innerHTML=html;
-        document.getElementById('testContainer').style.display='block';
-        renderQuestions();
-        updateProgress();
-
-        timerInterval=setInterval(()=>{
-            timeLeft--;
-            updateTimerDisplay();
-            if(timeLeft<=0){
-                clearInterval(timerInterval);
-                timeExpired();
+    // ИЗБРАННОЕ
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
             }
-        }, 1000);
-
-        if(window.MathJax)MathJax.typesetPromise();
-        document.getElementById('testContainer').scrollIntoView({behavior:'smooth'});
-    }
-
-    function renderQuestions(){
-        let html='';
-        currentQuestions.forEach((q,idx)=>{
-            html+=`<div class="question"><p>${idx+1}. ${q.question}</p><div class="options">`;
-            q.options.forEach((opt,optIdx)=>{
-                html+=`<label><input type="radio" name="q${idx}" value="${optIdx}" onchange="updateProgress()"> ${opt}</label>`;
-            });
-            html+=`</div></div>`;
-        });
-        document.getElementById('questions').innerHTML=html;
-        if(window.MathJax)MathJax.typesetPromise();
-    }
-
-    function checkAnswers(timeUp=false){
-        if(timerInterval) clearInterval(timerInterval);
-
-        let correctCount=0;
-        currentQuestions.forEach((q,idx)=>{
-            const sel=document.querySelector(`input[name="q${idx}"]:checked`);
-            if(sel&&parseInt(sel.value)===q.correct) correctCount++;
-        });
-
-        const pct=correctCount/currentQuestions.length*100;
-        let msg='', cls='';
-        if(pct>=80){msg=`Отлично! ${correctCount}/${currentQuestions.length} (${Math.round(pct)}%)`;cls='excellent';}
-        else if(pct>=50){msg=`Хорошо! ${correctCount}/${currentQuestions.length} (${Math.round(pct)}%)`;cls='good';}
-        else{msg=`${correctCount}/${currentQuestions.length} (${Math.round(pct)}%). Повторите!`;cls='poor';}
-
-        if(timeUp) msg='⏰ ' + msg;
-
-        const rd=document.getElementById('testResult');
-        rd.innerHTML=msg;
-        rd.className=`test-result ${cls}`;
-
-        const submitBtn=document.getElementById('submitBtn');
-        if(submitBtn){
-            submitBtn.disabled=true;
-            submitBtn.textContent='ТЕСТ ЗАВЕРШЁН';
         }
-
-        const restartHTML='<button class="restart-btn" onclick="startTest()">🔄 ПРОЙТИ ТЕСТ ЗАНОВО</button>';
-        if(!document.getElementById('restartBtn')){
-            rd.insertAdjacentHTML('afterend', `<div id="restartBtn">${restartHTML}</div>`);
-        }
-
-        document.querySelectorAll('input[type="radio"]').forEach(radio=>radio.disabled=true);
-        rd.scrollIntoView({behavior:'smooth'});
     }
+    updateFavoriteBtn();
 </script>
-
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
 </body>
 </html>

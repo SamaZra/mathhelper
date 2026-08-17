@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Адаптивный тест: Производная</title>
+    <title>Умный тест: Производная</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{background:#1a2d3c;color:#e8edf3;font-family:'Segoe UI',Roboto,system-ui,sans-serif;padding:12px;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;}
@@ -272,7 +272,7 @@
     <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
 
     <div class="header">
-        <h1>Адаптивный тест: Производная</h1>
+        <h1>Умный тест: Производная</h1>
         <div class="sub">Адаптивная сложность · 360+ вопросов · 5 тем</div>
     </div>
 
@@ -1501,39 +1501,38 @@
     }
 
     function sendShare() {
-        var name = document.getElementById('studentName').value.trim();
-        var group = document.getElementById('studentGroup').value.trim();
+    var name = document.getElementById('studentName').value.trim();
+    var group = document.getElementById('studentGroup').value.trim();
 
-        if (!name) {
-            alert('Пожалуйста, введите Фамилию и Имя');
-            document.getElementById('studentName').focus();
-            return;
-        }
-        if (!group) {
-            alert('Пожалуйста, введите номер группы/класса');
-            document.getElementById('studentGroup').focus();
-            return;
-        }
-
-        closeShareModal();
-
-        var text = getResultText(name, group);
-
-        if (window.Android && window.Android.shareAppFromJs) {
-            window.Android.shareAppFromJs(text);
-        } else if (navigator.share) {
-            navigator.share({
-                title: 'Результат адаптивного теста: Производная',
-                text: text
-            }).catch(function(err) {
-                if (err.name !== 'AbortError') {
-                    copyToClipboard(text);
-                }
-            });
-        } else {
-            copyToClipboard(text);
-        }
+    if (!name) {
+        alert('Пожалуйста, введите Фамилию и Имя');
+        document.getElementById('studentName').focus();
+        return;
     }
+    if (!group) {
+        alert('Пожалуйста, введите номер группы/класса');
+        document.getElementById('studentGroup').focus();
+        return;
+    }
+
+    closeShareModal();
+
+    var text = getResultText(name, group);
+
+    // ===== ЧЕРЕЗ ANDROID-МОСТ =====
+    if (window.Android && window.Android.shareText) {
+        window.Android.shareText(text);
+    } else if (navigator.share) {
+        navigator.share({
+            title: 'Результат адаптивного теста',
+            text: text
+        }).catch(function(err) {
+            console.log('Share cancelled or error:', err);
+        });
+    } else {
+        copyToClipboard(text);
+    }
+}
 
     function copyToClipboard(text) {
         if (navigator.clipboard) {

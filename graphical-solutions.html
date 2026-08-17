@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Графическое решение уравнений — 10-11 класс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --table-bg: #1a2d3c;
+            --table-border: rgba(16,185,129,0.15);
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --table-bg: #f8fafc;
+            --table-border: #dce3ec;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: visible; line-height: 2.2; color: var(--text); }
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .interval-method { color: #fbbf24; font-weight: 700; background: rgba(251,191,36,0.12); padding: 2px 10px; border-radius: 6px; display: inline-block; border-left: 3px solid #fbbf24; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+
+        .graph-container { text-align: center; margin: 12px 0; background: var(--canvas-bg); border-radius: 16px; padding: 8px; display: block; transition: background 0.2s; }
+        .graph-container canvas { max-width: 100%; height: auto; border-radius: 12px; display: inline-block; background: var(--canvas-bg); transition: background 0.2s; width: 100%; touch-action: none; }
+        .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; }
+        .graph-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+        .graph-controls button { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text); padding: 6px 14px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+        .graph-controls button:hover { background: var(--special-border); border-color: var(--special-border); }
+
+        .table-wrap { overflow-x: auto; margin: 8px 0; }
+        .value-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; background: var(--table-bg); border-radius: 10px; overflow: hidden; }
+        .value-table th { background: var(--special-border); color: white; padding: 6px 10px; text-align: center; font-weight: 600; }
+        .value-table td { padding: 6px 10px; text-align: center; border-bottom: 1px solid var(--table-border); color: var(--text); }
+        .value-table .color-1 { color: #a78bfa; font-weight: 600; }
+        .value-table .color-2 { color: #34d399; font-weight: 600; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .formula-block { padding: 12px 14px; font-size: 0.9rem; }
+            mjx-container { font-size: 1em !important; }
+            .value-table { font-size: 0.8rem; }
+            .value-table th, .value-table td { padding: 4px 6px; }
+        }
+    </style>
+
+    <!-- MathJax — локальное подключение -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        setTimeout(drawAllGraphs, 400);
+                    });
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>📈 Графическое решение уравнений</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое графический метод?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Графический метод</strong> — способ решения уравнений, при котором строятся графики левой и правой частей, а корнями являются абсциссы точек пересечения этих графиков.</p>
+            <div class="important">
+                <strong>📌 Как строить график:</strong><br>
+                1️⃣ Составить таблицу значений \((x; y)\) для каждой функции.<br>
+                2️⃣ Отметить точки на координатной плоскости.<br>
+                3️⃣ Соединить точки плавной кривой.<br>
+                4️⃣ Найти точки пересечения графиков — это корни уравнения.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. \(2^x = x^2\)</span>
+            <span class="sub-title">показательное уравнение</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(2^x = x^2\)</span>
+
+                <div class="explain">💡 Строим два графика: \(y = 2^x\) и \(y = x^2\).</div>
+
+                <div class="table-wrap">
+                    <table class="value-table">
+                        <tr><th colspan="4">Таблица значений</th></tr>
+                        <tr>
+                            <th>\(x\)</th>
+                            <th>\(y = 2^x\)</th>
+                            <th>\(y = x^2\)</th>
+                            <th>Точки</th>
+                        </tr>
+                        <tr><td>\(-2\)</td><td class="color-1">\(0.25\)</td><td class="color-2">\(4\)</td><td>—</td></tr>
+                        <tr><td>\(-1\)</td><td class="color-1">\(0.5\)</td><td class="color-2">\(1\)</td><td>—</td></tr>
+                        <tr><td>\(0\)</td><td class="color-1">\(1\)</td><td class="color-2">\(0\)</td><td>—</td></tr>
+                        <tr><td>\(1\)</td><td class="color-1">\(2\)</td><td class="color-2">\(1\)</td><td>—</td></tr>
+                        <tr><td>\(2\)</td><td class="color-1">\(4\)</td><td class="color-2">\(4\)</td><td>🔴 \((2;4)\)</td></tr>
+                        <tr><td>\(3\)</td><td class="color-1">\(8\)</td><td class="color-2">\(9\)</td><td>—</td></tr>
+                        <tr><td>\(4\)</td><td class="color-1">\(16\)</td><td class="color-2">\(16\)</td><td>🔴 \((4;16)\)</td></tr>
+                    </table>
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="graph1" width="500" height="300"></canvas>
+                    <div class="graph-controls">
+                        <button onclick="animateGraph('graph1', 0)">▶ Анимировать</button>
+                        <button onclick="resetGraph('graph1', 0)">⟲ Сброс</button>
+                    </div>
+                    <div class="graph-label">
+                        🟣 \(2^x\) &nbsp;·&nbsp; 🟢 \(x^2\) &nbsp;·&nbsp; 🔴 Корни: \(-0.77;\; 2;\; 4\)
+                    </div>
+                </div>
+
+                <span class="result">✅ Ответ: \(x = 2,\; x = 4,\; x \approx -0.77\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. \(|x^2-4| = 3x\)</span>
+            <span class="sub-title">уравнение с модулем</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(|x^2-4| = 3x\)</span>
+
+                <div class="explain">💡 Строим два графика: \(y = |x^2-4|\) и \(y = 3x\).</div>
+
+                <div class="table-wrap">
+                    <table class="value-table">
+                        <tr><th colspan="4">Таблица значений</th></tr>
+                        <tr>
+                            <th>\(x\)</th>
+                            <th>\(y = |x^2-4|\)</th>
+                            <th>\(y = 3x\)</th>
+                            <th>Точки</th>
+                        </tr>
+                        <tr><td>\(0\)</td><td class="color-1">\(4\)</td><td class="color-2">\(0\)</td><td>—</td></tr>
+                        <tr><td>\(1\)</td><td class="color-1">\(3\)</td><td class="color-2">\(3\)</td><td>🔴 \((1;3)\)</td></tr>
+                        <tr><td>\(2\)</td><td class="color-1">\(0\)</td><td class="color-2">\(6\)</td><td>—</td></tr>
+                        <tr><td>\(3\)</td><td class="color-1">\(5\)</td><td class="color-2">\(9\)</td><td>—</td></tr>
+                        <tr><td>\(4\)</td><td class="color-1">\(12\)</td><td class="color-2">\(12\)</td><td>🔴 \((4;12)\)</td></tr>
+                    </table>
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="graph2" width="500" height="300"></canvas>
+                    <div class="graph-controls">
+                        <button onclick="animateGraph('graph2', 1)">▶ Анимировать</button>
+                        <button onclick="resetGraph('graph2', 1)">⟲ Сброс</button>
+                    </div>
+                    <div class="graph-label">
+                        🟣 \(|x^2-4|\) &nbsp;·&nbsp; 🟢 \(3x\) &nbsp;·&nbsp; 🔴 Корни: \(1;\; 4\)
+                    </div>
+                </div>
+
+                <span class="result">✅ Ответ: \(x = 1,\; x = 4\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. \(\log_2 x = 2 - x\)</span>
+            <span class="sub-title">логарифмическое уравнение</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(\log_2 x = 2 - x\)</span>
+
+                <div class="explain">💡 Строим два графика: \(y = \log_2 x\) и \(y = 2 - x\).</div>
+
+                <div class="table-wrap">
+                    <table class="value-table">
+                        <tr><th colspan="4">Таблица значений</th></tr>
+                        <tr>
+                            <th>\(x\)</th>
+                            <th>\(y = \log_2 x\)</th>
+                            <th>\(y = 2 - x\)</th>
+                            <th>Точки</th>
+                        </tr>
+                        <tr><td>\(0.5\)</td><td class="color-1">\(-1\)</td><td class="color-2">\(1.5\)</td><td>—</td></tr>
+                        <tr><td>\(1\)</td><td class="color-1">\(0\)</td><td class="color-2">\(1\)</td><td>—</td></tr>
+                        <tr><td>\(1.53\)</td><td class="color-1">\(0.615\)</td><td class="color-2">\(0.47\)</td><td>🔴 \((1.53;0.615)\)</td></tr>
+                        <tr><td>\(2\)</td><td class="color-1">\(1\)</td><td class="color-2">\(0\)</td><td>—</td></tr>
+                    </table>
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="graph3" width="500" height="300"></canvas>
+                    <div class="graph-controls">
+                        <button onclick="animateGraph('graph3', 2)">▶ Анимировать</button>
+                        <button onclick="resetGraph('graph3', 2)">⟲ Сброс</button>
+                    </div>
+                    <div class="graph-label">
+                        🟣 \(\log_2 x\) &nbsp;·&nbsp; 🟢 \(2 - x\) &nbsp;·&nbsp; 🔴 Корень: \(1.53\)
+                    </div>
+                </div>
+
+                <span class="result">✅ Ответ: \(x \approx 1.53\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. \(\sin x = \frac{x}{2}\)</span>
+            <span class="sub-title">тригонометрическое уравнение</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(\sin x = \frac{x}{2}\)</span>
+
+                <div class="explain">💡 Строим два графика: \(y = \sin x\) и \(y = \frac{x}{2}\).</div>
+
+                <div class="table-wrap">
+                    <table class="value-table">
+                        <tr><th colspan="4">Таблица значений</th></tr>
+                        <tr>
+                            <th>\(x\)</th>
+                            <th>\(y = \sin x\)</th>
+                            <th>\(y = x/2\)</th>
+                            <th>Точки</th>
+                        </tr>
+                        <tr><td>\(-\pi\)</td><td class="color-1">\(0\)</td><td class="color-2">\(-1.57\)</td><td>—</td></tr>
+                        <tr><td>\(-1.9\)</td><td class="color-1">\(-0.946\)</td><td class="color-2">\(-0.95\)</td><td>🔴 \((-1.9;-0.95)\)</td></tr>
+                        <tr><td>\(0\)</td><td class="color-1">\(0\)</td><td class="color-2">\(0\)</td><td>🔴 \((0;0)\)</td></tr>
+                        <tr><td>\(1.9\)</td><td class="color-1">\(0.946\)</td><td class="color-2">\(0.95\)</td><td>🔴 \((1.9;0.95)\)</td></tr>
+                        <tr><td>\(\pi\)</td><td class="color-1">\(0\)</td><td class="color-2">\(1.57\)</td><td>—</td></tr>
+                    </table>
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="graph4" width="500" height="300"></canvas>
+                    <div class="graph-controls">
+                        <button onclick="animateGraph('graph4', 3)">▶ Анимировать</button>
+                        <button onclick="resetGraph('graph4', 3)">⟲ Сброс</button>
+                    </div>
+                    <div class="graph-label">
+                        🟣 \(\sin x\) &nbsp;·&nbsp; 🟢 \(x/2\) &nbsp;·&nbsp; 🔴 Корни: \(-1.90;\; 0;\; 1.90\)
+                    </div>
+                </div>
+
+                <span class="result">✅ Ответ: \(x = 0,\; x \approx \pm 1.90\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 5 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5. \(\cos x = x^2\)</span>
+            <span class="sub-title">тригонометрическое уравнение</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(\cos x = x^2\)</span>
+
+                <div class="explain">💡 Строим два графика: \(y = \cos x\) и \(y = x^2\).</div>
+
+                <div class="table-wrap">
+                    <table class="value-table">
+                        <tr><th colspan="4">Таблица значений</th></tr>
+                        <tr>
+                            <th>\(x\)</th>
+                            <th>\(y = \cos x\)</th>
+                            <th>\(y = x^2\)</th>
+                            <th>Точки</th>
+                        </tr>
+                        <tr><td>\(-1\)</td><td class="color-1">\(0.54\)</td><td class="color-2">\(1\)</td><td>—</td></tr>
+                        <tr><td>\(-0.824\)</td><td class="color-1">\(0.679\)</td><td class="color-2">\(0.679\)</td><td>🔴 \((-0.824;0.679)\)</td></tr>
+                        <tr><td>\(0\)</td><td class="color-1">\(1\)</td><td class="color-2">\(0\)</td><td>—</td></tr>
+                        <tr><td>\(0.824\)</td><td class="color-1">\(0.679\)</td><td class="color-2">\(0.679\)</td><td>🔴 \((0.824;0.679)\)</td></tr>
+                        <tr><td>\(1\)</td><td class="color-1">\(0.54\)</td><td class="color-2">\(1\)</td><td>—</td></tr>
+                    </table>
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="graph5" width="500" height="300"></canvas>
+                    <div class="graph-controls">
+                        <button onclick="animateGraph('graph5', 4)">▶ Анимировать</button>
+                        <button onclick="resetGraph('graph5', 4)">⟲ Сброс</button>
+                    </div>
+                    <div class="graph-label">
+                        🟣 \(\cos x\) &nbsp;·&nbsp; 🟢 \(x^2\) &nbsp;·&nbsp; 🔴 Корни: \(\pm 0.824\)
+                    </div>
+                </div>
+
+                <span class="result">✅ Ответ: \(x \approx \pm 0.824\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 6 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 6. \(\operatorname{tg} x = x\)</span>
+            <span class="sub-title">тригонометрическое уравнение</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(\operatorname{tg} x = x\)</span>
+
+                <div class="explain">💡 Строим два графика: \(y = \operatorname{tg} x\) и \(y = x\).</div>
+
+                <div class="table-wrap">
+                    <table class="value-table">
+                        <tr><th colspan="4">Таблица значений</th></tr>
+                        <tr>
+                            <th>\(x\)</th>
+                            <th>\(y = \operatorname{tg} x\)</th>
+                            <th>\(y = x\)</th>
+                            <th>Точки</th>
+                        </tr>
+                        <tr><td>\(0\)</td><td class="color-1">\(0\)</td><td class="color-2">\(0\)</td><td>🔴 \((0;0)\)</td></tr>
+                        <tr><td>\(1\)</td><td class="color-1">\(1.557\)</td><td class="color-2">\(1\)</td><td>—</td></tr>
+                        <tr><td>\(4.493\)</td><td class="color-1">\(4.493\)</td><td class="color-2">\(4.493\)</td><td>🔴 \((4.493;4.493)\)</td></tr>
+                    </table>
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="graph6" width="500" height="300"></canvas>
+                    <div class="graph-controls">
+                        <button onclick="animateGraph('graph6', 5)">▶ Анимировать</button>
+                        <button onclick="resetGraph('graph6', 5)">⟲ Сброс</button>
+                    </div>
+                    <div class="graph-label">
+                        🟣 \(\operatorname{tg} x\) &nbsp;·&nbsp; 🟢 \(x\) &nbsp;·&nbsp; 🔴 Корни: \(0;\; 4.49;\; \ldots\)
+                    </div>
+                </div>
+
+                <span class="result">✅ Ответ: \(x = 0,\; x \approx 4.493,\; \pm 7.725,\; \ldots\)</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к главному меню</a>
+</div>
+
+<script>
+    // ===== ДАННЫЕ ДЛЯ ГРАФИКОВ =====
+    const graphData = [
+        {
+            funcs: [
+                { f: x => Math.pow(2, x), color: '#a78bfa', label: '2^x' },
+                { f: x => x * x, color: '#34d399', label: 'x²' }
+            ],
+            xMin: -2, xMax: 5, yMin: -2, yMax: 10,
+            intersections: [
+                { x: -0.77, y: 0.59, label: 'x ≈ -0.77' },
+                { x: 2, y: 4, label: 'x = 2' },
+                { x: 4, y: 16, label: 'x = 4' }
+            ],
+            tablePoints: [
+                { x: -2, y1: 0.25, y2: 4 },
+                { x: -1, y1: 0.5, y2: 1 },
+                { x: 0, y1: 1, y2: 0 },
+                { x: 1, y1: 2, y2: 1 },
+                { x: 2, y1: 4, y2: 4 },
+                { x: 3, y1: 8, y2: 9 },
+                { x: 4, y1: 16, y2: 16 }
+            ]
+        },
+        {
+            funcs: [
+                { f: x => Math.abs(x * x - 4), color: '#a78bfa', label: '|x²-4|' },
+                { f: x => 3 * x, color: '#34d399', label: '3x' }
+            ],
+            xMin: -1, xMax: 5, yMin: -1, yMax: 13,
+            intersections: [
+                { x: 1, y: 3, label: 'x = 1' },
+                { x: 4, y: 12, label: 'x = 4' }
+            ],
+            tablePoints: [
+                { x: 0, y1: 4, y2: 0 },
+                { x: 1, y1: 3, y2: 3 },
+                { x: 2, y1: 0, y2: 6 },
+                { x: 3, y1: 5, y2: 9 },
+                { x: 4, y1: 12, y2: 12 }
+            ]
+        },
+        {
+            funcs: [
+                { f: x => Math.log2(x), color: '#a78bfa', label: 'log₂x' },
+                { f: x => 2 - x, color: '#34d399', label: '2-x' }
+            ],
+            xMin: 0.1, xMax: 3, yMin: -0.5, yMax: 2.5,
+            intersections: [
+                { x: 1.53, y: 0.615, label: 'x ≈ 1.53' }
+            ],
+            tablePoints: [
+                { x: 0.5, y1: -1, y2: 1.5 },
+                { x: 1, y1: 0, y2: 1 },
+                { x: 1.5, y1: 0.585, y2: 0.5 },
+                { x: 2, y1: 1, y2: 0 },
+                { x: 2.5, y1: 1.322, y2: -0.5 }
+            ]
+        },
+        {
+            funcs: [
+                { f: x => Math.sin(x), color: '#a78bfa', label: 'sin x' },
+                { f: x => x / 2, color: '#34d399', label: 'x/2' }
+            ],
+            xMin: -3, xMax: 3, yMin: -1.5, yMax: 1.5,
+            intersections: [
+                { x: -1.895, y: -0.947, label: 'x ≈ -1.90' },
+                { x: 0, y: 0, label: 'x = 0' },
+                { x: 1.895, y: 0.947, label: 'x ≈ 1.90' }
+            ],
+            tablePoints: [
+                { x: -3, y1: -0.141, y2: -1.5 },
+                { x: -2, y1: -0.909, y2: -1 },
+                { x: -1, y1: -0.841, y2: -0.5 },
+                { x: 0, y1: 0, y2: 0 },
+                { x: 1, y1: 0.841, y2: 0.5 },
+                { x: 2, y1: 0.909, y2: 1 },
+                { x: 3, y1: 0.141, y2: 1.5 }
+            ]
+        },
+        {
+            funcs: [
+                { f: x => Math.cos(x), color: '#a78bfa', label: 'cos x' },
+                { f: x => x * x, color: '#34d399', label: 'x²' }
+            ],
+            xMin: -1.5, xMax: 1.5, yMin: -0.5, yMax: 1.5,
+            intersections: [
+                { x: -0.824, y: 0.679, label: 'x ≈ -0.824' },
+                { x: 0.824, y: 0.679, label: 'x ≈ 0.824' }
+            ],
+            tablePoints: [
+                { x: -1.5, y1: 0.0707, y2: 2.25 },
+                { x: -1, y1: 0.540, y2: 1 },
+                { x: -0.5, y1: 0.878, y2: 0.25 },
+                { x: 0, y1: 1, y2: 0 },
+                { x: 0.5, y1: 0.878, y2: 0.25 },
+                { x: 1, y1: 0.540, y2: 1 },
+                { x: 1.5, y1: 0.0707, y2: 2.25 }
+            ]
+        },
+        {
+            funcs: [
+                { f: x => Math.tan(x), color: '#a78bfa', label: 'tg x' },
+                { f: x => x, color: '#34d399', label: 'x' }
+            ],
+            xMin: -1, xMax: 5, yMin: -5, yMax: 5,
+            intersections: [
+                { x: 0, y: 0, label: 'x = 0' },
+                { x: 4.493, y: 4.493, label: 'x ≈ 4.49' }
+            ],
+            tablePoints: [
+                { x: -1, y1: -1.557, y2: -1 },
+                { x: 0, y1: 0, y2: 0 },
+                { x: 1, y1: 1.557, y2: 1 },
+                { x: 2, y1: -2.185, y2: 2 },
+                { x: 3, y1: -0.143, y2: 3 },
+                { x: 4, y1: 1.158, y2: 4 },
+                { x: 4.5, y1: 4.637, y2: 4.5 }
+            ]
+        }
+    ];
+
+    let animationId = null;
+
+    // ===== РИСОВАНИЕ ГРАФИКА С ПОЭТАПНОЙ АНИМАЦИЕЙ =====
+    function drawGraphAnimated(canvasId, dataIndex, progress) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 40;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+
+        const data = graphData[dataIndex];
+        const xMin = data.xMin, xMax = data.xMax;
+        const yMin = data.yMin, yMax = data.yMax;
+        const tablePoints = data.tablePoints || [];
+        const totalDuration = 10; // 10 секунд всего
+        const stageDuration = totalDuration / 5; // 2 секунды на этап
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        // Сетка
+        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+        ctx.lineWidth = 0.6;
+        const stepX = Math.ceil((xMax - xMin) / 8);
+        const stepY = Math.ceil((yMax - yMin) / 8);
+        for (let x = Math.ceil(xMin / stepX) * stepX; x <= xMax; x += stepX) {
+            if (Math.abs(x) < 0.01) continue;
+            const sx = toX(x);
+            ctx.beginPath();
+            ctx.moveTo(sx, pad);
+            ctx.lineTo(sx, h - pad);
+            ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(x.toFixed(1), sx, h - pad + 4);
+        }
+        for (let y = Math.ceil(yMin / stepY) * stepY; y <= yMax; y += stepY) {
+            if (Math.abs(y) < 0.01) continue;
+            const sy = toY(y);
+            ctx.beginPath();
+            ctx.moveTo(pad, sy);
+            ctx.lineTo(w - pad, sy);
+            ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(y.toFixed(1), pad - 8, sy);
+        }
+
+        // Оси
+        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 1.8;
+        const ox = toY(0), oy = toX(0);
+        if (ox >= pad && ox <= h - pad) {
+            ctx.beginPath();
+            ctx.moveTo(pad, ox);
+            ctx.lineTo(w - pad, ox);
+            ctx.stroke();
+        }
+        if (oy >= pad && oy <= w - pad) {
+            ctx.beginPath();
+            ctx.moveTo(oy, pad);
+            ctx.lineTo(oy, h - pad);
+            ctx.stroke();
+        }
+
+        // === ЭТАП 1: ТОЧКИ 1-Й ФУНКЦИИ (0-2 сек) ===
+        const stage1 = Math.min(Math.max((progress * totalDuration - 0) / 2, 0), 1);
+        const points1Count = Math.floor(tablePoints.length * stage1);
+
+        for (let i = 0; i < points1Count && i < tablePoints.length; i++) {
+            const p = tablePoints[i];
+            const yVal = p.y1;
+            if (yVal === undefined || !isFinite(yVal) || yVal < yMin - 0.5 || yVal > yMax + 0.5) continue;
+            const sx = toX(p.x), sy = toY(yVal);
+            ctx.fillStyle = '#a78bfa';
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            if (i > 0 && i < tablePoints.length - 1) {
+                ctx.fillStyle = '#a78bfa';
+                ctx.font = '8px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('(' + p.x + '; ' + yVal.toFixed(2) + ')', sx, sy - 6);
+            }
+        }
+
+        // === ЭТАП 2: КРИВАЯ 1-Й ФУНКЦИИ (2-4 сек) ===
+        const stage2 = Math.min(Math.max((progress * totalDuration - 2) / 2, 0), 1);
+        if (stage2 > 0) {
+            const fn = data.funcs[0];
+            ctx.strokeStyle = fn.color;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            let first = true;
+            const step = (xMax - xMin) / 600;
+            const drawLimit = xMin + (xMax - xMin) * stage2;
+            for (let x = xMin + 0.01; x <= drawLimit; x += step) {
+                let y;
+                try { y = fn.f(x); } catch (e) { first = true; continue; }
+                if (y === null || y === undefined || isNaN(y) || !isFinite(y) || y < yMin - 1 || y > yMax + 1) {
+                    first = true;
+                    continue;
+                }
+                const sx = toX(x), sy = toY(y);
+                if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+            }
+            ctx.stroke();
+            ctx.fillStyle = fn.color;
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            const labelX = xMin + (xMax - xMin) * 0.05;
+            try {
+                const labelY = fn.f(labelX + 0.5);
+                if (isFinite(labelY) && labelY > yMin && labelY < yMax) {
+                    ctx.fillText(fn.label, toX(labelX + 0.5) + 4, toY(labelY) - 4);
+                }
+            } catch (e) {}
+        }
+
+        // === ЭТАП 3: ТОЧКИ 2-Й ФУНКЦИИ (4-6 сек) ===
+        const stage3 = Math.min(Math.max((progress * totalDuration - 4) / 2, 0), 1);
+        const points2Count = Math.floor(tablePoints.length * stage3);
+
+        for (let i = 0; i < points2Count && i < tablePoints.length; i++) {
+            const p = tablePoints[i];
+            const yVal = p.y2;
+            if (yVal === undefined || !isFinite(yVal) || yVal < yMin - 0.5 || yVal > yMax + 0.5) continue;
+            const sx = toX(p.x), sy = toY(yVal);
+            ctx.fillStyle = '#34d399';
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            if (i > 0 && i < tablePoints.length - 1) {
+                ctx.fillStyle = '#34d399';
+                ctx.font = '8px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('(' + p.x + '; ' + yVal.toFixed(2) + ')', sx, sy - 6);
+            }
+        }
+
+        // === ЭТАП 4: КРИВАЯ 2-Й ФУНКЦИИ (6-8 сек) ===
+        const stage4 = Math.min(Math.max((progress * totalDuration - 6) / 2, 0), 1);
+        if (stage4 > 0) {
+            const fn = data.funcs[1];
+            ctx.strokeStyle = fn.color;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            let first = true;
+            const step = (xMax - xMin) / 600;
+            const drawLimit = xMin + (xMax - xMin) * stage4;
+            for (let x = xMin + 0.01; x <= drawLimit; x += step) {
+                let y;
+                try { y = fn.f(x); } catch (e) { first = true; continue; }
+                if (y === null || y === undefined || isNaN(y) || !isFinite(y) || y < yMin - 1 || y > yMax + 1) {
+                    first = true;
+                    continue;
+                }
+                const sx = toX(x), sy = toY(y);
+                if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+            }
+            ctx.stroke();
+            ctx.fillStyle = fn.color;
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            const labelX = xMin + (xMax - xMin) * 0.05;
+            try {
+                const labelY = fn.f(labelX + 0.5);
+                if (isFinite(labelY) && labelY > yMin && labelY < yMax) {
+                    ctx.fillText(fn.label, toX(labelX + 0.5) + 4, toY(labelY) - 4);
+                }
+            } catch (e) {}
+        }
+
+        // === ЭТАП 5: ТОЧКИ ПЕРЕСЕЧЕНИЯ (8-10 сек) ===
+        const stage5 = Math.min(Math.max((progress * totalDuration - 8) / 2, 0), 1);
+        if (stage5 > 0 && data.intersections) {
+            const interCount = Math.ceil(data.intersections.length * stage5);
+            for (let i = 0; i < interCount && i < data.intersections.length; i++) {
+                const p = data.intersections[i];
+                const sx = toX(p.x), sy = toY(p.y);
+                const scale = 0.8 + 0.2 * Math.sin(Date.now() / 300 + i);
+                ctx.fillStyle = '#f87171';
+                ctx.beginPath();
+                ctx.arc(sx, sy, 7 * scale, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(sx, sy, 7 * scale, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.fillStyle = '#f87171';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(p.label, sx + 12, sy - 6);
+                // Пунктирные линии к осям
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = '#f87171';
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(sx, sy);
+                ctx.lineTo(sx, toY(0));
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(sx, sy);
+                ctx.lineTo(toX(0), sy);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                ctx.setLineDash([]);
+            }
+        }
+    }
+
+    // ===== АНИМАЦИЯ =====
+    function animateGraph(canvasId, dataIndex) {
+        let progress = 0;
+        const duration = 10000; // 10 секунд
+        const startTime = Date.now();
+
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+
+        function stepAnim() {
+            const elapsed = Date.now() - startTime;
+            progress = Math.min(elapsed / duration, 1);
+            drawGraphAnimated(canvasId, dataIndex, progress);
+            if (progress < 1) {
+                animationId = requestAnimationFrame(stepAnim);
+            } else {
+                animationId = null;
+            }
+        }
+        stepAnim();
+    }
+
+    // ===== СБРОС =====
+    function resetGraph(canvasId, dataIndex) {
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+        drawGraphAnimated(canvasId, dataIndex, 0);
+    }
+
+    // ===== ЗАГРУЗКА ГРАФИКОВ =====
+    function drawAllGraphs() {
+        for (let i = 0; i < graphData.length; i++) {
+            drawGraphAnimated('graph' + (i + 1), i, 0);
+        }
+    }
+
+    // ===== ТЕМА =====
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        drawAllGraphs();
+        updateLegendColors();
+    }
+
+    function updateLegendColors() {
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const legend = document.querySelector('.legend');
+        if (legend) legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+        setTimeout(updateLegendColors, 100);
+        setTimeout(drawAllGraphs, 500);
+    })();
+
+    // ===== ИЗБРАННОЕ =====
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+
+    window.addEventListener('resize', () => { drawAllGraphs(); });
+</script>
+</body>
+</html>

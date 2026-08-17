@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>ФСУ и квадратный трёхчлен — справочник</title>
+    <title>ФСУ, квадратный трёхчлен и метод интервалов — справочник</title>
     <style>
         * {
             margin: 0;
@@ -16,59 +16,76 @@
             --card-bg: #1e3545;
             --text: #ffffff;
             --text-secondary: #8ba5b8;
+            --border: rgba(239, 68, 68, 0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #ef4444;
+            --example-bg: #162a38;
+            --formula-color: #fbbf24;
+            --result-color: #4ade80;
+            --danger-color: #f87171;
             --accent: #1abc9c;
-            --border: rgba(46, 204, 113, 0.1);
+            --warning-bg: rgba(251, 191, 36, 0.15);
+            --warning-border: #fbbf24;
             --header-bg: linear-gradient(135deg, #1e3545, #162a38);
-            --formula-card-bg: #1e3545;
-            --example-bg: #1e3545;
-            --example-border: #1abc9c;
-            --calc-bg: #1e3545;
-            --input-bg: #2c5a77;
+            --graph-bg: #243848;
         }
 
         :root.light-mode {
             --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
-            --card-bg: white;
+            --card-bg: #ffffff;
             --text: #1a2a3f;
             --text-secondary: #5a7a94;
-            --accent: #1abc9c;
             --border: #eff3f8;
-            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
-            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #ef4444;
             --example-bg: #f8fafc;
-            --example-border: #16a085;
-            --calc-bg: #f8fafc;
-            --input-bg: #e2e8f0;
+            --formula-color: #b45309;
+            --result-color: #059669;
+            --danger-color: #dc2626;
+            --accent: #1abc9c;
+            --warning-bg: #fffbeb;
+            --warning-border: #f59e0b;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --graph-bg: #f8fafc;
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
             background: var(--bg);
-            min-height: 100vh;
-            padding: 20px 12px 48px;
+            padding: 8px;
+            margin: 0;
+            transition: background 0.3s, color 0.3s;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 16px;
+            padding-top: 50px;
             position: relative;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s;
         }
 
         .theme-toggle {
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 40px;
-            height: 40px;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--card-bg);
             border: 1px solid var(--border);
             cursor: pointer;
-            font-size: 20px;
+            font-size: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
             transition: all 0.2s;
             z-index: 100;
             color: var(--text);
@@ -78,77 +95,101 @@
             transform: scale(1.1);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 24px;
-            padding: 20px 16px;
-            background: var(--header-bg);
-            border-radius: 32px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-            border: 1px solid rgba(0, 0, 0, 0.04);
+        .favorite-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .favorite-btn.active {
+            color: #facc15;
         }
 
         h1 {
-            font-size: 1.4rem;
-            font-weight: 700;
+            font-size: 1.5rem;
             color: var(--text);
-            margin-bottom: 6px;
-            word-wrap: break-word;
+            margin: 0 auto 16px auto;
+            padding-bottom: 8px;
+            border-bottom: 4px solid var(--special-border);
+            text-align: center;
+            transition: color 0.3s;
         }
 
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            font-weight: 500;
-            word-wrap: break-word;
-        }
-
-        .content-card {
-            background: var(--card-bg);
-            border-radius: 28px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08);
-            border: 1px solid var(--border);
-            padding: 16px 16px 20px;
-        }
-
-        /* Основные блоки */
         .section {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .section-title {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--text);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
-            border-left: 4px solid #e84393;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
             padding-left: 12px;
             cursor: pointer;
             user-select: none;
+            text-align: center;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .section-title .main-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .section-title .main-title::after {
+            content: "▼";
+            margin-left: auto;
+            font-size: 0.85rem;
+            transition: transform 0.3s;
+            color: var(--text-secondary);
+            position: absolute;
+            right: 12px;
+        }
+
+        .section.collapsed .section-title .main-title::after {
+            transform: rotate(-90deg);
+        }
+
+        .section-title .sub-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-style: italic;
         }
 
         .section-title:hover {
             opacity: 0.8;
         }
 
-        .section-title::after {
-            content: "▼";
-            margin-left: auto;
-            font-size: 0.9rem;
-            transition: transform 0.3s;
-            color: var(--text-secondary);
-        }
-
-        .section.collapsed .section-title::after {
-            transform: rotate(-90deg);
-        }
-
         .section-content {
-            max-height: 3000px;
+            max-height: 5000px;
             overflow: hidden;
             transition: max-height 0.4s ease;
         }
@@ -157,103 +198,288 @@
             max-height: 0;
         }
 
-        /* Сетка формул */
+        .formula-block {
+            background: var(--formula-bg);
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            margin: 10px 0;
+            border-left: 5px solid var(--special-border);
+            word-break: break-word;
+            overflow-x: auto;
+            line-height: 2.2;
+            color: var(--text);
+            text-align: justify;
+            transition: background 0.3s, color 0.3s;
+        }
+
         .formula-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
             margin-bottom: 16px;
         }
 
         .formula-card {
-            background: var(--formula-card-bg);
-            border-radius: 20px;
-            padding: 12px 8px;
+            background: var(--formula-bg);
+            border-left: 5px solid var(--accent);
+            padding: 14px 10px;
+            border-radius: 16px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-            border: 1px solid var(--border);
-            transition: transform 0.2s;
-            word-break: break-word;
-            overflow-x: auto;
+            transition: background 0.3s;
         }
 
         .formula-card p {
-            font-family: 'Times New Roman', 'Courier New', monospace;
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 600;
             color: var(--text);
             margin: 0;
-            word-break: break-word;
-            white-space: normal;
+            line-height: 1.6;
+            transition: color 0.3s;
         }
 
         .formula-card .small-text {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: normal;
             margin-top: 6px;
             color: var(--text-secondary);
         }
 
-        /* Примеры */
-        .example-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .example-item {
+        .example {
             background: var(--example-bg);
-            border-left: 4px solid var(--example-border);
-            border-radius: 16px;
-            padding: 12px 14px;
-            transition: 0.2s;
-            word-break: break-word;
-            overflow-x: auto;
-        }
-
-        .example-title {
-            font-weight: 700;
-            color: #0e6655;
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            border-left: 5px solid var(--special-border);
             font-size: 0.95rem;
-            margin-bottom: 8px;
-        }
-
-        .example-formula {
-            font-family: 'Times New Roman', 'Courier New', monospace;
-            font-size: 0.95rem;
-            font-weight: 600;
+            line-height: 2.0;
             color: var(--text);
-            word-break: break-word;
-            line-height: 1.6;
+            text-align: left;
+            transition: background 0.3s, color 0.3s;
         }
 
-        .example-formula .step {
-            color: #2c5a77;
-            font-weight: 600;
-        }
-
-        .example-formula .result {
-            background: #d1fae5;
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 10px;
-            color: #065f46;
+        .example .step {
             font-weight: 700;
-            white-space: normal;
-            word-break: break-word;
+            color: var(--danger-color);
+            margin-top: 12px;
+            margin-bottom: 4px;
+            transition: color 0.3s;
         }
 
-        /* Калькулятор квадратных уравнений */
+        .example .result {
+            margin-top: 10px;
+            font-weight: 600;
+            color: var(--result-color);
+            transition: color 0.3s;
+        }
+
+        .example .formula-highlight {
+            color: var(--formula-color);
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .example .danger-text {
+            color: var(--danger-color);
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+        .example .white-text {
+            color: var(--text);
+            transition: color 0.3s;
+        }
+
+        p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text);
+            text-align: justify;
+            transition: color 0.3s;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin: 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text);
+            text-align: justify;
+            transition: color 0.3s;
+        }
+
+        .important {
+            background: var(--warning-bg);
+            border-left: 4px solid var(--warning-border);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            color: var(--text);
+            text-align: justify;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .important strong {
+            color: var(--warning-border);
+            transition: color 0.3s;
+        }
+
+        .warning-text {
+            color: var(--warning-border);
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin: 16px 0 8px;
+            padding: 10px 20px;
+            background: var(--special-border);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: #dc2626;
+        }
+
+        mjx-container {
+            font-size: 1em !important;
+            overflow-x: auto !important;
+            max-width: 100% !important;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 12px;
+                padding-top: 44px;
+            }
+            h1 {
+                font-size: 1.25rem;
+            }
+            .section-title {
+                font-size: 1rem;
+            }
+            .example {
+                padding: 12px 14px;
+            }
+            .formula-grid {
+                grid-template-columns: 1fr;
+            }
+            .formula-card p {
+                font-size: 0.95rem;
+            }
+        }
+
+        .interval-canvas-container {
+            background: var(--graph-bg);
+            border-radius: 12px;
+            margin: 10px 0;
+            padding: 6px;
+            border: 1px solid var(--border);
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .interval-canvas-container canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .interval-canvas-container canvas.interval-plot {
+            aspect-ratio: 650 / 140;
+            min-height: 120px;
+        }
+
+        .interval-canvas-container canvas.parabola-plot {
+            aspect-ratio: 650 / 200;
+            min-height: 160px;
+        }
+
+        .inline-block {
+            display: block;
+            background: var(--formula-bg);
+            border-radius: 8px;
+            padding: 6px 14px;
+            margin: 6px 0;
+            width: 100%;
+            text-align: justify;
+            transition: background 0.3s;
+        }
+
+        .plus {
+            color: #27ae60;
+            font-weight: 700;
+        }
+
+        .minus {
+            color: #e74c3c;
+            font-weight: 700;
+        }
+
+        .interval-card {
+            background: var(--warning-bg);
+            border-left: 4px solid var(--warning-border);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin: 6px 0;
+            transition: background 0.3s;
+        }
+
+        .interval-card .rule {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.8;
+            text-align: justify;
+            transition: color 0.3s;
+        }
+
+        .interval-algorithm {
+            list-style: none;
+            counter-reset: step;
+            padding: 0;
+            margin: 8px 0;
+        }
+
+        .interval-algorithm li {
+            counter-increment: step;
+            padding-left: 30px;
+            position: relative;
+            margin-bottom: 6px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text);
+            text-align: justify;
+            transition: color 0.3s;
+        }
+
+        .interval-algorithm li::before {
+            content: counter(step) ".";
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+            color: var(--special-border);
+            transition: color 0.3s;
+        }
+
         .calc-card {
             margin: 20px 0;
-            background: var(--calc-bg);
+            background: var(--info-bg);
             border-radius: 24px;
             padding: 16px;
             border: 1px solid var(--border);
+            transition: background 0.3s;
         }
 
         .calc-title {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 700;
             color: var(--text);
             margin-bottom: 12px;
@@ -262,25 +488,19 @@
             gap: 8px;
             border-left: 4px solid var(--accent);
             padding-left: 12px;
+            transition: color 0.3s;
         }
 
         .calc-formula {
-            background: var(--formula-card-bg);
+            background: var(--formula-bg);
             padding: 10px;
             border-radius: 16px;
             text-align: center;
             margin-bottom: 16px;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             color: var(--text);
             overflow-x: auto;
-            white-space: nowrap;
-        }
-
-        @media (max-width: 550px) {
-            .calc-formula {
-                white-space: normal;
-                word-break: break-word;
-            }
+            transition: background 0.3s, color 0.3s;
         }
 
         .calc-inputs {
@@ -299,21 +519,23 @@
         .calc-input label {
             display: block;
             color: var(--text-secondary);
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             margin-bottom: 4px;
             text-align: center;
+            transition: color 0.3s;
         }
 
         .calc-input input {
             width: 100%;
-            padding: 10px;
-            background: var(--input-bg);
+            padding: 12px;
+            background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 16px;
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--text);
             text-align: center;
             outline: none;
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
         }
 
         .calc-btn {
@@ -322,9 +544,9 @@
             background: var(--accent);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 14px;
             border-radius: 40px;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
@@ -336,212 +558,215 @@
         }
 
         .calc-result {
-            background: var(--formula-card-bg);
+            background: var(--formula-bg);
             border-radius: 16px;
             padding: 12px;
             text-align: center;
+            transition: background 0.3s;
         }
 
         .result-disc {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
             margin-bottom: 6px;
+            transition: color 0.3s;
         }
 
         .result-disc-value {
             color: #f39c12;
             font-weight: 700;
-            font-size: 0.95rem;
         }
 
         .result-roots {
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--text);
-            word-break: break-word;
+            transition: color 0.3s;
         }
 
-        .result-error {
-            color: #e74c3c;
-            font-size: 0.85rem;
-        }
-
-        /* Тест */
-        .test-section {
+        .test-link-section {
             margin-top: 20px;
             text-align: center;
+            padding: 20px 16px;
+            background: var(--warning-bg);
+            border-radius: 20px;
+            border: 2px dashed var(--warning-border);
+            transition: background 0.3s, border-color 0.3s;
         }
 
-        .test-btn {
-            background: linear-gradient(135deg, #1a2d3c, #2c5a77);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s;
-        }
-
-        .test-container {
-            margin-top: 20px;
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 16px;
-            border: 1px solid var(--border);
-            text-align: left;
-        }
-
-        .question {
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border);
-            word-break: break-word;
-            overflow-x: auto;
-        }
-
-        .question p {
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .options label {
+        .test-link-section .test-icon {
+            font-size: 2rem;
             display: block;
-            padding: 8px 12px;
-            background: var(--formula-card-bg);
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: all 0.15s;
-            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .test-link-section h3 {
             color: var(--text);
-            word-break: break-word;
+            font-size: 1.15rem;
+            margin-bottom: 4px;
+            transition: color 0.3s;
         }
 
-        .test-submit {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
+        .test-link-section p {
+            color: var(--text-secondary);
             font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 12px;
-            width: 100%;
+            margin-bottom: 14px;
+            transition: color 0.3s;
         }
 
-        .back-link {
+        .btn-test-link {
             display: inline-block;
-            margin-top: 24px;
-            padding: 10px 24px;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            padding: 14px 40px;
+            background: var(--accent);
             color: white;
             text-decoration: none;
             border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(26, 188, 156, 0.3);
+        }
+
+        .btn-test-link:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(26, 188, 156, 0.4);
+        }
+
+        .btn-test-link:active {
+            transform: scale(0.97);
+        }
+
+        .importance-banner {
+            background: var(--warning-bg);
+            border-left: 4px solid var(--warning-border);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .importance-banner .title {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+            transition: color 0.3s;
+        }
+
+        .importance-banner .title .warning-text {
+            color: var(--warning-border);
+        }
+
+        .importance-banner p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+            text-align: justify;
+            transition: color 0.3s;
+        }
+
+        .importance-banner .list-topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .importance-banner .topic-tag {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        .importance-banner .topic-tag strong {
+            color: var(--text);
+            transition: color 0.3s;
+        }
+
+        .importance-banner .highlight {
+            color: var(--warning-border);
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+        .text-center {
             text-align: center;
         }
 
-        .back-link:hover {
-            transform: translateY(-2px);
+        .formula-grid-center .formula-card {
+            text-align: center;
         }
+        /* Мигание подсветки для кнопки */
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 10px rgba(26, 188, 156, 0.2);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 30px 10px rgba(26, 188, 156, 0.6);
+        border-color: rgba(255, 255, 255, 0.9);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(26, 188, 156, 0.2);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+}
 
-        /* Анимация */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+/* Адаптация для светлой темы */
+:root.light-mode .btn-test-link {
+    animation: glow-light 2s ease-in-out infinite;
+}
 
-        .header {
-            animation: fadeInUp 0.4s ease-out;
-        }
-
-        .content-card {
-            animation: fadeInUp 0.4s ease-out 0.05s backwards;
-        }
-
-        /* Медиа-запросы для очень маленьких экранов */
-        @media (max-width: 550px) {
-            body {
-                padding: 12px 8px 32px;
-            }
-
-            h1 {
-                font-size: 1.2rem;
-            }
-
-            .content-card {
-                padding: 12px 12px 16px;
-            }
-
-            .formula-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-
-            .formula-card p {
-                font-size: 0.9rem;
-                white-space: normal;
-            }
-
-            .example-formula {
-                font-size: 0.85rem;
-                white-space: normal;
-            }
-
-            .calc-inputs {
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-
-            .calc-input {
-                min-width: 80px;
-            }
-
-            .section-title {
-                font-size: 1rem;
-            }
-        }
-    
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
+@keyframes glow-light {
+    0% {
+        box-shadow: 0 0 10px rgba(26, 42, 63, 0.1);
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 30px 10px rgba(26, 42, 63, 0.3);
+        border-color: rgba(0, 0, 0, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(26, 42, 63, 0.1);
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+    /* Мигание для предупреждения */
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+}
     </style>
     <script>
         MathJax = {
             tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                inlineMath: [
+                    ['$', '$'],
+                    ['\\(', '\\)']
+                ],
+                displayMath: [
+                    ['$$', '$$'],
+                    ['\\[', '\\]']
+                ],
                 processEscapes: true
             },
             chtml: {
-                scale: 1.05,
+                scale: 1.0,
                 displayAlign: 'center'
             },
-            startup: {
-                ready: () => {
-                    MathJax.startup.defaultReady();
-                }
+            options: {
+                ignoreHtmlClass: 'no-mathjax',
+                processHtmlClass: 'math'
             }
         };
     </script>
@@ -549,180 +774,358 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
 
-    <div class="header">
-        <h1>Формулы сокращённого умножения и квадратный трёхчлен</h1>
-        <div class="subtitle">ФСУ, дискриминант, теорема Виета, разложение на множители</div>
+    <h1>ФСУ, квадратный трёхчлен и метод интервалов</h1>
+
+    <!-- БАННЕР С ПРЕДУПРЕЖДЕНИЕМ -->
+    <div class="importance-banner" style="background: transparent; border-left: 4px solid #ef4444; padding: 16px 20px; margin-bottom: 20px;">
+        <div class="title" style="font-weight: 700; color: var(--text); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+            <span style="color: #ef4444; font-weight: 700;">Это — база для всего курса алгебры!</span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin: 0; text-align: justify;">
+            <strong>Формулы сокращённого умножения</strong>, <strong>квадратные уравнения</strong>
+            и <strong>метод интервалов</strong> — это фундамент, без которого <span style="color: #ef4444; font-weight: 700;">невозможно</span>
+            решать большинство задач по алгебре и математическому анализу.
+        </p>
+        <div class="list-topics" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;">
+            <!-- ===== БАЗОВЫЕ ТЕМЫ (8 класс) ===== -->
+            <a href="рациональные-уравнения.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Рациональные уравнения</strong></a>
+            <a href="рациональные-неравенства.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Рациональные неравенства</strong></a>
+
+            <!-- ===== ИРРАЦИОНАЛЬНЫЕ (10-11 класс) ===== -->
+            <a href="иррациональные-уравнения.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Иррациональные уравнения</strong></a>
+            <a href="иррациональные-неравенства.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Иррациональные неравенства</strong></a>
+
+            <!-- ===== ПОКАЗАТЕЛЬНЫЕ (10 класс) ===== -->
+            <a href="показательные-уравнения.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Показательные уравнения</strong></a>
+            <a href="показательные-неравенства.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Показательные неравенства</strong></a>
+
+            <!-- ===== ЛОГАРИФМИЧЕСКИЕ (10-11 класс) ===== -->
+            <a href="логарифмические-уравнения.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Логарифмические уравнения</strong></a>
+            <a href="логарифмические-неравенства.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Логарифмические неравенства</strong></a>
+
+            <!-- ===== ТРИГОНОМЕТРИЧЕСКИЕ (10-11 класс) ===== -->
+            <a href="тригонометрические-уравнения-сводящиеся-к-алгебраическим.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Тригонометрические уравнения</strong></a>
+            <a href="тригонометрические-неравенства.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Тригонометрические неравенства</strong></a>
+
+            <!-- ===== ИССЛЕДОВАНИЕ (10-11 класс) ===== -->
+            <a href="исследование-функции.html" class="topic-tag" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s;"> <strong>Исследование функции</strong></a>
+
+            <!-- ===== УГЛУБЛЁННЫЕ ТЕМЫ (11 класс / подготовка к ЕГЭ) ===== -->
+            <span class="topic-tag"> <strong>Уравнения с параметром</strong></span>
+            <span class="topic-tag"> <strong>Неравенства с параметром</strong></span>
+            <span class="topic-tag"> <strong>Уравнения с модулем</strong></span>
+            <span class="topic-tag"> <strong>Неравенства с модулем</strong></span>
+        </div>
+        <p style="margin-top: 10px; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; text-align: justify;">
+            <span style="color: #ef4444; font-weight: 700; animation: blink 1.2s ease-in-out infinite; display: inline-block;">⚡ Если вы не уверены в этих темах — остановитесь и выучите их!</span>
+            В старшей школе и на 1–2 курсе СПО они используются <span style="color: var(--warning-border); font-weight: 700;">на каждом шагу</span>.
+        </p>
     </div>
-    <div class="content-card">
-        <div class="section section-fsu">
-            <div class="section-title" onclick="toggleSection(this)">Сокращённое умножение</div>
-            <div class="section-content">
-                <div class="formula-grid">
-                    <div class="formula-card"><p>\((a+b)^2 = a^2 + 2ab + b^2\)</p></div>
-                    <div class="formula-card"><p>\((a-b)^2 = a^2 - 2ab + b^2\)</p></div>
-                    <div class="formula-card"><p>\((a+b)(a-b) = a^2 - b^2\)</p></div>
-                    <div class="formula-card"><p>\((a+b)^3 = a^3 + 3a^2b + 3ab^2 + b^3\)</p></div>
-                    <div class="formula-card"><p>\((a-b)^3 = a^3 - 3a^2b + 3ab^2 - b^3\)</p></div>
-                </div>
-            </div>
-        </div>
-        <div class="section section-quadratic collapsed">
-            <div class="section-title" onclick="toggleSection(this)">Квадратный трёхчлен</div>
-            <div class="section-content">
-                <div class="formula-grid">
-                    <div class="formula-card"><p>\(ax^2 + bx + c = 0 \quad (a \neq 0)\)</p><p>\(D = b^2 - 4ac\)</p><p>\(x_{1,2} = \dfrac{-b \pm \sqrt{D}}{2a}\)</p></div>
-                    <div class="formula-card"><p><strong>Разложение:</strong></p><p>\(ax^2 + bx + c = a(x - x_1)(x - x_2)\)</p><p class="small-text">где \(x_1, x_2\) — корни</p></div>
-                </div>
-            </div>
-        </div>
-        <div class="section section-vieta collapsed">
-            <div class="section-title" onclick="toggleSection(this)">Теорема Виета</div>
-            <div class="section-content">
-                <div class="formula-grid">
-                    <div class="formula-card"><p>Для \(x^2 + px + q = 0\):</p><p>\(x_1 + x_2 = -p\)</p><p>\(x_1 \cdot x_2 = q\)</p></div>
-                    <div class="formula-card"><p>Для \(ax^2 + bx + c = 0\):</p><p>\(x_1 + x_2 = -\dfrac{b}{a}\)</p><p>\(x_1 \cdot x_2 = \dfrac{c}{a}\)</p></div>
-                </div>
-            </div>
-        </div>
-        <div class="section section-examples collapsed">
-            <div class="section-title" onclick="toggleSection(this)">Примеры</div>
-            <div class="section-content">
-                <div class="example-grid">
-                    <div class="example-item">
-                        <div class="example-title">Пример 1 (квадрат суммы):</div>
-                        <div class="example-formula">
-                            Дано: \((2x + 3)^2\)<br><br>
-                            <span class="step">Используем формулу:</span> \((a+b)^2 = a^2 + 2ab + b^2\), где \(a = 2x\), \(b = 3\).<br><br>
-                            \((2x + 3)^2 = (2x)^2 + 2\cdot(2x)\cdot 3 + 3^2 =\)<br>
-                            \(= 4x^2 + 12x + 9\)<br><br>
-                            <span class="result">Ответ: \(4x^2 + 12x + 9\)</span>
-                        </div>
-                    </div>
-                    <div class="example-item">
-                        <div class="example-title">Пример 2 (разность квадратов):</div>
-                        <div class="example-formula">
-                            Дано: \((5 - y)(5 + y)\)<br><br>
-                            <span class="step">Используем формулу:</span> \((a-b)(a+b) = a^2 - b^2\), где \(a = 5\), \(b = y\).<br><br>
-                            \((5 - y)(5 + y) = 5^2 - y^2 = 25 - y^2\)<br><br>
-                            <span class="result">Ответ: \(25 - y^2\)</span>
-                        </div>
-                    </div>
-                    <div class="example-item">
-                        <div class="example-title">Пример 3 (решение квадратного уравнения):</div>
-                        <div class="example-formula">
-                            Дано уравнение: \(x^2 - 5x + 6 = 0\)<br><br>
-                            <span class="step">Шаг 1.</span> Найдём дискриминант:<br>
-                            \(D = (-5)^2 - 4\cdot 1\cdot 6 = 25 - 24 = 1\)<br><br>
-                            <span class="step">Шаг 2.</span> Найдём корни по формуле:<br>
-                            \(x_{1,2} = \dfrac{5 \pm \sqrt{1}}{2}\)<br><br>
-                            \(x_1 = \dfrac{5 + 1}{2} = \dfrac{6}{2} = 3\)<br>
-                            \(x_2 = \dfrac{5 - 1}{2} = \dfrac{4}{2} = 2\)<br><br>
-                            <span class="result">Ответ: \(x_1 = 3,\; x_2 = 2\)</span>
-                        </div>
-                    </div>
-                    <div class="example-item">
-                        <div class="example-title">Пример 4 (теорема Виета):</div>
-                        <div class="example-formula">
-                            Дано уравнение: \(x^2 - 7x + 12 = 0\)<br><br>
-                            <span class="step">По теореме Виета:</span><br>
-                            \(x_1 + x_2 = 7\)<br>
-                            \(x_1 \cdot x_2 = 12\)<br><br>
-                            Подбираем числа, которые в сумме дают 7, а в произведении 12:<br>
-                            Это числа 3 и 4.<br><br>
-                            <span class="step">Проверка:</span><br>
-                            \(3 + 4 = 7\) ✓<br>
-                            \(3 \cdot 4 = 12\) ✓<br><br>
-                            <span class="result">Ответ: \(x_1 = 3,\; x_2 = 4\)</span>
-                        </div>
-                    </div>
-                    <div class="example-item">
-                        <div class="example-title">Пример 5 (разложение на множители):</div>
-                        <div class="example-formula">
-                            Разложить на множители: \(2x^2 - 2x - 4\)<br><br>
-                            <span class="step">Шаг 1.</span> Сократим на 2:<br>
-                            \(x^2 - x - 2 = 0\)<br><br>
-                            <span class="step">Шаг 2.</span> Найдём дискриминант:<br>
-                            \(D = (-1)^2 - 4\cdot 1\cdot (-2) = 1 + 8 = 9\)<br><br>
-                            <span class="step">Шаг 3.</span> Найдём корни:<br>
-                            \(x_1 = \dfrac{1 + 3}{2} = 2\)<br>
-                            \(x_2 = \dfrac{1 - 3}{2} = -1\)<br><br>
-                            <span class="step">Шаг 4.</span> Подставляем в формулу разложения:<br>
-                            \(2x^2 - 2x - 4 = 2(x - 2)(x - (-1)) = 2(x - 2)(x + 1)\)<br><br>
-                            <span class="result">Ответ: \(2(x - 2)(x + 1)\)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- КАЛЬКУЛЯТОР КВАДРАТНЫХ УРАВНЕНИЙ -->
-        <div class="calc-card">
-            <div class="calc-title">🧮 Калькулятор квадратных уравнений</div>
-            <div class="calc-formula">
-                $$ax^2 + bx + c = 0$$
-            </div>
-            <div class="calc-inputs">
-                <div class="calc-input">
-                    <label>Коэффициент a</label>
-                    <input type="number" id="calc_a" placeholder="например, 1" step="any">
+    <!-- ФСУ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Формулы сокращённого умножения</span>
+            <span class="sub-title">базовые формулы для преобразования выражений</span>
+        </div>
+        <div class="section-content">
+            <div style="text-align: center !important; width: 100%; padding: 10px 0;">
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \((a+b)^2 = a^2 + 2ab + b^2\)
                 </div>
-                <div class="calc-input">
-                    <label>Коэффициент b</label>
-                    <input type="number" id="calc_b" placeholder="например, -5" step="any">
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \((a-b)^2 = a^2 - 2ab + b^2\)
                 </div>
-                <div class="calc-input">
-                    <label>Коэффициент c</label>
-                    <input type="number" id="calc_c" placeholder="например, 6" step="any">
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \((a+b)(a-b) = a^2 - b^2\)
                 </div>
-            </div>
-            <button class="calc-btn" onclick="solveQuadraticCalc()">РЕШИТЬ</button>
-            <div id="calc_result" class="calc-result">
-                <div class="result-disc">Дискриминант: <span id="calc_disc" class="result-disc-value">—</span></div>
-                <div id="calc_roots" class="result-roots">Введите коэффициенты</div>
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \((a+b)^3 = a^3 + 3a^2b + 3ab^2 + b^3\)
+                </div>
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \((a-b)^3 = a^3 - 3a^2b + 3ab^2 - b^3\)
+                </div>
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \(a^3 + b^3 = (a+b)(a^2 - ab + b^2)\)
+                </div>
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \(a^3 - b^3 = (a-b)(a^2 + ab + b^2)\)
+                </div>
             </div>
         </div>
-
-        <div class="test-section">
-            <button class="test-btn" onclick="startTest()">ПРОВЕРИТЬ ЗНАНИЯ</button>
-            <div id="testContainer" class="test-container" style="display:none;"></div>
-        </div>
-        <a href="index.html" class="back-link">← Назад к меню</a>
     </div>
+
+    <!-- Квадратный трёхчлен -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Квадратный трёхчлен</span>
+            <span class="sub-title">решение квадратных уравнений и разложение на множители</span>
+        </div>
+        <div class="section-content">
+            <div style="text-align: center !important; width: 100%; padding: 10px 0;">
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \(\textcolor{red}{a}x^2 + \textcolor{#fbbf24}{b}x + \textcolor{#fbbf24}{c} = 0 \quad (\textcolor{red}{a} \neq 0)\)
+                </div>
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \(D = \textcolor{#fbbf24}{b}^2 - 4\textcolor{red}{a}\textcolor{#fbbf24}{c}\)
+                </div>
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \(x_{1,2} = \dfrac{-\textcolor{#fbbf24}{b} \pm \sqrt{D}}{2\textcolor{red}{a}}\)
+                </div>
+                <hr style="border: 1px solid var(--border); margin: 16px 0;">
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    <strong>Разложение на множители:</strong>
+                </div>
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    \(\textcolor{red}{a}x^2 + \textcolor{#fbbf24}{b}x + \textcolor{#fbbf24}{c} = \textcolor{red}{a}(x - x_1)(x - x_2)\)
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-secondary); margin: 4px 0; text-align: center !important;">
+                    где \(x_1, x_2\) — корни
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <<!-- Теорема Виета -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Теорема Виета</span>
+            <span class="sub-title">связь корней и коэффициентов</span>
+        </div>
+        <div class="section-content">
+            <div style="text-align: center !important; width: 100%; padding: 10px 0;">
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    Для \(x^2 + \textcolor{#fbbf24}{p}x + \textcolor{#fbbf24}{q} = 0\):<br>
+                    \(x_1 + x_2 = -\textcolor{#fbbf24}{p}, \quad x_1 \cdot x_2 = \textcolor{#fbbf24}{q}\)
+                </div>
+                <div style="font-size: 1.1rem; line-height: 2.4; color: var(--text); margin: 8px 0; text-align: center !important;">
+                    Для \(\textcolor{red}{a}x^2 + \textcolor{#fbbf24}{b}x + \textcolor{#fbbf24}{c} = 0\):<br>
+                    \(x_1 + x_2 = -\dfrac{\textcolor{#fbbf24}{b}}{\textcolor{red}{a}}, \quad x_1 \cdot x_2 = \dfrac{\textcolor{#fbbf24}{c}}{\textcolor{red}{a}}\)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Метод интервалов -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Метод интервалов</span>
+            <span class="sub-title">решение неравенств с помощью знаков функции</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>📌 Для чего нужен:</strong> решение неравенств вида
+                \(f(x) > 0\), \(f(x) < 0\), \(f(x) \geq 0\), \(f(x) \leq 0\).
+            </div>
+
+            <!-- Алгоритм метода интервалов -->
+            <div class="important">
+                <strong>📋 Алгоритм:</strong><br>
+                <span class="warning-text">1.</span> Найти нули функции — решить уравнение <span style="color: var(--danger-color, #f87171); font-weight: 700;">\(f(x) = 0\)</span>.<br>
+                <span class="warning-text">2.</span> Отметить нули на числовой прямой <span style="color: var(--danger-color, #f87171); font-weight: 700;">(с учётом ОДЗ)</span>.<br>
+                <span class="warning-text">3.</span> Определить знак \(f(x)\) на каждом промежутке.<br>
+                <span class="warning-text">4.</span> Выбрать промежутки с нужным знаком и записать ответ.
+            </div>
+
+            <!-- ПРИМЕР 1 -->
+            <div class="example">
+                <strong>📊 Пример 1:</strong> Решить неравенство \((x-2)(x+3) > 0\).<br><br>
+                <span class="step">Шаг 1.</span> Находим нули функции: \((x-2)(x+3) = 0\), \(x = 2\) или \(x = -3\).<br><br>
+                <span class="step">Шаг 2.</span> Отмечаем нули на числовой прямой. Они разбивают прямую на три промежутка: \((-\infty; -3)\), \((-3; 2)\), \((2; +\infty)\).<br><br>
+                <span class="step">Шаг 3.</span> Определяем знак \(f(x)\) на каждом промежутке. Берём произвольное число из каждого промежутка и подставляем в \(f(x) = (x-2)(x+3)\):
+
+                <div class="interval-canvas-container">
+                    <canvas id="intervalExample1" class="interval-plot" width="650" height="140"></canvas>
+                </div>
+
+                ▶ Промежуток \((-\infty; -3)\): возьмём \(x = -4\). \(f(-4) = (-4-2)(-4+3) = 6 > 0\) → <span class="plus">знак +</span><br>
+                ▶ Промежуток \((-3; 2)\): возьмём \(x = 0\). \(f(0) = (0-2)(0+3) = -6 < 0\) → <span class="minus">знак −</span><br>
+                ▶ Промежуток \((2; +\infty)\): возьмём \(x = 3\). \(f(3) = (3-2)(3+3) = 6 > 0\) → <span class="plus">знак +</span><br><br>
+
+                <span class="step">Шаг 4.</span> Нам нужно \(f(x) > 0\) (строго больше нуля). Выбираем промежутки со знаком <span class="plus">+</span>: <span class="result">Ответ: \(x \in (-\infty; -3) \cup (2; +\infty)\)</span>
+                <div style="margin-top:6px;font-size:0.85rem;color:var(--text-secondary);">💡 Неравенство строгое (\(>\)) — корни <span class="danger-text">не входят</span> в ответ.</div>
+            </div>
+
+            <!-- ПРИМЕР 2 -->
+            <div class="example" style="margin-top:12px;">
+                <strong>📊 Пример 2:</strong> Решить неравенство \(x^2 - 5x + 6 \leq 0\).<br><br>
+                <span class="step">Шаг 1.</span> Находим корни квадратного трёхчлена: \(x^2 - 5x + 6 = 0\). \(D = 1\), \(x_1 = 3\), \(x_2 = 2\).<br><br>
+                <span class="step">Шаг 2.</span> Определяем знаки на промежутках. Парабола ветвями вверх (\(a = 1 > 0\)).
+
+                <div class="interval-canvas-container">
+                    <canvas id="parabolaUp" class="parabola-plot" width="650" height="200"></canvas>
+                </div>
+
+                <strong>📌 Правило:</strong> \(a > 0\) (ветви вверх) → знаки: <span class="plus">+</span> <span class="minus">−</span> <span class="plus">+</span><br>
+                ▶ Промежуток \((-\infty; 2)\): <span class="plus">знак +</span><br>
+                ▶ Промежуток \((2; 3)\): <span class="minus">знак −</span><br>
+                ▶ Промежуток \((3; +\infty)\): <span class="plus">знак +</span><br><br>
+
+                <span class="step">Шаг 3.</span> Нам нужно \(f(x) \leq 0\). Выбираем промежутки со знаком <span class="minus">−</span>, <span class="danger-text">включая корни</span>: <span class="result">Ответ: \(x \in [2; 3]\)</span>
+            </div>
+
+            <!-- ПРИМЕР 3 -->
+            <div class="example" style="margin-top:12px;">
+                <strong>📊 Пример 3:</strong> Решить неравенство \(-x^2 + 4x - 3 \geq 0\).<br><br>
+                <span class="step">Шаг 1.</span> Находим корни: \(-x^2 + 4x - 3 = 0\) → \(x^2 - 4x + 3 = 0\) → \((x-1)(x-3) = 0\), \(x_1 = 1\), \(x_2 = 3\).<br><br>
+                <span class="step">Шаг 2.</span> Определяем знаки на промежутках. <span class="danger-text">Исходная парабола ветвями вниз (\(a = -1 < 0\)).</span>
+
+                <div class="interval-canvas-container">
+                    <canvas id="parabolaDown" class="parabola-plot" width="650" height="200"></canvas>
+                </div>
+
+                <strong>📌 Правило:</strong> \(a < 0\) (ветви вниз) → знаки: <span class="minus">−</span> <span class="plus">+</span> <span class="minus">−</span><br>
+                ▶ Промежуток \((-\infty; 1)\): <span class="minus">знак −</span><br>
+                ▶ Промежуток \((1; 3)\): <span class="plus">знак +</span><br>
+                ▶ Промежуток \((3; +\infty)\): <span class="minus">знак −</span><br><br>
+
+                <span class="step">Шаг 3.</span> Нам нужно \(f(x) \geq 0\). Выбираем промежутки со знаком <span class="plus">+</span>, <span class="danger-text">включая корни</span>: <span class="result">Ответ: \(x \in [1; 3]\)</span>
+                <div style="margin-top:6px;font-size:0.85rem;color:var(--text-secondary);">💡 Неравенство нестрогое (\(\geq\)) — корни <span class="danger-text">входят</span> в ответ.</div>
+            </div>
+
+            <div class="important">
+                <span class="warning-text">⚠️ Важные правила:</span><br>
+                • Если неравенство <span style="color: #ef4444; font-weight: 700;">строгое</span> (<span style="color: #ef4444; font-weight: 700;">&gt;</span>, <span style="color: #ef4444; font-weight: 700;">&lt;</span>) — корни <span style="color: #ef4444; font-weight: 700;">не входят</span> в ответ. Скобки <span style="color: #ef4444; font-weight: 700;">( )</span> — точки <span style="color: #ef4444; font-weight: 700;">выколотые</span>.<br>
+                • Если неравенство <span style="color: #ef4444; font-weight: 700;">нестрогое</span> (<span style="color: #ef4444; font-weight: 700;">≥</span>, <span style="color: #ef4444; font-weight: 700;">≤</span>) — корни <span style="color: #ef4444; font-weight: 700;">входят</span> в ответ. Скобки <span style="color: #ef4444; font-weight: 700;">[ ]</span> — точки <span style="color: #ef4444; font-weight: 700;">закрашенные</span>.<br>
+                • Если функция <span style="color: #ef4444; font-weight: 700;">дробная</span> — дополнительно исключаем точки, где знаменатель равен нулю.<br>
+                • Если <span style="color: #ef4444; font-weight: 700;">\(a > 0\)</span> (ветви вверх) → знаки: <span class="plus">+</span> <span class="minus">−</span> <span class="plus">+</span><br>
+                • Если <span style="color: #ef4444; font-weight: 700;">\(a < 0\)</span> (ветви вниз) → знаки: <span class="minus">−</span> <span class="plus">+</span> <span class="minus">−</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Примеры с подробным решением (ФСУ и квадратный трёхчлен) -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📚 Примеры с подробным решением</span>
+            <span class="sub-title">ФСУ и квадратный трёхчлен</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>📌 Пример 1.</strong> Квадрат суммы<br><br>
+                <span class="white-text">Дано: </span><span class="white-text">\((2x + 3)^2\).</span><br>
+                <span class="white-text">Используем формулу </span><span class="formula-highlight">\((a+b)^2 = a^2 + 2ab + b^2\)</span><span class="white-text">, где \(a = 2x\), \(b = 3\).</span><br>
+                <span class="white-text">\((2x + 3)^2 = (2x)^2 + 2\cdot(2x)\cdot 3 + 3^2 = 4x^2 + 12x + 9\).</span><br>
+                <span class="result">Ответ: \(4x^2 + 12x + 9\)</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>📌 Пример 2.</strong> Разность квадратов<br><br>
+                <span class="white-text">Дано: </span><span class="white-text">\((5 - y)(5 + y)\).</span><br>
+                <span class="white-text">Используем формулу </span><span class="formula-highlight">\((a-b)(a+b) = a^2 - b^2\)</span><span class="white-text">, где \(a = 5\), \(b = y\).</span><br>
+                <span class="white-text">\((5 - y)(5 + y) = 25 - y^2\).</span><br>
+                <span class="result">Ответ: \(25 - y^2\)</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>📌 Пример 3.</strong> Решение квадратного уравнения<br><br>
+                <span class="white-text">Дано уравнение: </span><span class="white-text">\(x^2 - 5x + 6 = 0\).</span><br>
+                <span class="white-text">\(D = (-5)^2 - 4\cdot1\cdot6 = 1\).</span><br>
+                <span class="white-text">\(x_{1,2} = \dfrac{5 \pm \sqrt{1}}{2}\) → \(x_1 = 3\), \(x_2 = 2\).</span><br>
+                <span class="result">Ответ: \(x_1 = 3,\; x_2 = 2\)</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>📌 Пример 4.</strong> Теорема Виета<br><br>
+                <span class="white-text">Дано уравнение: </span><span class="white-text">\(x^2 - 7x + 12 = 0\).</span><br>
+                <span class="white-text">По теореме Виета: \(x_1 + x_2 = 7\), \(x_1 \cdot x_2 = 12\) → \(x_1 = 3\), \(x_2 = 4\).</span><br>
+                <span class="result">Ответ: \(x_1 = 3,\; x_2 = 4\)</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>📌 Пример 5.</strong> Разложение на множители<br><br>
+                <span class="white-text">Разложить на множители: </span><span class="white-text">\(2x^2 - 2x - 4\).</span><br>
+                <span class="white-text">Используем формулу </span><span class="formula-highlight">\(ax^2 + bx + c = a(x - x_1)(x - x_2)\)</span><span class="white-text">, где \(x_1, x_2\) — корни.</span><br>
+                <span class="white-text">\(2x^2 - 2x - 4 = 2(x^2 - x - 2)\).</span><br>
+                <span class="white-text">\(x^2 - x - 2 = 0\) → \(D = 9\), \(x_1 = 2\), \(x_2 = -1\).</span><br>
+                <span class="white-text">\(2x^2 - 2x - 4 = 2(x-2)(x+1)\).</span><br>
+                <span class="result">Ответ: \(2(x-2)(x+1)\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Калькулятор -->
+    <div class="calc-card">
+        <div class="calc-title">🧮 Калькулятор квадратных уравнений</div>
+        <div class="calc-formula">
+            $$ax^2 + bx + c = 0$$
+        </div>
+        <div class="calc-inputs">
+            <div class="calc-input">
+                <label>Коэффициент a</label>
+                <input type="number" id="calc_a" placeholder="например, 1" step="any">
+            </div>
+            <div class="calc-input">
+                <label>Коэффициент b</label>
+                <input type="number" id="calc_b" placeholder="например, -5" step="any">
+            </div>
+            <div class="calc-input">
+                <label>Коэффициент c</label>
+                <input type="number" id="calc_c" placeholder="например, 6" step="any">
+            </div>
+        </div>
+        <button class="calc-btn" onclick="solveQuadraticCalc()">РЕШИТЬ</button>
+        <div id="calc_result" class="calc-result">
+            <div class="result-disc">Дискриминант: <span id="calc_disc" class="result-disc-value">—</span></div>
+            <div id="calc_roots" class="result-roots">Введите коэффициенты</div>
+        </div>
+    </div>
+
+    <!-- Кнопка к тесту -->
+    <div class="test-link-section" style="background: transparent; border: 2px dashed var(--border);">
+        <h3>Проверьте свои знания!</h3>
+        <p>Более 200 вопросов по ФСУ, квадратным уравнениям и методу интервалов</p>
+        <a href="test-formulas.html" class="btn-test-link" style="
+        display: inline-block;
+        padding: 14px 40px;
+        border-radius: 40px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.3s;
+        background: var(--button-bg, #1abc9c);
+        color: var(--button-text, #ffffff);
+        border: 2px solid var(--button-border, transparent);
+        animation: glow 2s ease-in-out infinite;
+        box-shadow: 0 0 15px rgba(26, 188, 156, 0.3);
+    ">ПЕРЕЙТИ К ТЕСТУ →</a>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
 </div>
+
 <script>
-    function toggleSection(el) {
-        el.closest('.section').classList.toggle('collapsed');
+    function toggleTheme() {
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        if (window.MathJax) MathJax.typesetPromise();
+        setTimeout(drawAllIntervalPlots, 400);
     }
 
     (function() {
-        var t = localStorage.getItem('mathTheme');
-        if (t === 'light') {
+        if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            var b = document.getElementById('themeBtn');
-            if (b) b.textContent = '☀️';
+            document.getElementById('themeBtn').textContent = '☀️';
         }
     })();
 
-    function toggleTheme() {
-        var h = document.documentElement;
-        var b = document.getElementById('themeBtn');
-        if (h.classList.contains('light-mode')) {
-            h.classList.remove('light-mode');
-            localStorage.setItem('mathTheme', 'dark');
-            if (b) b.textContent = '🌙';
-        } else {
-            h.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            if (b) b.textContent = '☀️';
-        }
-    }
-
+    // Калькулятор
     function solveQuadraticCalc() {
-        let a = parseFloat(document.getElementById('calc_a').value);
-        let b = parseFloat(document.getElementById('calc_b').value);
-        let c = parseFloat(document.getElementById('calc_c').value);
+        var a = parseFloat(document.getElementById('calc_a').value);
+        var b = parseFloat(document.getElementById('calc_b').value);
+        var c = parseFloat(document.getElementById('calc_c').value);
 
         if (isNaN(a) || isNaN(b) || isNaN(c)) {
             document.getElementById('calc_disc').innerHTML = '—';
@@ -736,132 +1139,391 @@
             return;
         }
 
-        let D = b * b - 4 * a * c;
+        var D = b * b - 4 * a * c;
         document.getElementById('calc_disc').innerHTML = D;
 
         if (D < 0) {
             document.getElementById('calc_roots').innerHTML = '❌ Нет действительных корней (D < 0)';
         } else if (D === 0) {
-            let x = (-b) / (2 * a);
+            var x = (-b) / (2 * a);
             x = parseFloat(x.toFixed(10));
-            document.getElementById('calc_roots').innerHTML = `x = ${x}`;
+            document.getElementById('calc_roots').innerHTML = 'x = ' + x;
         } else {
-            let sqrtD = Math.sqrt(D);
-            let x1 = (-b + sqrtD) / (2 * a);
-            let x2 = (-b - sqrtD) / (2 * a);
+            var sqrtD = Math.sqrt(D);
+            var x1 = (-b + sqrtD) / (2 * a);
+            var x2 = (-b - sqrtD) / (2 * a);
             x1 = parseFloat(x1.toFixed(10));
             x2 = parseFloat(x2.toFixed(10));
-            document.getElementById('calc_roots').innerHTML = `x₁ = ${x1}<br>x₂ = ${x2}`;
+            document.getElementById('calc_roots').innerHTML = 'x₁ = ' + x1 + '<br>x₂ = ' + x2;
         }
     }
 
-    document.querySelectorAll('#calc_a, #calc_b, #calc_c').forEach(input => {
-        input.addEventListener('keypress', (e) => {
+    document.querySelectorAll('#calc_a, #calc_b, #calc_c').forEach(function(input) {
+        input.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') solveQuadraticCalc();
         });
     });
 
-    const questionBank = [
-        { question: "\\( (a+b)^2 = ? \\)", options: ["\\( a^2 + b^2 \\)", "\\( a^2 + 2ab + b^2 \\)", "\\( a^2 - 2ab + b^2 \\)", "\\( a^2 + ab + b^2 \\)"], correct: 1 },
-        { question: "\\( (a-b)^2 = ? \\)", options: ["\\( a^2 - b^2 \\)", "\\( a^2 + 2ab - b^2 \\)", "\\( a^2 - 2ab + b^2 \\)", "\\( a^2 - ab + b^2 \\)"], correct: 2 },
-        { question: "\\( (a+b)(a-b) = ? \\)", options: ["\\( a^2 + b^2 \\)", "\\( a^2 - b^2 \\)", "\\( a^2 + 2ab + b^2 \\)", "\\( (a-b)^2 \\)"], correct: 1 },
-        { question: "\\( (a+b)^3 = ? \\)", options: ["\\( a^3 + b^3 \\)", "\\( a^3 + 3a^2b + 3ab^2 + b^3 \\)", "\\( a^3 + 3a^2b - 3ab^2 + b^3 \\)", "\\( a^3 + a^2b + ab^2 + b^3 \\)"], correct: 1 },
-        { question: "Дискриминант \\( ax^2+bx+c=0 \\):", options: ["\\( D = b^2 - 4ac \\)", "\\( D = b^2 + 4ac \\)", "\\( D = 4ac - b^2 \\)", "\\( D = a^2 - 4bc \\)"], correct: 0 },
-        { question: "Корни квадратного уравнения:", options: ["\\( x = -b/2a \\)", "\\( x = (-b \\pm \\sqrt{D})/2a \\)", "\\( x = (-b \\pm D)/2a \\)", "\\( x = b/(2a) \\pm \\sqrt{D} \\)"], correct: 1 },
-        { question: "Теорема Виета для \\( x^2+px+q=0 \\):", options: ["\\( x_1+x_2=p,\\; x_1x_2=q \\)", "\\( x_1+x_2=-p,\\; x_1x_2=q \\)", "\\( x_1+x_2=p,\\; x_1x_2=-q \\)", "\\( x_1+x_2=-p,\\; x_1x_2=-q \\)"], correct: 1 },
-        { question: "Теорема Виета для \\( ax^2+bx+c=0 \\):", options: ["\\( x_1+x_2=b/a,\\; x_1x_2=c/a \\)", "\\( x_1+x_2=-b/a,\\; x_1x_2=c/a \\)", "\\( x_1+x_2=b/a,\\; x_1x_2=-c/a \\)", "\\( x_1+x_2=-b/a,\\; x_1x_2=-c/a \\)"], correct: 1 },
-        { question: "Разложение \\( ax^2+bx+c \\) на множители:", options: ["\\( a(x+x_1)(x+x_2) \\)", "\\( a(x-x_1)(x-x_2) \\)", "\\( (x-x_1)(x-x_2) \\)", "\\( a(x-x_1)(x+x_2) \\)"], correct: 1 },
-        { question: "\\( (a-b)^3 = ? \\)", options: ["\\( a^3 - b^3 \\)", "\\( a^3 - 3a^2b + 3ab^2 - b^3 \\)", "\\( a^3 - 3a^2b - 3ab^2 + b^3 \\)", "\\( a^3 - a^2b + ab^2 - b^3 \\)"], correct: 1 },
-        { question: "\\( (x+5)^2 \\) чему равно?", options: ["\\( x^2 + 25 \\)", "\\( x^2 + 10x + 25 \\)", "\\( x^2 - 10x + 25 \\)", "\\( x^2 + 5x + 25 \\)"], correct: 1 },
-        { question: "\\( (3x-2)^2 \\) раскрывается как:", options: ["\\( 9x^2 - 4 \\)", "\\( 9x^2 + 12x + 4 \\)", "\\( 9x^2 - 12x + 4 \\)", "\\( 3x^2 - 12x + 4 \\)"], correct: 2 },
-        { question: "\\( (2a+3b)(2a-3b) = ? \\)", options: ["\\( 4a^2 - 9b^2 \\)", "\\( 4a^2 + 9b^2 \\)", "\\( 2a^2 - 3b^2 \\)", "\\( 4a^2 - 6ab + 9b^2 \\)"], correct: 0 },
-        { question: "Сумма кубов \\( a^3 + b^3 \\) равна:", options: ["\\( (a+b)(a^2 - ab + b^2) \\)", "\\( (a-b)(a^2 + ab + b^2) \\)", "\\( (a+b)^3 \\)", "\\( (a+b)(a^2 - 2ab + b^2) \\)"], correct: 0 },
-        { question: "Разность кубов \\( a^3 - b^3 \\) равна:", options: ["\\( (a-b)(a^2 + ab + b^2) \\)", "\\( (a+b)(a^2 - ab + b^2) \\)", "\\( (a-b)^3 \\)", "\\( (a-b)(a^2 - ab + b^2) \\)"], correct: 0 },
-        { question: "Если дискриминант D < 0, то уравнение:", options: ["Имеет 2 корня", "Имеет 1 корень", "Не имеет действительных корней", "Имеет бесконечно много корней"], correct: 2 },
-        { question: "Если D = 0, то корень вычисляется по формуле:", options: ["\\( x = -b/a \\)", "\\( x = -b/(2a) \\)", "\\( x = b/(2a) \\)", "\\( x = \\sqrt{D}/(2a) \\)"], correct: 1 },
-        { question: "Чему равен дискриминант уравнения \\( 2x^2 - 8x + 8 = 0 \\)?", options: ["0", "64", "-64", "32"], correct: 0 },
-        { question: "Сколько корней имеет уравнение \\( 3x^2 - 5x + 7 = 0 \\)?", options: ["2", "1", "0", "3"], correct: 2 },
-        { question: "Найдите сумму корней уравнения \\( x^2 - 9x + 20 = 0 \\):", options: ["-9", "9", "20", "-20"], correct: 1 },
-        { question: "Найдите произведение корней уравнения \\( x^2 - 11x + 28 = 0 \\):", options: ["-11", "11", "28", "-28"], correct: 2 },
-        { question: "\\( (\\sqrt{a} + \\sqrt{b})^2 = ? \\)", options: ["\\( a + b \\)", "\\( a + b + 2\\sqrt{ab} \\)", "\\( a + b - 2\\sqrt{ab} \\)", "\\( a + b + \\sqrt{ab} \\)"], correct: 1 },
-        { question: "\\( (\\sqrt{x} - 1)(\\sqrt{x} + 1) = ? \\)", options: ["\\( x + 1 \\)", "\\( x - 1 \\)", "\\( \\sqrt{x^2 - 1} \\)", "\\( x - 2\\sqrt{x} + 1 \\)"], correct: 1 },
-        { question: "\\( (a+b+c)^2 \\) при раскрытии содержит слагаемых:", options: ["4", "6", "8", "9"], correct: 1 },
-        { question: "В уравнении \\( 4x^2 - 12x + 9 = 0 \\) корень равен:", options: ["3", "-3", "1.5", "-1.5"], correct: 2 },
-        { question: "\\( (a-1)(a^2 + a + 1) = ? \\)", options: ["\\( a^3 - 3a^2 + 3a - 1 \\)", "\\( a^3 - 1 \\)", "\\( a^3 + 1 \\)", "\\( a^3 + 3a^2 + 3a + 1 \\)"], correct: 1 },
-        { question: "\\( (x+2)(x^2 - 2x + 4) = ? \\)", options: ["\\( x^3 - 8 \\)", "\\( x^3 + 8 \\)", "\\( x^3 + 4x^2 + 8x + 8 \\)", "\\( x^3 - 4x^2 + 8x - 8 \\)"], correct: 1 },
-        { question: "Если \\( x_1 = 4 \\) и \\( x_2 = -3 \\), то уравнение приведённое:", options: ["\\( x^2 - x - 12 = 0 \\)", "\\( x^2 + x - 12 = 0 \\)", "\\( x^2 - 7x + 12 = 0 \\)", "\\( x^2 + 7x + 12 = 0 \\)"], correct: 0 },
-        { question: "Для какого уравнения сумма корней равна 5, а произведение 6?", options: ["\\( x^2 + 5x + 6 = 0 \\)", "\\( x^2 - 5x + 6 = 0 \\)", "\\( x^2 + 5x - 6 = 0 \\)", "\\( x^2 - 5x - 6 = 0 \\)"], correct: 1 },
-        { question: "\\( (-a - b)^2 = ? \\)", options: ["\\( -(a+b)^2 \\)", "\\( a^2 - 2ab + b^2 \\)", "\\( a^2 + 2ab + b^2 \\)", "\\( -a^2 - 2ab - b^2 \\)"], correct: 2 }
-    ];
+    // Отрисовка графиков
+    function drawAllIntervalPlots() {
+        var isLight = document.documentElement.classList.contains('light-mode');
 
-    let currentQuestions = [];
+        var colors = {
+            axis: isLight ? '#5a7a94' : '#8ba5b8',
+            text: isLight ? '#1a2a3f' : '#ffffff',
+            bg: isLight ? '#f8fafc' : '#162a38',
+            grid: isLight ? 'rgba(26,42,63,0.1)' : 'rgba(139,165,184,0.2)',
+            plus: isLight ? '#059669' : '#34d399',
+            minus: isLight ? '#dc2626' : '#f87171',
+            dot: isLight ? '#1a2a3f' : '#ffffff',
+            intervalLabel: isLight ? '#334155' : '#cbd5e1',
+            curve: '#1abc9c',
+            point: '#e67e22',
+            fillPlus: isLight ? 'rgba(5,150,105,0.15)' : 'rgba(52,211,153,0.15)',
+            fillMinus: isLight ? 'rgba(220,38,38,0.15)' : 'rgba(248,113,113,0.15)',
+            curvePlus: isLight ? '#2563eb' : '#60a5fa',
+            curveMinus: isLight ? '#dc2626' : '#f87171',
+            curvePlusFill: isLight ? 'rgba(37,99,235,0.15)' : 'rgba(96,165,250,0.15)',
+            curveMinusFill: isLight ? 'rgba(220,38,38,0.15)' : 'rgba(248,113,113,0.15)'
+        };
 
-    function shuffleArray(arr) {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
+        var canvas1 = document.getElementById('intervalExample1');
+        if (canvas1) {
+            var parentWidth = canvas1.parentElement.clientWidth - 8;
+            if (parentWidth < 100) parentWidth = 600;
+            var h1 = parentWidth * 140 / 650;
+            canvas1.width = 650;
+            canvas1.height = 140;
+            canvas1.style.width = parentWidth + 'px';
+            canvas1.style.height = h1 + 'px';
+
+            var ctx1 = canvas1.getContext('2d');
+            var W1 = 650,
+                H1 = 140;
+            ctx1.clearRect(0, 0, W1, H1);
+            ctx1.fillStyle = colors.bg;
+            ctx1.fillRect(0, 0, W1, H1);
+
+            var yAxis = 70;
+
+            ctx1.strokeStyle = colors.axis;
+            ctx1.lineWidth = 2;
+            ctx1.beginPath();
+            ctx1.moveTo(25, yAxis);
+            ctx1.lineTo(W1 - 25, yAxis);
+            ctx1.stroke();
+            ctx1.beginPath();
+            ctx1.moveTo(W1 - 25, yAxis);
+            ctx1.lineTo(W1 - 35, yAxis - 5);
+            ctx1.lineTo(W1 - 35, yAxis + 5);
+            ctx1.closePath();
+            ctx1.fillStyle = colors.axis;
+            ctx1.fill();
+            ctx1.fillStyle = colors.text;
+            ctx1.font = '14px Inter,sans-serif';
+            ctx1.textAlign = 'center';
+            ctx1.textBaseline = 'top';
+            ctx1.fillText('x', W1 - 20, yAxis + 4);
+
+            var points = ['-3', '2'];
+            var signs = ['+', '-', '+'];
+            var intervals = ['(−∞; −3)', '(−3; 2)', '(2; +∞)'];
+            var xPos = [];
+            var sp = (W1 - 50) / (points.length + 1);
+            for (var i = 0; i < points.length; i++) {
+                var x = 25 + (i + 1) * sp;
+                xPos.push(x);
+                ctx1.strokeStyle = colors.axis;
+                ctx1.lineWidth = 2;
+                ctx1.beginPath();
+                ctx1.moveTo(x, yAxis - 5);
+                ctx1.lineTo(x, yAxis + 5);
+                ctx1.stroke();
+                ctx1.fillStyle = colors.bg;
+                ctx1.beginPath();
+                ctx1.arc(x, yAxis, 5, 0, Math.PI * 2);
+                ctx1.fill();
+                ctx1.strokeStyle = colors.axis;
+                ctx1.lineWidth = 1.5;
+                ctx1.stroke();
+                ctx1.fillStyle = colors.text;
+                ctx1.font = 'bold 14px Inter,sans-serif';
+                ctx1.textAlign = 'center';
+                ctx1.textBaseline = 'top';
+                ctx1.fillText(points[i], x, yAxis + 9);
+            }
+
+            var amp = 30;
+            for (var si = 0; si < signs.length; si++) {
+                var xStart = (si === 0) ? 25 : xPos[si - 1];
+                var xEnd = (si === signs.length - 1) ? W1 - 25 : xPos[si];
+                var isPlus = (signs[si] === '+');
+                ctx1.beginPath();
+                ctx1.strokeStyle = isPlus ? colors.curvePlus : colors.curveMinus;
+                ctx1.lineWidth = 3;
+                ctx1.fillStyle = isPlus ? colors.curvePlusFill : colors.curveMinusFill;
+                for (var t = 0; t <= 1; t += 0.01) {
+                    var xx = xStart + t * (xEnd - xStart);
+                    var yy = yAxis - amp * Math.sin(t * Math.PI);
+                    if (t === 0) ctx1.moveTo(xx, yy);
+                    else ctx1.lineTo(xx, yy);
+                }
+                ctx1.lineTo(xEnd, yAxis);
+                ctx1.lineTo(xStart, yAxis);
+                ctx1.closePath();
+                ctx1.fill();
+                ctx1.stroke();
+
+                var mid = (xStart + xEnd) / 2;
+                ctx1.fillStyle = isPlus ? colors.plus : colors.minus;
+                ctx1.font = 'bold 26px Inter,sans-serif';
+                ctx1.textAlign = 'center';
+                ctx1.textBaseline = 'middle';
+                ctx1.fillText(signs[si], mid, yAxis - amp / 2 + 2);
+
+                ctx1.fillStyle = colors.intervalLabel;
+                ctx1.font = '12px Inter,sans-serif';
+                ctx1.textBaseline = 'top';
+                ctx1.textAlign = 'center';
+                ctx1.fillText(intervals[si], mid, yAxis + 16);
+            }
+
+            ctx1.setLineDash([4, 5]);
+            ctx1.strokeStyle = colors.intervalLabel;
+            ctx1.lineWidth = 1.5;
+            ctx1.globalAlpha = 0.3;
+            for (var pi = 0; pi < xPos.length; pi++) {
+                ctx1.beginPath();
+                ctx1.moveTo(xPos[pi], 10);
+                ctx1.lineTo(xPos[pi], yAxis - 4);
+                ctx1.stroke();
+            }
+            ctx1.globalAlpha = 1;
+            ctx1.setLineDash([]);
         }
-        return arr;
+
+        function drawParabola(canvasId, roots, a, yMin, yMax) {
+            var canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            var parentWidth = canvas.parentElement.clientWidth - 8;
+            if (parentWidth < 100) parentWidth = 600;
+            var h = parentWidth * 200 / 650;
+            canvas.width = 650;
+            canvas.height = 200;
+            canvas.style.width = parentWidth + 'px';
+            canvas.style.height = h + 'px';
+
+            var ctx = canvas.getContext('2d');
+            var W = 650,
+                H = 200;
+
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, W, H);
+
+            var pad = 40;
+            var xMin = roots[0] - 1.5;
+            var xMax = roots[roots.length - 1] + 1.5;
+            var yMinActual = yMin || -1.5;
+            var yMaxActual = yMax || 3;
+
+            var xScale = (W - 2 * pad) / (xMax - xMin);
+            var yScale = (H - 2 * pad) / (yMaxActual - yMinActual);
+
+            function toX(x) { return pad + (x - xMin) * xScale; }
+
+            function toY(y) { return pad + (yMaxActual - y) * yScale; }
+
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 0.8;
+            for (var x = Math.ceil(xMin); x <= xMax; x++) {
+                if (Math.abs(x) < 0.01) continue;
+                var xc = toX(x);
+                ctx.beginPath();
+                ctx.moveTo(xc, pad);
+                ctx.lineTo(xc, H - pad);
+                ctx.stroke();
+                ctx.fillStyle = colors.text;
+                ctx.font = '11px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(x.toString(), xc, H - pad + 4);
+            }
+            for (var y = Math.ceil(yMinActual); y <= yMaxActual; y++) {
+                if (Math.abs(y) < 0.01) continue;
+                var yc = toY(y);
+                ctx.beginPath();
+                ctx.moveTo(pad, yc);
+                ctx.lineTo(W - pad, yc);
+                ctx.stroke();
+                ctx.fillStyle = colors.text;
+                ctx.font = '11px Inter,sans-serif';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(y.toString(), pad - 6, yc);
+            }
+
+            ctx.strokeStyle = colors.axis;
+            ctx.lineWidth = 2;
+            var y0 = toY(0);
+            if (y0 >= pad && y0 <= H - pad) {
+                ctx.beginPath();
+                ctx.moveTo(pad, y0);
+                ctx.lineTo(W - pad, y0);
+                ctx.stroke();
+            }
+            var x0 = toX(0);
+            if (x0 >= pad && x0 <= W - pad) {
+                ctx.beginPath();
+                ctx.moveTo(x0, pad);
+                ctx.lineTo(x0, H - pad);
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = colors.text;
+            ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('x', W - pad - 4, y0 - 4);
+            ctx.fillText('y', x0 + 6, pad + 10);
+            if (x0 >= pad && x0 <= W - pad && y0 >= pad && y0 <= H - pad) {
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'top';
+                ctx.fillText('0', x0 - 4, y0 + 3);
+            }
+
+            for (var ri = 0; ri < roots.length; ri++) {
+                var rx = toX(roots[ri]);
+                ctx.fillStyle = colors.point;
+                ctx.beginPath();
+                ctx.arc(rx, y0, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = colors.axis;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                ctx.fillStyle = colors.text;
+                ctx.font = 'bold 12px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(roots[ri].toString(), rx, y0 + 8);
+            }
+
+            ctx.shadowColor = 'rgba(26,188,156,0.2)';
+            ctx.shadowBlur = 4;
+            ctx.strokeStyle = colors.curve;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            var first = true;
+            var steps = 200;
+            for (var i = 0; i <= steps; i++) {
+                var t = i / steps;
+                var xVal = xMin + t * (xMax - xMin);
+                var yVal = a;
+                for (var j = 0; j < roots.length; j++) {
+                    yVal *= (xVal - roots[j]);
+                }
+                var xc2 = toX(xVal),
+                    yc2 = toY(yVal);
+                if (yc2 < pad - 20 || yc2 > H - pad + 20) { first = true; continue; }
+                if (first) { ctx.moveTo(xc2, yc2);
+                    first = false; } else ctx.lineTo(xc2, yc2);
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            for (var ri2 = 0; ri2 < roots.length + 1; ri2++) {
+                var xStart2 = (ri2 === 0) ? xMin : roots[ri2 - 1];
+                var xEnd2 = (ri2 === roots.length) ? xMax : roots[ri2];
+                var midX = (xStart2 + xEnd2) / 2;
+                var yMid = a;
+                for (var j2 = 0; j2 < roots.length; j2++) {
+                    yMid *= (midX - roots[j2]);
+                }
+                var isPlus2 = (yMid > 0);
+                var xStartPx = toX(xStart2);
+                var xEndPx = toX(xEnd2);
+                if (xEndPx - xStartPx < 2) continue;
+
+                ctx.beginPath();
+                ctx.fillStyle = isPlus2 ? colors.fillPlus : colors.fillMinus;
+                ctx.fillRect(xStartPx, pad, xEndPx - xStartPx, H - 2 * pad);
+
+                var midPx = (xStartPx + xEndPx) / 2;
+                ctx.fillStyle = isPlus2 ? colors.plus : colors.minus;
+                ctx.font = 'bold 22px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(isPlus2 ? ' + ' : ' − ', midPx, y0 + 20);
+
+                ctx.font = '10px Inter,sans-serif';
+                ctx.fillStyle = colors.text;
+                ctx.textBaseline = 'top';
+                var labelText = isPlus2 ? 'f(x) > 0' : 'f(x) < 0';
+                ctx.fillText(labelText, midPx, y0 + 40);
+            }
+        }
+
+        drawParabola('parabolaUp', [2, 3], 1, -1.5, 3.5);
+        drawParabola('parabolaDown', [1, 3], -1, -3, 1.5);
     }
 
-    function startTest() {
-        const shuffledBank = shuffleArray([...questionBank]);
-        const selectedQuestions = shuffledBank.slice(0, 5);
-        currentQuestions = selectedQuestions.map(q => {
-            const opts = q.options.map((o, i) => ({ text: o, idx: i }));
-            const shOpts = shuffleArray([...opts]);
-            const newCorrect = shOpts.findIndex(o => o.idx === q.correct);
-            return {
-                question: q.question,
-                options: shOpts.map(o => o.text),
-                correct: newCorrect
-            };
-        });
-        let html = `<h3>Тест по ФСУ и квадратному трёхчлену</h3><div class="test-info">5 случайных вопросов из 30</div><div id="questions"></div><button class="test-submit" onclick="checkAnswers()">ПРОВЕРИТЬ ОТВЕТЫ</button><div id="testResult" class="test-result"></div>`;
-        document.getElementById('testContainer').innerHTML = html;
-        document.getElementById('testContainer').style.display = 'block';
-        renderQuestions();
+    setTimeout(function() {
+        drawAllIntervalPlots();
         if (window.MathJax) MathJax.typesetPromise();
+    }, 600);
+
+    window.addEventListener('resize', drawAllIntervalPlots);
+    var observer = new MutationObserver(function() {
+        drawAllIntervalPlots();
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    // Избранное
+    var FAV_KEY = 'math_favorites';
+
+    function getFavorites() {
+        var s = localStorage.getItem(FAV_KEY);
+        return s ? JSON.parse(s) : [];
     }
 
-    function renderQuestions() {
-        let html = '';
-        currentQuestions.forEach((q, idx) => {
-            html += `<div class="question"><p>${idx + 1}. ${q.question}</p><div class="options">`;
-            q.options.forEach((opt, optIdx) => html += `<label><input type="radio" name="q${idx}" value="${optIdx}"> ${opt}</label>`);
-            html += `</div></div>`;
-        });
-        document.getElementById('questions').innerHTML = html;
-        if (window.MathJax) MathJax.typesetPromise();
+    function saveFavorites(f) {
+        localStorage.setItem(FAV_KEY, JSON.stringify(f));
     }
 
-    function checkAnswers() {
-        let correctCount = 0;
-        currentQuestions.forEach((q, idx) => {
-            const sel = document.querySelector(`input[name="q${idx}"]:checked`);
-            if (sel && parseInt(sel.value) === q.correct) correctCount++;
-        });
-        const pct = correctCount / currentQuestions.length * 100;
-        let msg = '', cls = '';
-        if (pct >= 80) {
-            msg = `Отлично! ${correctCount}/${currentQuestions.length}`;
-            cls = 'excellent';
-        } else if (pct >= 50) {
-            msg = `Хорошо! ${correctCount}/${currentQuestions.length}`;
-            cls = 'good';
+    function isFavorite() {
+        var u = window.location.pathname.split('/').pop();
+        return getFavorites().includes(u);
+    }
+
+    function toggleFavorite() {
+        var u = window.location.pathname.split('/').pop();
+        var f = getFavorites();
+        var btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(function(x) { return x !== u; });
+            btn.textContent = '☆';
+            btn.classList.remove('active');
         } else {
-            msg = `${correctCount}/${currentQuestions.length}. Повторите!`;
-            cls = 'poor';
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
         }
-        const rd = document.getElementById('testResult');
-        rd.innerHTML = msg;
-        rd.className = `test-result ${cls}`;
-        setTimeout(() => {
-            document.getElementById('testContainer').style.display = 'none';
-        }, 2000);
+        saveFavorites(f);
     }
-</script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+    function updateFavoriteBtn() {
+        var btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+</script>
 </body>
 </html>

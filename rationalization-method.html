@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Метод рационализации — метод решения</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --method-card: rgba(139,92,246,0.08);
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --method-card: rgba(124,58,237,0.06);
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .method-card {
+            background: var(--method-card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border-left: 4px solid var(--special-border);
+        }
+        .method-card .method-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .method-card .method-name .badge {
+            background: var(--special-border);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .method-card .algorithm {
+            margin: 8px 0 4px 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+        .method-card .algorithm li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 20px;
+        }
+        .method-card .algorithm li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--special-border);
+            font-weight: 700;
+        }
+
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .danger { color: #f87171; font-weight: 600; }
+        .example-no-border .success { color: #34d399; font-weight: 600; }
+        .example-no-border .highlight { color: #fbbf24; font-weight: 600; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        .formula-box {
+            background: var(--formula-bg);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 8px 0;
+            text-align: center;
+            font-size: 1.05rem;
+            color: var(--text);
+            border-left: 3px solid var(--special-border);
+        }
+
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .method-card { padding: 12px 14px; }
+            mjx-container { font-size: 1em !important; }
+        }
+    </style>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>🧮 Метод рационализации</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое метод рационализации?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Метод рационализации</strong> — это способ решения показательных и логарифмических неравенств, при котором сложные выражения заменяются на более простые, но с тем же знаком.</p>
+            <div class="important">
+                <strong>🎯 Главная идея:</strong> Вместо того чтобы решать неравенство с логарифмами или показателями, мы превращаем его в <span style="color: #fbbf24; font-weight: 700;">обычное алгебраическое неравенство</span>, которое решается методом интервалов.
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📋 Основные формулы рационализации</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-box">
+                <strong>Показательные неравенства:</strong><br>
+                \(a^{f(x)} > a^{g(x)} \iff (a-1)(f(x)-g(x)) > 0\)
+            </div>
+            <div class="formula-box">
+                <strong>Логарифмические неравенства:</strong><br>
+                \(\log_a f(x) > \log_a g(x) \iff (a-1)(f(x)-g(x)) > 0\)
+            </div>
+            <div class="formula-box">
+                <strong>Общий случай (произведение):</strong><br>
+                \(\log_a f(x) > b \iff (a-1)(f(x)-a^b) > 0\)
+            </div>
+            <div class="important">
+                <strong>📌 Важно:</strong> Метод работает только при \(a > 0\), \(a \neq 1\).<br>
+                <span style="color: #f87171; font-weight: 700;">Не забывайте про ОДЗ</span> — аргументы логарифмов должны быть положительными!
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1: ПОКАЗАТЕЛЬНОЕ НЕРАВЕНСТВО ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. \(2^{x^2-3x} > 2^{x-3}\)</span>
+            <span class="sub-title">показательное неравенство</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Определяем основание</span>
+                <div class="formula-line">\(a = 2\), \(a > 1\)</div>
+                <div class="explain">💡 Так как \(a-1 = 1 > 0\), знак неравенства сохраняется.</div>
+
+                <span class="step">🔹 Шаг 2. Применяем метод рационализации</span>
+                <div class="formula-line">\(2^{x^2-3x} > 2^{x-3} \iff (2-1)((x^2-3x)-(x-3)) > 0\)</div>
+                <div class="formula-line">\(x^2-3x-x+3 > 0\)</div>
+                <div class="formula-line">\(x^2-4x+3 > 0\)</div>
+
+                <span class="step">🔹 Шаг 3. Решаем квадратное неравенство</span>
+                <div class="formula-line">\((x-1)(x-3) > 0\)</div>
+                <div class="explain">💡 Метод интервалов: знаки \(+\) \(-\) \(+\)</div>
+                <div class="formula-line">\(x \in (-\infty; 1) \cup (3; +\infty)\)</div>
+
+                <span class="step">🔹 Шаг 4. Проверяем ОДЗ</span>
+                <div class="explain">💡 В показательных неравенствах ОДЗ — все числа. Ограничений нет.</div>
+
+                <span class="result">✅ Ответ: \(x \in (-\infty; 1) \cup (3; +\infty)\)</span>
+                <div class="explain success">💡 Вместо работы с показателями мы решили простое квадратное неравенство!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2: ЛОГАРИФМИЧЕСКОЕ НЕРАВЕНСТВО ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. \(\log_2(x^2-1) > \log_2(2x+2)\)</span>
+            <span class="sub-title">логарифмическое неравенство</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Находим ОДЗ</span>
+                <div class="formula-line">\(x^2-1 > 0\) → \(x < -1\) или \(x > 1\)</div>
+                <div class="formula-line">\(2x+2 > 0\) → \(x > -1\)</div>
+                <div class="formula-line">Пересекаем: \(x > 1\)</div>
+
+                <span class="step">🔹 Шаг 2. Применяем метод рационализации</span>
+                <div class="formula-line">\(\log_2(x^2-1) > \log_2(2x+2)\)</div>
+                <div class="formula-line">\(\iff (2-1)((x^2-1)-(2x+2)) > 0\)</div>
+                <div class="formula-line">\(x^2-1-2x-2 > 0\)</div>
+                <div class="formula-line">\(x^2-2x-3 > 0\)</div>
+                <div class="formula-line">\((x-3)(x+1) > 0\)</div>
+
+                <span class="step">🔹 Шаг 3. Решаем</span>
+                <div class="formula-line">\(x \in (-\infty; -1) \cup (3; +\infty)\)</div>
+
+                <span class="step">🔹 Шаг 4. Пересекаем с ОДЗ</span>
+                <div class="explain">💡 ОДЗ: \(x > 1\)</div>
+                <div class="formula-line">\(x \in (3; +\infty)\)</div>
+
+                <span class="result">✅ Ответ: \(x \in (3; +\infty)\)</span>
+                <div class="explain success">💡 Метод рационализации превратил логарифмы в обычное квадратное неравенство!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3: ОСНОВАНИЕ МЕНЬШЕ 1 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. \(\log_{0.5}(x+1) > \log_{0.5}(3-x)\)</span>
+            <span class="sub-title">основание меньше 1</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Находим ОДЗ</span>
+                <div class="formula-line">\(x+1 > 0\) → \(x > -1\)</div>
+                <div class="formula-line">\(3-x > 0\) → \(x < 3\)</div>
+                <div class="formula-line">ОДЗ: \(x \in (-1; 3)\)</div>
+
+                <span class="step">🔹 Шаг 2. Применяем метод рационализации</span>
+                <div class="formula-line">\(\log_{0.5}(x+1) > \log_{0.5}(3-x)\)</div>
+                <div class="formula-line">\(\iff (0.5-1)((x+1)-(3-x)) > 0\)</div>
+                <div class="formula-line">\((-0.5)(2x-2) > 0\)</div>
+                <div class="explain">💡 \(-0.5 < 0\), поэтому при делении знак меняется.</div>
+                <div class="formula-line">\(2x-2 < 0\) → \(x < 1\)</div>
+
+                <span class="step">🔹 Шаг 3. Пересекаем с ОДЗ</span>
+                <div class="formula-line">\(x \in (-1; 3)\) и \(x < 1\) → \(x \in (-1; 1)\)</div>
+
+                <span class="result">✅ Ответ: \(x \in (-1; 1)\)</span>
+                <div class="explain success">💡 \((a-1) = -0.5 < 0\), поэтому знак неравенства изменился на противоположный.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4: СЛОЖНЫЙ СЛУЧАЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. \(\log_3(x^2-4x+4) < \log_3(2x-2)\)</span>
+            <span class="sub-title">сложное выражение</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Находим ОДЗ</span>
+                <div class="formula-line">\(x^2-4x+4 = (x-2)^2 > 0\) → \(x \neq 2\)</div>
+                <div class="formula-line">\(2x-2 > 0\) → \(x > 1\)</div>
+                <div class="formula-line">ОДЗ: \(x \in (1; 2) \cup (2; +\infty)\)</div>
+
+                <span class="step">🔹 Шаг 2. Применяем метод рационализации</span>
+                <div class="formula-line">\(\log_3(x^2-4x+4) < \log_3(2x-2)\)</div>
+                <div class="formula-line">\(\iff (3-1)((x^2-4x+4)-(2x-2)) < 0\)</div>
+                <div class="formula-line">\(2(x^2-6x+6) < 0\)</div>
+                <div class="formula-line">\(x^2-6x+6 < 0\)</div>
+
+                <span class="step">🔹 Шаг 3. Решаем квадратное неравенство</span>
+                <div class="formula-line">Корни: \(x = 3 \pm \sqrt{3}\)</div>
+                <div class="formula-line">\(x \in (3-\sqrt{3}; 3+\sqrt{3})\)</div>
+                <div class="explain">💡 \(3-\sqrt{3} \approx 1.27\), \(3+\sqrt{3} \approx 4.73\)</div>
+
+                <span class="step">🔹 Шаг 4. Пересекаем с ОДЗ</span>
+                <div class="formula-line">ОДЗ: \(x \in (1; 2) \cup (2; +\infty)\)</div>
+                <div class="formula-line">Пересечение: \(x \in (3-\sqrt{3}; 2) \cup (2; 3+\sqrt{3})\)</div>
+
+                <span class="result">✅ Ответ: \(x \in (3-\sqrt{3}; 2) \cup (2; 3+\sqrt{3})\)</span>
+                <div class="explain success">💡 Метод рационализации работает даже с квадратными выражениями внутри логарифма!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ШПАРГАЛКА ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📌 Когда применять метод рационализации</span>
+        </div>
+        <div class="section-content">
+            <div class="important">
+                <strong>🎯 Признаки того, что нужна рационализация:</strong><br><br>
+                📌 В неравенстве есть <span style="color: #fbbf24; font-weight: 700;">логарифмы с одинаковым основанием</span>.<br>
+                📌 В неравенстве есть <span style="color: #fbbf24; font-weight: 700;">показатели с одинаковым основанием</span>.<br>
+                📌 Нужно сравнить <span style="color: #fbbf24; font-weight: 700;">аргументы</span> логарифмов или показателей.<br><br>
+
+                <strong style="color: #f87171;">⚠️ Важно:</strong><br>
+                • Всегда проверяйте <span style="color: #f87171;">ОДЗ</span> — аргументы логарифмов должны быть положительными.<br>
+                • Основание должно быть \(a > 0\), \(a \neq 1\).<br>
+                • При \(a > 1\) знак неравенства сохраняется, при \(0 < a < 1\) — меняется.
+            </div>
+        </div>
+    </div>
+
+    <a href="standard-methods.html" class="back-link">← Назад к стандартным методам</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>

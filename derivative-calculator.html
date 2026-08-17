@@ -2,576 +2,336 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Калькулятор производных</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         :root {
             --bg: #1a2d3c;
             --card-bg: #1e3545;
             --text: #ffffff;
             --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --special-border: #8b5cf6;
             --accent: #1abc9c;
-            --border: rgba(46, 204, 113, 0.1);
-            --input-bg: #2c5a77;
-            --result-bg: #0f2a38;
-            --preview-bg: #2c5a77;
-            --preview-text: #ffffff;
-            --btn-bg: #34495e;
-            --hint-bg: #1a4a5a;
-            --math-color: #ffffff;
+            --input-bg: #1a2d3c;
+            --result-bg: #162a38;
+            --shadow: rgba(0,0,0,0.2);
+            --preview-bg: rgba(139,92,246,0.08);
+            --history-bg: #162a38;
         }
+
         :root.light-mode {
             --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
             --card-bg: white;
             --text: #1a2a3f;
-            --text-secondary: #6a7e9c;
-            --accent: #1abc9c;
+            --text-secondary: #4a6a8a;
             --border: #eff3f8;
-            --input-bg: #e2e8f0;
-            --result-bg: #f1f5f9;
-            --preview-bg: #e2e8f0;
-            --preview-text: #1a2a3f;
-            --hint-bg: #fefce8;
-            --math-color: #1a2a3f;
-            --btn-bg: #d1d9e6;
+            --special-border: #7c3aed;
+            --accent: #1abc9c;
+            --input-bg: #f8fafc;
+            --result-bg: #e8f0fe;
+            --shadow: rgba(0,0,0,0.08);
+            --preview-bg: rgba(139,92,246,0.06);
+            --history-bg: #e8f0fe;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            padding: 32px 20px;
+
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .container { max-width: 900px; width: 100%; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 24px; padding-top: 60px; position: relative; box-shadow: 0 12px 32px var(--shadow); transition: background 0.3s, box-shadow 0.3s; }
+        .theme-toggle { position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px var(--shadow); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); box-shadow: 0 2px 8px var(--shadow); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.6rem; color: var(--text); margin: 0 0 6px 0; text-align: center; }
+        .subtitle { color: var(--text-secondary); text-align: center; font-size: 0.9rem; margin-bottom: 20px; }
+
+        .input-group { margin-bottom: 14px; }
+        .input-group label { display: block; font-weight: 600; color: var(--text); margin-bottom: 4px; font-size: 0.95rem; }
+        .input-group .hint { color: var(--text-secondary); font-size: 0.8rem; font-weight: 400; margin-left: 6px; }
+
+        .input-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .input-row .input-group { flex: 1; min-width: 160px; }
+
+        .math-input-wrapper { position: relative; display: flex; flex-direction: column; background: var(--input-bg); border: 1px solid var(--border); border-radius: 14px; padding: 6px 12px; transition: border-color 0.2s; }
+        .math-input-wrapper:focus-within { border-color: var(--special-border); }
+        .math-input-wrapper .input-row-top { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .math-input-wrapper .math-field { flex: 1; padding: 6px 4px; font-size: 1.1rem; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Times New Roman', serif; min-height: 40px; }
+        .math-input-wrapper .math-field::placeholder { color: var(--text-secondary); opacity: 0.6; }
+        .math-input-wrapper .math-buttons { display: flex; gap: 2px; flex-wrap: wrap; justify-content: flex-end; }
+        .math-input-wrapper .math-buttons button { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 2px 8px; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; font-weight: 600; }
+        .math-input-wrapper .math-buttons button:hover { background: var(--special-border); color: white; border-color: var(--special-border); }
+
+        .preview-block {
+            margin-top: 6px;
+            padding: 8px 12px;
+            background: var(--preview-bg);
+            border-radius: 10px;
+            border-left: 3px solid var(--special-border);
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            transition: all 0.2s;
         }
-        .container { max-width: 700px; margin: 0 auto; position: relative; }
-        .theme-toggle {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            cursor: pointer;
-            font-size: 20px;
+        .preview-block .preview-math {
+            font-size: 1.1rem;
+            color: var(--text);
+            flex: 1;
+            min-height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 100;
-            color: var(--text);
         }
-        .card {
-            background: var(--card-bg);
-            border-radius: 32px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            margin-top: 50px;
-        }
-        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 8px; color: var(--text); }
-        .sub { text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; color: var(--text); font-weight: 500; }
-        .preview {
-            background: var(--preview-bg);
-            border-radius: 16px;
-            padding: 16px 20px;
-            margin-top: 8px;
-            overflow-x: auto;
-            min-height: 52px;
-            display: flex;
-            align-items: center;
-            color: var(--preview-text);
-            font-size: 1.1rem;
-        }
-        input {
-            width: 100%;
-            padding: 14px 16px;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            font-size: 1rem;
-            color: var(--text);
-            outline: none;
-            font-family: monospace;
-        }
-        input::placeholder { color: var(--text-secondary); opacity: 0.7; }
-
-        .templates {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 8px;
-        }
-        .tpl-btn {
-            padding: 8px 14px;
-            background: var(--btn-bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            color: var(--text);
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-family: monospace;
-            transition: all 0.2s;
-        }
-        .tpl-btn:active { background: var(--accent); color: white; }
-
-        .options-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-            align-items: end;
-        }
-        .options-row > div { flex: 1; }
-        .options-row input {
-            padding: 10px 14px;
-            font-size: 0.9rem;
-        }
-
-        .button-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 10px;
-        }
-        .calc-btn {
-            flex: 2;
-            padding: 14px;
-            background: var(--accent);
-            border: none;
-            border-radius: 40px;
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .hint-btn {
-            flex: 1;
-            padding: 14px;
-            background: var(--btn-bg);
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            color: var(--text);
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .calc-btn:active, .hint-btn:active { transform: scale(0.97); }
-
-        .hint-block {
-            display: none;
-            margin-top: 16px;
-            background: var(--hint-bg);
-            border-left: 4px solid var(--accent);
-            border-radius: 16px;
-            padding: 16px;
-            transition: all 0.3s ease;
-        }
-        .hint-block.show { display: block; }
-        .hint-title {
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .hint-formula {
-            font-family: monospace;
-            font-size: 1.1rem;
-            padding: 12px;
-            margin: 8px 0;
-            background: rgba(0,0,0,0.05);
-            border-radius: 12px;
-            overflow-x: auto;
-            min-height: 60px;
-        }
-        .hint-formula mjx-container {
-            color: var(--math-color) !important;
-        }
-        .hint-formula mjx-container * {
-            color: var(--math-color) !important;
-        }
-        .hint-desc {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 8px;
-            line-height: 1.5;
-        }
-        .result {
-            margin-top: 24px;
-            background: var(--result-bg);
-            border-radius: 20px;
-            padding: 20px;
-        }
-        .result-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-        }
-        .result-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text);
-            word-break: break-word;
-            overflow-x: auto;
-        }
-        .result-value mjx-container {
+        .preview-block .preview-math mjx-container {
+            font-size: 1.1em !important;
             color: var(--text) !important;
         }
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 8px 20px;
-            background: var(--accent);
-            color: white;
-            text-decoration: none;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-align: center;
+        .preview-block .preview-error {
+            color: #f87171;
+            font-size: 0.85rem;
+            font-style: italic;
         }
-        #loadingOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-            transition: opacity 0.3s ease;
+        .preview-block .preview-empty {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-style: italic;
+            opacity: 0.6;
         }
-        .loader {
-            text-align: center;
+
+        .examples-select {
+            padding: 8px 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
             color: var(--text);
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+            min-width: 140px;
         }
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid var(--text-secondary);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin: 0 auto 12px;
+        .examples-select:focus { border-color: var(--special-border); }
+        .examples-select option { background: var(--card-bg); color: var(--text); }
+        .example-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .example-row .input-group {
+            flex: 1;
+            min-width: 150px;
+            margin-bottom: 0;
         }
-        @media (max-width: 550px) {
-            body { padding: 20px 16px; }
-            .button-row { flex-direction: column; }
+
+        .order-input { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .order-input input[type="number"] { width: 70px; padding: 8px 10px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 1rem; text-align: center; outline: none; transition: border-color 0.2s; }
+        .order-input input[type="number"]:focus { border-color: var(--special-border); }
+        .order-input input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+        .btn-group {
+            display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0;
+        }
+        .btn-calculate { flex: 1; padding: 14px; background: var(--special-border); color: white; border: none; border-radius: 40px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; min-width: 120px; }
+        .btn-calculate:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,92,246,0.3); background: #6d28d9; }
+        .btn-calculate:active { transform: scale(0.97); }
+        .btn-clear { padding: 14px 24px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 40px; color: var(--text-secondary); font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-clear:hover { background: var(--example-bg); border-color: #f87171; color: #f87171; }
+
+        .result-block { margin-top: 16px; padding: 16px 20px; background: var(--result-bg); border-radius: 16px; border-left: 5px solid var(--special-border); display: none; }
+        .result-block.visible { display: block; }
+        .result-block .label { font-weight: 600; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .result-block .result-math { font-size: 1.3rem; color: var(--text); padding: 4px 0; overflow-x: auto; }
+        .result-block .result-math mjx-container { color: var(--text) !important; }
+        .result-block .result-point { font-size: 1.1rem; color: var(--text); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+        .result-block .result-point mjx-container { color: var(--text) !important; }
+        .result-block .result-point .val { color: #fbbf24; font-weight: 700; }
+        .result-block .error { color: #f87171; font-weight: 600; }
+
+        .history-block { margin-top: 16px; padding: 12px 16px; background: var(--history-bg); border-radius: 12px; border: 1px solid var(--border); display: none; }
+        .history-block.visible { display: block; }
+        .history-block .label { font-weight: 600; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .history-block .label .clear-history { color: var(--text-secondary); font-size: 0.7rem; cursor: pointer; padding: 2px 10px; border-radius: 12px; border: 1px solid var(--border); transition: all 0.15s; }
+        .history-block .label .clear-history:hover { background: #f87171; color: white; border-color: #f87171; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: var(--text); cursor: pointer; transition: background 0.15s; }
+        .history-item:hover { background: var(--preview-bg); margin: 0 -8px; padding: 6px 8px; border-radius: 6px; }
+        .history-item:last-child { border-bottom: none; }
+        .history-item .h-func { color: var(--text-secondary); font-size: 0.85rem; }
+        .history-item .h-result { color: var(--special-border); font-weight: 600; font-size: 0.85rem; }
+        .history-item .h-result mjx-container { font-size: 0.85em !important; color: var(--special-border) !important; }
+        .history-item .h-clear { color: var(--text-secondary); font-size: 0.7rem; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
+        .history-item .h-clear:hover { background: #f87171; color: white; }
+
+        .back-link { display: inline-block; margin-top: 16px; padding: 10px 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 40px; color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+        .back-link:hover { background: var(--special-border); color: white; border-color: var(--special-border); transform: translateY(-2px); }
+
+        @media (max-width: 700px) {
+            .container { padding: 16px; padding-top: 56px; }
+            h1 { font-size: 1.3rem; }
+            .input-row { flex-direction: column; gap: 8px; }
+            .input-row .input-group { min-width: unset; }
+            .example-row { flex-direction: column; align-items: stretch; }
+            .examples-select { width: 100%; }
+            .math-input-wrapper .math-field { width: 100%; font-size: 1rem; }
+            .math-input-wrapper .math-buttons { margin-top: 4px; width: 100%; justify-content: center; }
+            .math-input-wrapper .math-buttons button { font-size: 0.75rem; padding: 2px 6px; }
+            .result-block .result-math { font-size: 1.1rem; }
+            .result-block .result-point { font-size: 1rem; }
+            .preview-block .preview-math { font-size: 0.95rem; }
+            .btn-group { flex-direction: column; }
+            .btn-clear { width: 100%; }
+            .history-item { font-size: 0.8rem; flex-wrap: wrap; gap: 4px; }
+            .history-item .h-func { font-size: 0.75rem; }
+            .history-item .h-result { font-size: 0.75rem; }
         }
     </style>
+
+    <!-- ===== MATHJAX (ЛОКАЛЬНЫЙ) ===== -->
     <script>
         MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                macros: {
+                    tg: '\\operatorname{tg}',
+                    ctg: '\\operatorname{ctg}'
+                }
             },
-            svg: { scale: 0.95, displayAlign: 'center' },
-            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' }
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.0,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        if (typeof math !== 'undefined') {
+                            updatePreview();
+                            renderHistory();
+                            setTimeout(calculateDerivative, 200);
+                        }
+                    });
+                }
+            }
         };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/algebrite@1.4.0/dist/algebrite.bundle-for-browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
 </head>
 <body>
-
-<div id="loadingOverlay">
-    <div class="loader">
-        <div class="spinner"></div>
-        <div>Загрузка...</div>
-    </div>
-</div>
-
 <div class="container">
-    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
 
-    <div class="card">
-        <h1>∂ Калькулятор производных</h1>
-        <div class="sub">f'(x), f''(x), f'''(x) — производные любых порядков</div>
+    <h1>Калькулятор производных</h1>
+    <div class="subtitle">\(f'(x), f''(x), f'''(x)\) — проверяй свои решения</div>
 
+    <!-- ===== ПРИМЕРЫ ===== -->
+    <div class="example-row">
+        <div class="input-group" style="flex:1; min-width:140px; margin-bottom:0;">
+            <label>Примеры</label>
+            <select class="examples-select" id="examplesSelect" onchange="loadExample()">
+                <option value="">— выберите пример —</option>
+                <option value="sin(x)">sin(x)</option>
+                <option value="cos(x)">cos(x)</option>
+                <option value="tg(x)">tg(x)</option>
+                <option value="ctg(x)">ctg(x)</option>
+                <option value="x^2">x²</option>
+                <option value="x^3">x³</option>
+                <option value="x^3-3x">x³ - 3x</option>
+                <option value="e^x">eˣ</option>
+                <option value="ln(x)">ln(x)</option>
+                <option value="1/x">1/x</option>
+                <option value="sin(x)+cos(x)">sin(x) + cos(x)</option>
+                <option value="x*sin(x)">x·sin(x)</option>
+                <option value="e^x*sin(x)">eˣ·sin(x)</option>
+            </select>
+        </div>
+        <div class="input-group" style="flex:0 0 auto; margin-bottom:0;">
+            <label>&nbsp;</label>
+            <button class="btn-clear" onclick="clearAll()" style="padding:8px 18px; font-size:0.85rem;">✕ Очистить</button>
+        </div>
+    </div>
+
+    <!-- ===== ВВОД ФУНКЦИИ ===== -->
+    <div class="input-group" style="margin-top:10px;">
+        <label>Функция \(f(x)\)</label>
+        <div class="math-input-wrapper">
+            <div class="input-row-top">
+                <input type="text" id="functionInput" class="math-field" placeholder="например: sin(x) + x^2" value="sin(x)">
+                <div class="math-buttons">
+                    <button onclick="insertSymbol('sin')">sin</button>
+                    <button onclick="insertSymbol('cos')">cos</button>
+                    <button onclick="insertSymbol('tg')">tg</button>
+                    <button onclick="insertSymbol('ctg')">ctg</button>
+                    <button onclick="insertSymbol('ln')">ln</button>
+                    <button onclick="insertSymbol('e^x')">eˣ</button>
+                    <button onclick="insertSymbol('sqrt')">√</button>
+                    <button onclick="insertSymbol('pi')">π</button>
+                    <button onclick="insertSymbol('^2')">²</button>
+                </div>
+            </div>
+            <div class="preview-block" id="previewBlock">
+                <span class="preview-math" id="previewMath">
+                    <span class="preview-empty">\(f(x) = \sin(x)\)</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПОРЯДОК И ТОЧКА ===== -->
+    <div class="input-row">
         <div class="input-group">
-            <label>Функция f(x)</label>
-            <input type="text" id="funcInput" placeholder="например: (2x^2+3)^6, sin(x^2), e^(2x), ln(x)" value="(2x^2+3)^6" oninput="showPreview(); hideHint()">
-            <div class="templates">
-                <button class="tpl-btn" onclick="insertTemplate('sin(')">sin</button>
-                <button class="tpl-btn" onclick="insertTemplate('cos(')">cos</button>
-                <button class="tpl-btn" onclick="insertTemplate('tan(')">tan</button>
-                <button class="tpl-btn" onclick="insertTemplate('ln(')">ln</button>
-                <button class="tpl-btn" onclick="insertTemplate('e^(')">eˣ</button>
-                <button class="tpl-btn" onclick="insertTemplate('sqrt(')">√</button>
-                <button class="tpl-btn" onclick="insertTemplate('pi')">π</button>
-                <button class="tpl-btn" onclick="insertTemplate('^2')">²</button>
-            </div>
-            <div class="preview math" id="preview"></div>
-        </div>
-
-        <div class="options-row">
-            <div>
-                <label>Порядок производной</label>
-                <input type="number" id="orderInput" value="1" min="1" max="10" onchange="showPreview()">
-            </div>
-            <div>
-                <label>Точка x₀ (необязательно)</label>
-                <input type="text" id="pointInput" placeholder="например: 2, pi/2">
+            <label>Порядок производной</label>
+            <div class="order-input">
+                <input type="number" id="orderInput" min="1" max="10" value="1">
             </div>
         </div>
-
-        <div class="button-row">
-            <button class="calc-btn" onclick="calc()">ВЫЧИСЛИТЬ</button>
-            <button class="hint-btn" onclick="showFormulaHint()">📖 Подсказка</button>
-        </div>
-
-        <div id="hintBlock" class="hint-block">
-            <div class="hint-title">💡 Формула для решения</div>
-            <div class="hint-formula math" id="hintFormula"></div>
-            <div class="hint-desc math" id="hintDesc"></div>
-        </div>
-
-        <div id="resultBlock" style="display:none;">
-            <div class="result">
-                <div class="result-label">📐 РЕЗУЛЬТАТ</div>
-                <div class="result-value math" id="resultText"></div>
-            </div>
+        <div class="input-group">
+            <label>Точка \(x_0\) <span class="hint">(необязательно)</span></label>
+            <input type="text" id="pointInput" class="math-field" style="width:100%; padding:8px 12px; background:var(--input-bg); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:1rem; outline:none; transition:border-color 0.2s;" placeholder="например: 2, pi/2" value="">
         </div>
     </div>
 
-    <div style="text-align: center;">
-        <a href="index.html" class="back-link">← Назад</a>
+    <!-- ===== КНОПКИ ===== -->
+    <div class="btn-group">
+        <button class="btn-calculate" onclick="calculateDerivative()">ВЫЧИСЛИТЬ</button>
     </div>
+
+    <!-- ===== РЕЗУЛЬТАТ ===== -->
+    <div class="result-block" id="resultBlock">
+        <div class="label">
+            <span>РЕЗУЛЬТАТ</span>
+        </div>
+        <div class="result-math" id="resultMath"></div>
+        <div class="result-point" id="resultPoint"></div>
+        <div id="resultError" class="error"></div>
+    </div>
+
+    <!-- ===== ИСТОРИЯ ===== -->
+    <div class="history-block" id="historyBlock">
+        <div class="label">
+            <span>История вычислений</span>
+            <span class="clear-history" onclick="clearHistory()">✕ Очистить всё</span>
+        </div>
+        <div id="historyList"></div>
+    </div>
+
+    <a href="derivative.html" class="back-link">← Назад к производным</a>
 </div>
 
 <script>
-
-    function detectFormulaType(func) {
-        const f = func.toLowerCase().replace(/\s/g, '');
-
-        const powerMatch = f.match(/\(.+\)\^(\d+)$/);
-        if (powerMatch) {
-            return {
-                formula: '(u^n)\' = n \\cdot u^{n-1} \\cdot u\'',
-                desc: 'Сложная степень. Сначала дифференцируем внешнюю степень, затем умножаем на производную внутренней функции $u$.'
-            };
-        }
-
-        if (f.match(/^x\^(\d+)$/)) {
-            return {
-                formula: '(x^n)\' = n \\cdot x^{n-1}',
-                desc: 'Простая степенная функция.'
-            };
-        }
-
-        if (f.includes('sin(')) {
-            return {
-                formula: '(\\sin u)\' = \\cos u \\cdot u\'',
-                desc: 'Производная синуса сложной функции $u(x)$.'
-            };
-        }
-
-        if (f.includes('cos(')) {
-            return {
-                formula: '(\\cos u)\' = -\\sin u \\cdot u\'',
-                desc: 'Производная косинуса сложной функции $u(x)$ (не забывайте знак минус).'
-            };
-        }
-
-        if (f.includes('tan(') || f.includes('tg(')) {
-            return {
-                formula: '(\\operatorname{tg} u)\' = \\frac{u\'}{\\cos^2 u} = u\' \\cdot (1 + \\operatorname{tg}^2 u)',
-                desc: 'Производная тангенса сложной функции $u(x)$.'
-            };
-        }
-
-        if (f.includes('ln(')) {
-            return {
-                formula: '(\\ln u)\' = \\frac{u\'}{u}',
-                desc: 'Производная натурального логарифма сложной функции $u(x)$.'
-            };
-        }
-
-        if (f.includes('e^(') || f.match(/e\^[a-z0-9\(]/)) {
-            return {
-                formula: '(e^{u})\' = e^{u} \\cdot u\'',
-                desc: 'Производная экспоненты сложной функции $u(x)$.'
-            };
-        }
-
-        return {
-            formula: '\\text{Используйте основные правила дифференцирования}',
-            desc: 'См. раздел "Производная" в справочнике для полного списка формул.'
-        };
-    }
-
-    async function showFormulaHint() {
-        const func = document.getElementById('funcInput').value.trim();
-        const order = parseInt(document.getElementById('orderInput').value) || 1;
-
-        if (!func) {
-            document.getElementById('hintFormula').innerHTML = '⚠️ Введите функцию';
-            document.getElementById('hintDesc').innerHTML = 'Напишите $f(x)$ в поле ввода, чтобы получить подсказку.';
-            document.getElementById('hintBlock').classList.add('show');
-            if (window.MathJax) await MathJax.typesetPromise();
-            return;
-        }
-
-        const info = detectFormulaType(func);
-
-        let orderText = '';
-        if (order === 1) orderText = 'первого порядка';
-        else if (order === 2) orderText = 'второго порядка';
-        else orderText = order + '-го порядка';
-
-        document.getElementById('hintFormula').innerHTML = `$$${info.formula}$$`;
-        document.getElementById('hintDesc').innerHTML = `${info.desc}<br><br>🎯 Применяется для производной ${orderText}. Для нахождения ${order}-й производной последовательно дифференцируйте результат предыдущего шага.`;
-
-        const hintBlock = document.getElementById('hintBlock');
-        hintBlock.classList.add('show');
-
-        if (window.MathJax) {
-            await MathJax.typesetPromise();
-        }
-
-        setTimeout(() => {
-            hintBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
-    }
-
-    function hideHint() {
-        const hintBlock = document.getElementById('hintBlock');
-        hintBlock.classList.remove('show');
-    }
-
-    function formatForDisplay(expr) {
-        var result = expr;
-        result = result.replace(/pi/gi, '\\pi');
-        result = result.replace(/\bsin\b/g, '\\sin');
-        result = result.replace(/\bcos\b/g, '\\cos');
-        result = result.replace(/\btan\b/g, '\\tan');
-        result = result.replace(/\bln\b/g, '\\ln');
-        result = result.replace(/\bsqrt\b/g, '\\sqrt');
-        result = result.replace(/\(([^()]+)\)\/\(([^()]+)\)/g, '\\frac{$1}{$2}');
-        result = result.replace(/\(([^()]+)\)\/([a-zA-Z0-9^\\]+)/g, '\\frac{$1}{$2}');
-        result = result.replace(/([a-zA-Z0-9^\\]+)\/\(([^()]+)\)/g, '\\frac{$1}{$2}');
-        result = result.replace(/([a-zA-Z0-9^\\]+)\/([a-zA-Z0-9^\\]+)/g, '\\frac{$1}{$2}');
-        result = result.replace(/\*\*/g, '^');
-        result = result.replace(/\*/g, ' \\cdot ');
-        return result;
-    }
-
-    function insertTemplate(text) {
-        var input = document.getElementById('funcInput');
-        var start = input.selectionStart;
-        var end = input.selectionEnd;
-        var val = input.value;
-
-        if (text === 'sin(' || text === 'cos(' || text === 'tan(' || text === 'ln(' || text === 'sqrt(') {
-            input.value = val.substring(0, start) + text + 'x)' + val.substring(end);
-            input.selectionStart = start + text.length + 1;
-            input.selectionEnd = start + text.length + 1;
-        } else if (text === 'e^(') {
-            input.value = val.substring(0, start) + 'e^(x)' + val.substring(end);
-            input.selectionStart = start + 4;
-            input.selectionEnd = start + 4;
-        } else if (text === '^2') {
-            input.value = val.substring(0, start) + '^2' + val.substring(end);
-            input.selectionStart = start + 2;
-            input.selectionEnd = start + 2;
-        } else {
-            input.value = val.substring(0, start) + text + val.substring(end);
-            input.selectionStart = start + text.length;
-            input.selectionEnd = start + text.length;
-        }
-        input.focus();
-        showPreview();
-        hideHint();
-    }
-
-    function showPreview() {
-        var f = document.getElementById('funcInput').value;
-        var order = parseInt(document.getElementById('orderInput').value) || 1;
-        var p = document.getElementById('preview');
-
-        if (!f) {
-            p.innerHTML = '\\( f(x) = ? \\)';
-        } else {
-            var strokes = '';
-            for (var i = 0; i < order; i++) strokes += "'";
-            p.innerHTML = '\\( \\displaystyle f' + strokes + '(x) = \\left(' + formatForDisplay(f) + '\\right)' + strokes + ' \\)';
-        }
-        if (window.MathJax) MathJax.typesetPromise();
-    }
-
-    function calc() {
-        var f = document.getElementById('funcInput').value.trim();
-        var order = parseInt(document.getElementById('orderInput').value) || 1;
-        var point = document.getElementById('pointInput').value.trim();
-
-        if (!f) return;
-        if (typeof Algebrite === 'undefined') return;
-
-        var fForCalc = f.replace(/pi/gi, '3.141592653589793');
-        var result;
-
-        if (order === 1) {
-            var clean = fForCalc.replace(/\s+/g, '');
-            var match = clean.match(/^\((.+)\)\^(\d+)$/);
-
-            if (match) {
-                var base = match[1];
-                var power = parseInt(match[2]);
-                var baseDeriv = Algebrite.derivative(base, 'x').toString();
-                var coef = Algebrite.simplify(power + '*(' + baseDeriv + ')').toString();
-                var newPower = power - 1;
-                if (newPower === 1) {
-                    result = coef + '*(' + base + ')';
-                } else {
-                    result = coef + '*(' + base + ')^' + newPower;
-                }
-            } else {
-                result = Algebrite.derivative(fForCalc, 'x').toString();
-                try { result = Algebrite.simplify(result).toString(); } catch(e) {}
-            }
-        } else {
-            result = fForCalc;
-            for (var i = 0; i < order; i++) {
-                result = Algebrite.derivative(result, 'x').toString();
-            }
-            try { result = Algebrite.simplify(result).toString(); } catch(e) {}
-        }
-
-        var strokes = '';
-        for (var j = 0; j < order; j++) strokes += "'";
-
-        if (point) {
-            var pointForCalc = point.replace(/pi/gi, '3.141592653589793');
-            var valAtPoint;
-            try {
-                var evaled = Algebrite.eval(result, 'x', pointForCalc).toString();
-                var floated = Algebrite.float(evaled);
-                valAtPoint = parseFloat(floated.toString()).toFixed(6).replace(/\.?0+$/, '');
-            } catch(e) {
-                valAtPoint = '—';
-            }
-
-            document.getElementById('resultText').innerHTML =
-                '\\( f' + strokes + '(x) = ' + formatForDisplay(result) + ' \\)<br>' +
-                '\\( f' + strokes + '(' + formatForDisplay(point) + ') = ' + valAtPoint + ' \\)';
-        } else {
-            document.getElementById('resultText').innerHTML = '\\( f' + strokes + '(x) = ' + formatForDisplay(result) + ' \\)';
-        }
-
-        document.getElementById('resultBlock').style.display = 'block';
-        if (window.MathJax) MathJax.typesetPromise();
-    }
-
+    // ===== ТЕМА =====
     function toggleTheme() {
-        var html = document.documentElement;
-        var btn = document.getElementById('themeBtn');
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
         if (html.classList.contains('light-mode')) {
             html.classList.remove('light-mode');
             localStorage.setItem('mathTheme', 'dark');
@@ -581,7 +341,11 @@
             localStorage.setItem('mathTheme', 'light');
             btn.textContent = '☀️';
         }
-        if (window.MathJax) MathJax.typesetPromise();
+        updatePreview();
+        renderHistory();
+        if (window.MathJax) {
+            MathJax.typeset();
+        }
     }
 
     (function() {
@@ -591,8 +355,405 @@
         }
     })();
 
-    showPreview();
-</script>
+    // ===== ИЗБРАННОЕ =====
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            btn.textContent = isFavorite() ? '★' : '☆';
+            if (isFavorite()) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+    }
+    updateFavoriteBtn();
 
+    // ===== ПРЕОБРАЗОВАНИЕ =====
+    function toMathJS(expr) {
+        let e = expr;
+        e = e.replace(/tg\(/g, 'tan(');
+        e = e.replace(/ctg\(/g, 'cot(');
+        e = e.replace(/ln\(/g, 'log(');
+        e = e.replace(/e\^x/g, 'exp(x)');
+        e = e.replace(/sqrt\(/g, 'sqrt(');
+        e = e.replace(/pi/g, 'pi');
+        return e;
+    }
+
+    function toSchoolNotation(expr) {
+        let e = expr;
+        e = e.replace(/tan\(/g, 'tg(');
+        e = e.replace(/cot\(/g, 'ctg(');
+        e = e.replace(/log\(/g, 'ln(');
+        e = e.replace(/exp\(x\)/g, 'e^x');
+        // Убираем умножение на 1
+        e = e.replace(/\(1\*/g, '(');
+        e = e.replace(/\*1\)/g, ')');
+        e = e.replace(/\+0/g, '');
+        e = e.replace(/-0/g, '');
+        // cos(x)^2 → (cos(x))^2
+        e = e.replace(/cos\(x\)\^2/g, '(cos(x))^2');
+        e = e.replace(/sin\(x\)\^2/g, '(sin(x))^2');
+        e = e.replace(/cos\(([^)]+)\)\^2/g, '(cos($1))^2');
+        e = e.replace(/sin\(([^)]+)\)\^2/g, '(sin($1))^2');
+        return e;
+    }
+
+    function toSchoolDisplay(expr) {
+        let e = expr;
+        e = e.replace(/tan\(/g, '\\tg(');
+        e = e.replace(/cot\(/g, '\\ctg(');
+        e = e.replace(/log\(/g, '\\ln(');
+        e = e.replace(/exp\(x\)/g, 'e^x');
+        // cos(x)^2 → (cos(x))^2
+        e = e.replace(/cos\(x\)\^2/g, '(\\cos(x))^2');
+        e = e.replace(/sin\(x\)\^2/g, '(\\sin(x))^2');
+        e = e.replace(/cos\(([^)]+)\)\^2/g, '(\\cos($1))^2');
+        e = e.replace(/sin\(([^)]+)\)\^2/g, '(\\sin($1))^2');
+        return e;
+    }
+
+    // ===== ЗАМЕНА SEC И CSC =====
+    function replaceSecCsc(expr) {
+        let e = expr;
+        // sec(x)^2 → 1/(cos(x))^2
+        e = e.replace(/sec\(x\)\^2/g, '1/(cos(x))^2');
+        e = e.replace(/sec\(x\)/g, '1/cos(x)');
+        e = e.replace(/csc\(x\)\^2/g, '1/(sin(x))^2');
+        e = e.replace(/csc\(x\)/g, '1/sin(x)');
+        // С аргументами
+        e = e.replace(/sec\(([^)]+)\)\^2/g, '1/(cos($1))^2');
+        e = e.replace(/sec\(([^)]+)\)/g, '1/cos($1)');
+        e = e.replace(/csc\(([^)]+)\)\^2/g, '1/(sin($1))^2');
+        e = e.replace(/csc\(([^)]+)\)/g, '1/sin($1)');
+        return e;
+    }
+
+    function formatDerivativeLabel(order) {
+        if (order === 1) return "'";
+        if (order === 2) return "''";
+        if (order === 3) return "'''";
+        return '^{( ' + order + ' )}';
+    }
+
+    // ===== ИСТОРИЯ =====
+    let history = JSON.parse(localStorage.getItem('derivativeHistory') || '[]');
+
+    function addHistory(func, order, point, result, value) {
+        const entry = {
+            func: func,
+            order: order,
+            point: point || '',
+            result: result,
+            value: value || '',
+            timestamp: Date.now()
+        };
+        history = [entry, ...history.filter(h => h.func !== func || h.order !== order || h.point !== (point || ''))];
+        if (history.length > 15) history = history.slice(0, 15);
+        localStorage.setItem('derivativeHistory', JSON.stringify(history));
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const block = document.getElementById('historyBlock');
+        const list = document.getElementById('historyList');
+        if (history.length === 0) {
+            block.classList.remove('visible');
+            return;
+        }
+        block.classList.add('visible');
+
+        let html = '';
+        history.forEach((h, idx) => {
+            const funcDisplay = toSchoolDisplay(h.func);
+            let resultDisplay = h.result ? toSchoolDisplay(h.result) : '';
+            const pointDisplay = h.point || '';
+            const label = formatDerivativeLabel(h.order);
+            html += `
+                <div class="history-item" onclick="loadHistory(${idx})">
+                    <span class="h-func">\\( f${label}(${funcDisplay})${pointDisplay ? ' \\text{ при } ' + pointDisplay : ''} \\)</span>
+                    <span class="h-result">\\( ${resultDisplay} \\)</span>
+                    <span class="h-clear" onclick="event.stopPropagation(); removeHistory(${idx})">✕</span>
+                </div>
+            `;
+        });
+        list.innerHTML = html;
+
+        if (window.MathJax) {
+            MathJax.typeset([list]);
+        }
+    }
+
+    function loadHistory(idx) {
+        const h = history[idx];
+        document.getElementById('functionInput').value = h.func;
+        document.getElementById('orderInput').value = h.order;
+        document.getElementById('pointInput').value = h.point || '';
+        updatePreview();
+        setTimeout(calculateDerivative, 200);
+    }
+
+    function removeHistory(idx) {
+        history.splice(idx, 1);
+        localStorage.setItem('derivativeHistory', JSON.stringify(history));
+        renderHistory();
+    }
+
+    function clearHistory() {
+        if (history.length === 0) return;
+        if (confirm('Очистить всю историю?')) {
+            history = [];
+            localStorage.setItem('derivativeHistory', JSON.stringify(history));
+            renderHistory();
+        }
+    }
+
+    // ===== ПРИМЕРЫ =====
+    function loadExample() {
+        const select = document.getElementById('examplesSelect');
+        const val = select.value;
+        if (!val) return;
+        document.getElementById('functionInput').value = val;
+        document.getElementById('orderInput').value = 1;
+        document.getElementById('pointInput').value = '';
+        updatePreview();
+        select.value = '';
+        setTimeout(calculateDerivative, 200);
+    }
+
+    // ===== ВСТАВКА СИМВОЛОВ =====
+    function insertSymbol(symbol) {
+        const input = document.getElementById('functionInput');
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const text = input.value;
+        let insert = '';
+        if (symbol === 'sin') insert = 'sin(x)';
+        else if (symbol === 'cos') insert = 'cos(x)';
+        else if (symbol === 'tg') insert = 'tg(x)';
+        else if (symbol === 'ctg') insert = 'ctg(x)';
+        else if (symbol === 'ln') insert = 'ln(x)';
+        else if (symbol === 'e^x') insert = 'e^x';
+        else if (symbol === 'sqrt') insert = 'sqrt(x)';
+        else if (symbol === 'pi') insert = 'pi';
+        else if (symbol === '^2') insert = '^2';
+        input.value = text.substring(0, start) + insert + text.substring(end);
+        input.focus();
+        input.selectionStart = input.selectionEnd = start + insert.length;
+        updatePreview();
+    }
+
+    // ===== ПРЕДПРОСМОТР =====
+    function updatePreview() {
+        const input = document.getElementById('functionInput');
+        const previewMath = document.getElementById('previewMath');
+        const funcStr = input.value.trim();
+
+        if (!funcStr) {
+            previewMath.innerHTML = '<span class="preview-empty">\\( f(x) = \\text{введите функцию} \\)</span>';
+            return;
+        }
+
+        try {
+            const expr = toMathJS(funcStr);
+            math.parse(expr);
+
+            let display = funcStr;
+            display = display.replace(/\*/g, '\\cdot ');
+            display = display.replace(/pi/g, '\\pi');
+            display = display.replace(/sqrt\(/g, '\\sqrt{');
+            display = display.replace(/sin\(/g, '\\sin(');
+            display = display.replace(/cos\(/g, '\\cos(');
+            display = display.replace(/tg\(/g, '\\tg(');
+            display = display.replace(/ctg\(/g, '\\ctg(');
+            display = display.replace(/ln\(/g, '\\ln(');
+
+            previewMath.innerHTML = '$$ f(x) = ' + display + ' $$';
+            if (window.MathJax) {
+                MathJax.typeset([previewMath]);
+            }
+        } catch (e) {
+            previewMath.innerHTML = '<span class="preview-error">⚠️ ' + e.message + '</span>';
+        }
+    }
+
+    // ===== ОЧИСТКА =====
+    function clearAll() {
+        document.getElementById('functionInput').value = '';
+        document.getElementById('orderInput').value = 1;
+        document.getElementById('pointInput').value = '';
+        document.getElementById('resultBlock').classList.remove('visible');
+        document.getElementById('resultMath').textContent = '';
+        document.getElementById('resultPoint').textContent = '';
+        document.getElementById('resultError').textContent = '';
+        updatePreview();
+        document.getElementById('functionInput').focus();
+    }
+
+    // ===== ВЫЧИСЛЕНИЕ =====
+    function calculateDerivative() {
+        const funcStr = document.getElementById('functionInput').value.trim();
+        const order = parseInt(document.getElementById('orderInput').value) || 1;
+        const pointStr = document.getElementById('pointInput').value.trim();
+
+        const resultBlock = document.getElementById('resultBlock');
+        const resultMath = document.getElementById('resultMath');
+        const resultPoint = document.getElementById('resultPoint');
+        const resultError = document.getElementById('resultError');
+
+        resultError.textContent = '';
+        resultPoint.innerHTML = '';
+        resultBlock.classList.remove('visible');
+
+        if (!funcStr) {
+            resultError.textContent = '⚠️ Введите функцию!';
+            resultBlock.classList.add('visible');
+            return;
+        }
+
+        try {
+            // Преобразуем ctg(x) в cos(x)/sin(x) для math.js
+            let processedFunc = funcStr;
+            // Заменяем ctg на cot для math.js
+            processedFunc = processedFunc.replace(/ctg\(/g, 'cot(');
+
+            const expr = toMathJS(processedFunc);
+            const node = math.parse(expr);
+            let derivativeNode = node;
+
+            for (let i = 0; i < order; i++) {
+                try {
+                    derivativeNode = math.derivative(derivativeNode, 'x');
+                    derivativeNode = math.simplify(derivativeNode);
+                } catch (e) {
+                    // Если производная не берётся — пробуем другой подход
+                    throw new Error('Не удалось взять производную ' + (i + 1) + '-го порядка. Попробуйте другую запись функции.');
+                }
+            }
+
+            let displayDerivative = derivativeNode.toString();
+
+            // ===== ЗАМЕНА SEC И CSC =====
+            displayDerivative = replaceSecCsc(displayDerivative);
+
+            // ===== ШКОЛЬНЫЕ ОБОЗНАЧЕНИЯ =====
+            displayDerivative = toSchoolNotation(displayDerivative);
+
+            // ===== ДОПОЛНИТЕЛЬНАЯ ОЧИСТКА =====
+            displayDerivative = displayDerivative.replace(/\(\*\)/g, '');
+            displayDerivative = displayDerivative.replace(/\(1\*/g, '(');
+            displayDerivative = displayDerivative.replace(/\*1\)/g, ')');
+            displayDerivative = displayDerivative.replace(/\+0/g, '');
+            displayDerivative = displayDerivative.replace(/-0/g, '');
+            displayDerivative = displayDerivative.replace(/cos\(x\)\^2/g, '(cos(x))^2');
+            displayDerivative = displayDerivative.replace(/sin\(x\)\^2/g, '(sin(x))^2');
+
+            let resultText = '';
+            const label = formatDerivativeLabel(order);
+            if (displayDerivative === '0') {
+                resultText = '$$ f' + label + '(x) = 0 $$';
+            } else {
+                const displayFormatted = toSchoolDisplay(displayDerivative);
+                resultText = '$$ f' + label + '(x) = ' + displayFormatted + ' $$';
+            }
+            resultMath.textContent = resultText;
+
+            let pointResult = '';
+            let pointValue = '';
+            if (pointStr) {
+                try {
+                    const pointNode = math.parse(pointStr);
+                    const pointCompiled = pointNode.compile();
+                    const scope = { x: pointCompiled.evaluate() };
+                    const value = derivativeNode.evaluate(scope);
+                    const displayValue = math.format(value, 14);
+                    pointResult = '$$ f' + label + '(' + pointStr + ') = ' + displayValue + ' $$';
+                    pointValue = displayValue;
+                    resultPoint.innerHTML = pointResult;
+                } catch (e) {
+                    resultPoint.innerHTML = '<span style="color:#f87171;">⚠️ Не удалось вычислить в точке: ' + e.message + '</span>';
+                }
+            }
+
+            resultBlock.classList.add('visible');
+
+            if (window.MathJax) {
+                MathJax.typeset([resultBlock]);
+            }
+
+            const resultDisplay = displayDerivative === '0' ? '0' : displayDerivative;
+            addHistory(funcStr, order, pointStr, resultDisplay, pointValue);
+
+        } catch (error) {
+            resultError.textContent = '⚠️ Ошибка: ' + error.message;
+            resultBlock.classList.add('visible');
+        }
+    }
+
+    // ===== ЗАГРУЗКА MATH.JS =====
+    if (typeof math === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.min.js';
+        script.async = true;
+        script.onload = function() {
+            console.log('math.js загружен');
+            updatePreview();
+            renderHistory();
+            setTimeout(calculateDerivative, 300);
+        };
+        document.head.appendChild(script);
+    } else {
+        updatePreview();
+        renderHistory();
+        setTimeout(calculateDerivative, 200);
+    }
+
+    // ===== ОБРАБОТЧИКИ =====
+    document.getElementById('functionInput').addEventListener('input', updatePreview);
+    document.getElementById('functionInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') calculateDerivative();
+    });
+    document.getElementById('pointInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') calculateDerivative();
+    });
+    document.getElementById('orderInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') calculateDerivative();
+    });
+
+    // ===== ПЕРЕРИСОВКА ПРИ СМЕНЕ ТЕМЫ =====
+    const origToggleTheme = toggleTheme;
+    toggleTheme = function() {
+        origToggleTheme();
+        updatePreview();
+        renderHistory();
+        if (document.getElementById('resultBlock').classList.contains('visible')) {
+            if (window.MathJax) {
+                MathJax.typeset();
+            }
+        }
+    };
+
+    // ===== ФИКС ДЛЯ MathJax.typesetPromise =====
+    if (window.MathJax) {
+        MathJax.typesetPromise = MathJax.typeset;
+    }
+</script>
 </body>
 </html>

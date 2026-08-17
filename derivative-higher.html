@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Производные высших порядков</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --info-border: #2c7cb6;
+            --example-bg: #162a38;
+            --step-color: #a78bfa;
+            --result-color: #34d399;
+            --explain-color: #34d399;
+            --info-bg: #1a4a5a;
+            --special-border: #2c7cb6;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --info-border: #2c7cb6;
+            --example-bg: #f8fafc;
+            --step-color: #7c3aed;
+            --result-color: #059669;
+            --explain-color: #059669;
+            --info-bg: #e8f0fe;
+            --special-border: #2c7cb6;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:1000px;margin:0 auto;position:relative;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--info-border);padding-left:12px;text-align:center;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title .main-title{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;color:var(--text);}
+        .section-title .sub-title{font-size:0.85rem;color:var(--text-secondary);font-weight:400;font-style:italic;margin-top:2px;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:10000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:16px 20px;border-radius:16px;margin:12px 0;}
+        .definition-block p{font-size:1rem;line-height:1.5;color:var(--text);}
+        .definition-block p strong{color:var(--text);}
+        .definition-block ul{padding-left:20px;margin:6px 0;font-size:0.95rem;line-height:1.5;color:var(--text);}
+        .definition-block ul li{margin:2px 0;}
+
+        .formula-block{background:var(--bg);padding:14px 18px;border-radius:16px;font-size:0.95rem;margin:10px 0;border-left:5px solid var(--special-border);word-break:break-word;overflow-x:visible;line-height:2.2;color:var(--text);}
+        .example{background:var(--example-bg);padding:16px 20px;border-radius:14px;margin-top:10px;border-left:5px solid var(--special-border);font-size:0.95rem;line-height:2.0;color:var(--text);word-break:break-word;overflow-x:visible;}
+        .example .step{font-weight:700;color:var(--step-color);margin-top:10px;margin-bottom:2px;display:block;}
+        .example .result{margin-top:10px;font-weight:600;color:var(--result-color);display:block;}
+        .example .explain{color:var(--explain-color);font-style:italic;margin:4px 0 8px 16px;border-left:2px solid var(--explain-color);padding-left:12px;display:block;}
+        .example .formula-line{display:block;margin:4px 0;word-break:break-word;}
+        p{margin:8px 0;font-size:0.95rem;line-height:1.6;color:var(--text);}
+        .important{background:var(--info-bg);border-left:4px solid #fbbf24;border-radius:14px;padding:12px 16px;margin:12px 0;color:var(--text);}
+        .important strong{color:#fbbf24;}
+
+        .back-link{display:inline-block;margin:16px 0 8px;padding:10px 20px;background:var(--special-border);color:white;text-decoration:none;font-weight:bold;border-radius:20px;font-size:0.95rem;transition:background 0.2s;}
+        .back-link:hover{background:#1a6b8a;}
+        mjx-container{font-size:1em !important;overflow-x:visible !important;max-width:100% !important;}
+
+        .favorite-btn{position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;z-index:1000;color:var(--text-secondary);transition:all 0.2s;backdrop-filter:blur(4px);}
+        .favorite-btn:hover{transform:scale(1.1);}
+        .favorite-btn.active{color:#facc15;}
+
+        @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.definition-block p{font-size:0.95rem;}.example{padding:12px 14px;font-size:0.9rem;}.formula-block{padding:12px 14px;font-size:0.9rem;}mjx-container{font-size:0.9em !important;}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    </style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { skipHtmlTypes: 'script', ignoreHtmlClass: 'no-mathjax' },
+            chtml: { scale: 1.0, displayAlign: 'center' },
+            startup: { pageReady: () => { return MathJax.startup.defaultPageReady(); } }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header"><h1>Производные высших порядков</h1><div class="subtitle">Определение · Формулы · Примеры · Физический смысл</div></div>
+    <div class="content-card">
+
+        <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📖 Что это такое?</span>
+            </div>
+            <div class="section-content">
+                <p><strong>Производная высшего порядка</strong> — это «производная от производной».</p>
+                <div class="important">
+                    <strong>📌 Простыми словами:</strong><br>
+                    • <strong>Первая производная</strong> \(f'(x)\) — скорость изменения функции.<br>
+                    • <strong>Вторая производная</strong> \(f''(x)\) — скорость изменения скорости.<br>
+                    • <strong>Третья, четвёртая и т.д.</strong> — просто продолжаем дифференцировать.
+                </div>
+
+                <div class="formula-block">
+                    <strong>Обозначения:</strong>
+                    <span class="formula-line">$$ f'(x) \quad \text{— первая производная} $$</span>
+                    <span class="formula-line">$$ f''(x) \quad \text{— вторая производная} $$</span>
+                    <span class="formula-line">$$ f'''(x) \quad \text{— третья производная} $$</span>
+                    <span class="formula-line">$$ f^{(4)}(x) \quad \text{— четвёртая производная} $$</span>
+                    <span class="formula-line">$$ f^{(n)}(x) \quad \text{— производная n-го порядка} $$</span>
+                    <span class="formula-line">$$ y',\ y'',\ y''',\ y^{(4)},\ \ldots,\ y^{(n)} $$</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ФОРМУЛЫ ДЛЯ n-й ПРОИЗВОДНОЙ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Формулы для производной n-го порядка</span>
+            </div>
+            <div class="section-content">
+                <div class="formula-block" style="border-left-color: #fbbf24;">
+                    <strong>Для степенной функции \(f(x) = x^k\):</strong>
+                    <span class="formula-line">$$ f'(x) = k \cdot x^{k-1} $$</span>
+                    <span class="formula-line">$$ f''(x) = k(k-1) \cdot x^{k-2} $$</span>
+                    <span class="formula-line">$$ f'''(x) = k(k-1)(k-2) \cdot x^{k-3} $$</span>
+                    <span class="formula-line">$$ f^{(n)}(x) = k(k-1)(k-2)\ldots(k-n+1) \cdot x^{k-n} $$</span>
+                    <div class="explain">💡 Где \(n \le k\). Если \(n > k\), то производная равна 0.</div>
+                </div>
+
+                <div class="formula-block" style="border-left-color: #34d399;">
+                    <strong>Для показательной функции \(f(x) = e^{kx}\):</strong>
+                    <span class="formula-line">$$ f'(x) = k \cdot e^{kx} $$</span>
+                    <span class="formula-line">$$ f''(x) = k^2 \cdot e^{kx} $$</span>
+                    <span class="formula-line">$$ f'''(x) = k^3 \cdot e^{kx} $$</span>
+                    <span class="formula-line">$$ f^{(n)}(x) = k^n \cdot e^{kx} $$</span>
+                    <div class="explain">💡 Каждый раз просто умножаем на \(k\).</div>
+                </div>
+
+                <div class="formula-block" style="border-left-color: #f87171;">
+                    <strong>Для синуса \(f(x) = \sin x\):</strong>
+                    <span class="formula-line">$$ f'(x) = \cos x $$</span>
+                    <span class="formula-line">$$ f''(x) = -\sin x $$</span>
+                    <span class="formula-line">$$ f'''(x) = -\cos x $$</span>
+                    <span class="formula-line">$$ f^{(4)}(x) = \sin x $$</span>
+                    <span class="formula-line">$$ f^{(n)}(x) = \sin\left(x + \frac{\pi n}{2}\right) $$</span>
+                    <div class="explain">💡 Производные синуса повторяются каждые 4 шага.</div>
+                </div>
+
+                <div class="formula-block" style="border-left-color: #4ecdc4;">
+                    <strong>Для косинуса \(f(x) = \cos x\):</strong>
+                    <span class="formula-line">$$ f'(x) = -\sin x $$</span>
+                    <span class="formula-line">$$ f''(x) = -\cos x $$</span>
+                    <span class="formula-line">$$ f'''(x) = \sin x $$</span>
+                    <span class="formula-line">$$ f^{(4)}(x) = \cos x $$</span>
+                    <span class="formula-line">$$ f^{(n)}(x) = \cos\left(x + \frac{\pi n}{2}\right) $$</span>
+                    <div class="explain">💡 Производные косинуса тоже повторяются каждые 4 шага.</div>
+                </div>
+
+                <div class="formula-block" style="border-left-color: #fbbf24;">
+                    <strong>Для натурального логарифма \(f(x) = \ln x\):</strong>
+                    <span class="formula-line">$$ f'(x) = \frac{1}{x} = x^{-1} $$</span>
+                    <span class="formula-line">$$ f''(x) = -\frac{1}{x^2} $$</span>
+                    <span class="formula-line">$$ f'''(x) = \frac{2}{x^3} $$</span>
+                    <span class="formula-line">$$ f^{(4)}(x) = -\frac{6}{x^4} $$</span>
+                    <span class="formula-line">$$ f^{(5)}(x) = \frac{24}{x^5} $$</span>
+                    <div class="explain">💡 Знаки чередуются: \(-, +, -, +, \ldots\)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 1: СТЕПЕННАЯ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 1. \(f(x) = x^4\)</span>
+                <span class="sub-title">все производные до 4-го порядка</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Первая производная:</span>
+                    <span class="formula-line">$$ f(x) = x^4 $$</span>
+                    <span class="formula-line">$$ f'(x) = 4x^3 $$</span>
+                    <div class="explain">💡 Правило: \((x^n)' = n \cdot x^{n-1}\).</div>
+
+                    <span class="step">Шаг 2. Вторая производная:</span>
+                    <span class="formula-line">$$ f''(x) = (4x^3)' = 12x^2 $$</span>
+
+                    <span class="step">Шаг 3. Третья производная:</span>
+                    <span class="formula-line">$$ f'''(x) = (12x^2)' = 24x $$</span>
+
+                    <span class="step">Шаг 4. Четвёртая производная:</span>
+                    <span class="formula-line">$$ f^{(4)}(x) = (24x)' = 24 $$</span>
+
+                    <span class="step">Шаг 5. Пятая и выше:</span>
+                    <span class="formula-line">$$ f^{(5)}(x) = (24)' = 0 $$</span>
+                    <div class="explain">💡 Производная от числа (константы) всегда равна нулю.</div>
+
+                    <span class="result">Ответ:</span>
+                    <span class="formula-line">$$ f'(x) = 4x^3 $$</span>
+                    <span class="formula-line">$$ f''(x) = 12x^2 $$</span>
+                    <span class="formula-line">$$ f'''(x) = 24x $$</span>
+                    <span class="formula-line">$$ f^{(4)}(x) = 24 $$</span>
+                    <span class="formula-line">$$ f^{(5)}(x) = 0 $$</span>
+                    <div class="explain">✅ Для многочлена степени \(n\) все производные порядка \(n+1\) и выше равны нулю.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 2: СИНУС ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 2. \(f(x) = \sin x\)</span>
+                <span class="sub-title">производные циклически повторяются</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Первая производная:</span>
+                    <span class="formula-line">$$ f(x) = \sin x $$</span>
+                    <span class="formula-line">$$ f'(x) = \cos x $$</span>
+
+                    <span class="step">Шаг 2. Вторая производная:</span>
+                    <span class="formula-line">$$ f''(x) = (\cos x)' = -\sin x $$</span>
+
+                    <span class="step">Шаг 3. Третья производная:</span>
+                    <span class="formula-line">$$ f'''(x) = (-\sin x)' = -\cos x $$</span>
+
+                    <span class="step">Шаг 4. Четвёртая производная:</span>
+                    <span class="formula-line">$$ f^{(4)}(x) = (-\cos x)' = \sin x $$</span>
+
+                    <span class="result">Цикл повторяется каждые 4 шага:</span>
+                    <span class="formula-line">$$ f'(x) = \cos x $$</span>
+                    <span class="formula-line">$$ f''(x) = -\sin x $$</span>
+                    <span class="formula-line">$$ f'''(x) = -\cos x $$</span>
+                    <span class="formula-line">$$ f^{(4)}(x) = \sin x = f(x) $$</span>
+                    <div class="explain">✅ Производные синуса образуют цикл из 4 функций.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 3: ЭКСПОНЕНТА ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 3. \(f(x) = e^{2x}\)</span>
+                <span class="sub-title">производная всегда похожа на саму себя</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Первая производная:</span>
+                    <span class="formula-line">$$ f(x) = e^{2x} $$</span>
+                    <span class="formula-line">$$ f'(x) = 2e^{2x} $$</span>
+                    <div class="explain">💡 Правило: \((e^{kx})' = k \cdot e^{kx}\).</div>
+
+                    <span class="step">Шаг 2. Вторая производная:</span>
+                    <span class="formula-line">$$ f''(x) = (2e^{2x})' = 4e^{2x} $$</span>
+
+                    <span class="step">Шаг 3. Третья производная:</span>
+                    <span class="formula-line">$$ f'''(x) = (4e^{2x})' = 8e^{2x} $$</span>
+
+                    <span class="step">Шаг 4. Закономерность:</span>
+                    <span class="formula-line">$$ f^{(n)}(x) = 2^n \cdot e^{2x} $$</span>
+
+                    <span class="result">Ответ:</span>
+                    <span class="formula-line">$$ f'(x) = 2e^{2x} $$</span>
+                    <span class="formula-line">$$ f''(x) = 4e^{2x} $$</span>
+                    <span class="formula-line">$$ f'''(x) = 8e^{2x} $$</span>
+                    <span class="formula-line">$$ f^{(n)}(x) = 2^n e^{2x} $$</span>
+                    <div class="explain">✅ Для \(e^{kx}\) производная n-го порядка равна \(k^n e^{kx}\).</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 4: ПРОИЗВЕДЕНИЕ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 4. \(f(x) = x^2 \cdot \sin x\)</span>
+                <span class="sub-title">производная 3-го порядка от произведения</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Условие:</strong> Найти \(f'''(x)\) для функции \(f(x) = x^2 \cdot \sin x\).<br><br>
+
+                    <span class="step">Шаг 1. Первая производная (правило произведения):</span>
+                    <span class="formula-line">$$ f'(x) = (x^2)' \cdot \sin x + x^2 \cdot (\sin x)' $$</span>
+                    <span class="formula-line">$$ f'(x) = 2x \cdot \sin x + x^2 \cdot \cos x $$</span>
+                    <div class="explain">💡 Правило: \((u \cdot v)' = u'v + uv'\).</div>
+
+                    <span class="step">Шаг 2. Вторая производная:</span>
+                    <span class="formula-line">$$ f''(x) = (2x \cdot \sin x)' + (x^2 \cdot \cos x)' $$</span>
+                    <span class="formula-line">$$ f''(x) = (2 \cdot \sin x + 2x \cdot \cos x) $$</span>
+                    <span class="formula-line">$$ \qquad + (2x \cdot \cos x - x^2 \cdot \sin x) $$</span>
+                    <span class="formula-line">$$ f''(x) = 2\sin x + 4x\cos x - x^2\sin x $$</span>
+
+                    <span class="step">Шаг 3. Третья производная:</span>
+                    <span class="formula-line">$$ f'''(x) = (2\sin x)' + (4x\cos x)' - (x^2\sin x)' $$</span>
+                    <span class="formula-line">$$ f'''(x) = 2\cos x + (4\cos x - 4x\sin x) $$</span>
+                    <span class="formula-line">$$ \qquad - (2x\sin x + x^2\cos x) $$</span>
+                    <span class="formula-line">$$ f'''(x) = 2\cos x + 4\cos x - 4x\sin x $$</span>
+                    <span class="formula-line">$$ \qquad - 2x\sin x - x^2\cos x $$</span>
+                    <span class="formula-line">$$ f'''(x) = 6\cos x - 6x\sin x - x^2\cos x $$</span>
+
+                    <span class="result">Ответ:</span>
+                    <span class="formula-line">$$ f'''(x) = (6 - x^2)\cos x - 6x\sin x $$</span>
+                    <div class="explain">✅ Производная 3-го порядка от произведения найдена.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 5: ЗНАЧЕНИЕ В ТОЧКЕ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 5. \(f(x) = e^{2x}\)</span>
+                <span class="sub-title">значение 4-й производной в точке \(x = 1\)</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Условие:</strong> Найти \(f^{(4)}(1)\) для функции \(f(x) = e^{2x}\).<br><br>
+
+                    <span class="step">Шаг 1. Находим общую формулу для производной n-го порядка:</span>
+                    <span class="formula-line">$$ f(x) = e^{2x} $$</span>
+                    <span class="formula-line">$$ f^{(n)}(x) = 2^n \cdot e^{2x} $$</span>
+                    <div class="explain">💡 Мы уже вывели эту формулу в примере 3.</div>
+
+                    <span class="step">Шаг 2. Подставляем \(n = 4\):</span>
+                    <span class="formula-line">$$ f^{(4)}(x) = 2^4 \cdot e^{2x} $$</span>
+                    <span class="formula-line">$$ f^{(4)}(x) = 16e^{2x} $$</span>
+
+                    <span class="step">Шаг 3. Подставляем \(x = 1\):</span>
+                    <span class="formula-line">$$ f^{(4)}(1) = 16 \cdot e^{2 \cdot 1} $$</span>
+                    <span class="formula-line">$$ f^{(4)}(1) = 16e^2 $$</span>
+
+                    <span class="result">Ответ:</span>
+                    <span class="formula-line">$$ f^{(4)}(1) = 16e^2 \approx 118.23 $$</span>
+                    <div class="explain">✅ Чтобы найти значение производной в точке, сначала находим производную (формулу), а потом подставляем число вместо \(x\).</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 6: ЗНАЧЕНИЕ В ТОЧКЕ (СИНУС) ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 6. \(f(x) = \sin x\)</span>
+                <span class="sub-title">значение 3-й производной в точке \(x = \frac{\pi}{2}\)</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Условие:</strong> Найти \(f'''\left(\frac{\pi}{2}\right)\) для функции \(f(x) = \sin x\).<br><br>
+
+                    <span class="step">Шаг 1. Находим третью производную:</span>
+                    <span class="formula-line">$$ f(x) = \sin x $$</span>
+                    <span class="formula-line">$$ f'(x) = \cos x $$</span>
+                    <span class="formula-line">$$ f''(x) = -\sin x $$</span>
+                    <span class="formula-line">$$ f'''(x) = -\cos x $$</span>
+                    <div class="explain">💡 Третья производная синуса — это \(-\cos x\).</div>
+
+                    <span class="step">Шаг 2. Подставляем \(x = \frac{\pi}{2}\):</span>
+                    <span class="formula-line">$$ f'''\left(\frac{\pi}{2}\right) = -\cos\left(\frac{\pi}{2}\right) $$</span>
+                    <span class="formula-line">$$ \cos\left(\frac{\pi}{2}\right) = 0 $$</span>
+                    <span class="formula-line">$$ f'''\left(\frac{\pi}{2}\right) = -0 = 0 $$</span>
+
+                    <span class="result">Ответ:</span>
+                    <span class="formula-line">$$ f'''\left(\frac{\pi}{2}\right) = 0 $$</span>
+                    <div class="explain">✅ В точке \(\pi/2\) третья производная синуса равна нулю.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 7: НАХОЖДЕНИЕ ПОРЯДКА ПРОИЗВОДНОЙ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 7. \(f(x) = x^5\)</span>
+                <span class="sub-title">при каком \(n\) производная равна 0?</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Условие:</strong> При каком \(n\) производная \(f^{(n)}(x)\) функции \(f(x) = x^5\) равна нулю?<br><br>
+
+                    <span class="step">Шаг 1. Находим производные последовательно:</span>
+                    <span class="formula-line">$$ f(x) = x^5 $$</span>
+                    <span class="formula-line">$$ f'(x) = 5x^4 $$</span>
+                    <span class="formula-line">$$ f''(x) = 20x^3 $$</span>
+                    <span class="formula-line">$$ f'''(x) = 60x^2 $$</span>
+                    <span class="formula-line">$$ f^{(4)}(x) = 120x $$</span>
+                    <span class="formula-line">$$ f^{(5)}(x) = 120 $$</span>
+                    <span class="formula-line">$$ f^{(6)}(x) = 0 $$</span>
+
+                    <span class="step">Шаг 2. Анализируем:</span>
+                    <div class="explain">💡 Производная \(n\)-го порядка от \(x^5\) равна нулю при \(n \ge 6\).</div>
+
+                    <span class="result">Ответ: \(f^{(n)}(x) = 0\) при \(n \ge 6\).</span>
+                    <div class="explain">✅ Для многочлена степени \(5\) все производные, начиная с 6-й, равны нулю.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 8: КОМБИНИРОВАННАЯ ФУНКЦИЯ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 8. \(f(x) = e^x \cdot \sin x\)</span>
+                <span class="sub-title">вторая производная комбинированной функции</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Условие:</strong> Найти \(f''(x)\) для функции \(f(x) = e^x \cdot \sin x\).<br><br>
+
+                    <span class="step">Шаг 1. Первая производная (правило произведения):</span>
+                    <span class="formula-line">$$ f(x) = e^x \cdot \sin x $$</span>
+                    <span class="formula-line">$$ f'(x) = (e^x)' \cdot \sin x + e^x \cdot (\sin x)' $$</span>
+                    <span class="formula-line">$$ f'(x) = e^x \cdot \sin x + e^x \cdot \cos x $$</span>
+                    <span class="formula-line">$$ f'(x) = e^x (\sin x + \cos x) $$</span>
+                    <div class="explain">💡 Правило: \((u \cdot v)' = u'v + uv'\).</div>
+
+                    <span class="step">Шаг 2. Вторая производная:</span>
+                    <span class="formula-line">$$ f''(x) = (e^x (\sin x + \cos x))' $$</span>
+                    <span class="formula-line">$$ f''(x) = (e^x)' (\sin x + \cos x) + e^x (\sin x + \cos x)' $$</span>
+                    <span class="formula-line">$$ f''(x) = e^x (\sin x + \cos x) + e^x (\cos x - \sin x) $$</span>
+                    <span class="formula-line">$$ f''(x) = e^x (\sin x + \cos x + \cos x - \sin x) $$</span>
+                    <span class="formula-line">$$ f''(x) = e^x (2\cos x) $$</span>
+                    <span class="formula-line">$$ f''(x) = 2e^x \cos x $$</span>
+
+                    <span class="result">Ответ:</span>
+                    <span class="formula-line">$$ f''(x) = 2e^x \cos x $$</span>
+                    <div class="explain">✅ Вторая производная комбинированной функции найдена.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ФИЗИЧЕСКИЙ СМЫСЛ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">🚗 Зачем это нужно?</span>
+                <span class="sub-title">физический смысл производных высших порядков</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Пусть \(s(t)\) — путь, который прошло тело за время \(t\).</strong><br><br>
+
+                    <span class="step">🚶 \(s'(t) = v(t)\) — скорость</span>
+                    <div class="explain">💡 Производная пути по времени — это скорость движения.</div>
+
+                    <span class="step">🚗 \(s''(t) = v'(t) = a(t)\) — ускорение</span>
+                    <div class="explain">💡 Производная скорости — это ускорение (как быстро меняется скорость).</div>
+
+                    <span class="step">📈 \(s'''(t) = a'(t) = j(t)\) — рывок</span>
+                    <div class="explain">💡 Производная ускорения — это рывок (как быстро меняется ускорение).</div>
+
+                    <span class="result">Пример:</span>
+                    <span class="formula-line">$$ s(t) = t^3 - 6t^2 + 9t + 2 $$</span>
+                    <span class="formula-line">$$ v(t) = 3t^2 - 12t + 9 $$</span>
+                    <span class="formula-line">$$ a(t) = 6t - 12 $$</span>
+                    <span class="formula-line">$$ j(t) = 6 $$</span>
+                    <div class="explain">✅ Здесь ускорение меняется со временем, а рывок постоянный.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <a href="derivative.html" class="back-link">← Назад к производным</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        updateLegendColors();
+    }
+
+    function updateLegendColors() {
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const legend = document.querySelector('.legend');
+        if (legend) {
+            legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
+        }
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+        setTimeout(updateLegendColors, 100);
+    })();
+
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Использование монотонности — метод решения</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --method-card: rgba(139,92,246,0.08);
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --method-card: rgba(124,58,237,0.06);
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .method-card {
+            background: var(--method-card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border-left: 4px solid var(--special-border);
+        }
+        .method-card .method-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .method-card .method-name .badge {
+            background: var(--special-border);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .method-card .algorithm {
+            margin: 8px 0 4px 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+        .method-card .algorithm li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 20px;
+        }
+        .method-card .algorithm li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--special-border);
+            font-weight: 700;
+        }
+
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .danger { color: #f87171; font-weight: 600; }
+        .example-no-border .success { color: #34d399; font-weight: 600; }
+        .example-no-border .highlight { color: #fbbf24; font-weight: 600; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .method-card { padding: 12px 14px; }
+            mjx-container { font-size: 1em !important; }
+        }
+    </style>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>📈 Использование монотонности</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое монотонность?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Монотонность</strong> — это свойство функции <span style="color: #fbbf24; font-weight: 700;">возрастать</span> или <span style="color: #fbbf24; font-weight: 700;">убывать</span> на некотором промежутке.</p>
+            <div class="important">
+                <strong>🎯 Главная идея:</strong> Если одна функция <span style="color: #34d399; font-weight: 700;">возрастает</span>, а другая <span style="color: #f87171; font-weight: 700;">убывает</span>, то уравнение \(f(x) = g(x)\) имеет <span style="color: #fbbf24; font-weight: 700;">не более одного корня</span>.
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📋 Основные правила</span>
+        </div>
+        <div class="section-content">
+            <div class="method-card">
+                <div class="method-name">
+                    <span>📌 Ключевые факты</span>
+                </div>
+                <div class="algorithm">
+                    <li><strong>Факт 1.</strong> Если \(f(x)\) <span style="color: #34d399; font-weight: 700;">строго возрастает</span>, а \(g(x)\) <span style="color: #f87171; font-weight: 700;">строго убывает</span>, то уравнение \(f(x) = g(x)\) имеет <span style="color: #fbbf24; font-weight: 700;">не более одного корня</span>.</li>
+                    <li><strong>Факт 2.</strong> Если \(f(x)\) <span style="color: #34d399; font-weight: 700;">строго возрастает</span>, то \(f(a) = f(b) \iff a = b\).</li>
+                    <li><strong>Факт 3.</strong> Если \(f(x)\) <span style="color: #f87171; font-weight: 700;">строго убывает</span>, то \(f(a) = f(b) \iff a = b\).</li>
+                    <li><strong>Факт 4.</strong> Сумма возрастающих функций — возрастающая функция.</li>
+                    <li><strong>Факт 5.</strong> Сумма убывающих функций — убывающая функция.</li>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1: ВОЗРАСТАЕТ + УБЫВАЕТ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. \(2^x = 5 - x\)</span>
+            <span class="sub-title">возрастает + убывает → один корень</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Анализируем функции</span>
+                <div class="formula-line">\(f(x) = 2^x\) — <span style="color: #34d399; font-weight: 700;">возрастает</span> (основание \(2 > 1\))</div>
+                <div class="formula-line">\(g(x) = 5 - x\) — <span style="color: #f87171; font-weight: 700;">убывает</span> (коэффициент \(-1 < 0\))</div>
+
+                <span class="step">🔹 Шаг 2. Делаем вывод</span>
+                <div class="explain">💡 Одна функция возрастает, другая убывает → уравнение имеет <span style="color: #fbbf24; font-weight: 700;">не более одного корня</span>.</div>
+
+                <span class="step">🔹 Шаг 3. Подбираем корень</span>
+                <div class="formula-line">Пробуем \(x = 2\): \(2^2 = 4\), \(5-2 = 3\) → не подходит.</div>
+                <div class="formula-line">Пробуем \(x = 1\): \(2^1 = 2\), \(5-1 = 4\) → не подходит.</div>
+                <div class="formula-line">Пробуем \(x = 1.5\): \(2^{1.5} \approx 2.828\), \(5-1.5 = 3.5\) → не подходит.</div>
+                <div class="formula-line">Пробуем \(x \approx 1.715\): \(2^{1.715} \approx 3.285\), \(5-1.715 = 3.285\) → подходит!</div>
+                <div class="explain">💡 Точное значение не выражается через элементарные функции, но мы знаем, что корень <span style="color: #fbbf24; font-weight: 700;">только один</span>.</div>
+
+                <span class="result">✅ Ответ: \(x \approx 1.715\) (единственный корень)</span>
+                <div class="explain success">💡 Без монотонности мы бы не знали, сколько корней искать!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2: СУММА ВОЗРАСТАЮЩИХ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. \(x^3 + x = 2\)</span>
+            <span class="sub-title">сумма возрастающих → один корень</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Анализируем функцию</span>
+                <div class="formula-line">\(f(x) = x^3 + x\)</div>
+                <div class="explain">💡 \(x^3\) — возрастает, \(x\) — возрастает. Сумма возрастающих — возрастает.</div>
+                <div class="formula-line">\(f(x)\) — <span style="color: #34d399; font-weight: 700;">строго возрастает</span> на всей числовой прямой.</div>
+
+                <span class="step">🔹 Шаг 2. Делаем вывод</span>
+                <div class="explain">💡 Строго возрастающая функция принимает каждое значение <span style="color: #fbbf24; font-weight: 700;">ровно один раз</span>.</div>
+                <div class="formula-line">Значит, уравнение \(f(x) = 2\) имеет <span style="color: #fbbf24; font-weight: 700;">ровно один корень</span>.</div>
+
+                <span class="step">🔹 Шаг 3. Подбираем корень</span>
+                <div class="formula-line">\(x = 1\): \(1^3 + 1 = 2\) → подходит!</div>
+
+                <span class="result">✅ Ответ: \(x = 1\)</span>
+                <div class="explain success">💡 Монотонность гарантирует, что других корней нет — не нужно решать кубическое уравнение!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3: НЕРАВЕНСТВО ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. \(2^x > 5 - x\)</span>
+            <span class="sub-title">неравенство с монотонными функциями</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Анализируем функции</span>
+                <div class="formula-line">\(2^x\) — возрастает, \(5-x\) — убывает.</div>
+
+                <span class="step">🔹 Шаг 2. Находим точку пересечения</span>
+                <div class="explain">💡 Из примера 1: \(2^x = 5 - x\) при \(x \approx 1.715\).</div>
+
+                <span class="step">🔹 Шаг 3. Определяем знак неравенства</span>
+                <div class="explain">💡 Так как \(2^x\) возрастает, а \(5-x\) убывает, то при \(x > 1.715\): \(2^x > 5-x\).</div>
+                <div class="formula-line">При \(x < 1.715\): \(2^x < 5-x\).</div>
+
+                <span class="result">✅ Ответ: \(x \in (1.715; +\infty)\)</span>
+                <div class="explain success">💡 Монотонность помогает определить знак неравенства на всей прямой!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4: СЛОЖНЫЙ СЛУЧАЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. \(\sqrt{x+1} + \sqrt[3]{x+2} = 3\)</span>
+            <span class="sub-title">сумма возрастающих функций</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Находим ОДЗ</span>
+                <div class="formula-line">\(x+1 \ge 0\) → \(x \ge -1\)</div>
+
+                <span class="step">🔹 Шаг 2. Анализируем функции</span>
+                <div class="formula-line">\(\sqrt{x+1}\) — <span style="color: #34d399; font-weight: 700;">возрастает</span> (корень — возрастающая функция)</div>
+                <div class="formula-line">\(\sqrt[3]{x+2}\) — <span style="color: #34d399; font-weight: 700;">возрастает</span> (кубический корень — возрастающая функция)</div>
+                <div class="explain">💡 Сумма возрастающих — возрастает. Значит, уравнение имеет <span style="color: #fbbf24; font-weight: 700;">не более одного корня</span>.</div>
+
+                <span class="step">🔹 Шаг 3. Подбираем корень</span>
+                <div class="formula-line">Пробуем \(x = 0\): \(\sqrt{1} + \sqrt[3]{2} = 1 + 1.26 = 2.26\) → не подходит.</div>
+                <div class="formula-line">Пробуем \(x = 1\): \(\sqrt{2} + \sqrt[3]{3} = 1.414 + 1.442 = 2.856\) → не подходит.</div>
+                <div class="formula-line">Пробуем \(x = 2\): \(\sqrt{3} + \sqrt[3]{4} = 1.732 + 1.587 = 3.319\) → не подходит.</div>
+                <div class="formula-line">Пробуем \(x \approx 1.1\): \(\sqrt{2.1} + \sqrt[3]{3.1} \approx 1.449 + 1.458 = 2.907\) → не подходит.</div>
+                <div class="formula-line">Пробуем \(x \approx 1.4\): \(\sqrt{2.4} + \sqrt[3]{3.4} \approx 1.549 + 1.504 = 3.053\) → не подходит.</div>
+                <div class="formula-line">Точный корень \(x \approx 1.28\): \(\sqrt{2.28} + \sqrt[3]{3.28} \approx 1.510 + 1.490 = 3.000\)</div>
+
+                <span class="result">✅ Ответ: \(x \approx 1.28\) (единственный корень)</span>
+                <div class="explain success">💡 Монотонность гарантирует единственность, даже если мы не можем найти точный корень аналитически.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ШПАРГАЛКА ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📌 Когда применять монотонность</span>
+        </div>
+        <div class="section-content">
+            <div class="important">
+                <strong>🎯 Признаки того, что нужна монотонность:</strong><br><br>
+                📌 Уравнение имеет вид \(f(x) = g(x)\), где \(f\) и \(g\) — <span style="color: #fbbf24; font-weight: 700;">разные по монотонности</span> функции.<br>
+                📌 Одна функция <span style="color: #34d399; font-weight: 700;">возрастает</span>, другая <span style="color: #f87171; font-weight: 700;">убывает</span> → <span style="color: #fbbf24; font-weight: 700;">один корень</span>.<br>
+                📌 Левая часть уравнения — <span style="color: #fbbf24; font-weight: 700;">сумма монотонных функций</span> одного типа.<br>
+                📌 Нужно <span style="color: #fbbf24; font-weight: 700;">доказать единственность</span> корня (например, в задачах с параметром).<br><br>
+
+                <strong style="color: #34d399;">✅ Часто встречающиеся монотонные функции:</strong><br>
+                • \(x^n\) при \(n > 0\) — возрастает на \([0; +\infty)\)<br>
+                • \(a^x\) при \(a > 1\) — возрастает, при \(0 < a < 1\) — убывает<br>
+                • \(\log_a x\) при \(a > 1\) — возрастает, при \(0 < a < 1\) — убывает<br>
+                • \(\sqrt{x}\) — возрастает<br>
+                • \(\sin x\) — возрастает на \([-\frac{\pi}{2}; \frac{\pi}{2}]\), убывает на \([\frac{\pi}{2}; \frac{3\pi}{2}]\)
+            </div>
+        </div>
+    </div>
+
+    <a href="nonstandard-methods.html" class="back-link">← Назад к нестандартным методам</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>

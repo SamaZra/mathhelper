@@ -20,6 +20,8 @@
             --table-odd: #1e3545;
             --angle-col-bg: #233e50;
             --info-bg: #1e3545;
+            --example-bg: #162a38;
+            --example-text: #ffffff;
         }
 
         :root.light-mode {
@@ -35,6 +37,8 @@
             --table-odd: white;
             --angle-col-bg: #e8f0fe;
             --info-bg: #e8f0fe;
+            --example-bg: #f8fafc;
+            --example-text: #1a2a3f;
         }
 
         body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; }
@@ -44,7 +48,9 @@
         .theme-toggle:hover{transform:scale(1.1);}
 
         h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 10px auto; padding-bottom: 8px; border-bottom: 4px solid #2980b9; text-align: center; }
-        .values-table { width: 100%; border-collapse: collapse; background: var(--table-bg); border-radius: 16px; overflow: hidden; font-size: 1.05rem; text-align: center; }
+
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 10px 0; border-radius: 16px; }
+        .values-table { width: 100%; min-width: 500px; border-collapse: collapse; background: var(--table-bg); border-radius: 16px; overflow: hidden; font-size: 1.05rem; text-align: center; }
         .values-table th { background: #1a2d3c; color: white; padding: 15px 3px; font-weight: 700; font-size: 0.9rem; word-wrap: break-word; }
         .values-table td { padding: 15px 3px; border: 1px solid var(--border); font-family: 'Times New Roman', monospace; color: var(--text); word-wrap: break-word; }
         .values-table tr:nth-child(even) { background: var(--table-even); }
@@ -52,35 +58,72 @@
         .values-table th:first-child, .values-table td:first-child { width: 28%; }
         .values-table th:not(:first-child), .values-table td:not(:first-child) { width: 18%; }
         .angle-col { font-weight: 700; background: var(--angle-col-bg); }
-        .note { background: var(--info-bg); border-left: 4px solid #2980b9; border-radius: 16px; padding: 12px 14px; margin: 12px 0; font-size: 0.9rem; line-height: 1.4; color: var(--text); }
+
+        .note { background: var(--info-bg); border-left: 4px solid #2980b9; border-radius: 16px; padding: 12px 14px; margin: 12px 0; font-size: 0.9rem; line-height: 1.6; color: var(--text); }
+        .note a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); }
+        .note a:hover { opacity: 0.8; }
+
+        .example-block { background: var(--example-bg); border-radius: 16px; padding: 14px 16px; margin: 12px 0; border: 1px solid var(--border); overflow-x: auto; word-wrap: break-word; }
+        .example-block p { margin: 4px 0; font-size: 1rem; line-height: 1.6; color: var(--example-text); word-wrap: break-word; overflow-wrap: break-word; }
+        .example-block .step { color: #a78bfa; font-weight: 600; }
+        .example-block .result { background: #d1fae5; display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.9rem; color: #065f46; font-weight: 600; }
+        .example-block .formula-used { background: var(--info-bg); display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.9rem; color: #1a5276; }
+        .example-block mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+
+        .section { margin-bottom: 14px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; border-left: 4px solid #e67e22; padding-left: 12px; cursor: pointer; user-select: none; }
+        .section-title:hover { opacity: 0.8; }
+        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.9rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .section.collapsed .section-title::after { transform: rotate(-90deg); }
+        .section-content { max-height: 3000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
         .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: #2980b9; color: white; text-decoration: none; font-weight: bold; border-radius: 20px; }
+
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
         mjx-container { font-size: 1.35em !important; overflow-x: visible !important; max-width: 100% !important; }
+
         @media (max-width: 600px) {
-            .values-table { font-size: 0.9rem; }
+            .values-table { font-size: 0.9rem; min-width: 400px; }
             .values-table th { font-size: 0.75rem; padding: 10px 2px; }
             .values-table td { padding: 10px 2px; }
             h1 { font-size: 1.3rem; }
+            .example-block { padding: 10px 12px; }
+            .example-block p { font-size: 0.9rem; }
+            .container { padding: 10px 6px; }
         }
-    
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
     </style>
-    <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true,macros:{tg:'\\mathop{\\mathrm{tg}}',ctg:'\\mathop{\\mathrm{ctg}}'}},chtml:{scale:1.25}};</script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                macros: { tg: '\\mathop{\\mathrm{tg}}', ctg: '\\mathop{\\mathrm{ctg}}' }
+            },
+            chtml: { scale: 1.25 }
+        };
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
 </head>
 <body>
 <div class="container">
-<button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
 
     <h1>Таблица значений (0°–360°)</h1>
-    <table class="values-table">
-        <thead>
+
+    <div class="table-wrapper">
+        <table class="values-table">
+            <thead>
             <tr>
                 <th>Угол</th><th>\(\sin\alpha\)</th><th>\(\cos\alpha\)</th><th>\(\tg\alpha\)</th><th>\(\ctg\alpha\)</th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             <tr><td class="angle-col">\(0^\circ\;(0)\)</td><td>\(0\)</td><td>\(1\)</td><td>\(0\)</td><td>—</td></tr>
             <tr><td class="angle-col">\(30^\circ\;(\frac{\pi}{6})\)</td><td>\(\frac{1}{2}\)</td><td>\(\frac{\sqrt{3}}{2}\)</td><td>\(\frac{\sqrt{3}}{3}\)</td><td>\(\sqrt{3}\)</td></tr>
             <tr><td class="angle-col">\(45^\circ\;(\frac{\pi}{4})\)</td><td>\(\frac{\sqrt{2}}{2}\)</td><td>\(\frac{\sqrt{2}}{2}\)</td><td>\(1\)</td><td>\(1\)</td></tr>
@@ -98,23 +141,93 @@
             <tr><td class="angle-col">\(315^\circ\;(\frac{7\pi}{4})\)</td><td>\(-\frac{\sqrt{2}}{2}\)</td><td>\(\frac{\sqrt{2}}{2}\)</td><td>\(-1\)</td><td>\(-1\)</td></tr>
             <tr><td class="angle-col">\(330^\circ\;(\frac{11\pi}{6})\)</td><td>\(-\frac{1}{2}\)</td><td>\(\frac{\sqrt{3}}{2}\)</td><td>\(-\frac{\sqrt{3}}{3}\)</td><td>\(-\sqrt{3}\)</td></tr>
             <tr><td class="angle-col">\(360^\circ\;(2\pi)\)</td><td>\(0\)</td><td>\(1\)</td><td>\(0\)</td><td>—</td></tr>
-        </tbody>
-    </table>
-    
+            </tbody>
+        </table>
+    </div>
+
     <div class="note">
         <strong>Примечания:</strong><br>
         • «—» означает, что функция не определена (деление на ноль)<br>
-        • Для углов > 180° знаки определяются по четвертям (см. раздел «Знаки по четвертям»)<br>
+        • Для углов > 180° знаки определяются по четвертям (см. раздел <a href="Знаки тригонометрических функций.html">«Знаки по четвертям»</a>)<br>
         • \(\frac{\sqrt{2}}{2} \approx 0.7071,\; \frac{\sqrt{3}}{2} \approx 0.8660,\; \sqrt{3} \approx 1.732\)
     </div>
-    
-    <a href="index.html" class="back-link">← Назад к меню</a>
-</div>
-<script>
-(function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
-function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
-</script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+    <a href="trigonometry.html" class="back-link">← Назад к тригонометрии</a>
+</div>
+
+<script>
+    (function() {
+        var t = localStorage.getItem('mathTheme');
+        if (t === 'light') {
+            document.documentElement.classList.add('light-mode');
+            var b = document.getElementById('themeBtn');
+            if (b) b.textContent = '☀️';
+        }
+    })();
+
+    function toggleTheme() {
+        var h = document.documentElement;
+        var b = document.getElementById('themeBtn');
+        if (h.classList.contains('light-mode')) {
+            h.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            if (b) b.textContent = '🌙';
+        } else {
+            h.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            if (b) b.textContent = '☀️';
+        }
+    }
+
+    function toggleSection(el) {
+        el.closest('.section').classList.toggle('collapsed');
+    }
+
+    const FAV_KEY = 'math_favorites';
+
+    function getFavorites() {
+        const s = localStorage.getItem(FAV_KEY);
+        return s ? JSON.parse(s) : [];
+    }
+
+    function saveFavorites(f) {
+        localStorage.setItem(FAV_KEY, JSON.stringify(f));
+    }
+
+    function isFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        return getFavorites().includes(u);
+    }
+
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+</script>
 </body>
 </html>

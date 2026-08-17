@@ -1269,39 +1269,38 @@
     }
 
     function sendShare() {
-        var name = document.getElementById('studentName').value.trim();
-        var group = document.getElementById('studentGroup').value.trim();
+    var name = document.getElementById('studentName').value.trim();
+    var group = document.getElementById('studentGroup').value.trim();
 
-        if (!name) {
-            alert('Пожалуйста, введите Фамилию и Имя');
-            document.getElementById('studentName').focus();
-            return;
-        }
-        if (!group) {
-            alert('Пожалуйста, введите номер группы/класса');
-            document.getElementById('studentGroup').focus();
-            return;
-        }
-
-        closeShareModal();
-
-        var text = getResultText(name, group);
-
-        if (window.Android && window.Android.shareAppFromJs) {
-            window.Android.shareAppFromJs(text);
-        } else if (navigator.share) {
-            navigator.share({
-                title: 'Результат адаптивного теста: Прямые и плоскости',
-                text: text
-            }).catch(function(err) {
-                if (err.name !== 'AbortError') {
-                    copyToClipboard(text);
-                }
-            });
-        } else {
-            copyToClipboard(text);
-        }
+    if (!name) {
+        alert('Пожалуйста, введите Фамилию и Имя');
+        document.getElementById('studentName').focus();
+        return;
     }
+    if (!group) {
+        alert('Пожалуйста, введите номер группы/класса');
+        document.getElementById('studentGroup').focus();
+        return;
+    }
+
+    closeShareModal();
+
+    var text = getResultText(name, group);
+
+    // ===== ЧЕРЕЗ ANDROID-МОСТ =====
+    if (window.Android && window.Android.shareText) {
+        window.Android.shareText(text);
+    } else if (navigator.share) {
+        navigator.share({
+            title: 'Результат адаптивного теста',
+            text: text
+        }).catch(function(err) {
+            console.log('Share cancelled or error:', err);
+        });
+    } else {
+        copyToClipboard(text);
+    }
+}
 
     function copyToClipboard(text) {
         if (navigator.clipboard) {

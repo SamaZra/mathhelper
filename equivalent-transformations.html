@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Равносильные преобразования — метод решения</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --method-card: rgba(139,92,246,0.08);
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --method-card: rgba(124,58,237,0.06);
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .method-card {
+            background: var(--method-card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border-left: 4px solid var(--special-border);
+        }
+        .method-card .method-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .method-card .method-name .badge {
+            background: var(--special-border);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .method-card .algorithm {
+            margin: 8px 0 4px 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+        .method-card .algorithm li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 20px;
+        }
+        .method-card .algorithm li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--special-border);
+            font-weight: 700;
+        }
+
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .danger { color: #f87171; font-weight: 600; }
+        .example-no-border .success { color: #34d399; font-weight: 600; }
+        .example-no-border .highlight { color: #fbbf24; font-weight: 600; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        .rules-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .rules-grid .rule-card {
+            background: var(--method-card);
+            border-radius: 12px;
+            padding: 12px 16px;
+            border-left: 3px solid var(--special-border);
+        }
+        .rules-grid .rule-card .rule-name {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        .rules-grid .rule-card .rule-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .method-card { padding: 12px 14px; }
+            .rules-grid { grid-template-columns: 1fr; }
+            mjx-container { font-size: 1em !important; }
+        }
+    </style>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>⚖️ Равносильные преобразования</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое равносильные преобразования?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Равносильные преобразования</strong> — это такие преобразования уравнения или неравенства, которые <span style="color: #fbbf24; font-weight: 700;">не меняют множество решений</span>. То есть новое уравнение имеет те же корни, что и исходное.</p>
+            <div class="important">
+                <strong>🎯 Главное правило:</strong> Любое преобразование должно быть <span style="color: #fbbf24; font-weight: 700;">обратимым</span> или учитывать ОДЗ. Если вы не уверены — <span style="color: #f87171; font-weight: 700;">проверьте корни подстановкой!</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📋 Основные правила</span>
+        </div>
+        <div class="section-content">
+            <div class="rules-grid">
+                <div class="rule-card">
+                    <div class="rule-name">✅ Прибавление/вычитание</div>
+                    <div class="rule-desc">Можно прибавлять или вычитать одно и то же число к обеим частям. Равносильно.</div>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-name">✅ Умножение/деление на число</div>
+                    <div class="rule-desc">Можно умножать или делить на число \(\neq 0\). При умножении на отрицательное — знак неравенства меняется.</div>
+                </div>
+                <div class="rule-card" style="border-left-color: #f87171;">
+                    <div class="rule-name">⚠️ Умножение на выражение с переменной</div>
+                    <div class="rule-desc">Нельзя, если не знаете знак выражения! Это может привести к потере или добавлению корней.</div>
+                </div>
+                <div class="rule-card" style="border-left-color: #f87171;">
+                    <div class="rule-name">⚠️ Возведение в квадрат</div>
+                    <div class="rule-desc">Только если <span style="color: #f87171; font-weight: 700;">обе части неотрицательны</span>! Иначе могут появиться посторонние корни.</div>
+                </div>
+                <div class="rule-card" style="border-left-color: #f87171;">
+                    <div class="rule-name">⚠️ Сокращение дроби</div>
+                    <div class="rule-desc">Можно сокращать только на множитель, который <span style="color: #f87171; font-weight: 700;">не равен нулю</span> в ОДЗ.</div>
+                </div>
+                <div class="rule-card" style="border-left-color: #f87171;">
+                    <div class="rule-name">⚠️ Логарифмирование</div>
+                    <div class="rule-desc">Только если обе части <span style="color: #f87171; font-weight: 700;">положительны</span>.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1: ПРОСТОЕ ПРЕОБРАЗОВАНИЕ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. \(2x + 5 = 13\)</span>
+            <span class="sub-title">безопасные преобразования</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Вычитаем 5 из обеих частей</span>
+                <div class="formula-line">\(2x + 5 - 5 = 13 - 5\)</div>
+                <div class="formula-line">\(2x = 8\)</div>
+                <div class="explain success">✅ Это равносильное преобразование.</div>
+
+                <span class="step">🔹 Шаг 2. Делим обе части на 2</span>
+                <div class="formula-line">\(x = 4\)</div>
+                <div class="explain success">✅ Это тоже равносильное преобразование.</div>
+
+                <span class="result">✅ Ответ: \(x = 4\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2: ОПАСНОСТЬ ВОЗВЕДЕНИЯ В КВАДРАТ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. \(\sqrt{x+1} = x-1\)</span>
+            <span class="sub-title">опасность возведения в квадрат</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Находим ОДЗ</span>
+                <div class="formula-line">\(x+1 \ge 0\) → \(x \ge -1\)</div>
+                <div class="formula-line">\(x-1 \ge 0\) → \(x \ge 1\) (так как корень равен неотрицательному числу)</div>
+                <div class="explain danger">⚠️ ОДЗ: \(x \ge 1\)</div>
+
+                <span class="step">🔹 Шаг 2. Возводим в квадрат</span>
+                <div class="formula-line">\((\sqrt{x+1})^2 = (x-1)^2\)</div>
+                <div class="formula-line">\(x+1 = x^2 - 2x + 1\)</div>
+                <div class="explain">💡 Это преобразование <span style="color: #f87171; font-weight: 700;">не всегда равносильно</span>! Мы могли получить посторонние корни.</div>
+
+                <span class="step">🔹 Шаг 3. Решаем</span>
+                <div class="formula-line">\(x^2 - 3x = 0\)</div>
+                <div class="formula-line">\(x(x-3) = 0\)</div>
+                <div class="formula-line">\(x = 0\) или \(x = 3\)</div>
+
+                <span class="step">🔹 Шаг 4. Проверяем по ОДЗ</span>
+                <div class="formula-line">\(x = 0\): ОДЗ требует \(x \ge 1\) → <span style="color: #f87171; font-weight: 700;">не подходит</span> (посторонний корень!)</div>
+                <div class="formula-line">\(x = 3\): \(\sqrt{4} = 2\), \(3-1 = 2\) → <span style="color: #34d399; font-weight: 700;">подходит</span></div>
+
+                <span class="result">✅ Ответ: \(x = 3\)</span>
+                <div class="explain danger">⚠️ Без проверки вы бы записали \(x = 0\) и ошиблись!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3: ОПАСНОСТЬ УМНОЖЕНИЯ НА ПЕРЕМЕННУЮ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. \(\frac{2x}{x-3} = 4\)</span>
+            <span class="sub-title">опасность умножения на знаменатель</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Находим ОДЗ</span>
+                <div class="formula-line">\(x-3 \neq 0\) → \(x \neq 3\)</div>
+
+                <span class="step">🔹 Шаг 2. Умножаем обе части на \((x-3)\)</span>
+                <div class="formula-line">\(2x = 4(x-3)\)</div>
+                <div class="explain">💡 Мы умножили на выражение с переменной. Это <span style="color: #f87171; font-weight: 700;">не всегда равносильно</span>, но мы учли ОДЗ: \(x \neq 3\).</div>
+
+                <span class="step">🔹 Шаг 3. Решаем</span>
+                <div class="formula-line">\(2x = 4x - 12\)</div>
+                <div class="formula-line">\(-2x = -12\)</div>
+                <div class="formula-line">\(x = 6\)</div>
+
+                <span class="step">🔹 Шаг 4. Проверяем ОДЗ</span>
+                <div class="explain">💡 \(x = 6 \neq 3\) → подходит.</div>
+
+                <span class="result">✅ Ответ: \(x = 6\)</span>
+                <div class="explain success">💡 Если бы мы забыли про ОДЗ и получили \(x = 3\), это был бы посторонний корень.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4: ОПАСНОСТЬ СОКРАЩЕНИЯ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. \(\frac{x^2-4}{x-2} = 0\)</span>
+            <span class="sub-title">опасность сокращения</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Находим ОДЗ</span>
+                <div class="formula-line">\(x-2 \neq 0\) → \(x \neq 2\)</div>
+
+                <span class="step">🔹 Шаг 2. Раскладываем числитель</span>
+                <div class="formula-line">\(\frac{(x-2)(x+2)}{x-2} = 0\)</div>
+
+                <span class="step">🔹 Шаг 3. Сокращаем</span>
+                <div class="formula-line">\(x+2 = 0\)</div>
+                <div class="explain danger">⚠️ Мы сократили на \((x-2)\), но это допустимо <span style="color: #f87171; font-weight: 700;">только при \(x \neq 2\)</span>. К счастью, это учтено в ОДЗ.</div>
+
+                <span class="step">🔹 Шаг 4. Решаем</span>
+                <div class="formula-line">\(x = -2\)</div>
+
+                <span class="step">🔹 Шаг 5. Проверяем ОДЗ</span>
+                <div class="explain">💡 \(x = -2 \neq 2\) → подходит.</div>
+
+                <span class="result">✅ Ответ: \(x = -2\)</span>
+                <div class="explain success">💡 Если бы вы просто сократили и забыли про ОДЗ, а потом получили \(x = 2\), вы бы ошиблись.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 5: НЕРАВЕНСТВО С УМНОЖЕНИЕМ НА ОТРИЦАТЕЛЬНОЕ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5. \(-2x > 6\)</span>
+            <span class="sub-title">умножение на отрицательное в неравенствах</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Делим обе части на \(-2\)</span>
+                <div class="explain danger">⚠️ Мы делим на отрицательное число. <span style="color: #f87171; font-weight: 700;">Знак неравенства меняется!</span></div>
+                <div class="formula-line">\(x < -3\)</div>
+
+                <span class="result">✅ Ответ: \(x \in (-\infty; -3)\)</span>
+                <div class="explain danger">⚠️ Если бы вы забыли поменять знак, получили бы \(x > -3\) — это была бы грубая ошибка!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ШПАРГАЛКА ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📌 Что можно и что нельзя</span>
+        </div>
+        <div class="section-content">
+            <div class="important">
+                <strong>✅ МОЖНО (равносильные преобразования):</strong><br>
+                • Прибавлять/вычитать одно и то же число<br>
+                • Умножать/делить на число \(\neq 0\)<br>
+                • Переносить члены из одной части в другую (смена знака)<br><br>
+
+                <strong style="color: #f87171;">⚠️ НЕЛЬЗЯ (или нужно с осторожностью):</strong><br>
+                • Умножать на выражение с переменной — <span style="color: #f87171;">нужно учитывать знак или ОДЗ</span><br>
+                • Возводить в квадрат — <span style="color: #f87171;">только если обе части неотрицательны</span><br>
+                • Сокращать на выражение с переменной — <span style="color: #f87171;">только если оно \(\neq 0\) в ОДЗ</span><br>
+                • Применять логарифмы — <span style="color: #f87171;">только к положительным числам</span>
+            </div>
+            <div class="important" style="border-left-color: #34d399;">
+                <strong style="color: #34d399;">🛡️ Золотое правило:</strong><br>
+                Если вы сделали преобразование, которое может быть неравносильным — <span style="color: #fbbf24; font-weight: 700;">всегда проверяйте корни подстановкой в исходное уравнение!</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="standard-methods.html" class="back-link">← Назад к стандартным методам</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Уравнения с параметром — ЕГЭ (профиль)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --interval-method-bg: rgba(251,191,36,0.12);
+            --interval-method-border: #fbbf24;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --interval-method-bg: rgba(251,191,36,0.10);
+            --interval-method-border: #fbbf24;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: visible; line-height: 2.2; color: var(--text); }
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            border-left: 5px solid var(--special-border);
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .star { color: #fbbf24; font-size: 1.2rem; margin-right: 4px; }
+        .example .star { color: #fbbf24; font-size: 1.2rem; margin-right: 4px; }
+        .example-no-border .interval-method { color: #fbbf24; font-weight: 700; background: var(--interval-method-bg); padding: 2px 10px; border-radius: 6px; display: inline-block; border-left: 3px solid var(--interval-method-border); }
+        .example .interval-method { color: #fbbf24; font-weight: 700; background: var(--interval-method-bg); padding: 2px 10px; border-radius: 6px; display: inline-block; border-left: 3px solid var(--interval-method-border); }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+
+        .graph-container { text-align: center; margin: 12px 0; background: var(--canvas-bg); border-radius: 16px; padding: 8px; display: block; transition: background 0.2s; }
+        .graph-container canvas { max-width: 100%; height: auto; border-radius: 12px; display: inline-block; background: var(--canvas-bg); transition: background 0.2s; width: 100%; touch-action: none; }
+        .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; }
+        .graph-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 6px; align-items: center; }
+        .graph-controls input[type="range"] { width: 180px; max-width: 100%; cursor: pointer; background: var(--slider-bg); -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px; outline: none; }
+        .graph-controls input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--special-border); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .graph-controls .param-value { font-weight: 700; color: #fbbf24; font-size: 0.9rem; min-width: 40px; }
+        .graph-controls .param-label { color: var(--text-secondary); font-size: 0.8rem; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; font-size: 0.9rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .formula-block { padding: 12px 14px; font-size: 0.9rem; }
+            mjx-container { font-size: 1em !important; }
+            .graph-controls input[type="range"] { width: 120px; }
+        }
+    </style>
+
+    <!-- MathJax — локальное подключение -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        setTimeout(() => {
+                            drawViz(1);
+                        }, 400);
+                    });
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>⭐ Уравнения с параметром (ЕГЭ)</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое уравнение с параметром?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Уравнение с параметром</strong> — это уравнение, содержащее переменную \(x\) и параметр \(a\), значение которого может меняться.</p>
+            <div class="important">
+                <strong>📌 Основные методы:</strong><br>
+                1️⃣ <strong>Линейные</strong> — исследование коэффициента при \(x\).<br>
+                2️⃣ <strong>Квадратные</strong> — анализ дискриминанта.<br>
+                3️⃣ <strong>Дробно-рациональные</strong> — учёт ОДЗ.<br>
+                4️⃣ <strong>Показательные и логарифмические</strong> — замена переменной.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1 (ПРОСТОЙ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. \(ax = 6\)</span>
+            <span class="sub-title">линейное уравнение с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(ax = 6\)</span>
+                <div class="explain">💡 Что мы видим? Слева — произведение параметра \(a\) на переменную \(x\). Справа — число 6.</div>
+
+                <span class="step">🔹 Почему здесь важен параметр?</span>
+                <div class="explain">💡 Параметр \(a\) может быть любым числом. От его значения зависит, будет ли уравнение иметь решение и сколько.</div>
+
+                <span class="step">🔹 Как решать такие уравнения?</span>
+                <div class="explain">💡 Главное — понять, чему равен коэффициент при \(x\). Если он не равен нулю, мы можем разделить обе части на этот коэффициент. Если он равен нулю, уравнение превращается в \(0 = 6\), что невозможно.</div>
+
+                <span class="step">🔹 Разбираем случаи:</span>
+
+                <div class="formula-line"><strong>Случай 1: \(a \neq 0\)</strong></div>
+                <div class="explain">💡 Если \(a \neq 0\), то мы можем разделить обе части на \(a\).</div>
+                <div class="formula-line">\(x = \frac{6}{a}\)</div>
+                <div class="explain">💡 При любом \(a \neq 0\) получаем ровно одно решение.</div>
+
+                <div class="formula-line"><strong>Случай 2: \(a = 0\)</strong></div>
+                <div class="explain">💡 Если \(a = 0\), то уравнение принимает вид \(0 \cdot x = 6\), то есть \(0 = 6\).</div>
+                <div class="explain">💡 Это противоречие, значит решений нет.</div>
+
+                <span class="result">✅ Ответ: при \(a \neq 0\): \(x = \frac{6}{a}\); при \(a = 0\): решений нет.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2 (ЕГЭ С ВИЗУАЛИЗАЦИЕЙ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2 (ЕГЭ). \(x^2 - 2ax + a^2 - 1 = 0\)</span>
+            <span class="sub-title">квадратное уравнение с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(x^2 - 2ax + a^2 - 1 = 0\)</span>
+                <div class="explain">💡 Это квадратное уравнение относительно \(x\). Коэффициенты зависят от параметра \(a\).</div>
+
+                <span class="step">🔹 Находим дискриминант</span>
+                <div class="explain">💡 Для квадратного уравнения \(x^2 - 2ax + a^2 - 1 = 0\) коэффициенты: \(A = 1\), \(B = -2a\), \(C = a^2 - 1\).</div>
+                <div class="explain">💡 Дискриминант \(D = B^2 - 4AC\).</div>
+                <div class="formula-line">\(D = (-2a)^2 - 4 \cdot 1 \cdot (a^2 - 1)\)</div>
+                <div class="formula-line">\(D = 4a^2 - 4a^2 + 4 = 4\)</div>
+                <div class="explain">💡 Дискриминант равен 4 и не зависит от \(a\)! Это значит, что при любом \(a\) уравнение имеет два различных корня.</div>
+
+                <span class="step">🔹 Находим корни</span>
+                <div class="explain">💡 Корни квадратного уравнения: \(x = \frac{-B \pm \sqrt{D}}{2A}\).</div>
+                <div class="formula-line">\(x = \frac{2a \pm \sqrt{4}}{2} = \frac{2a \pm 2}{2} = a \pm 1\)</div>
+                <div class="explain">💡 Получаем два корня: \(x_1 = a - 1\) и \(x_2 = a + 1\).</div>
+                <div class="explain">💡 Обратите внимание: корни зависят от \(a\) линейно. При изменении \(a\) они сдвигаются вместе с вершиной параболы.</div>
+
+                <span class="step">🔹 Визуализация изменения параметра</span>
+                <div class="explain">💡 Двигайте ползунок внизу — меняйте значение \(a\) и наблюдайте, как меняется график параболы и положение её корней.</div>
+
+                <div class="graph-container">
+                    <canvas id="vizGraph" width="500" height="280"></canvas>
+                    <div class="graph-controls">
+                        <span class="param-label">\(a = \)</span>
+                        <input type="range" id="paramSlider" min="-4" max="4" step="0.1" value="1">
+                        <span class="param-value" id="paramDisplay">1.0</span>
+                        <button onclick="resetViz()">⟲ Сброс</button>
+                    </div>
+                    <div class="graph-label">
+                        🟣 Парабола \(y = x^2 - 2ax + a^2 - 1\) &nbsp;·&nbsp; 🔴 Корни: \(a-1\) и \(a+1\)
+                    </div>
+                </div>
+
+                <span class="result">✅ Ответ: при любом \(a\): \(x_1 = a-1,\; x_2 = a+1\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3 (ЕГЭ). \(x^2 - 2ax + a = 0\)</span>
+            <span class="sub-title">исследование количества корней</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(x^2 - 2ax + a = 0\)</span>
+                <div class="explain">💡 Здесь дискриминант уже <strong>зависит от \(a\)</strong>, поэтому количество корней будет меняться.</div>
+
+                <span class="step">🔹 Находим дискриминант</span>
+                <div class="explain">💡 Коэффициенты: \(A = 1\), \(B = -2a\), \(C = a\).</div>
+                <div class="formula-line">\(D = (-2a)^2 - 4 \cdot 1 \cdot a = 4a^2 - 4a = 4a(a-1)\)</div>
+                <div class="explain">💡 Дискриминант равен нулю, когда \(a = 0\) или \(a = 1\).</div>
+
+                <span class="step">🔹 Исследуем знак дискриминанта</span>
+                <div class="explain">💡 Нам нужно понять, при каких \(a\) дискриминант положителен, отрицателен или равен нулю.</div>
+                <div class="formula-line">\(D > 0 \Rightarrow 4a(a-1) > 0 \Rightarrow a < 0\) или \(a > 1\)</div>
+                <div class="explain">💡 Это значит: при \(a < 0\) и при \(a > 1\) уравнение имеет два корня.</div>
+                <div class="formula-line">\(D = 0 \Rightarrow a = 0\) или \(a = 1\)</div>
+                <div class="explain">💡 При \(a = 0\) и \(a = 1\) уравнение имеет один корень.</div>
+                <div class="formula-line">\(D < 0 \Rightarrow 0 < a < 1\)</div>
+                <div class="explain">💡 При \(0 < a < 1\) уравнение не имеет корней.</div>
+
+                <span class="result">✅ Ответ: при \(a < 0\) или \(a > 1\): два корня; при \(a = 0\) или \(a = 1\): один корень; при \(0 < a < 1\): корней нет.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4 (ЕГЭ). \(\frac{x-a}{x-2} = 3\)</span>
+            <span class="sub-title">дробно-рациональное уравнение</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(\frac{x-a}{x-2} = 3\)</span>
+                <div class="explain">💡 В знаменателе стоит \(x-2\). Это значит, что \(x \neq 2\) — на ноль делить нельзя.</div>
+
+                <span class="step">🔹 ОДЗ (область допустимых значений)</span>
+                <div class="formula-line">\(x \neq 2\)</div>
+
+                <span class="step">🔹 Умножаем обе части на знаменатель</span>
+                <div class="explain">💡 Чтобы избавиться от дроби, умножим обе части на \(x-2\). Так как \(x \neq 2\), это допустимо.</div>
+                <div class="formula-line">\(x - a = 3(x - 2)\)</div>
+                <div class="formula-line">\(x - a = 3x - 6\)</div>
+
+                <span class="step">🔹 Переносим все члены с \(x\) в одну сторону</span>
+                <div class="formula-line">\(x - 3x = a - 6\)</div>
+                <div class="formula-line">\(-2x = a - 6\)</div>
+                <div class="formula-line">\(x = \frac{6 - a}{2}\)</div>
+
+                <span class="step">🔹 Проверяем ОДЗ</span>
+                <div class="explain">💡 Мы нашли корень \(x = \frac{6-a}{2}\). Но он не должен быть равен 2.</div>
+                <div class="formula-line">\(\frac{6-a}{2} \neq 2 \Rightarrow 6 - a \neq 4 \Rightarrow a \neq 2\)</div>
+                <div class="explain">💡 Если \(a = 2\), то \(x = \frac{6-2}{2} = 2\), что не входит в ОДЗ.</div>
+
+                <span class="result">✅ Ответ: при \(a \neq 2\): \(x = \frac{6-a}{2}\); при \(a = 2\): решений нет.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 5 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5 (ЕГЭ). \(2^x = a\)</span>
+            <span class="sub-title">показательное уравнение с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(2^x = a\)</span>
+                <div class="explain">💡 Показательная функция \(2^x\) всегда положительна: \(2^x > 0\) для любого \(x\).</div>
+
+                <span class="step">🔹 Анализируем возможные значения \(a\)</span>
+                <div class="formula-line"><strong>1) \(a > 0\)</strong></div>
+                <div class="explain">💡 Если \(a > 0\), то уравнение имеет решение. Логарифмируем по основанию 2.</div>
+                <div class="formula-line">\(x = \log_2 a\)</div>
+
+                <div class="formula-line"><strong>2) \(a \le 0\)</strong></div>
+                <div class="explain">💡 Если \(a \le 0\), то уравнение не имеет решений, потому что \(2^x\) не может быть отрицательным или нулём.</div>
+
+                <span class="result">✅ Ответ: при \(a > 0\): \(x = \log_2 a\); при \(a \le 0\): решений нет.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 6 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 6 (ЕГЭ). \(\log_2(x-a) = 3\)</span>
+            <span class="sub-title">логарифмическое уравнение с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(\log_2(x-a) = 3\)</span>
+                <div class="explain">💡 Логарифм определён только для положительных чисел: \(x-a > 0\).</div>
+
+                <span class="step">🔹 ОДЗ</span>
+                <div class="formula-line">\(x - a > 0 \Rightarrow x > a\)</div>
+
+                <span class="step">🔹 Решаем уравнение</span>
+                <div class="explain">💡 По определению логарифма: \(\log_2 A = B \Rightarrow A = 2^B\).</div>
+                <div class="formula-line">\(x - a = 2^3 = 8\)</div>
+                <div class="formula-line">\(x = a + 8\)</div>
+
+                <span class="step">🔹 Проверяем ОДЗ</span>
+                <div class="explain">💡 \(x = a + 8\) должно быть больше \(a\). Это всегда верно, так как \(a + 8 > a\).</div>
+
+                <span class="result">✅ Ответ: при любом \(a\): \(x = a + 8\)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 7 (ЕГЭ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 7 (ЕГЭ). \(\cos x = a\)</span>
+            <span class="sub-title">тригонометрическое уравнение с параметром</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Уравнение: \(\cos x = a\)</span>
+                <div class="explain">💡 Косинус принимает значения только в отрезке \([-1; 1]\).</div>
+
+                <span class="step">🔹 Анализируем возможные значения \(a\)</span>
+                <div class="formula-line"><strong>1) \(-1 \le a \le 1\)</strong></div>
+                <div class="explain">💡 Если \(a\) в этом диапазоне, уравнение имеет решения.</div>
+                <div class="formula-line">\(x = \pm \arccos a + 2\pi k,\; k \in \mathbb{Z}\)</div>
+                <div class="explain">💡 \(\arccos a\) — это угол, косинус которого равен \(a\). \(2\pi k\) добавляет периодичность.</div>
+
+                <div class="formula-line"><strong>2) \(a < -1\) или \(a > 1\)</strong></div>
+                <div class="explain">💡 Если \(a\) вне отрезка \([-1; 1]\), решений нет, так как косинус не может быть меньше -1 или больше 1.</div>
+
+                <span class="result">✅ Ответ: при \(a \in [-1; 1]\): \(x = \pm \arccos a + 2\pi k\); при \(a \notin [-1; 1]\): решений нет.</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к главному меню</a>
+</div>
+
+<script>
+    // ===== ВИЗУАЛИЗАЦИЯ ДЛЯ ПРИМЕРА 2 =====
+    function drawViz(a) {
+        const canvas = document.getElementById('vizGraph');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 40;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+        const xMin = -5, xMax = 5, yMin = -5, yMax = 5;
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        // Сетка
+        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+        ctx.lineWidth = 0.6;
+        for (let x = -5; x <= 5; x++) {
+            if (x === 0) continue;
+            const sx = toX(x);
+            ctx.beginPath();
+            ctx.moveTo(sx, pad);
+            ctx.lineTo(sx, h - pad);
+            ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(x, sx, h - pad + 4);
+        }
+        for (let y = -5; y <= 5; y++) {
+            if (y === 0) continue;
+            const sy = toY(y);
+            ctx.beginPath();
+            ctx.moveTo(pad, sy);
+            ctx.lineTo(w - pad, sy);
+            ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(y, pad - 8, sy);
+        }
+
+        // Оси
+        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 1.8;
+        const ox = toY(0), oy = toX(0);
+        if (ox >= pad && ox <= h - pad) {
+            ctx.beginPath();
+            ctx.moveTo(pad, ox);
+            ctx.lineTo(w - pad, ox);
+            ctx.stroke();
+        }
+        if (oy >= pad && oy <= w - pad) {
+            ctx.beginPath();
+            ctx.moveTo(oy, pad);
+            ctx.lineTo(oy, h - pad);
+            ctx.stroke();
+        }
+
+        // Парабола: y = x^2 - 2ax + a^2 - 1 = (x-a)^2 - 1
+        ctx.strokeStyle = '#a78bfa';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        let first = true;
+        const step = (xMax - xMin) / 600;
+        for (let x = xMin; x <= xMax; x += step) {
+            const y = (x - a) * (x - a) - 1;
+            if (y < yMin - 1 || y > yMax + 1) { first = true; continue; }
+            const sx = toX(x), sy = toY(y);
+            if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+        }
+        ctx.stroke();
+
+        // Вершина параболы: (a; -1)
+        const vx = toX(a), vy = toY(-1);
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(vx, vy, 6, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(vx, vy, 6, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('вершина (' + a.toFixed(1) + '; -1)', vx + 8, vy - 4);
+
+        // Корни: a-1 и a+1
+        const x1 = a - 1, x2 = a + 1;
+        const rootY = 0;
+        const r1x = toX(x1), r1y = toY(rootY);
+        const r2x = toX(x2), r2y = toY(rootY);
+
+        ctx.fillStyle = '#f87171';
+        ctx.beginPath();
+        ctx.arc(r1x, r1y, 6, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(r1x, r1y, 6, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = '#f87171';
+        ctx.beginPath();
+        ctx.arc(r2x, r2y, 6, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(r2x, r2y, 6, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = '#f87171';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('x₁ = ' + x1.toFixed(1), r1x, r1y + 8);
+        ctx.fillText('x₂ = ' + x2.toFixed(1), r2x, r2y + 8);
+
+        ctx.fillStyle = '#a78bfa';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('y = (x - ' + a.toFixed(1) + ')² - 1', toX(2), toY(3));
+    }
+
+    // ===== ОБРАБОТЧИК ПОЛЗУНКА =====
+    const slider = document.getElementById('paramSlider');
+    const display = document.getElementById('paramDisplay');
+
+    slider.addEventListener('input', function() {
+        const a = parseFloat(this.value);
+        display.textContent = a.toFixed(1);
+        drawViz(a);
+    });
+
+    function resetViz() {
+        slider.value = 1;
+        display.textContent = '1.0';
+        drawViz(1);
+    }
+
+    // ===== ТЕМА =====
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        updateLegendColors();
+        const a = parseFloat(slider.value);
+        drawViz(a);
+    }
+
+    function updateLegendColors() {
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const legend = document.querySelector('.legend');
+        if (legend) legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+        setTimeout(updateLegendColors, 100);
+        setTimeout(() => drawViz(1), 400);
+    })();
+
+    // ===== ИЗБРАННОЕ =====
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+
+    window.addEventListener('resize', () => {
+        const a = parseFloat(slider.value);
+        drawViz(a);
+    });
+</script>
+</body>
+</html>

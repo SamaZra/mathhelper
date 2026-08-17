@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Использование ограниченности — метод решения</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --method-card: rgba(139,92,246,0.08);
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --method-card: rgba(124,58,237,0.06);
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .method-card {
+            background: var(--method-card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border-left: 4px solid var(--special-border);
+        }
+        .method-card .method-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .method-card .method-name .badge {
+            background: var(--special-border);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .method-card .algorithm {
+            margin: 8px 0 4px 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+        .method-card .algorithm li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 20px;
+        }
+        .method-card .algorithm li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--special-border);
+            font-weight: 700;
+        }
+
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .danger { color: #f87171; font-weight: 600; }
+        .example-no-border .success { color: #34d399; font-weight: 600; }
+        .example-no-border .highlight { color: #fbbf24; font-weight: 600; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .method-card { padding: 12px 14px; }
+            mjx-container { font-size: 1em !important; }
+        }
+    </style>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>🔒 Использование ограниченности</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое ограниченность?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Ограниченность</strong> — это свойство функции не выходить за определённые границы. Например, \(\sin x\) всегда между \(-1\) и \(1\), а \(x^2\) всегда \(\ge 0\).</p>
+            <div class="important">
+                <strong>🎯 Главная идея:</strong> Если одна функция <span style="color: #fbbf24; font-weight: 700;">не больше \(M\)</span>, а другая <span style="color: #fbbf24; font-weight: 700;">не меньше \(M\)</span>, то равенство возможно <span style="color: #f87171; font-weight: 700;">только в точке</span>, где обе равны \(M\).
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📋 Основные ограничения</span>
+        </div>
+        <div class="section-content">
+            <div class="method-card">
+                <div class="method-name">
+                    <span>📌 Таблица ограниченных функций</span>
+                </div>
+                <div class="algorithm">
+                    <li>\(\sin x \in [-1; 1]\), \(\cos x \in [-1; 1]\)</li>
+                    <li>\(x^2 \ge 0\), \(|x| \ge 0\), \(\sqrt{x} \ge 0\)</li>
+                    <li>\(a^x > 0\) (при \(a > 0\))</li>
+                    <li>\(\log_a x\) — может быть любым, но аргумент \(> 0\)</li>
+                    <li>\(\frac{1}{x^2+1} \in (0; 1]\)</li>
+                    <li>\(-x^2 \le 0\)</li>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1: СИНУС И КВАДРАТ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. \(\sin x = x^2\)</span>
+            <span class="sub-title">ограниченность синуса</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Оцениваем каждую часть</span>
+                <div class="formula-line">\(\sin x \le 1\) — синус <span style="color: #fbbf24; font-weight: 700;">не больше 1</span></div>
+                <div class="formula-line">\(x^2 \ge 0\) — квадрат <span style="color: #fbbf24; font-weight: 700;">не меньше 0</span></div>
+
+                <span class="step">🔹 Шаг 2. Ищем возможные точки равенства</span>
+                <div class="explain">💡 Так как \(\sin x \le 1\), а \(x^2 \ge 0\), равенство возможно только если \(x^2 \le 1\) (иначе \(x^2 > 1 \ge \sin x\)).</div>
+                <div class="formula-line">Значит, \(x \in [-1; 1]\).</div>
+
+                <span class="step">🔹 Шаг 3. Проверяем</span>
+                <div class="formula-line">\(x = 0\): \(\sin 0 = 0\), \(0^2 = 0\) → <span style="color: #34d399; font-weight: 700;">подходит</span></div>
+                <div class="formula-line">\(x = \pm 1\): \(\sin 1 \approx 0.84\), \(1\) → не подходит</div>
+                <div class="explain">💡 Других корней нет, так как при \(x \in (0; 1]\): \(\sin x < x^2\) (можно доказать или проверить графически).</div>
+
+                <span class="result">✅ Ответ: \(x = 0\)</span>
+                <div class="explain success">💡 Ограниченность синуса сразу сузила поиск до отрезка \([-1; 1]\)!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2: КОСИНУС И КВАДРАТ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. \(\cos x = x^2\)</span>
+            <span class="sub-title">классический пример</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Оцениваем каждую часть</span>
+                <div class="formula-line">\(\cos x \le 1\) — косинус <span style="color: #fbbf24; font-weight: 700;">не больше 1</span></div>
+                <div class="formula-line">\(x^2 \ge 0\) — квадрат <span style="color: #fbbf24; font-weight: 700;">не меньше 0</span></div>
+
+                <span class="step">🔹 Шаг 2. Ищем возможные точки равенства</span>
+                <div class="explain">💡 Так как \(\cos x \le 1\), а \(x^2 \ge 0\), нужно \(x^2 \le 1\) → \(x \in [-1; 1]\).</div>
+
+                <span class="step">🔹 Шаг 3. Проверяем</span>
+                <div class="formula-line">\(x = 0\): \(\cos 0 = 1\), \(0\) → не подходит</div>
+                <div class="formula-line">\(x = \pm 0.824\): \(\cos(0.824) \approx 0.679\), \(0.824^2 = 0.679\) → <span style="color: #34d399; font-weight: 700;">подходит</span></div>
+
+                <span class="result">✅ Ответ: \(x \approx \pm 0.824\)</span>
+                <div class="explain success">💡 Ограниченность помогла найти корни, не решая сложное уравнение!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3: НЕРАВЕНСТВО ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. \(\sin x + \cos x > 1\)</span>
+            <span class="sub-title">неравенство с ограниченными функциями</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Преобразуем</span>
+                <div class="formula-line">\(\sin x + \cos x = \sqrt{2}\sin\left(x + \frac{\pi}{4}\right)\)</div>
+                <div class="explain">💡 \(\sin x + \cos x \in [-\sqrt{2}; \sqrt{2}]\)</div>
+
+                <span class="step">🔹 Шаг 2. Решаем</span>
+                <div class="formula-line">\(\sqrt{2}\sin\left(x + \frac{\pi}{4}\right) > 1\)</div>
+                <div class="formula-line">\(\sin\left(x + \frac{\pi}{4}\right) > \frac{1}{\sqrt{2}}\)</div>
+                <div class="formula-line">\(x + \frac{\pi}{4} \in \left(\frac{\pi}{4} + 2\pi k;\; \frac{3\pi}{4} + 2\pi k\right)\)</div>
+                <div class="formula-line">\(x \in (2\pi k;\; \frac{\pi}{2} + 2\pi k)\)</div>
+
+                <span class="result">✅ Ответ: \(x \in (2\pi k;\; \frac{\pi}{2} + 2\pi k)\), \(k \in \mathbb{Z}\)</span>
+                <div class="explain success">💡 Зная ограниченность \(\sin x + \cos x\), мы свели задачу к простому тригонометрическому неравенству.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4: СЛОЖНЫЙ СЛУЧАЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. \(\sin^2 x + \cos^2 x + \sqrt{x^2+1} = 2\)</span>
+            <span class="sub-title">метод мажорант с ограниченностью</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Упрощаем</span>
+                <div class="formula-line">\(\sin^2 x + \cos^2 x = 1\) — всегда.</div>
+                <div class="formula-line">Получаем: \(1 + \sqrt{x^2+1} = 2\)</div>
+                <div class="formula-line">\(\sqrt{x^2+1} = 1\)</div>
+
+                <span class="step">🔹 Шаг 2. Решаем</span>
+                <div class="formula-line">\(x^2+1 = 1\) → \(x^2 = 0\) → \(x = 0\)</div>
+
+                <span class="result">✅ Ответ: \(x = 0\)</span>
+                <div class="explain success">💡 Основная идея: \(\sqrt{x^2+1} \ge 1\), поэтому равенство \(= 1\) достигается только при \(x = 0\).</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 5: ДОКАЗАТЕЛЬСТВО ОТСУТСТВИЯ РЕШЕНИЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5. \(\sin x = x^2 + 1\)</span>
+            <span class="sub-title">доказательство отсутствия решений</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Оцениваем каждую часть</span>
+                <div class="formula-line">\(\sin x \le 1\) — синус <span style="color: #fbbf24; font-weight: 700;">не больше 1</span></div>
+                <div class="formula-line">\(x^2 + 1 \ge 1\) — квадрат + 1 <span style="color: #fbbf24; font-weight: 700;">не меньше 1</span></div>
+
+                <span class="step">🔹 Шаг 2. Анализируем</span>
+                <div class="explain">💡 Равенство возможно только если \(\sin x = 1\) и \(x^2 + 1 = 1\).</div>
+                <div class="formula-line">Из \(x^2 + 1 = 1\) → \(x = 0\).</div>
+                <div class="formula-line">Но \(\sin 0 = 0 \neq 1\).</div>
+
+                <span class="result">✅ Ответ: решений нет</span>
+                <div class="explain success">💡 Ограниченность помогла мгновенно доказать, что решений нет!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ШПАРГАЛКА ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📌 Когда применять ограниченность</span>
+        </div>
+        <div class="section-content">
+            <div class="important">
+                <strong>🎯 Признаки того, что нужна ограниченность:</strong><br><br>
+                📌 В уравнении есть <span style="color: #fbbf24; font-weight: 700;">\(\sin x\)</span>, <span style="color: #fbbf24; font-weight: 700;">\(\cos x\)</span> — их значения в \([-1; 1]\).<br>
+                📌 Есть <span style="color: #fbbf24; font-weight: 700;">\(x^2\)</span>, <span style="color: #fbbf24; font-weight: 700;">\(|x|\)</span>, <span style="color: #fbbf24; font-weight: 700;">\(\sqrt{x}\)</span> — они \(\ge 0\).<br>
+                📌 Есть <span style="color: #fbbf24; font-weight: 700;">\(\frac{1}{x^2+1}\)</span> — она в \((0; 1]\).<br>
+                📌 Нужно <span style="color: #fbbf24; font-weight: 700;">доказать</span>, что решений нет.<br>
+                📌 Нужно <span style="color: #fbbf24; font-weight: 700;">сузить</span> область поиска корней.<br><br>
+
+                <strong style="color: #34d399;">✅ Алгоритм:</strong><br>
+                1. Найти максимальное значение \(f(x)\) (или минимальное).<br>
+                2. Найти минимальное значение \(g(x)\) (или максимальное).<br>
+                3. Если \(\max f < \min g\) → решений нет.<br>
+                4. Если \(\max f = \min g = M\) → решать систему \(f(x) = M\), \(g(x) = M\).<br>
+                5. Если \(\max f \ge \min g\) — искать пересечение.
+            </div>
+        </div>
+    </div>
+
+    <a href="nonstandard-methods.html" class="back-link">← Назад к нестандартным методам</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>

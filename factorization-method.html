@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Разложение на множители — метод решения</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --method-card: rgba(139,92,246,0.08);
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --method-card: rgba(124,58,237,0.06);
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .method-card {
+            background: var(--method-card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border-left: 4px solid var(--special-border);
+        }
+        .method-card .method-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .method-card .method-name .badge {
+            background: var(--special-border);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .method-card .algorithm {
+            margin: 8px 0 4px 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+        .method-card .algorithm li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 20px;
+        }
+        .method-card .algorithm li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--special-border);
+            font-weight: 700;
+        }
+
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .danger { color: #f87171; font-weight: 600; }
+        .example-no-border .success { color: #34d399; font-weight: 600; }
+        .example-no-border .highlight { color: #fbbf24; font-weight: 600; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .method-card { padding: 12px 14px; }
+            mjx-container { font-size: 1em !important; }
+        }
+    </style>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>🧩 Разложение на множители</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое разложение на множители?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Разложение на множители</strong> — это метод, при котором многочлен представляется в виде произведения более простых выражений. Это позволяет решать уравнения, приравнивая каждый множитель к нулю.</p>
+            <div class="important">
+                <strong>🎯 Главная идея:</strong> Если уравнение можно представить как <span style="color: #fbbf24; font-weight: 700;">произведение = 0</span>, то каждый множитель можно приравнять к нулю отдельно.
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📋 Алгоритм</span>
+        </div>
+        <div class="section-content">
+            <div class="method-card">
+                <div class="method-name">
+                    <span>📌 Алгоритм разложения на множители</span>
+                    <span class="badge">Пошагово</span>
+                </div>
+                <div class="algorithm">
+                    <li><strong>Шаг 1.</strong> Перенести все члены уравнения в левую часть.</li>
+                    <li><strong>Шаг 2.</strong> Вынести общий множитель за скобку, если это возможно.</li>
+                    <li><strong>Шаг 3.</strong> Применить формулы сокращённого умножения, если возможно.</li>
+                    <li><strong>Шаг 4.</strong> Использовать группировку для сложных многочленов.</li>
+                    <li><strong>Шаг 5.</strong> Приравнять каждый множитель к нулю и решить полученные уравнения.</li>
+                    <li><strong>Шаг 6.</strong> Проверить корни по ОДЗ.</li>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1: ВЫНЕСЕНИЕ ЗА СКОБКУ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. \(x^3 - 4x = 0\)</span>
+            <span class="sub-title">вынесение общего множителя</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Видим, что \(x\) есть в каждом члене.</span>
+                <div class="formula-line">Выносим \(x\) за скобку: \(x(x^2 - 4) = 0\)</div>
+
+                <span class="step">🔹 Шаг 2. Применяем формулу разности квадратов</span>
+                <div class="formula-line">\(x^2 - 4 = (x-2)(x+2)\)</div>
+                <div class="formula-line">Получаем: \(x(x-2)(x+2) = 0\)</div>
+
+                <span class="step">🔹 Шаг 3. Приравниваем каждый множитель к нулю</span>
+                <div class="formula-line">\(x = 0\) или \(x-2 = 0\) или \(x+2 = 0\)</div>
+                <div class="formula-line">\(x = 0\) или \(x = 2\) или \(x = -2\)</div>
+
+                <span class="result">✅ Ответ: \(x = -2,\; 0,\; 2\)</span>
+                <div class="explain success">💡 Вынесение общего множителя — самый простой вид разложения.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2: ФОРМУЛЫ СОКРАЩЁННОГО УМНОЖЕНИЯ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. \(4x^2 - 9 = 0\)</span>
+            <span class="sub-title">разность квадратов</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Видим разность квадратов</span>
+                <div class="formula-line">\(4x^2 - 9 = (2x)^2 - 3^2\)</div>
+
+                <span class="step">🔹 Шаг 2. Применяем формулу \(a^2 - b^2 = (a-b)(a+b)\)</span>
+                <div class="formula-line">\((2x-3)(2x+3) = 0\)</div>
+
+                <span class="step">🔹 Шаг 3. Приравниваем каждый множитель к нулю</span>
+                <div class="formula-line">\(2x-3 = 0\) → \(x = \frac{3}{2}\)</div>
+                <div class="formula-line">\(2x+3 = 0\) → \(x = -\frac{3}{2}\)</div>
+
+                <span class="result">✅ Ответ: \(x = \pm \frac{3}{2}\)</span>
+                <div class="explain success">💡 Формулы сокращённого умножения — это «кирпичики» для разложения.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3: КВАДРАТНЫЙ ТРЁХЧЛЕН ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. \(x^2 - 5x + 6 = 0\)</span>
+            <span class="sub-title">разложение квадратного трёхчлена</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Находим корни квадратного трёхчлена</span>
+                <div class="formula-line">\(x^2 - 5x + 6 = 0\)</div>
+                <div class="formula-line">\(D = 25 - 24 = 1\)</div>
+                <div class="formula-line">\(x_1 = \frac{5+1}{2} = 3\), \(x_2 = \frac{5-1}{2} = 2\)</div>
+
+                <span class="step">🔹 Шаг 2. Используем формулу \(ax^2+bx+c = a(x-x_1)(x-x_2)\)</span>
+                <div class="formula-line">\(x^2 - 5x + 6 = (x-3)(x-2)\)</div>
+
+                <span class="step">🔹 Шаг 3. Приравниваем к нулю</span>
+                <div class="formula-line">\((x-3)(x-2) = 0\)</div>
+                <div class="formula-line">\(x = 3\) или \(x = 2\)</div>
+
+                <span class="result">✅ Ответ: \(x = 2,\; 3\)</span>
+                <div class="explain success">💡 Любой квадратный трёхчлен можно разложить по корням.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4: ГРУППИРОВКА ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. \(x^3 + 2x^2 - x - 2 = 0\)</span>
+            <span class="sub-title">группировка</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Группируем члены</span>
+                <div class="formula-line">\((x^3 + 2x^2) + (-x - 2) = 0\)</div>
+
+                <span class="step">🔹 Шаг 2. Выносим общие множители в каждой группе</span>
+                <div class="formula-line">\(x^2(x+2) - 1(x+2) = 0\)</div>
+
+                <span class="step">🔹 Шаг 3. Выносим общий множитель \((x+2)\)</span>
+                <div class="formula-line">\((x+2)(x^2 - 1) = 0\)</div>
+
+                <span class="step">🔹 Шаг 4. Раскладываем разность квадратов</span>
+                <div class="formula-line">\((x+2)(x-1)(x+1) = 0\)</div>
+
+                <span class="step">🔹 Шаг 5. Приравниваем каждый множитель к нулю</span>
+                <div class="formula-line">\(x = -2\), \(x = 1\), \(x = -1\)</div>
+
+                <span class="result">✅ Ответ: \(x = -2,\; -1,\; 1\)</span>
+                <div class="explain success">💡 Группировка помогает разложить многочлены степени 3 и выше.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 5: СЛОЖНЫЙ СЛУЧАЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5. \(x^4 - 5x^2 + 4 = 0\)</span>
+            <span class="sub-title">биквадратное уравнение через разложение</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Замечаем, что это биквадратное уравнение</span>
+                <div class="formula-line">Можно разложить как квадратное относительно \(x^2\):</div>
+                <div class="formula-line">\((x^2)^2 - 5(x^2) + 4 = 0\)</div>
+
+                <span class="step">🔹 Шаг 2. Находим корни относительно \(t = x^2\)</span>
+                <div class="formula-line">\(t^2 - 5t + 4 = 0\) → \((t-1)(t-4) = 0\)</div>
+                <div class="formula-line">\(t = 1\) или \(t = 4\)</div>
+
+                <span class="step">🔹 Шаг 3. Возвращаемся к \(x\)</span>
+                <div class="formula-line">\(x^2 = 1\) → \(x = \pm 1\)</div>
+                <div class="formula-line">\(x^2 = 4\) → \(x = \pm 2\)</div>
+
+                <span class="result">✅ Ответ: \(x = \pm 1,\; \pm 2\)</span>
+                <div class="explain success">💡 Разложение через замену \(t = x^2\) — частый приём в ЕГЭ.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 6: С ДРОБЯМИ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 6. \(\frac{x^2-4}{x-2} = 0\)</span>
+            <span class="sub-title">разложение в дробном уравнении</span>
+        </div>
+        <div class="section-content">
+            <div class="example-no-border">
+                <span class="step">🔹 Шаг 1. Находим ОДЗ</span>
+                <div class="formula-line">\(x \neq 2\)</div>
+
+                <span class="step">🔹 Шаг 2. Раскладываем числитель</span>
+                <div class="formula-line">\(x^2 - 4 = (x-2)(x+2)\)</div>
+
+                <span class="step">🔹 Шаг 3. Сокращаем дробь (при \(x \neq 2\))</span>
+                <div class="formula-line">\(\frac{(x-2)(x+2)}{x-2} = x+2\)</div>
+
+                <span class="step">🔹 Шаг 4. Решаем уравнение \(x+2 = 0\)</span>
+                <div class="formula-line">\(x = -2\)</div>
+
+                <span class="step">🔹 Шаг 5. Проверяем ОДЗ</span>
+                <div class="explain">💡 \(x = -2 \neq 2\) → подходит.</div>
+
+                <span class="result">✅ Ответ: \(x = -2\)</span>
+                <div class="explain success">💡 В дробных уравнениях разложение помогает сократить и упростить.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ШПАРГАЛКА ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📌 Основные приёмы разложения</span>
+        </div>
+        <div class="section-content">
+            <div class="important">
+                <strong>🎯 Запомните эти приёмы:</strong><br><br>
+                📌 <strong>Вынесение общего множителя</strong>: \(ab + ac = a(b+c)\)<br>
+                📌 <strong>Формулы сокращённого умножения</strong>:<br>
+                &nbsp;&nbsp;• \(a^2 - b^2 = (a-b)(a+b)\)<br>
+                &nbsp;&nbsp;• \(a^2 + 2ab + b^2 = (a+b)^2\)<br>
+                &nbsp;&nbsp;• \(a^2 - 2ab + b^2 = (a-b)^2\)<br>
+                &nbsp;&nbsp;• \(a^3 \pm b^3 = (a \pm b)(a^2 \mp ab + b^2)\)<br>
+                📌 <strong>Группировка</strong>: \(ab + ac + db + dc = (a+d)(b+c)\)<br>
+                📌 <strong>Разложение квадратного трёхчлена</strong>: \(ax^2+bx+c = a(x-x_1)(x-x_2)\)<br>
+                📌 <strong>Биквадратное</strong>: \(ax^4 + bx^2 + c = a(x^2 - x_1^2)(x^2 - x_2^2)\)
+            </div>
+        </div>
+    </div>
+
+    <a href="standard-methods.html" class="back-link">← Назад к стандартным методам</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>
