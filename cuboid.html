@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Прямоугольный параллелепипед — 3D модель</title>
+    <title>Параллелепипед — 3D модель</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
 
@@ -18,6 +18,13 @@
             --formula-color: #ffffff;
             --formula-bg: #1e3545;
             --info-bg: #1e3545;
+            --input-bg: #2a4a5a;
+            --task-bg: #1e3545;
+            --task-border: #10b981;
+            --slider-track: #2a4a5a;
+            --slider-thumb: #10b981;
+            --given-color: #60a5fa;
+            --find-color: #facc15;
         }
 
         :root.light-mode {
@@ -31,6 +38,12 @@
             --formula-bg: linear-gradient(135deg, #f8fafc, #ffffff);
             --info-bg: #e8f0fe;
             --special-border: #10b981;
+            --input-bg: #e8f0fe;
+            --task-bg: #f0f4fa;
+            --slider-track: #d0d8e0;
+            --slider-thumb: #10b981;
+            --given-color: #3b82f6;
+            --find-color: #eab308;
         }
 
         body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);padding:8px;}
@@ -62,7 +75,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             width: 100%;
             aspect-ratio: 16 / 9;
-            min-height: 380px;
+            min-height: 700px;
         }
         .model-canvas {
             display: block;
@@ -70,9 +83,8 @@
             height: 100%;
             background: transparent;
             border-radius: 20px;
-            cursor: grab;
+            touch-action: none;
         }
-        .model-canvas:active { cursor: grabbing; }
 
         .fullscreen-btn {
             position: absolute;
@@ -94,10 +106,7 @@
             color: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-        .fullscreen-btn:hover {
-            background: var(--special-border);
-            transform: scale(1.05);
-        }
+        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
 
         .legend-3d {
             position: absolute;
@@ -116,15 +125,260 @@
             gap: 16px;
             flex-wrap: wrap;
         }
-        .legend-3d span {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .legend-3d span { display: inline-flex; align-items: center; gap: 6px; }
         .legend-3d .a-color { color: #f472b6; font-weight: bold; }
         .legend-3d .b-color { color: #60a5fa; font-weight: bold; }
         .legend-3d .c-color { color: #34d399; font-weight: bold; }
         .legend-3d .d-color { color: #facc15; font-weight: bold; }
+
+        .controls-panel {
+            background: var(--info-bg);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px 25px;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .control-group label {
+            color: var(--text);
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 25px;
+        }
+        .control-group input[type="range"] {
+            width: 120px;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--slider-track);
+            border-radius: 3px;
+            outline: none;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: pointer;
+            border: 2px solid var(--special-border);
+        }
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: pointer;
+            border: 2px solid var(--special-border);
+        }
+        .control-value {
+            color: var(--text);
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 32px;
+            text-align: center;
+            background: var(--input-bg);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        .control-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .task-block {
+            background: var(--task-bg);
+            border-radius: 18px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            border-left: 4px solid var(--task-border);
+            border: 1px solid var(--border);
+        }
+        .task-block .task-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .task-block .task-condition {
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.6;
+            padding: 10px 14px;
+            background: var(--info-bg);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .task-block .task-condition strong {
+            color: var(--special-border);
+        }
+
+        .task-given-find {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px 40px;
+            padding: 10px 14px;
+            background: var(--info-bg);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+        .task-given-find .given {
+            color: var(--given-color);
+        }
+        .task-given-find .find {
+            color: var(--find-color);
+        }
+        .task-given-find .given strong,
+        .task-given-find .find strong {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .task-given-find .given span,
+        .task-given-find .find span {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .task-solution {
+            display: none;
+            margin-top: 12px;
+        }
+        .task-solution.open {
+            display: block;
+        }
+        .task-solution .step {
+            padding: 10px 16px;
+            margin: 8px 0;
+            background: var(--info-bg);
+            border-radius: 10px;
+            border-left: 3px solid var(--special-border);
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        .task-solution .step .formula {
+            display: block;
+            text-align: center;
+            font-size: 1.2rem;
+            padding: 6px 0;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            color: var(--special-border);
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 6px 4px;
+        }
+        .task-solution .step .formula::-webkit-scrollbar {
+            height: 4px;
+        }
+        .task-solution .step .formula::-webkit-scrollbar-thumb {
+            background: var(--special-border);
+            border-radius: 4px;
+        }
+        .task-solution .step .highlight {
+            color: var(--special-border);
+            font-weight: 700;
+        }
+        .task-solution .step .text-muted {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .task-solution .answer {
+            padding: 12px 18px;
+            background: var(--special-border);
+            color: white;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .task-canvas-wrapper {
+            text-align: center;
+            margin: 8px 0 12px 0;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--canvas-bg);
+            border: 1px solid var(--border);
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            min-height: 400px;
+        }
+        .task-canvas-wrapper canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            touch-action: none;
+        }
+        .task-legend {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 10px;
+            font-family: monospace;
+            color: #ddd;
+            pointer-events: none;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .task-legend span { display: inline-flex; align-items: center; gap: 4px; }
+
+        .task-fullscreen-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 15;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .task-fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+
+        .show-solution-btn {
+            background: var(--special-border);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .show-solution-btn:hover {
+            transform: scale(1.03);
+            opacity: 0.9;
+        }
 
         .comp-list{list-style:none;}
         .comp-list li{padding-left:26px;margin-bottom:10px;line-height:1.4;font-size:0.95rem;color:var(--text);background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%2310b981"><circle cx="12" cy="12" r="6"/></svg>') left center no-repeat;background-size:16px;}
@@ -141,10 +395,7 @@
             font-weight: 500;
             color: var(--formula-color);
         }
-        .formula-block mjx-container {
-            font-size: 1.7rem !important;
-            color: var(--formula-color) !important;
-        }
+        .formula-block mjx-container { font-size: 1.7rem !important; color: var(--formula-color) !important; }
 
         .note-box {
             background: var(--info-bg);
@@ -155,10 +406,6 @@
             font-size: 1rem;
             line-height: 1.6;
             color: var(--text);
-        }
-        .note-box mjx-container {
-            font-size: 1.1rem !important;
-            color: var(--text) !important;
         }
 
         .back-link{display:inline-block;margin:20px 0 10px;padding:10px 20px;background:#10b981;color:white;text-decoration:none;font-weight:bold;border-radius:20px;transition:transform 0.2s;}
@@ -172,26 +419,54 @@
             max-height: none;
             margin: 0;
             border-radius: 0;
-            background: #0a0f16;
+            background: var(--canvas-bg) !important;
             aspect-ratio: auto;
         }
-        .model-container:fullscreen .model-canvas {
+        .model-container:fullscreen .model-canvas { width: 100vw; height: 100vh; border-radius: 0; }
+
+        .task-canvas-wrapper:fullscreen {
             width: 100vw;
             height: 100vh;
+            max-width: none;
+            max-height: none;
+            margin: 0;
             border-radius: 0;
+            background: var(--canvas-bg) !important;
+            aspect-ratio: auto;
+        }
+        .task-canvas-wrapper:fullscreen canvas {
+            width: 100vw !important;
+            height: 100vh !important;
+            border-radius: 0;
+        }
+        .task-canvas-wrapper:fullscreen .task-fullscreen-btn {
+            bottom: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
+        }
+        .task-canvas-wrapper:fullscreen .task-legend {
+            bottom: 20px;
+            left: 20px;
+            font-size: 12px;
+            padding: 6px 14px;
         }
 
         @media (max-width: 700px) {
-            .model-container { min-height: 280px; }
+            .model-container { min-height: 500px; }
+            .task-canvas-wrapper { min-height: 300px; }
             .legend-3d { font-size: 9px; gap: 8px; padding: 5px 10px; }
             .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
-            .formula-block {
-                padding: 14px 16px;
-                font-size: 1.3rem;
-            }
+            .task-fullscreen-btn { width: 32px; height: 32px; font-size: 15px; bottom: 8px; right: 8px; }
+            .formula-block { padding: 14px 16px; font-size: 1.3rem; }
             .formula-block mjx-container { font-size: 1.4rem !important; }
+            .controls-panel { flex-direction: column; gap: 8px; }
+            .control-group input[type="range"] { width: 90px; }
+            .task-solution .step .formula { font-size: 1rem; white-space: normal; }
+            .task-given-find { flex-direction: column; gap: 6px; }
         }
-    
+
     .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
     .favorite-btn:hover { transform: scale(1.1); }
     .favorite-btn.active { color: #facc15; }
@@ -213,10 +488,12 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
 
-    <h1>🧱 Прямоугольный параллелепипед</h1>
+    <h1>Параллелепипед</h1>
 
+    <!-- ===== 3D МОДЕЛЬ ===== -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 3D-модель параллелепипеда</div>
         <div class="section-content">
@@ -227,28 +504,60 @@
                     <span>🩷 <span class="a-color">Длина (a)</span></span>
                     <span>💙 <span class="b-color">Ширина (b)</span></span>
                     <span>💚 <span class="c-color">Высота (c)</span></span>
-                    <span>⭐ <span class="d-color">Пространственная диагональ (d)</span></span>
+                    <span>⭐ <span class="d-color">Диагональ (d)</span></span>
                 </div>
             </div>
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label>a</label>
+                    <input type="range" id="sliderA" min="0.5" max="2.5" step="0.05" value="1.8">
+                    <span class="control-value" id="valueA">1.8</span>
+                </div>
+                <div class="control-group">
+                    <label>b</label>
+                    <input type="range" id="sliderB" min="0.5" max="2.5" step="0.05" value="1.2">
+                    <span class="control-value" id="valueB">1.2</span>
+                </div>
+                <div class="control-group">
+                    <label>c</label>
+                    <input type="range" id="sliderC" min="0.5" max="2.5" step="0.05" value="1.4">
+                    <span class="control-value" id="valueC">1.4</span>
+                </div>
+                <div class="control-group">
+                    <label>X</label>
+                    <input type="range" id="sliderOffsetX" min="-1.5" max="1.5" step="0.05" value="0.0">
+                    <span class="control-value" id="valueOffsetX">0.0</span>
+                </div>
+                <div class="control-group">
+                    <label>Z</label>
+                    <input type="range" id="sliderOffsetZ" min="-1.5" max="1.5" step="0.05" value="0.0">
+                    <span class="control-value" id="valueOffsetZ">0.0</span>
+                </div>
+                <span class="control-label">(смещение верхнего основания → наклонный параллелепипед)</span>
+            </div>
             <div class="def-card">
-                <p><strong>Интерактивная модель:</strong> вращайте и масштабируйте мышью. <strong>Прямоугольный параллелепипед</strong> — все грани — прямоугольники, все двугранные углы прямые.</p>
+                <p><strong>Интерактивная модель:</strong> вращайте пальцем, масштабируйте двумя пальцами. <strong>Прямоугольный параллелепипед</strong> — все грани — прямоугольники. <strong>Смещайте верхнее основание</strong> ползунками, чтобы получить наклонный параллелепипед. <strong>Высота c</strong> — перпендикуляр между основаниями.</p>
             </div>
         </div>
     </div>
 
+    <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Определение</div>
         <div class="section-content">
             <div class="def-card">
                 <ul class="comp-list">
-                    <li><strong>Прямоугольный параллелепипед</strong> — это прямая призма, основанием которой является прямоугольник.</li>
-                    <li>Все грани — прямоугольники, все двугранные углы прямые.</li>
-                    <li>Частный случай: куб — все рёбра равны.</li>
+                    <li><strong>Параллелепипед</strong> — это многогранник, у которого все грани — параллелограммы.</li>
+                    <li><strong>Прямой параллелепипед</strong> — боковые рёбра перпендикулярны основаниям (боковые грани — прямоугольники).</li>
+                    <li><strong>Прямоугольный параллелепипед</strong> — все грани — прямоугольники (частный случай прямого параллелепипеда).</li>
+                    <li><strong>Наклонный параллелепипед</strong> — боковые рёбра не перпендикулярны основаниям.</li>
+                    <li><strong>Куб</strong> — частный случай прямоугольного параллелепипеда, все рёбра равны (все грани — квадраты).</li>
                 </ul>
             </div>
         </div>
     </div>
 
+    <!-- ===== ЭЛЕМЕНТЫ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🔷 Элементы</div>
         <div class="section-content">
@@ -256,13 +565,16 @@
                 <ul class="comp-list">
                     <li><strong>Грани</strong> — 6 прямоугольников (противоположные равны).</li>
                     <li><strong>Рёбра</strong> — 12 отрезков: длина \(a\), ширина \(b\), высота \(c\).</li>
-                    <li><strong>Вершины</strong> — 8 точек.</li>
+                    <li><strong>Вершины</strong> — 8 точек: A, B, C, D (нижнее) и A₁, B₁, C₁, D₁ (верхнее).</li>
                     <li><strong>Пространственная диагональ \(d\)</strong> — соединяет противоположные вершины.</li>
+                    <li><strong>Высота \(c\)</strong> — перпендикуляр между основаниями (вертикальное расстояние).</li>
+                    <li><strong>Вершин:</strong> 8, <strong>рёбер:</strong> 12, <strong>граней:</strong> 6.</li>
                 </ul>
             </div>
         </div>
     </div>
 
+    <!-- ===== СЕЧЕНИЯ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">✂️ Сечения</div>
         <div class="section-content">
@@ -276,6 +588,7 @@
         </div>
     </div>
 
+    <!-- ===== ФОРМУЛЫ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧮 Формулы</div>
         <div class="section-content">
@@ -285,6 +598,7 @@
         </div>
     </div>
 
+    <!-- ===== КУБ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Частный случай — куб</div>
         <div class="section-content">
@@ -294,6 +608,7 @@
         </div>
     </div>
 
+    <!-- ===== СВОЙСТВА ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Свойства</div>
         <div class="section-content">
@@ -301,8 +616,8 @@
                 <ul class="comp-list">
                     <li><strong>Вершин:</strong> 8, <strong>рёбер:</strong> 12, <strong>граней:</strong> 6.</li>
                     <li><strong>Теорема Эйлера:</strong> \(8 - 12 + 6 = 2\).</li>
-                    <li>Все грани — прямоугольники, противоположные равны и параллельны.</li>
-                    <li>Все двугранные углы прямые.</li>
+                    <li>Все грани — прямоугольники (у прямоугольного), противоположные равны и параллельны.</li>
+                    <li>Все двугранные углы прямые (у прямоугольного).</li>
                     <li>Диагонали равны, пересекаются в одной точке.</li>
                     <li>\(d^2 = a^2 + b^2 + c^2\).</li>
                 </ul>
@@ -310,47 +625,183 @@
         </div>
     </div>
 
+    <!-- ===== ЗАДАЧИ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📝 Задачи с 3D-визуализацией</div>
+        <div class="section-content">
+
+            <!-- ЗАДАЧА 1 -->
+            <div class="task-block">
+                <div class="task-title">📘 Задача №1. Нахождение площади полной поверхности</div>
+
+                <div class="task-condition">
+                    <strong>Условие:</strong> В прямоугольном параллелепипеде длина \(a = 6\) см, ширина \(b = 4\) см, высота \(c = 5\) см. Найдите площадь полной поверхности \(S_{\text{полн}}\).
+                </div>
+
+                <div class="task-given-find">
+                    <div class="given"><strong>📌 Дано:</strong> <span>a = 6 см</span>, <span>b = 4 см</span>, <span>c = 5 см</span></div>
+                    <div class="find"><strong>🔍 Найти:</strong> <span>S<sub>полн</sub></span></div>
+                </div>
+
+                <div class="task-canvas-wrapper" id="task1-container">
+                    <canvas id="task1-canvas" class="model-canvas"></canvas>
+                    <button class="task-fullscreen-btn" onclick="toggleTaskFullscreen('task1-container')">⛶</button>
+                    <div class="task-legend">
+                        <span style="color:#f472b6;">● Длина (a)</span>
+                        <span style="color:#60a5fa;">● Ширина (b)</span>
+                        <span style="color:#34d399;">● Высота (c)</span>
+                    </div>
+                </div>
+                <button class="show-solution-btn" onclick="toggleSolution('solution1')">📖 Показать решение</button>
+                <div id="solution1" class="task-solution">
+                    <div class="step">
+                        <strong>Шаг 1:</strong> Запишем формулу площади полной поверхности.<br>
+                        <span class="formula">\(S_{\text{полн}} = 2(ab + ac + bc)\)</span>
+                    </div>
+                    <div class="step">
+                        <strong>Шаг 2:</strong> Найдём произведения.<br>
+                        <span class="formula">\(ab = 6 \cdot 4 = 24\) см²</span>
+                        <span class="formula">\(ac = 6 \cdot 5 = 30\) см²</span>
+                        <span class="formula">\(bc = 4 \cdot 5 = 20\) см²</span>
+                    </div>
+                    <div class="step">
+                        <strong>Шаг 3:</strong> Найдём сумму и умножим на 2.<br>
+                        <span class="formula">\(S_{\text{полн}} = 2(24 + 30 + 20) = 2 \cdot 74 = 148\) см²</span>
+                    </div>
+                    <div class="answer">✅ Ответ: \(S_{\text{полн}} = 148\) см²</div>
+                </div>
+            </div>
+
+            <!-- ЗАДАЧА 2 -->
+            <div class="task-block">
+                <div class="task-title">📘 Задача №2. Нахождение объёма</div>
+
+                <div class="task-condition">
+                    <strong>Условие:</strong> В прямоугольном параллелепипеде длина \(a = 5\) см, ширина \(b = 3\) см, высота \(c = 4\) см. Найдите объём \(V\).
+                </div>
+
+                <div class="task-given-find">
+                    <div class="given"><strong>📌 Дано:</strong> <span>a = 5 см</span>, <span>b = 3 см</span>, <span>c = 4 см</span></div>
+                    <div class="find"><strong>🔍 Найти:</strong> <span>V</span></div>
+                </div>
+
+                <div class="task-canvas-wrapper" id="task2-container">
+                    <canvas id="task2-canvas" class="model-canvas"></canvas>
+                    <button class="task-fullscreen-btn" onclick="toggleTaskFullscreen('task2-container')">⛶</button>
+                    <div class="task-legend">
+                        <span style="color:#f472b6;">● Длина (a)</span>
+                        <span style="color:#60a5fa;">● Ширина (b)</span>
+                        <span style="color:#34d399;">● Высота (c)</span>
+                    </div>
+                </div>
+                <button class="show-solution-btn" onclick="toggleSolution('solution2')">📖 Показать решение</button>
+                <div id="solution2" class="task-solution">
+                    <div class="step">
+                        <strong>Шаг 1:</strong> Запишем формулу объёма.<br>
+                        <span class="formula">\(V = a \cdot b \cdot c\)</span>
+                    </div>
+                    <div class="step">
+                        <strong>Шаг 2:</strong> Подставим значения.<br>
+                        <span class="formula">\(V = 5 \cdot 3 \cdot 4 = 15 \cdot 4 = 60\) см³</span>
+                    </div>
+                    <div class="answer">✅ Ответ: \(V = 60\) см³</div>
+                </div>
+            </div>
+
+            <!-- ЗАДАЧА 3 -->
+            <div class="task-block">
+                <div class="task-title">📘 Задача №3. Нахождение пространственной диагонали</div>
+
+                <div class="task-condition">
+                    <strong>Условие:</strong> В прямоугольном параллелепипеде длина \(a = 6\) см, ширина \(b = 3\) см, высота \(c = 2\) см. Найдите пространственную диагональ \(d\).
+                </div>
+
+                <div class="task-given-find">
+                    <div class="given"><strong>📌 Дано:</strong> <span>a = 6 см</span>, <span>b = 3 см</span>, <span>c = 2 см</span></div>
+                    <div class="find"><strong>🔍 Найти:</strong> <span>d</span></div>
+                </div>
+
+                <div class="task-canvas-wrapper" id="task3-container">
+                    <canvas id="task3-canvas" class="model-canvas"></canvas>
+                    <button class="task-fullscreen-btn" onclick="toggleTaskFullscreen('task3-container')">⛶</button>
+                    <div class="task-legend">
+                        <span style="color:#f472b6;">● Длина (a)</span>
+                        <span style="color:#60a5fa;">● Ширина (b)</span>
+                        <span style="color:#34d399;">● Высота (c)</span>
+                        <span style="color:#facc15;">● Диагональ (d)</span>
+                    </div>
+                </div>
+                <button class="show-solution-btn" onclick="toggleSolution('solution3')">📖 Показать решение</button>
+                <div id="solution3" class="task-solution">
+                    <div class="step">
+                        <strong>Шаг 1:</strong> Запишем формулу пространственной диагонали.<br>
+                        <span class="formula">\(d = \sqrt{a^2 + b^2 + c^2}\)</span>
+                    </div>
+                    <div class="step">
+                        <strong>Шаг 2:</strong> Найдём квадраты сторон.<br>
+                        <span class="formula">\(a^2 = 6^2 = 36\)</span>
+                        <span class="formula">\(b^2 = 3^2 = 9\)</span>
+                        <span class="formula">\(c^2 = 2^2 = 4\)</span>
+                    </div>
+                    <div class="step">
+                        <strong>Шаг 3:</strong> Найдём сумму квадратов и извлечём корень.<br>
+                        <span class="formula">\(d = \sqrt{36 + 9 + 4} = \sqrt{49} = 7\) см</span>
+                    </div>
+                    <div class="answer">✅ Ответ: \(d = 7\) см</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== ЗАПОМИНАЛКА ===== -->
     <div class="note-box">
         <strong>📌 Запомните:</strong><br>
         • \(S_{\text{полн}} = 2(ab + ac + bc)\)<br>
         • \(V = a \cdot b \cdot c\)<br>
-        • \(d = \sqrt{a^2 + b^2 + c^2}\)
+        • \(d = \sqrt{a^2 + b^2 + c^2}\)<br>
+        • Для куба: \(S = 6a^2\), \(V = a^3\), \(d = a\sqrt{3}\)
     </div>
 
-    <a href="index.html" class="back-link">← Назад к меню</a>
+    <a href="polyhedrons.html" class="back-link">← Назад</a>
 </div>
 
 <script>
-    // ========== ОПРЕДЕЛЕНИЕ КАЧЕСТВА 3D ==========
-    let quality3D = 'high';
-    if (window.Android && window.Android.getQuality3D) {
-        quality3D = window.Android.getQuality3D();
-    } else {
-        const saved = localStorage.getItem('quality3d');
-        if (saved) quality3D = saved;
+    // ========== ФУНКЦИЯ ДЛЯ РАСКРЫТИЯ РЕШЕНИЙ ==========
+    function toggleSolution(id) {
+        const el = document.getElementById(id);
+        const btn = el.previousElementSibling;
+        if (el.classList.contains('open')) {
+            el.classList.remove('open');
+            btn.textContent = '📖 Показать решение';
+        } else {
+            el.classList.add('open');
+            btn.textContent = '📕 Скрыть решение';
+        }
     }
 
-    const qualitySettings = {
-        low: {
-            segments: 24,
-            opacity: 0.85,
-            transparent: false
-        },
-        medium: {
-            segments: 48,
-            opacity: 0.65,
-            transparent: true
-        },
-        high: {
-            segments: 96,
-            opacity: 0.55,
-            transparent: true
+    // ========== ПОЛНОЭКРАННЫЙ РЕЖИМ ДЛЯ ЗАДАЧ ==========
+    function toggleTaskFullscreen(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            try {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                }
+            } catch(e) {}
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
         }
-    };
+    }
 
-    const settings = qualitySettings[quality3D];
-    // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
-
+    // ========== ТЕМА ==========
     function toggleTheme() {
         const html = document.documentElement;
         const btn = document.getElementById('themeBtn');
@@ -371,6 +822,7 @@
         }
     })();
 
+    // ========== ОСНОВНАЯ 3D МОДЕЛЬ ==========
     (async function() {
         const THREE = await import('three');
         const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
@@ -380,19 +832,13 @@
         const containerElem = document.getElementById('cuboid-container');
         if (!canvasElem || !containerElem) return;
 
-        const a = 1.8;
-        const b = 1.2;
-        const c = 1.4;
-        const halfA = a / 2;
-        const halfB = b / 2;
-        const halfC = c / 2;
+        let a = 1.8, b = 1.2, c = 1.4, offsetX = 0, offsetZ = 0;
 
         const scene = new THREE.Scene();
         scene.background = null;
 
         const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        camera.position.set(3.5, 2.8, 4.5);
-        camera.lookAt(0, 0, 0);
+        camera.position.set(4.5, 3.5, 5.5);
 
         const renderer = new THREE.WebGLRenderer({ canvas: canvasElem, alpha: true, antialias: true });
 
@@ -404,18 +850,28 @@
         containerElem.style.position = 'relative';
         containerElem.appendChild(labelRenderer.domElement);
 
+        const cuboidGroup = new THREE.Group();
+        scene.add(cuboidGroup);
+
+        let autoRotate = true;
+        let autoRotateTimeout = null;
+
+        function stopAutoRotate() {
+            autoRotate = false;
+            if (autoRotateTimeout) clearTimeout(autoRotateTimeout);
+            autoRotateTimeout = setTimeout(() => { autoRotate = true; }, 3000);
+        }
+
         function updateSize() {
             const rect = containerElem.getBoundingClientRect();
-            let width = rect.width;
-            let heightVal = rect.height;
+            let width = rect.width, heightVal = rect.height;
             if (document.fullscreenElement === containerElem || document.webkitFullscreenElement === containerElem) {
-                width = window.innerWidth;
-                heightVal = window.innerHeight;
+                width = window.innerWidth; heightVal = window.innerHeight;
             }
             if (width < 10) width = 800;
             if (heightVal < 10) heightVal = 450;
-            canvasElem.style.width = `${width}px`;
-            canvasElem.style.height = `${heightVal}px`;
+            canvasElem.style.width = width + 'px';
+            canvasElem.style.height = heightVal + 'px';
             canvasElem.width = width;
             canvasElem.height = heightVal;
             renderer.setSize(width, heightVal);
@@ -424,15 +880,9 @@
             camera.updateProjectionMatrix();
         }
 
-        function forceResize() {
-            canvasElem.style.width = '';
-            canvasElem.style.height = '';
-            setTimeout(() => { updateSize(); requestAnimationFrame(() => updateSize()); }, 30);
-        }
-
         const resizeObserver = new ResizeObserver(() => updateSize());
         resizeObserver.observe(containerElem);
-        setTimeout(() => updateSize(), 100);
+        setTimeout(updateSize, 100);
 
         const ambientLight = new THREE.AmbientLight(0x40486c, 0.6);
         scene.add(ambientLight);
@@ -445,127 +895,728 @@
         const rimLight = new THREE.PointLight(0x88aaff, 0.5);
         rimLight.position.set(1, 2, -3);
         scene.add(rimLight);
-        const bottomLight = new THREE.PointLight(0x6699cc, 0.35);
-        bottomLight.position.set(0, -1.2, 0);
-        scene.add(bottomLight);
 
-        const gridHelper = new THREE.GridHelper(5, 12, 0x5f7f9e, 0x2c4258);
-        gridHelper.position.y = -halfC - 0.2;
+        const gridHelper = new THREE.GridHelper(6, 16, 0x5f7f9e, 0x2c4258);
+        gridHelper.position.y = -1.8;
         gridHelper.material.transparent = true;
         gridHelper.material.opacity = 0.2;
         scene.add(gridHelper);
 
-        // Параллелепипед с учётом качества (прозрачность)
-        const geometry = new THREE.BoxGeometry(a, c, b);
-        const material = new THREE.MeshPhysicalMaterial({
-            color: 0x3b82f6,
-            metalness: 0.35,
-            roughness: 0.28,
-            transparent: settings.transparent,
-            opacity: settings.opacity,
-            side: THREE.DoubleSide,
-            emissive: 0x001133,
-            clearcoat: 0.85
-        });
-        const cuboid = new THREE.Mesh(geometry, material);
-        cuboid.castShadow = true;
-        scene.add(cuboid);
+        function buildCuboid() {
+            while(cuboidGroup.children.length > 0) cuboidGroup.remove(cuboidGroup.children[0]);
 
-        const edgesGeo = new THREE.EdgesGeometry(geometry);
-        const wireframe = new THREE.LineSegments(edgesGeo, new THREE.LineBasicMaterial({ color: 0x7cb8ff }));
-        scene.add(wireframe);
+            const halfA = a / 2;
+            const halfB = b / 2;
+            const halfC = c / 2;
 
-        // Линии размеров
-        const aStart = new THREE.Vector3(-halfA, -halfC, halfB + 0.15);
-        const aEnd = new THREE.Vector3(halfA, -halfC, halfB + 0.15);
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([aStart, aEnd]), new THREE.LineBasicMaterial({ color: 0xf472b6, linewidth: 2 })));
+            // Вершины нижнего основания (без смещения)
+            const bottomVerts = [
+                new THREE.Vector3(-halfA, -halfC, -halfB),
+                new THREE.Vector3( halfA, -halfC, -halfB),
+                new THREE.Vector3( halfA, -halfC,  halfB),
+                new THREE.Vector3(-halfA, -halfC,  halfB)
+            ];
 
-        const bStart = new THREE.Vector3(halfA + 0.15, -halfC, -halfB);
-        const bEnd = new THREE.Vector3(halfA + 0.15, -halfC, halfB);
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([bStart, bEnd]), new THREE.LineBasicMaterial({ color: 0x60a5fa, linewidth: 2 })));
+            // Вершины верхнего основания (со смещением)
+            const topVerts = bottomVerts.map(v => new THREE.Vector3(v.x + offsetX, v.y + c, v.z + offsetZ));
 
-        const cStart = new THREE.Vector3(-halfA - 0.15, -halfC, -halfB - 0.15);
-        const cEnd = new THREE.Vector3(-halfA - 0.15, halfC, -halfB - 0.15);
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([cStart, cEnd]), new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 2 })));
+            // Все 8 вершин
+            const allVerts = [...bottomVerts, ...topVerts];
 
-        const dStart = new THREE.Vector3(-halfA, -halfC, -halfB);
-        const dEnd = new THREE.Vector3(halfA, halfC, halfB);
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([dStart, dEnd]), new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 2 })));
+            // Построение граней (6 прямоугольников)
+            const faceIndices = [
+                [0, 1, 5, 4], // передняя (A-B-B₁-A₁)
+                [2, 3, 7, 6], // задняя (C-D-D₁-C₁)
+                [0, 3, 7, 4], // левая (A-D-D₁-A₁)
+                [1, 2, 6, 5], // правая (B-C-C₁-B₁)
+                [0, 1, 2, 3], // нижняя (A-B-C-D)
+                [4, 5, 6, 7]  // верхняя (A₁-B₁-C₁-D₁)
+            ];
 
-        const diagSphereMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 });
-        const dStartPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), diagSphereMat);
-        dStartPoint.position.copy(dStart);
-        const dEndPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), diagSphereMat);
-        dEndPoint.position.copy(dEnd);
-        scene.add(dStartPoint);
-        scene.add(dEndPoint);
+            const mat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6,
+                metalness: 0.35,
+                roughness: 0.28,
+                transparent: true,
+                opacity: 0.55,
+                side: THREE.DoubleSide,
+                emissive: 0x001133,
+                clearcoat: 0.85
+            });
 
-        function makeLabel(text, color, position, fontSize = '0.8rem') {
-            const div = document.createElement('div');
-            div.textContent = text;
-            div.style.color = color;
-            div.style.fontSize = fontSize;
-            div.style.fontWeight = 'bold';
-            div.style.fontFamily = "'JetBrains Mono', monospace";
-            div.style.background = 'rgba(10, 15, 26, 0.8)';
-            div.style.padding = '2px 8px';
-            div.style.borderRadius = '20px';
-            div.style.border = `1px solid ${color}`;
-            div.style.backdropFilter = 'blur(6px)';
-            div.style.whiteSpace = 'nowrap';
-            const label = new CSS2DObject(div);
-            label.position.copy(position);
-            scene.add(label);
-            return label;
+            for (const face of faceIndices) {
+                const p1 = allVerts[face[0]];
+                const p2 = allVerts[face[1]];
+                const p3 = allVerts[face[2]];
+                const p4 = allVerts[face[3]];
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(
+                    new Float32Array([
+                        p1.x, p1.y, p1.z,
+                        p2.x, p2.y, p2.z,
+                        p3.x, p3.y, p3.z,
+                        p1.x, p1.y, p1.z,
+                        p3.x, p3.y, p3.z,
+                        p4.x, p4.y, p4.z
+                    ]), 3
+                ));
+                geo.setIndex([0,1,2,3,4,5]);
+                geo.computeVertexNormals();
+                cuboidGroup.add(new THREE.Mesh(geo, mat));
+            }
+
+            // Рёбра
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x7cb8ff });
+            // Нижнее основание
+            const bl = new THREE.BufferGeometry().setFromPoints([...bottomVerts, bottomVerts[0]]);
+            cuboidGroup.add(new THREE.Line(bl, edgeMat));
+            // Верхнее основание
+            const tl = new THREE.BufferGeometry().setFromPoints([...topVerts, topVerts[0]]);
+            cuboidGroup.add(new THREE.Line(tl, edgeMat));
+            // Боковые рёбра
+            for (let i = 0; i < 4; i++) {
+                const sl = new THREE.BufferGeometry().setFromPoints([bottomVerts[i], topVerts[i]]);
+                cuboidGroup.add(new THREE.Line(sl, edgeMat));
+            }
+
+            // Высота c — строго вертикальная (перпендикуляр между основаниями)
+            const hMat = new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 3 });
+            const hStart = new THREE.Vector3(0, -halfC, 0);
+            const hEnd = new THREE.Vector3(0, halfC, 0);
+            cuboidGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([hStart, hEnd]), hMat));
+
+            // Линия OO₁ (жёлтая пунктирная)
+            const oo1Mat = new THREE.LineDashedMaterial({ color: 0xfacc15, dashSize: 0.05, gapSize: 0.05 });
+            const oo1Line = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -halfC, 0), new THREE.Vector3(offsetX, halfC, offsetZ)]),
+                oo1Mat
+            );
+            oo1Line.computeLineDistances();
+            cuboidGroup.add(oo1Line);
+
+            // Длина a (розовая)
+            const aStart = new THREE.Vector3(-halfA, -halfC, halfB + 0.15);
+            const aEnd = new THREE.Vector3(halfA, -halfC, halfB + 0.15);
+            cuboidGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([aStart, aEnd]), new THREE.LineBasicMaterial({ color: 0xf472b6, linewidth: 2 })));
+
+            // Ширина b (синяя)
+            const bStart = new THREE.Vector3(halfA + 0.15, -halfC, -halfB);
+            const bEnd = new THREE.Vector3(halfA + 0.15, -halfC, halfB);
+            cuboidGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([bStart, bEnd]), new THREE.LineBasicMaterial({ color: 0x60a5fa, linewidth: 2 })));
+
+            // Пространственная диагональ (жёлтая) — между A и C₁
+            const dStart = allVerts[0];
+            const dEnd = allVerts[6];
+            cuboidGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([dStart, dEnd]), new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 2 })));
+
+            // Сферы на концах диагонали
+            const diagSphereMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 });
+            const dStartPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), diagSphereMat);
+            dStartPoint.position.copy(dStart);
+            const dEndPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), diagSphereMat);
+            dEndPoint.position.copy(dEnd);
+            cuboidGroup.add(dStartPoint);
+            cuboidGroup.add(dEndPoint);
+
+            // Сферы на концах высоты
+            const sphereMat = new THREE.MeshStandardMaterial({ color: 0x34d399, emissive: 0x004d2e });
+            const s1 = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), sphereMat);
+            s1.position.copy(hStart);
+            const s2 = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), sphereMat);
+            s2.position.copy(hEnd);
+            cuboidGroup.add(s1);
+            cuboidGroup.add(s2);
+
+            // Подписи вершин
+            function makeVertexLabel(text, color, pos, fs = '0.7rem') {
+                const div = document.createElement('div');
+                div.textContent = text;
+                div.style.color = color;
+                div.style.fontSize = fs;
+                div.style.fontWeight = 'bold';
+                div.style.fontFamily = "'Times New Roman', serif";
+                div.style.background = 'rgba(10, 15, 26, 0.7)';
+                div.style.padding = '0px 6px';
+                div.style.borderRadius = '10px';
+                div.style.border = '1px solid ' + color;
+                div.style.backdropFilter = 'blur(4px)';
+                div.style.pointerEvents = 'none';
+                const label = new CSS2DObject(div);
+                label.position.copy(pos);
+                cuboidGroup.add(label);
+            }
+
+            // Нижние вершины
+            const labels = ['A', 'B', 'C', 'D'];
+            const offsets = [[-0.2, -0.1, -0.2], [0.2, -0.1, -0.2], [0.2, -0.1, 0.2], [-0.2, -0.1, 0.2]];
+            for (let i = 0; i < 4; i++) {
+                const v = allVerts[i];
+                makeVertexLabel(labels[i], '#60a5fa', new THREE.Vector3(v.x + offsets[i][0], v.y + offsets[i][1], v.z + offsets[i][2]));
+            }
+            // Верхние вершины
+            const labelsTop = ['A₁', 'B₁', 'C₁', 'D₁'];
+            const offsetsTop = [[-0.2, 0.1, -0.2], [0.2, 0.1, -0.2], [0.2, 0.1, 0.2], [-0.2, 0.1, 0.2]];
+            for (let i = 0; i < 4; i++) {
+                const v = allVerts[i + 4];
+                makeVertexLabel(labelsTop[i], '#facc15', new THREE.Vector3(v.x + offsetsTop[i][0], v.y + offsetsTop[i][1], v.z + offsetsTop[i][2]));
+            }
+
+            // Подписи величин
+            function makeLabel(text, color, pos, fs = '0.75rem') {
+                const div = document.createElement('div');
+                div.textContent = text;
+                div.style.color = color;
+                div.style.fontSize = fs;
+                div.style.fontWeight = 'bold';
+                div.style.fontFamily = "'Times New Roman', serif";
+                div.style.background = 'rgba(10, 15, 26, 0.7)';
+                div.style.padding = '0px 6px';
+                div.style.borderRadius = '10px';
+                div.style.border = '1px solid ' + color;
+                div.style.backdropFilter = 'blur(4px)';
+                div.style.pointerEvents = 'none';
+                const label = new CSS2DObject(div);
+                label.position.copy(pos);
+                cuboidGroup.add(label);
+            }
+
+            const hDir = new THREE.Vector3(0.3, 0, 0.3).normalize();
+            makeLabel('c', '#34d399', new THREE.Vector3(hDir.x * 0.3, 0, hDir.z * 0.3), '0.75rem');
+
+            const aDir = new THREE.Vector3(0, 0, 0.3).normalize();
+            makeLabel('a', '#f472b6', new THREE.Vector3(0, -halfC - 0.25, halfB + 0.45), '0.75rem');
+
+            makeLabel('b', '#60a5fa', new THREE.Vector3(halfA + 0.55, -halfC - 0.1, 0), '0.75rem');
+
+            const dMid = new THREE.Vector3(
+                (dStart.x + dEnd.x) / 2 + 0.3,
+                (dStart.y + dEnd.y) / 2,
+                (dStart.z + dEnd.z) / 2 + 0.3
+            );
+            makeLabel('d', '#facc15', dMid, '0.75rem');
+
+            makeLabel('O', '#34d399', new THREE.Vector3(0, -halfC - 0.2, 0));
+            makeLabel('O₁', '#facc15', new THREE.Vector3(offsetX, halfC + 0.2, offsetZ));
+
+            const oo1Pos = new THREE.Vector3(offsetX/2, 0, offsetZ/2);
+            makeLabel('OO₁', '#facc15', oo1Pos, '0.7rem');
         }
 
-        makeLabel('Длина (a)', '#f472b6', new THREE.Vector3(0, -halfC - 0.25, halfB + 0.45), '0.75rem');
-        makeLabel('Ширина (b)', '#60a5fa', new THREE.Vector3(halfA + 0.55, -halfC - 0.1, 0), '0.75rem');
-        makeLabel('Высота (c)', '#34d399', new THREE.Vector3(-halfA - 0.55, 0, -halfB - 0.45), '0.75rem');
-        makeLabel('Диагональ (d)', '#facc15', new THREE.Vector3(0, 0.3, 0.6), '0.75rem');
+        buildCuboid();
+
+        // ===== ПОЛЗУНКИ =====
+        const sliderA = document.getElementById('sliderA');
+        const sliderB = document.getElementById('sliderB');
+        const sliderC = document.getElementById('sliderC');
+        const sliderOffsetX = document.getElementById('sliderOffsetX');
+        const sliderOffsetZ = document.getElementById('sliderOffsetZ');
+        const valueA = document.getElementById('valueA');
+        const valueB = document.getElementById('valueB');
+        const valueC = document.getElementById('valueC');
+        const valueOffsetX = document.getElementById('valueOffsetX');
+        const valueOffsetZ = document.getElementById('valueOffsetZ');
+
+        function updateModel() {
+            a = parseFloat(sliderA.value);
+            b = parseFloat(sliderB.value);
+            c = parseFloat(sliderC.value);
+            offsetX = parseFloat(sliderOffsetX.value);
+            offsetZ = parseFloat(sliderOffsetZ.value);
+            valueA.textContent = a.toFixed(2);
+            valueB.textContent = b.toFixed(2);
+            valueC.textContent = c.toFixed(2);
+            valueOffsetX.textContent = offsetX.toFixed(2);
+            valueOffsetZ.textContent = offsetZ.toFixed(2);
+            buildCuboid();
+        }
+
+        sliderA.addEventListener('input', updateModel);
+        sliderB.addEventListener('input', updateModel);
+        sliderC.addEventListener('input', updateModel);
+        sliderOffsetX.addEventListener('input', updateModel);
+        sliderOffsetZ.addEventListener('input', updateModel);
 
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.06;
-        controls.autoRotate = false;
-        controls.enableZoom = true;
-        controls.enablePan = true;
         controls.target.set(0, 0, 0);
 
+        renderer.domElement.addEventListener('pointerdown', stopAutoRotate);
+        renderer.domElement.addEventListener('wheel', stopAutoRotate);
+        renderer.domElement.addEventListener('touchstart', stopAutoRotate);
+
         const fullscreenBtn = document.getElementById('fullscreenBtn');
-        async function toggleFullscreen() {
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                try { await containerElem.requestFullscreen(); fullscreenBtn.textContent = '✖'; } catch(err) {}
+        fullscreenBtn.addEventListener('click', async () => {
+            if (!document.fullscreenElement) {
+                await containerElem.requestFullscreen();
+                fullscreenBtn.textContent = '✖';
             } else {
-                if (document.exitFullscreen) await document.exitFullscreen();
-                else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                await document.exitFullscreen();
                 fullscreenBtn.textContent = '⛶';
-                forceResize();
             }
-        }
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        });
 
         document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement === containerElem || document.webkitFullscreenElement === containerElem) {
+            if (document.fullscreenElement === containerElem) {
                 fullscreenBtn.textContent = '✖';
                 updateSize();
             } else {
                 fullscreenBtn.textContent = '⛶';
-                forceResize();
+                setTimeout(updateSize, 100);
             }
         });
 
         function animate() {
             requestAnimationFrame(animate);
+            if (autoRotate) {
+                cuboidGroup.rotation.y += 0.005;
+            }
             controls.update();
             renderer.render(scene, camera);
             labelRenderer.render(scene, camera);
         }
         animate();
-        window.addEventListener('resize', () => forceResize());
-    })();
-</script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+        // ===== ЗАДАЧИ: 3D-СЦЕНЫ =====
+        async function initTaskScenes() {
+            const THREE2 = await import('three');
+            const { OrbitControls: OrbitControls2 } = await import('three/addons/controls/OrbitControls.js');
+            const { CSS2DRenderer: CSS2DRenderer2, CSS2DObject: CSS2DObject2 } = await import('three/addons/renderers/CSS2DRenderer.js');
+
+            const taskConfigs = [
+                { containerId: 'task1-container', canvasId: 'task1-canvas',
+                  setup: setupTask1 },
+                { containerId: 'task2-container', canvasId: 'task2-canvas',
+                  setup: setupTask2 },
+                { containerId: 'task3-container', canvasId: 'task3-canvas',
+                  setup: setupTask3 }
+            ];
+
+            for (const cfg of taskConfigs) {
+                const container = document.getElementById(cfg.containerId);
+                const canvas = document.getElementById(cfg.canvasId);
+                if (!container || !canvas) continue;
+
+                const scene = new THREE2.Scene();
+                scene.background = null;
+
+                const camera = new THREE2.PerspectiveCamera(40, 1, 0.1, 100);
+                camera.position.set(3.5, 2.5, 4.5);
+
+                const renderer = new THREE2.WebGLRenderer({ canvas, alpha: true, antialias: true });
+
+                const labelRenderer2 = new CSS2DRenderer2();
+                labelRenderer2.domElement.style.position = 'absolute';
+                labelRenderer2.domElement.style.top = '0px';
+                labelRenderer2.domElement.style.left = '0px';
+                labelRenderer2.domElement.style.pointerEvents = 'none';
+                container.style.position = 'relative';
+                container.appendChild(labelRenderer2.domElement);
+
+                const amb = new THREE2.AmbientLight(0x40486c, 0.6);
+                scene.add(amb);
+                const key = new THREE2.DirectionalLight(0xfff5e0, 1.2);
+                key.position.set(2, 5, 2);
+                scene.add(key);
+                const fill = new THREE2.PointLight(0xccaa77, 0.5);
+                fill.position.set(-1.5, 2, 2);
+                scene.add(fill);
+
+                const controls = new OrbitControls2(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.06;
+                controls.autoRotate = true;
+                controls.autoRotateSpeed = 0.8;
+                controls.enableZoom = true;
+                controls.enablePan = false;
+                controls.target.set(0, 0, 0);
+                controls.maxPolarAngle = Math.PI / 2;
+
+                const group = new THREE2.Group();
+                scene.add(group);
+
+                cfg.setup(scene, group, THREE2, CSS2DRenderer2, CSS2DObject2);
+
+                function updateSize() {
+                    const rect = container.getBoundingClientRect();
+                    const w = rect.width || 400;
+                    const h2 = rect.height || 250;
+                    canvas.style.width = w + 'px';
+                    canvas.style.height = h2 + 'px';
+                    canvas.width = w;
+                    canvas.height = h2;
+                    renderer.setSize(w, h2);
+                    labelRenderer2.setSize(w, h2);
+                    camera.aspect = w / h2;
+                    camera.updateProjectionMatrix();
+                }
+
+                const ro = new ResizeObserver(() => updateSize());
+                ro.observe(container);
+                setTimeout(updateSize, 150);
+
+                function animateTask() {
+                    requestAnimationFrame(animateTask);
+                    controls.update();
+                    renderer.render(scene, camera);
+                    labelRenderer2.render(scene, camera);
+                }
+                animateTask();
+
+                const themeObserver = new MutationObserver(() => setTimeout(updateSize, 50));
+                themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            }
+        }
+
+        // ===== НАСТРОЙКА СЦЕН ДЛЯ ЗАДАЧ =====
+        function setupTask1(scene, group, THREE, CSS2DRenderer, CSS2DObject) {
+            const a = 1.6, b = 1.0, c = 1.2;
+            const halfA = a/2, halfB = b/2, halfC = c/2;
+
+            const bottomVerts = [
+                new THREE.Vector3(-halfA, -halfC, -halfB),
+                new THREE.Vector3( halfA, -halfC, -halfB),
+                new THREE.Vector3( halfA, -halfC,  halfB),
+                new THREE.Vector3(-halfA, -halfC,  halfB)
+            ];
+            const topVerts = bottomVerts.map(v => new THREE.Vector3(v.x, v.y + c, v.z));
+            const allVerts = [...bottomVerts, ...topVerts];
+
+            const faceIndices = [
+                [0, 1, 5, 4], [2, 3, 7, 6],
+                [0, 3, 7, 4], [1, 2, 6, 5],
+                [0, 1, 2, 3], [4, 5, 6, 7]
+            ];
+
+            const mat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6, transparent: true, opacity: 0.2, side: THREE.DoubleSide
+            });
+
+            for (const face of faceIndices) {
+                const p1 = allVerts[face[0]];
+                const p2 = allVerts[face[1]];
+                const p3 = allVerts[face[2]];
+                const p4 = allVerts[face[3]];
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(
+                    new Float32Array([p1.x,p1.y,p1.z, p2.x,p2.y,p2.z, p3.x,p3.y,p3.z, p1.x,p1.y,p1.z, p3.x,p3.y,p3.z, p4.x,p4.y,p4.z]), 3
+                ));
+                geo.setIndex([0,1,2,3,4,5]);
+                geo.computeVertexNormals();
+                group.add(new THREE.Mesh(geo, mat));
+            }
+
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x7cb8ff });
+            const bl = new THREE.BufferGeometry().setFromPoints([...bottomVerts, bottomVerts[0]]);
+            group.add(new THREE.Line(bl, edgeMat));
+            const tl = new THREE.BufferGeometry().setFromPoints([...topVerts, topVerts[0]]);
+            group.add(new THREE.Line(tl, edgeMat));
+            for (let i = 0; i < 4; i++) {
+                const sl = new THREE.BufferGeometry().setFromPoints([bottomVerts[i], topVerts[i]]);
+                group.add(new THREE.Line(sl, edgeMat));
+            }
+
+            // Длина a
+            const aStart = new THREE.Vector3(-halfA, -halfC, halfB + 0.15);
+            const aEnd = new THREE.Vector3(halfA, -halfC, halfB + 0.15);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([aStart, aEnd]), new THREE.LineBasicMaterial({ color: 0xf472b6, linewidth: 2 })));
+
+            // Ширина b
+            const bStart = new THREE.Vector3(halfA + 0.15, -halfC, -halfB);
+            const bEnd = new THREE.Vector3(halfA + 0.15, -halfC, halfB);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([bStart, bEnd]), new THREE.LineBasicMaterial({ color: 0x60a5fa, linewidth: 2 })));
+
+            // Высота c
+            const cStart = new THREE.Vector3(-halfA - 0.15, -halfC, -halfB - 0.15);
+            const cEnd = new THREE.Vector3(-halfA - 0.15, halfC, -halfB - 0.15);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([cStart, cEnd]), new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 2 })));
+
+            function makeLabel(text, color, pos, fs = '0.6rem') {
+                const div = document.createElement('div');
+                div.textContent = text;
+                div.style.color = color;
+                div.style.fontSize = fs;
+                div.style.fontWeight = 'bold';
+                div.style.fontFamily = "'Times New Roman', serif";
+                div.style.background = 'rgba(10, 15, 26, 0.7)';
+                div.style.padding = '0px 5px';
+                div.style.borderRadius = '8px';
+                div.style.border = '1px solid ' + color;
+                div.style.backdropFilter = 'blur(4px)';
+                div.style.pointerEvents = 'none';
+                const label = new CSS2DObject(div);
+                label.position.copy(pos);
+                group.add(label);
+            }
+
+            const labels = ['A', 'B', 'C', 'D'];
+            const offsets = [[-0.15, -0.1, -0.15], [0.15, -0.1, -0.15], [0.15, -0.1, 0.15], [-0.15, -0.1, 0.15]];
+            for (let i = 0; i < 4; i++) {
+                const v = allVerts[i];
+                makeLabel(labels[i], '#60a5fa', new THREE.Vector3(v.x + offsets[i][0], v.y + offsets[i][1], v.z + offsets[i][2]));
+            }
+            const labelsTop = ['A₁', 'B₁', 'C₁', 'D₁'];
+            const offsetsTop = [[-0.15, 0.1, -0.15], [0.15, 0.1, -0.15], [0.15, 0.1, 0.15], [-0.15, 0.1, 0.15]];
+            for (let i = 0; i < 4; i++) {
+                const v = allVerts[i + 4];
+                makeLabel(labelsTop[i], '#facc15', new THREE.Vector3(v.x + offsetsTop[i][0], v.y + offsetsTop[i][1], v.z + offsetsTop[i][2]));
+            }
+
+            makeLabel('a', '#f472b6', new THREE.Vector3(0, -halfC - 0.2, halfB + 0.4), '0.65rem');
+            makeLabel('b', '#60a5fa', new THREE.Vector3(halfA + 0.45, -halfC - 0.1, 0), '0.65rem');
+            makeLabel('c', '#34d399', new THREE.Vector3(-halfA - 0.45, 0, -halfB - 0.4), '0.65rem');
+
+            const grid = new THREE.GridHelper(2.5, 8, 0x5f7f9e, 0x2c4258);
+            grid.position.y = -halfC - 0.01;
+            grid.material.transparent = true;
+            grid.material.opacity = 0.2;
+            group.add(grid);
+        }
+
+        function setupTask2(scene, group, THREE, CSS2DRenderer, CSS2DObject) {
+            const a = 1.4, b = 0.9, c = 1.1;
+            const halfA = a/2, halfB = b/2, halfC = c/2;
+
+            const bottomVerts = [
+                new THREE.Vector3(-halfA, -halfC, -halfB),
+                new THREE.Vector3( halfA, -halfC, -halfB),
+                new THREE.Vector3( halfA, -halfC,  halfB),
+                new THREE.Vector3(-halfA, -halfC,  halfB)
+            ];
+            const topVerts = bottomVerts.map(v => new THREE.Vector3(v.x, v.y + c, v.z));
+            const allVerts = [...bottomVerts, ...topVerts];
+
+            const faceIndices = [
+                [0, 1, 5, 4], [2, 3, 7, 6],
+                [0, 3, 7, 4], [1, 2, 6, 5],
+                [0, 1, 2, 3], [4, 5, 6, 7]
+            ];
+
+            const mat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6, transparent: true, opacity: 0.2, side: THREE.DoubleSide
+            });
+
+            for (const face of faceIndices) {
+                const p1 = allVerts[face[0]];
+                const p2 = allVerts[face[1]];
+                const p3 = allVerts[face[2]];
+                const p4 = allVerts[face[3]];
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(
+                    new Float32Array([p1.x,p1.y,p1.z, p2.x,p2.y,p2.z, p3.x,p3.y,p3.z, p1.x,p1.y,p1.z, p3.x,p3.y,p3.z, p4.x,p4.y,p4.z]), 3
+                ));
+                geo.setIndex([0,1,2,3,4,5]);
+                geo.computeVertexNormals();
+                group.add(new THREE.Mesh(geo, mat));
+            }
+
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x7cb8ff });
+            const bl = new THREE.BufferGeometry().setFromPoints([...bottomVerts, bottomVerts[0]]);
+            group.add(new THREE.Line(bl, edgeMat));
+            const tl = new THREE.BufferGeometry().setFromPoints([...topVerts, topVerts[0]]);
+            group.add(new THREE.Line(tl, edgeMat));
+            for (let i = 0; i < 4; i++) {
+                const sl = new THREE.BufferGeometry().setFromPoints([bottomVerts[i], topVerts[i]]);
+                group.add(new THREE.Line(sl, edgeMat));
+            }
+
+            // Длина a
+            const aStart = new THREE.Vector3(-halfA, -halfC, halfB + 0.15);
+            const aEnd = new THREE.Vector3(halfA, -halfC, halfB + 0.15);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([aStart, aEnd]), new THREE.LineBasicMaterial({ color: 0xf472b6, linewidth: 2 })));
+
+            // Ширина b
+            const bStart = new THREE.Vector3(halfA + 0.15, -halfC, -halfB);
+            const bEnd = new THREE.Vector3(halfA + 0.15, -halfC, halfB);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([bStart, bEnd]), new THREE.LineBasicMaterial({ color: 0x60a5fa, linewidth: 2 })));
+
+            // Высота c
+            const cStart = new THREE.Vector3(-halfA - 0.15, -halfC, -halfB - 0.15);
+            const cEnd = new THREE.Vector3(-halfA - 0.15, halfC, -halfB - 0.15);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([cStart, cEnd]), new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 2 })));
+
+            function makeLabel(text, color, pos, fs = '0.6rem') {
+                const div = document.createElement('div');
+                div.textContent = text;
+                div.style.color = color;
+                div.style.fontSize = fs;
+                div.style.fontWeight = 'bold';
+                div.style.fontFamily = "'Times New Roman', serif";
+                div.style.background = 'rgba(10, 15, 26, 0.7)';
+                div.style.padding = '0px 5px';
+                div.style.borderRadius = '8px';
+                div.style.border = '1px solid ' + color;
+                div.style.backdropFilter = 'blur(4px)';
+                div.style.pointerEvents = 'none';
+                const label = new CSS2DObject(div);
+                label.position.copy(pos);
+                group.add(label);
+            }
+
+            const labels = ['A', 'B', 'C', 'D'];
+            const offsets = [[-0.15, -0.1, -0.15], [0.15, -0.1, -0.15], [0.15, -0.1, 0.15], [-0.15, -0.1, 0.15]];
+            for (let i = 0; i < 4; i++) {
+                const v = allVerts[i];
+                makeLabel(labels[i], '#60a5fa', new THREE.Vector3(v.x + offsets[i][0], v.y + offsets[i][1], v.z + offsets[i][2]));
+            }
+            const labelsTop = ['A₁', 'B₁', 'C₁', 'D₁'];
+            const offsetsTop = [[-0.15, 0.1, -0.15], [0.15, 0.1, -0.15], [0.15, 0.1, 0.15], [-0.15, 0.1, 0.15]];
+            for (let i = 0; i < 4; i++) {
+                const v = allVerts[i + 4];
+                makeLabel(labelsTop[i], '#facc15', new THREE.Vector3(v.x + offsetsTop[i][0], v.y + offsetsTop[i][1], v.z + offsetsTop[i][2]));
+            }
+
+            makeLabel('a', '#f472b6', new THREE.Vector3(0, -halfC - 0.2, halfB + 0.4), '0.65rem');
+            makeLabel('b', '#60a5fa', new THREE.Vector3(halfA + 0.45, -halfC - 0.1, 0), '0.65rem');
+            makeLabel('c', '#34d399', new THREE.Vector3(-halfA - 0.45, 0, -halfB - 0.4), '0.65rem');
+
+            const grid = new THREE.GridHelper(2.5, 8, 0x5f7f9e, 0x2c4258);
+            grid.position.y = -halfC - 0.01;
+            grid.material.transparent = true;
+            grid.material.opacity = 0.2;
+            group.add(grid);
+        }
+
+        function setupTask3(scene, group, THREE, CSS2DRenderer, CSS2DObject) {
+            const a = 1.6, b = 0.8, c = 0.6;
+            const halfA = a/2, halfB = b/2, halfC = c/2;
+
+            const bottomVerts = [
+                new THREE.Vector3(-halfA, -halfC, -halfB),
+                new THREE.Vector3( halfA, -halfC, -halfB),
+                new THREE.Vector3( halfA, -halfC,  halfB),
+                new THREE.Vector3(-halfA, -halfC,  halfB)
+            ];
+            const topVerts = bottomVerts.map(v => new THREE.Vector3(v.x, v.y + c, v.z));
+            const allVerts = [...bottomVerts, ...topVerts];
+
+            const faceIndices = [
+                [0, 1, 5, 4], [2, 3, 7, 6],
+                [0, 3, 7, 4], [1, 2, 6, 5],
+                [0, 1, 2, 3], [4, 5, 6, 7]
+            ];
+
+            const mat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6, transparent: true, opacity: 0.15, side: THREE.DoubleSide
+            });
+
+            for (const face of faceIndices) {
+                const p1 = allVerts[face[0]];
+                const p2 = allVerts[face[1]];
+                const p3 = allVerts[face[2]];
+                const p4 = allVerts[face[3]];
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(
+                    new Float32Array([p1.x,p1.y,p1.z, p2.x,p2.y,p2.z, p3.x,p3.y,p3.z, p1.x,p1.y,p1.z, p3.x,p3.y,p3.z, p4.x,p4.y,p4.z]), 3
+                ));
+                geo.setIndex([0,1,2,3,4,5]);
+                geo.computeVertexNormals();
+                group.add(new THREE.Mesh(geo, mat));
+            }
+
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x7cb8ff });
+            const bl = new THREE.BufferGeometry().setFromPoints([...bottomVerts, bottomVerts[0]]);
+            group.add(new THREE.Line(bl, edgeMat));
+            const tl = new THREE.BufferGeometry().setFromPoints([...topVerts, topVerts[0]]);
+            group.add(new THREE.Line(tl, edgeMat));
+            for (let i = 0; i < 4; i++) {
+                const sl = new THREE.BufferGeometry().setFromPoints([bottomVerts[i], topVerts[i]]);
+                group.add(new THREE.Line(sl, edgeMat));
+            }
+
+            // Диагональ
+            const dStart = allVerts[0];
+            const dEnd = allVerts[6];
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([dStart, dEnd]), new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 2 })));
+
+            // Длина a
+            const aStart = new THREE.Vector3(-halfA, -halfC, halfB + 0.15);
+            const aEnd = new THREE.Vector3(halfA, -halfC, halfB + 0.15);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([aStart, aEnd]), new THREE.LineBasicMaterial({ color: 0xf472b6, linewidth: 2 })));
+
+            // Ширина b
+            const bStart = new THREE.Vector3(halfA + 0.15, -halfC, -halfB);
+            const bEnd = new THREE.Vector3(halfA + 0.15, -halfC, halfB);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([bStart, bEnd]), new THREE.LineBasicMaterial({ color: 0x60a5fa, linewidth: 2 })));
+
+            // Высота c
+            const cStart = new THREE.Vector3(-halfA - 0.15, -halfC, -halfB - 0.15);
+            const cEnd = new THREE.Vector3(-halfA - 0.15, halfC, -halfB - 0.15);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([cStart, cEnd]), new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 2 })));
+
+            const diagSphereMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 });
+            const dStartPoint = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), diagSphereMat);
+            dStartPoint.position.copy(dStart);
+            const dEndPoint = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), diagSphereMat);
+            dEndPoint.position.copy(dEnd);
+            group.add(dStartPoint);
+            group.add(dEndPoint);
+
+            function makeLabel(text, color, pos, fs = '0.6rem') {
+                const div = document.createElement('div');
+                div.textContent = text;
+                div.style.color = color;
+                div.style.fontSize = fs;
+                div.style.fontWeight = 'bold';
+                div.style.fontFamily = "'Times New Roman', serif";
+                div.style.background = 'rgba(10, 15, 26, 0.7)';
+                div.style.padding = '0px 5px';
+                div.style.borderRadius = '8px';
+                div.style.border = '1px solid ' + color;
+                div.style.backdropFilter = 'blur(4px)';
+                div.style.pointerEvents = 'none';
+                const label = new CSS2DObject(div);
+                label.position.copy(pos);
+                group.add(label);
+            }
+
+            const labels = ['A', 'B', 'C', 'D'];
+            const offsets = [[-0.15, -0.1, -0.15], [0.15, -0.1, -0.15], [0.15, -0.1, 0.15], [-0.15, -0.1, 0.15]];
+            for (let i = 0; i < 4; i++) {
+                const v = allVerts[i];
+                makeLabel(labels[i], '#60a5fa', new THREE.Vector3(v.x + offsets[i][0], v.y + offsets[i][1], v.z + offsets[i][2]));
+            }
+            const labelsTop = ['A₁', 'B₁', 'C₁', 'D₁'];
+            const offsetsTop = [[-0.15, 0.1, -0.15], [0.15, 0.1, -0.15], [0.15, 0.1, 0.15], [-0.15, 0.1, 0.15]];
+            for (let i = 0; i < 4; i++) {
+                const v = allVerts[i + 4];
+                makeLabel(labelsTop[i], '#facc15', new THREE.Vector3(v.x + offsetsTop[i][0], v.y + offsetsTop[i][1], v.z + offsetsTop[i][2]));
+            }
+
+            makeLabel('a', '#f472b6', new THREE.Vector3(0, -halfC - 0.2, halfB + 0.4), '0.65rem');
+            makeLabel('b', '#60a5fa', new THREE.Vector3(halfA + 0.45, -halfC - 0.1, 0), '0.65rem');
+            makeLabel('c', '#34d399', new THREE.Vector3(-halfA - 0.45, 0, -halfB - 0.4), '0.65rem');
+            const dMid = new THREE.Vector3((dStart.x + dEnd.x)/2 + 0.2, (dStart.y + dEnd.y)/2, (dStart.z + dEnd.z)/2 + 0.2);
+            makeLabel('d', '#facc15', dMid, '0.65rem');
+
+            const grid = new THREE.GridHelper(2.5, 8, 0x5f7f9e, 0x2c4258);
+            grid.position.y = -halfC - 0.01;
+            grid.material.transparent = true;
+            grid.material.opacity = 0.2;
+            group.add(grid);
+        }
+
+        setTimeout(initTaskScenes, 500);
+
+    })();
+
+    // ========== ИЗБРАННОЕ ==========
+    const FAV_KEY='math_favorites';
+    function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}
+    function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}
+    function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}
+    function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}
+    function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}
+    updateFavoriteBtn();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const sections = document.querySelectorAll('.section');
+        if (sections.length > 0) {
+            for (let i = 1; i < sections.length; i++) {
+                sections[i].classList.add('collapsed');
+            }
+        }
+    });
+</script>
 </body>
 </html>

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
+    <title>Многогранники — общее понятие</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(46, 204, 113, 0.1);
+            --special-border: #10b981;
+            --info-bg: #1e3545;
+            --link-color: #60a5fa;
+            --expand-bg: #2a4a5a;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --border: #eff3f8;
+            --info-bg: #e8f0fe;
+            --special-border: #10b981;
+            --link-color: #3b82f6;
+            --expand-bg: #dce4f0;
+        }
+
+        body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);padding:8px;}
+        .container{max-width:1200px;margin:0 auto;background:var(--card-bg);border-radius:24px;padding:16px;padding-top:50px;position:relative;}
+
+        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        h1{font-size:1.4rem;color:var(--text);margin:0 auto 16px auto;padding-bottom:8px;border-bottom:4px solid var(--special-border);text-align:center;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--special-border);padding-left:12px;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:5000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .def-card{background:var(--info-bg);border-left:4px solid var(--special-border);border-radius:14px;padding:12px 14px;margin:8px 0;}
+        .def-card p{margin:4px 0;font-size:0.95rem;line-height:1.4;color:var(--text);}
+        .def-card strong{color:var(--text);}
+
+        .comp-list{list-style:none;}
+        .comp-list li{padding-left:26px;margin-bottom:8px;line-height:1.4;font-size:0.95rem;color:var(--text);background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%2310b981"><circle cx="12" cy="12" r="6"/></svg>') left center no-repeat;background-size:16px;}
+
+        .class-link {
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dashed var(--link-color);
+            transition: opacity 0.2s;
+        }
+        .class-link:hover { opacity: 0.7; }
+
+        .class-item {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .class-item:last-child { border-bottom: none; }
+        .class-item .label { color: var(--text); font-weight: 500; font-size: 0.95rem; }
+        .class-item .badge { 
+            color: var(--text-secondary); 
+            font-size: 0.8rem; 
+            background: var(--info-bg); 
+            padding: 1px 10px; 
+            border-radius: 12px;
+        }
+        .class-item .desc-text {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            width: 100%;
+            padding-left: 4px;
+            margin-top: 2px;
+        }
+
+        .definition-box {
+            background: var(--info-bg);
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin: 8px 0 16px 0;
+            border-left: 4px solid var(--special-border);
+        }
+        .definition-box .def-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .definition-box .def-text {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .expand-group {
+            background: var(--expand-bg);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+        .expand-group .expand-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text);
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+        }
+        .expand-group .expand-title:hover { opacity: 0.8; }
+        .expand-group .expand-title .arrow {
+            transition: transform 0.3s;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .expand-group .expand-title .arrow.open { transform: rotate(90deg); }
+        .expand-group .expand-body {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease;
+        }
+        .expand-group .expand-body.open { max-height: 2000px; }
+
+        .note-box {
+            background: var(--info-bg);
+            border-left: 4px solid var(--special-border);
+            border-radius: 18px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        /* ===== ФОРМУЛА ЭЙЛЕРА — MathJax ===== */
+        .euler-formula {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--special-border);
+            padding: 8px 0;
+        }
+        .euler-formula mjx-container {
+            font-size: 1.5rem !important;
+        }
+        .euler-hint {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .back-link{display:inline-block;margin:20px 0 10px;padding:10px 20px;background:var(--special-border);color:white;text-decoration:none;font-weight:bold;border-radius:20px;}
+        .back-link:hover{transform:scale(1.02);}
+
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        @media (max-width: 700px) {
+            .class-item { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .euler-formula { font-size: 1.2rem; }
+            .euler-formula mjx-container { font-size: 1.2rem !important; }
+        }
+    </style>
+
+    <!-- ===== ПОДКЛЮЧЕНИЕ MathJax ===== -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { skipHtmlTypes: 'script', ignoreHtmlClass: 'no-mathjax' },
+            chtml: { scale: 0.95, displayAlign: 'center' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+
+    <h1>Многогранники</h1>
+
+    <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Что такое многогранник?</div>
+        <div class="section-content">
+            <div class="def-card">
+                <p><strong>Многогранник</strong> — это тело, поверхность которого состоит из конечного числа плоских многоугольников.</p>
+            </div>
+            <div class="def-card" style="border-left-color:#60a5fa;">
+                <p style="font-weight:600;margin-bottom:6px;">🔷 Основные элементы:</p>
+                <ul class="comp-list">
+                    <li><strong>Грань</strong> — каждый плоский многоугольник, ограничивающий многогранник.</li>
+                    <li><strong>Ребро</strong> — отрезок, по которому пересекаются две грани.</li>
+                    <li><strong>Вершина</strong> — точка, в которой сходятся три и более граней.</li>
+                    <li><strong>Диагональ</strong> — отрезок, соединяющий две вершины, не принадлежащие одной грани.</li>
+                </ul>
+            </div>
+            <div class="def-card" style="border-left-color:#facc15;">
+                <p style="text-align:center;font-weight:500;">📐 <strong>Теорема Эйлера</strong> (для выпуклых многогранников)</p>
+                <div class="euler-formula">
+                    $$ \text{В} - \text{Р} + \text{Г} = 2 $$
+                </div>
+                <p class="euler-hint">
+                    где <strong>В</strong> — число вершин, <strong>Р</strong> — число рёбер, <strong>Г</strong> — число граней.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== КЛАССИФИКАЦИЯ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📊 Классификация многогранников</div>
+        <div class="section-content">
+
+            <!-- ===== ОПРЕДЕЛЕНИЯ ===== -->
+            <div class="definition-box" style="border-left-color:#60a5fa;">
+                <div class="def-title">🔹 Выпуклый многогранник</div>
+                <div class="def-text">
+                    Многогранник называется <strong>выпуклым</strong>, если он целиком лежит по одну сторону от плоскости каждой своей грани.
+                    Иными словами, любой отрезок, соединяющий две точки многогранника, целиком принадлежит многограннику.
+                    <br><em style="font-size:0.85rem;color:var(--text-secondary);">Примеры: куб, призма, пирамида, все Платоновы тела.</em>
+                </div>
+            </div>
+
+            <div class="definition-box" style="border-left-color:#f472b6;">
+                <div class="def-title">🔻 Невыпуклый (вогнутый) многогранник</div>
+                <div class="def-text">
+                    Многогранник называется <strong>невыпуклым</strong> (или <strong>вогнутым</strong>), если он не является выпуклым.
+                    Это значит, что существует хотя бы одна грань, по отношению к которой многогранник расположен по разные стороны,
+                    или существует отрезок, соединяющий две точки многогранника, часть которого лежит вне многогранника.
+                    <br><em style="font-size:0.85rem;color:var(--text-secondary);">Примеры: звёздчатые многогранники, тела Кеплера — Пуансо, вогнутые призмы и пирамиды.</em>
+                </div>
+            </div>
+
+            <!-- ===== ВЫПУКЛЫЕ ===== -->
+            <div class="expand-group">
+                <div class="expand-title" onclick="toggleExpand(this)">
+                    <span class="arrow open">▶</span>
+                    <span style="color:#60a5fa;">🔹 ВЫПУКЛЫЕ МНОГОГРАННИКИ</span>
+                </div>
+                <div class="expand-body open">
+                    <div class="class-item">
+                        <span class="label">⭐ <a href="platonic.html" class="class-link">Правильные (Платоновы тела)</a> — 5 видов</span>
+                    </div>
+
+                    <div class="class-item">
+                        <span class="label">🔸 Полуправильные (Архимедовы тела) — 13 видов</span>
+                        <div class="desc-text">
+                            <em>Выпуклые многогранники, состоящие из двух или более типов правильных многоугольников, все вершины равноправны. Примеры: усечённый тетраэдр, усечённый куб, кубооктаэдр, икосододекаэдр.</em>
+                        </div>
+                    </div>
+
+                    <div class="class-item">
+                        <span class="label">📐 <a href="prism.html" class="class-link">Призмы</a></span>
+                        <span class="badge">прямые, наклонные, правильные</span>
+                    </div>
+
+                    <div class="class-item">
+                        <span class="label">🔷 Антипризмы (выпуклые)</span>
+                        <div class="desc-text">
+                            <em>Многогранник с двумя n-угольными основаниями, повёрнутыми друг относительно друга на полшага, и 2n треугольными гранями. Примеры: треугольная, квадратная, пятиугольная антипризмы.</em>
+                        </div>
+                    </div>
+
+                    <div class="class-item">
+                        <span class="label">🔺 <a href="pyramid.html" class="class-link">Пирамиды</a></span>
+                        <span class="badge">правильные, наклонные, усечённые</span>
+                    </div>
+
+                    <div class="class-item">
+                        <span class="label">🧱 <a href="cuboid.html" class="class-link">Параллелепипеды</a></span>
+                        <span class="badge">прямоугольные, наклонные, куб</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== НЕВЫПУКЛЫЕ ===== -->
+            <div class="expand-group">
+                <div class="expand-title" onclick="toggleExpand(this)">
+                    <span class="arrow">▶</span>
+                    <span style="color:#f472b6;">🔻 НЕВЫПУКЛЫЕ МНОГОГРАННИКИ</span>
+                </div>
+                <div class="expand-body">
+                    <div class="class-item">
+                        <span class="label">⭐ Тела Кеплера — Пуансо (4 правильных невыпуклых)</span>
+                        <div class="desc-text">
+                            <em>Правильные невыпуклые многогранники, открытые Кеплером (1619) и Пуансо (1809). Все грани — правильные звёздчатые многоугольники. Примеры: малый и большой звёздчатые додекаэдры, большой додекаэдр, большой икосаэдр.</em>
+                        </div>
+                    </div>
+
+                    <div class="class-item">
+                        <span class="label">🔻 Невыпуклые антипризмы</span>
+                        <div class="desc-text">
+                            <em>Антипризмы с самопересекающимися гранями. Основания — звёздчатые многоугольники (например, пентаграммы). Боковые грани — самопересекающиеся треугольники.</em>
+                        </div>
+                    </div>
+
+                    <div class="class-item">
+                        <span class="label">⭐ Звёздчатые многогранники</span>
+                        <div class="desc-text">
+                            <em>Многогранники, полученные продолжением граней до их пересечения. Примеры: звёздчатый октаэдр (stella octangula), звёздчатые формы икосаэдра и додекаэдра.</em>
+                        </div>
+                    </div>
+
+                    <div class="class-item">
+                        <span class="label">🔻 Вогнутые многогранники</span>
+                        <div class="desc-text">
+                            <em>Невыпуклые многогранники с выемками или впадинами. Примеры: вогнутые призмы и пирамиды, некоторые невыпуклые архимедовы тела.</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== ЗАПОМИНАЛКА ===== -->
+    <div class="note-box">
+        <strong>📌 Запомните:</strong><br>
+        • Многогранник — тело, ограниченное плоскими многоугольниками.<br>
+        • \( \text{В} - \text{Р} + \text{Г} = 2 \) — формула Эйлера.<br>
+        • Платоновых тел ровно 5: тетраэдр, куб, октаэдр, додекаэдр, икосаэдр.<br>
+        • Призма и пирамида — основные классы многогранников.<br>
+        • Выпуклый многогранник лежит по одну сторону от плоскости каждой грани.
+    </div>
+
+    <a href="polyhedrons.html" class="back-link">← Назад к многогранникам</a>
+</div>
+
+<script>
+    // ========== ТЕМА ==========
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        // Перерендерим MathJax
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    // ========== РАСКРЫВАЮЩИЕСЯ СПИСКИ ==========
+    function toggleExpand(el) {
+        const body = el.nextElementSibling;
+        const arrow = el.querySelector('.arrow');
+        if (body) {
+            body.classList.toggle('open');
+            if (arrow) arrow.classList.toggle('open');
+        }
+    }
+
+    // ========== ИЗБРАННОЕ ==========
+    const FAV_KEY='math_favorites';
+    function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}
+    function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}
+    function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}
+    function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}
+    function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}
+    updateFavoriteBtn();
+
+    // ========== ЗАКРЫТИЕ ВСЕХ СЕКЦИЙ КРОМЕ ПЕРВОЙ ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        const sections = document.querySelectorAll('.section');
+        if (sections.length > 0) {
+            for (let i = 1; i < sections.length; i++) {
+                sections[i].classList.add('collapsed');
+            }
+        }
+        // Перерендерим MathJax после загрузки
+        if (window.MathJax) MathJax.typesetPromise();
+    });
+</script>
+</body>
+</html>

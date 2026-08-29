@@ -25,6 +25,8 @@
             --hint-bg: #1a4a5a;
             --math-color: #ffffff;
             --btn-bg: #34495e;
+            --quick-btn: #2a4a5a;
+            --quick-btn-hover: #3a6a7a;
         }
 
         :root.light-mode {
@@ -41,6 +43,8 @@
             --hint-bg: #fefce8;
             --math-color: #1a2a3f;
             --btn-bg: #d1d9e6;
+            --quick-btn: #dce3ed;
+            --quick-btn-hover: #c8d2e0;
         }
 
         body {
@@ -169,6 +173,44 @@
             opacity: 0.7;
         }
 
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-btn {
+            padding: 6px 14px;
+            background: var(--quick-btn);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            font-size: 0.85rem;
+            font-family: monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: var(--quick-btn-hover);
+            transform: scale(1.03);
+        }
+
+        .quick-btn:active {
+            transform: scale(0.95);
+        }
+
+        .quick-btn.log-btn {
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+
+        .quick-btn.log-btn:hover {
+            opacity: 0.85;
+        }
+
         .limits-row {
             display: flex;
             gap: 16px;
@@ -218,7 +260,8 @@
             transition: all 0.2s;
         }
 
-        .calc-btn:active, .hint-btn:active {
+        .calc-btn:active,
+        .hint-btn:active {
             transform: scale(0.97);
         }
 
@@ -250,7 +293,7 @@
             font-size: 1.1rem;
             padding: 12px;
             margin: 8px 0;
-            background: rgba(0,0,0,0.05);
+            background: rgba(0, 0, 0, 0.05);
             border-radius: 12px;
             overflow-x: auto;
             min-height: 60px;
@@ -355,7 +398,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 550px) {
@@ -365,18 +410,75 @@
             .button-row {
                 flex-direction: column;
             }
+            .quick-buttons {
+                gap: 6px;
+            }
+            .quick-btn {
+                font-size: 0.75rem;
+                padding: 4px 10px;
+            }
         }
-    
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
+
+        .favorite-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+        .favorite-btn.active {
+            color: #facc15;
+        }
+
+        .log-input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .log-input-group input {
+            width: 60px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .log-input-group span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/algebrite@1.4.0/dist/algebrite.bundle-for-browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/algebrite@1.4.0/dist/algebrite.bundle-for-browser.min.js">
+    </script>
     <script>
         MathJax = {
             tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                inlineMath: [
+                    ['$', '$'],
+                    ['\\(', '\\)']
+                ],
+                displayMath: [
+                    ['$$', '$$'],
+                    ['\\[', '\\]']
+                ],
                 processEscapes: true
             },
             svg: {
@@ -401,7 +503,8 @@
 </div>
 
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
 
     <div class="card">
         <h1>🧮 Калькулятор интегралов</h1>
@@ -415,6 +518,28 @@
         <div class="input-group">
             <label>Функция f(x)</label>
             <input type="text" id="functionInput" placeholder="например: x^2, sin(x), e^x, 1/x, cos(x), sqrt(x)" value="x^2" oninput="hideHint()">
+
+            <div class="quick-buttons">
+                <button class="quick-btn" onclick="insertFunction('x^2')">x²</button>
+                <button class="quick-btn" onclick="insertFunction('1/x')">1/x</button>
+                <button class="quick-btn" onclick="insertFunction('sqrt(x)')">√x</button>
+                <button class="quick-btn" onclick="insertFunction('sin(x)')">sin x</button>
+                <button class="quick-btn" onclick="insertFunction('cos(x)')">cos x</button>
+                <button class="quick-btn" onclick="insertFunction('tan(x)')">tan x</button>
+                <button class="quick-btn" onclick="insertFunction('e^x')">eˣ</button>
+                <button class="quick-btn" onclick="insertFunction('1/(1+x^2)')">1/(1+x²)</button>
+                <button class="quick-btn" onclick="insertFunction('1/sqrt(1-x^2)')">1/√(1−x²)</button>
+                <button class="quick-btn log-btn" onclick="insertLog()">logₐ(x)</button>
+            </div>
+
+            <div class="log-input-group" id="logGroup" style="display:none;">
+                <span>log</span>
+                <input type="text" id="logBase" placeholder="a" value="e" style="width:50px;">
+                <span>(x)</span>
+                <button class="quick-btn" onclick="insertCustomLog()" style="font-size:0.8rem; padding:4px 12px;">Вставить</button>
+                <button class="quick-btn" onclick="closeLogInput()" style="font-size:0.8rem; padding:4px 12px;">✕</button>
+            </div>
+
             <div class="preview math" id="preview">\( f(x) = x^2 \)</div>
         </div>
 
@@ -446,41 +571,183 @@
     </div>
 
     <div style="text-align: center;">
-        <a href="integral.html" class="back-link">← Назад к интегралам</a>
+        <a href="javascript:history.back()" class="back-link">← Назад</a>
     </div>
 </div>
 
 <script>
     let currentType = 'indefinite';
 
-    function replacePi(expression) {
-        return expression.replace(/pi/gi, '3.141592653589793');
+    // ===================== ЛОГАРИФМ =====================
+    function insertLog() {
+        document.getElementById('logGroup').style.display = 'flex';
+        document.getElementById('logBase').value = 'e';
+        document.getElementById('logBase').focus();
+        document.getElementById('logBase').select();
     }
 
-    function formatMathExpression(expr) {
-        expr = expr.replace(/pi/gi, '\\pi');
-        expr = expr.replace(/\(([^()]+)\)\/\(([^()]+)\)/g, '\\frac{$1}{$2}');
-        expr = expr.replace(/\(([^()]+)\)\/([a-zA-Z0-9^\\]+)/g, '\\frac{$1}{$2}');
-        expr = expr.replace(/([a-zA-Z0-9^\\]+)\/\(([^()]+)\)/g, '\\frac{$1}{$2}');
-        expr = expr.replace(/\*/g, ' \\cdot ');
-        expr = expr.replace(/\s+/g, ' ').trim();
-        return expr;
+    function insertCustomLog() {
+        const base = document.getElementById('logBase').value.trim();
+        if (!base) {
+            alert('Введите основание логарифма');
+            return;
+        }
+        let func;
+        if (base === 'e') {
+            func = 'ln(x)';
+        } else if (base === '10') {
+            func = 'log(x)';
+        } else {
+            func = `ln(x)/ln(${base})`;
+        }
+        insertFunction(func);
+        closeLogInput();
     }
 
+    function closeLogInput() {
+        document.getElementById('logGroup').style.display = 'none';
+    }
+
+    // ===================== ВСТАВКА ФУНКЦИЙ =====================
+    function insertFunction(func) {
+        const input = document.getElementById('functionInput');
+        input.value = func;
+        updatePreview();
+        hideHint();
+        document.getElementById('resultBlock').style.display = 'none';
+        document.getElementById('errorMessage').innerHTML = '';
+        input.focus();
+        input.select();
+    }
+
+    // ===================== ПРЕОБРАЗОВАНИЕ ЧИСЕЛ В ДРОБИ =====================
+    function floatToFraction(num) {
+        const fractions = {
+            '0.3333333333333333': '\\frac{1}{3}',
+            '0.33333333333333337': '\\frac{1}{3}',
+            '0.6666666666666666': '\\frac{2}{3}',
+            '0.6666666666666667': '\\frac{2}{3}',
+            '0.5': '\\frac{1}{2}',
+            '0.25': '\\frac{1}{4}',
+            '0.75': '\\frac{3}{4}',
+            '0.2': '\\frac{1}{5}',
+            '0.4': '\\frac{2}{5}',
+            '0.6': '\\frac{3}{5}',
+            '0.8': '\\frac{4}{5}',
+            '0.16666666666666666': '\\frac{1}{6}',
+            '0.1666666666666667': '\\frac{1}{6}',
+            '0.8333333333333334': '\\frac{5}{6}',
+            '0.125': '\\frac{1}{8}',
+            '0.375': '\\frac{3}{8}',
+            '0.625': '\\frac{5}{8}',
+            '0.875': '\\frac{7}{8}',
+            '1.5': '\\frac{3}{2}',
+            '2.5': '\\frac{5}{2}',
+            '3.5': '\\frac{7}{2}',
+            '1.3333333333333333': '\\frac{4}{3}',
+            '1.3333333333333334': '\\frac{4}{3}',
+            '2.3333333333333335': '\\frac{7}{3}',
+            '3.3333333333333335': '\\frac{10}{3}',
+            '1.6666666666666667': '\\frac{5}{3}',
+            '2.6666666666666665': '\\frac{8}{3}',
+            '3.6666666666666665': '\\frac{11}{3}'
+        };
+        const str = num.toString();
+        return fractions[str] || null;
+    }
+
+    // ===================== ФОРМАТИРОВАНИЕ РЕЗУЛЬТАТА =====================
     function formatResult(result) {
         let str = result.toString();
-        str = str.replace(/pi/gi, '\\pi');
-        str = str.replace(/\*\*/g, '^');
+
+        // 1. Замена e^x на e^{x}
+        str = str.replace(/2\.718281828459045\^/g, 'e^');
+        str = str.replace(/2\.718281828459045/g, 'e');
+
+        // 2. Замена чисел на дроби
+        str = str.replace(/(\d+\.\d+)/g, function(match) {
+            const fraction = floatToFraction(match);
+            return fraction || match;
+        });
+
+        // 3. Исправление cos(-2*x+3) → cos(2*x-3)
+        str = str.replace(/cos\(-([^)]+)\)/g, function(match, expr) {
+            if (!expr.includes('+') && !expr.includes('-') && !expr.includes('*')) {
+                return `cos(${expr})`;
+            }
+            let fixed = expr.replace(/\+/g, '±TEMP±').replace(/-/g, '+').replace(/±TEMP±/g, '-');
+            return `cos(${fixed})`;
+        });
+
+        // 4. Исправление sin(-2*x+3) → -sin(2*x-3)
+        str = str.replace(/sin\(-([^)]+)\)/g, function(match, expr) {
+            if (!expr.includes('+') && !expr.includes('-') && !expr.includes('*')) {
+                return `sin(${expr})`;
+            }
+            let fixed = expr.replace(/\+/g, '±TEMP±').replace(/-/g, '+').replace(/±TEMP±/g, '-');
+            return `-sin(${fixed})`;
+        });
+
+        // 5. Упрощение знаков
+        str = str.replace(/\+ -/g, '- ');
+        str = str.replace(/- -/g, '+ ');
+
+        // 6. Умножение
         str = str.replace(/\*/g, ' \\cdot ');
+
+        // 7. Степени
+        str = str.replace(/\*\*/g, '^');
+
+        // 8. Дроби
         str = str.replace(/\(([^()]+)\)\/\(([^()]+)\)/g, '\\frac{$1}{$2}');
         str = str.replace(/\(([^()]+)\)\/([a-zA-Z0-9^\\]+)/g, '\\frac{$1}{$2}');
         str = str.replace(/([a-zA-Z0-9^\\]+)\/\(([^()]+)\)/g, '\\frac{$1}{$2}');
         str = str.replace(/([a-zA-Z0-9^\\]+)\/([a-zA-Z0-9^\\]+)/g, '\\frac{$1}{$2}');
+
+        // 9. Убираем лишние пробелы
         str = str.replace(/\s+/g, ' ').trim();
+
         return str;
     }
 
-    // Функция определения типа функции и возврата формулы интеграла
+    function formatMathExpression(expr) {
+        let str = expr.replace(/pi/gi, '\\pi');
+        str = str.replace(/\*/g, ' \\cdot ');
+        return str;
+    }
+
+    // ===================== ПРЕДОБРАБОТКА ВВОДА =====================
+    function preprocessInput(func) {
+        return func
+            .replace(/ln\(/g, 'log(')
+            .replace(/(\d)([a-zA-Z])/g, '$1*$2')
+            .replace(/\^/g, '^');
+    }
+
+    // ===================== ПРОВЕРКА НА НЕБЕРУЩИЕСЯ =====================
+    function isNonElementary(func) {
+        const patterns = [
+            /sin\(x\^2\)/,
+            /cos\(x\^2\)/,
+            /sin\(e\^x\)/,
+            /cos\(e\^x\)/,
+            /e\^\(x\^2\)/,
+            /e\^\(-x\^2\)/,
+            /sin\(x\)\/x/,
+            /cos\(x\)\/x/,
+            /1\/log\(x\)/,
+            /log\(log\(x\)\)/,
+            /sqrt\(1-x\^4\)/
+        ];
+        return patterns.some(p => p.test(func));
+    }
+
+    function getNonElementaryMessage(func) {
+        return `⚠️ Интеграл <b>${func}</b> не выражается через элементарные функции.<br>
+                Для его вычисления требуются специальные функции (интегралы Френеля, эллиптические, и т.д.)`;
+    }
+
+    // ===================== ОПРЕДЕЛЕНИЕ ФОРМУЛЫ =====================
     function detectIntegralFormula(func) {
         const f = func.toLowerCase().replace(/\s/g, '');
 
@@ -501,32 +768,32 @@
         if (f.includes('sin')) {
             return {
                 formula: '\\int \\sin(ax) dx = -\\frac{1}{a}\\cos(ax) + C',
-                desc: 'Интеграл от синуса — минус косинус.'
+                desc: 'Интеграл от синуса — минус косинус, делённый на коэффициент при x.'
             };
         }
 
         if (f.includes('cos')) {
             return {
                 formula: '\\int \\cos(ax) dx = \\frac{1}{a}\\sin(ax) + C',
-                desc: 'Интеграл от косинуса — синус.'
+                desc: 'Интеграл от косинуса — синус, делённый на коэффициент при x.'
             };
         }
 
         if (f.includes('tan') || f.includes('tg')) {
             return {
                 formula: '\\int \\tan x dx = -\\ln|\\cos x| + C',
-                desc: 'Интеграл от тангенса.'
+                desc: 'Интеграл от тангенса — минус логарифм косинуса.'
             };
         }
 
         if (f.includes('e^')) {
             return {
                 formula: '\\int e^{ax} dx = \\frac{1}{a} e^{ax} + C',
-                desc: 'Интеграл от экспоненты — сама экспонента.'
+                desc: 'Интеграл от экспоненты — сама экспонента, делённая на коэффициент при x.'
             };
         }
 
-        if (f.includes('ln')) {
+        if (f.includes('ln') || f.includes('log')) {
             return {
                 formula: '\\int \\ln x dx = x\\ln x - x + C',
                 desc: 'Интеграл от натурального логарифма (интегрирование по частям).'
@@ -553,6 +820,7 @@
         };
     }
 
+    // ===================== ПОДСКАЗКА =====================
     async function showFormulaHint() {
         const func = document.getElementById('functionInput').value.trim();
         const type = currentType;
@@ -571,7 +839,8 @@
         if (type === 'indefinite') {
             typeText = 'неопределённого интеграла (нахождение первообразной)';
         } else {
-            typeText = 'определённого интеграла. Формула Ньютона-Лейбница: $\\int_a^b f(x) dx = F(b) - F(a)$, где $F(x)$ — первообразная.';
+            typeText =
+                'определённого интеграла. Формула Ньютона-Лейбница: $\\int_a^b f(x) dx = F(b) - F(a)$, где $F(x)$ — первообразная.';
         }
 
         document.getElementById('hintFormula').innerHTML = `$$${info.formula}$$`;
@@ -594,16 +863,7 @@
         hintBlock.classList.remove('show');
     }
 
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            var overlay = document.getElementById('loadingOverlay');
-            overlay.style.opacity = '0';
-            setTimeout(function() {
-                overlay.style.display = 'none';
-            }, 300);
-        }, 400);
-    });
-
+    // ===================== ПРЕДПРОСМОТР =====================
     function updatePreview() {
         const func = document.getElementById('functionInput').value.trim();
         const previewDiv = document.getElementById('preview');
@@ -623,6 +883,7 @@
         hideHint();
     });
 
+    // ===================== ТИП ИНТЕГРАЛА =====================
     function setType(type) {
         currentType = type;
         const btns = document.querySelectorAll('.type-btn');
@@ -647,11 +908,12 @@
         hideHint();
     }
 
+    // ===================== ВЫЧИСЛЕНИЕ ИНТЕГРАЛА =====================
     function calculateIntegral() {
         document.getElementById('errorMessage').innerHTML = '';
         document.getElementById('resultBlock').style.display = 'none';
 
-        const func = document.getElementById('functionInput').value.trim();
+        let func = document.getElementById('functionInput').value.trim();
         if (!func) {
             document.getElementById('errorMessage').innerHTML = '❌ Введите функцию f(x)';
             return;
@@ -662,21 +924,41 @@
             return;
         }
 
-        const variable = 'x';
+        if (currentType === 'indefinite' && isNonElementary(func)) {
+            document.getElementById('integralResult').innerHTML = getNonElementaryMessage(func);
+            document.getElementById('resultBlock').style.display = 'block';
+            if (window.MathJax) MathJax.typesetPromise();
+            return;
+        }
 
         try {
-            if (currentType === 'indefinite') {
-                const integralResult = Algebrite.integral(func, variable);
-                let resultString = formatResult(integralResult.toString());
+            const processedFunc = preprocessInput(func);
+            const variable = 'x';
 
-                if (resultString === '0' && !func.includes('0')) {
-                    document.getElementById('integralResult').innerHTML = `Не удалось вычислить интеграл для \\( ${formatMathExpression(func)} \\) + C`;
+            if (currentType === 'indefinite') {
+                let result = Algebrite.integral(processedFunc, variable);
+                let resultString = result.toString();
+
+                try {
+                    const simplified = Algebrite.simplify(resultString);
+                    resultString = simplified.toString();
+                } catch (e) {}
+
+                try {
+                    const trigSimplified = Algebrite.trigsimp(resultString);
+                    resultString = trigSimplified.toString();
+                } catch (e) {}
+
+                if (resultString === processedFunc && !processedFunc.includes('+') && !processedFunc.includes('-')) {
+                    document.getElementById('integralResult').innerHTML =
+                        `⚠️ Не удалось вычислить интеграл для <b>${func}</b>.<br>Возможно, он не выражается через элементарные функции.`;
                     document.getElementById('resultBlock').style.display = 'block';
                     if (window.MathJax) MathJax.typesetPromise();
                     return;
                 }
 
-                document.getElementById('integralResult').innerHTML = `\\( ${resultString} + C \\)`;
+                let display = formatResult(resultString);
+                document.getElementById('integralResult').innerHTML = `\\( ${display} + C \\)`;
                 document.getElementById('resultBlock').style.display = 'block';
                 if (window.MathJax) MathJax.typesetPromise();
 
@@ -689,45 +971,74 @@
                     return;
                 }
 
-                let lowerNum = replacePi(lower);
-                let upperNum = replacePi(upper);
+                if (lower === upper) {
+                    document.getElementById('integralResult').innerHTML = `\\( 0 \\)`;
+                    document.getElementById('resultBlock').style.display = 'block';
+                    if (window.MathJax) MathJax.typesetPromise();
+                    return;
+                }
 
-                const F = Algebrite.integral(func, variable);
-                const F_upper = Algebrite.eval(F.toString(), variable, upperNum);
-                const F_lower = Algebrite.eval(F.toString(), variable, lowerNum);
+                const processedLower = preprocessInput(lower);
+                const processedUpper = preprocessInput(upper);
 
-                let definiteResult = Algebrite.simplify(`(${F_upper.toString()}) - (${F_lower.toString()})`);
-                let resultString = definiteResult.toString();
+                const F = Algebrite.integral(processedFunc, variable);
 
-                let numericResult;
+                const F_upper = Algebrite.subst(F, variable, processedUpper);
+                const F_lower = Algebrite.subst(F, variable, processedLower);
+
+                let result = Algebrite.simplify(`(${F_upper}) - (${F_lower})`);
+                let resultString = result.toString();
+
+                if (resultString.includes('infinity') || resultString.includes('NaN') || resultString.includes('Infinity')) {
+                    document.getElementById('integralResult').innerHTML =
+                        `⚠️ Интеграл расходится (особая точка в интервале интегрирования)`;
+                    document.getElementById('resultBlock').style.display = 'block';
+                    if (window.MathJax) MathJax.typesetPromise();
+                    return;
+                }
+
+                let numericValue = null;
                 try {
-                    numericResult = Algebrite.float(definiteResult.toString());
-                    let num = parseFloat(numericResult.toString());
-                    if (!isNaN(num)) {
-                        resultString = Number(num.toFixed(6)).toString();
+                    const floatResult = Algebrite.float(resultString);
+                    if (floatResult) {
+                        const num = parseFloat(floatResult.toString());
+                        if (!isNaN(num) && isFinite(num)) {
+                            numericValue = Number(num.toFixed(8)).toString();
+                        }
                     }
-                } catch(e) {}
+                } catch (e) {}
 
-                let displayResult = resultString;
-                if (resultString.includes('pi')) {
-                    displayResult = formatResult(resultString);
+                let display = formatResult(resultString);
+
+                if (numericValue && !resultString.includes('pi')) {
+                    display = `${numericValue} \\; ( = ${display} )`;
+                } else if (numericValue && resultString.includes('pi')) {
+                    display = `${display} \\approx ${numericValue}`;
                 }
 
-                let exactResult = formatResult(definiteResult.toString());
-                if (exactResult !== displayResult && !displayResult.includes('\\pi')) {
-                    displayResult = `${displayResult} \\; ( = ${exactResult} )`;
-                }
-
-                document.getElementById('integralResult').innerHTML = `\\( ${displayResult} \\)`;
+                document.getElementById('integralResult').innerHTML = `\\( ${display} \\)`;
                 document.getElementById('resultBlock').style.display = 'block';
                 if (window.MathJax) MathJax.typesetPromise();
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            document.getElementById('errorMessage').innerHTML = `❌ Ошибка: не удалось вычислить интеграл для '${func}'. Проверьте правильность ввода.`;
+            document.getElementById('errorMessage').innerHTML =
+                `❌ Ошибка: не удалось вычислить интеграл для '${func}'. Проверьте правильность ввода.`;
         }
     }
 
+    // ===================== ЗАГРУЗКА =====================
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            var overlay = document.getElementById('loadingOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(function() {
+                overlay.style.display = 'none';
+            }, 300);
+        }, 400);
+    });
+
+    // ===================== ТЕМА =====================
     (function() {
         var savedTheme = localStorage.getItem('mathTheme');
         if (savedTheme === 'light') {
@@ -753,10 +1064,57 @@
         if (window.MathJax) MathJax.typesetPromise();
     }
 
+    // ===================== ИНИЦИАЛИЗАЦИЯ =====================
     updatePreview();
     setType('indefinite');
 </script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+<script>
+    const FAV_KEY = 'math_favorites';
+
+    function getFavorites() {
+        const s = localStorage.getItem(FAV_KEY);
+        return s ? JSON.parse(s) : [];
+    }
+
+    function saveFavorites(f) {
+        localStorage.setItem(FAV_KEY, JSON.stringify(f));
+    }
+
+    function isFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        return getFavorites().includes(u);
+    }
+
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+</script>
 </body>
 </html>

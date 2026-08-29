@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Пятиугольная призма — 3D модель</title>
+    <title>Правильная пятиугольная призма — 3D модель</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
 
@@ -18,6 +18,11 @@
             --formula-color: #ffffff;
             --formula-bg: #1e3545;
             --info-bg: #1e3545;
+            --input-bg: #2a4a5a;
+            --task-bg: #1e3545;
+            --task-border: #10b981;
+            --slider-track: #2a4a5a;
+            --slider-thumb: #10b981;
         }
 
         :root.light-mode {
@@ -31,6 +36,10 @@
             --formula-bg: linear-gradient(135deg, #f8fafc, #ffffff);
             --info-bg: #e8f0fe;
             --special-border: #10b981;
+            --input-bg: #e8f0fe;
+            --task-bg: #f0f4fa;
+            --slider-track: #d0d8e0;
+            --slider-thumb: #10b981;
         }
 
         body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);padding:8px;}
@@ -62,7 +71,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             width: 100%;
             aspect-ratio: 16 / 9;
-            min-height: 380px;
+            min-height: 700px;
         }
         .model-canvas {
             display: block;
@@ -114,6 +123,225 @@
         }
         .legend-3d span { display: inline-flex; align-items: center; gap: 6px; }
         .legend-3d .h-color { color: #34d399; font-weight: bold; }
+        .legend-3d .ap-color { color: #f97316; font-weight: bold; }
+        .legend-3d .side-color { color: #f472b6; font-weight: bold; }
+
+        .controls-panel {
+            background: var(--info-bg);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px 30px;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .control-group label {
+            color: var(--text);
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 50px;
+        }
+        .control-group input[type="range"] {
+            width: 140px;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--slider-track);
+            border-radius: 3px;
+            outline: none;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: pointer;
+            border: 2px solid var(--special-border);
+        }
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: pointer;
+            border: 2px solid var(--special-border);
+        }
+        .control-value {
+            color: var(--text);
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 36px;
+            text-align: center;
+            background: var(--input-bg);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        .control-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .task-block {
+            background: var(--task-bg);
+            border-radius: 18px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            border-left: 4px solid var(--task-border);
+            border: 1px solid var(--border);
+        }
+        .task-block .task-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .task-block .task-condition {
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.6;
+            padding: 10px 14px;
+            background: var(--info-bg);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .task-block .task-condition strong {
+            color: var(--special-border);
+        }
+        .task-solution {
+            display: none;
+            margin-top: 12px;
+        }
+        .task-solution.open {
+            display: block;
+        }
+        .task-solution .step {
+            padding: 10px 16px;
+            margin: 8px 0;
+            background: var(--info-bg);
+            border-radius: 10px;
+            border-left: 3px solid var(--special-border);
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        .task-solution .step .formula {
+            display: block;
+            text-align: center;
+            font-size: 1.2rem;
+            padding: 6px 0;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            color: var(--special-border);
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 6px 4px;
+        }
+        .task-solution .step .formula::-webkit-scrollbar {
+            height: 4px;
+        }
+        .task-solution .step .formula::-webkit-scrollbar-thumb {
+            background: var(--special-border);
+            border-radius: 4px;
+        }
+        .task-solution .step .highlight {
+            color: var(--special-border);
+            font-weight: 700;
+        }
+        .task-solution .answer {
+            padding: 12px 18px;
+            background: var(--special-border);
+            color: white;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .task-canvas-wrapper {
+            text-align: center;
+            margin: 8px 0 12px 0;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--canvas-bg);
+            border: 1px solid var(--border);
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            min-height: 400px;
+        }
+        .task-canvas-wrapper canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            touch-action: none;
+        }
+        .task-legend {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 10px;
+            font-family: monospace;
+            color: #ddd;
+            pointer-events: none;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .task-legend span { display: inline-flex; align-items: center; gap: 4px; }
+
+        .task-fullscreen-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 15;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .task-fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+
+        .show-solution-btn {
+            background: var(--special-border);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .show-solution-btn:hover {
+            transform: scale(1.03);
+            opacity: 0.9;
+        }
 
         .comp-list{list-style:none;}
         .comp-list li{padding-left:26px;margin-bottom:10px;line-height:1.4;font-size:0.95rem;color:var(--text);background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%2310b981"><circle cx="12" cy="12" r="6"/></svg>') left center no-repeat;background-size:16px;}
@@ -142,7 +370,6 @@
             line-height: 1.6;
             color: var(--text);
         }
-        .note-box mjx-container { font-size: 1.1rem !important; color: var(--text) !important; }
 
         .back-link{display:inline-block;margin:20px 0 10px;padding:10px 20px;background:#10b981;color:white;text-decoration:none;font-weight:bold;border-radius:20px;transition:transform 0.2s;}
         .back-link:hover{transform:scale(1.02);}
@@ -155,19 +382,57 @@
             max-height: none;
             margin: 0;
             border-radius: 0;
-            background: #0a0f16;
+            background: var(--canvas-bg) !important;
             aspect-ratio: auto;
         }
-        .model-container:fullscreen .model-canvas { width: 100vw; height: 100vh; border-radius: 0; }
+        .model-container:fullscreen .model-canvas {
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+        }
+
+        .task-canvas-wrapper:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            max-height: none;
+            margin: 0;
+            border-radius: 0;
+            background: var(--canvas-bg) !important;
+            aspect-ratio: auto;
+        }
+        .task-canvas-wrapper:fullscreen canvas {
+            width: 100vw !important;
+            height: 100vh !important;
+            border-radius: 0;
+        }
+        .task-canvas-wrapper:fullscreen .task-fullscreen-btn {
+            bottom: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
+        }
+        .task-canvas-wrapper:fullscreen .task-legend {
+            bottom: 20px;
+            left: 20px;
+            font-size: 12px;
+            padding: 6px 14px;
+        }
 
         @media (max-width: 700px) {
-            .model-container { min-height: 280px; }
+            .model-container { min-height: 500px; }
+            .task-canvas-wrapper { min-height: 300px; }
             .legend-3d { font-size: 9px; gap: 8px; padding: 5px 10px; }
             .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
+            .task-fullscreen-btn { width: 32px; height: 32px; font-size: 15px; bottom: 8px; right: 8px; }
             .formula-block { padding: 14px 16px; font-size: 1.3rem; }
             .formula-block mjx-container { font-size: 1.4rem !important; }
+            .controls-panel { flex-direction: column; gap: 10px; }
+            .control-group input[type="range"] { width: 100px; }
+            .task-solution .step .formula { font-size: 1rem; white-space: normal; }
         }
-    
+
     .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
     .favorite-btn:hover { transform: scale(1.1); }
     .favorite-btn.active { color: #facc15; }
@@ -189,24 +454,53 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
 
-    <h1>📐 Пятиугольная призма</h1>
+    <h1> Призма</h1>
 
+    <!-- ===== 3D МОДЕЛЬ ===== -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 3D-модель призмы</div>
         <div class="section-content">
             <div class="model-container" id="prism-container">
                 <canvas id="prism-canvas" class="model-canvas"></canvas>
                 <button class="fullscreen-btn" id="fullscreenBtn" title="Во весь экран">⛶</button>
-                <div class="legend-3d"><span>🟢 <span class="h-color">Высота (h)</span></span></div>
+                <div class="legend-3d">
+                    <span>● <span class="h-color">Высота (h)</span></span>
+                    <span>● <span class="ap-color">Радиус впис. окр. (r)</span></span>
+                    <span>● <span class="side-color">Боковое ребро (L)</span></span>
+                </div>
+            </div>
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label>Высота</label>
+                    <input type="range" id="heightSlider" min="0.5" max="3.5" step="0.05" value="2.4">
+                    <span class="control-value" id="heightValue">2.4</span>
+                </div>
+                <div class="control-group">
+                    <label>Радиус</label>
+                    <input type="range" id="radiusSlider" min="0.5" max="2.0" step="0.05" value="1.2">
+                    <span class="control-value" id="radiusValue">1.2</span>
+                </div>
+                <div class="control-group">
+                    <label>Смещ. X</label>
+                    <input type="range" id="offsetXSlider" min="-1.5" max="1.5" step="0.05" value="0.0">
+                    <span class="control-value" id="offsetXValue">0.0</span>
+                </div>
+                <div class="control-group">
+                    <label>Смещ. Z</label>
+                    <input type="range" id="offsetZSlider" min="-1.5" max="1.5" step="0.05" value="0.0">
+                    <span class="control-value" id="offsetZValue">0.0</span>
+                </div>
             </div>
             <div class="def-card">
-                <p><strong>Интерактивная модель:</strong> вращайте пальцем, масштабируйте двумя пальцами (щипок). <strong>Правильная пятиугольная призма</strong> — боковые грани — прямоугольники, основания — правильные пятиугольники.</p>
+                <p><strong>Интерактивная модель:</strong> вращайте пальцем, масштабируйте двумя пальцами.  <strong>Смещайте верхнее основание</strong> ползунками, чтобы получить наклонную призму.</p>
             </div>
         </div>
     </div>
 
+    <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Определение</div>
         <div class="section-content">
@@ -214,40 +508,46 @@
                 <ul class="comp-list">
                     <li><strong>Призма</strong> — многогранник, у которого две грани (основания) — равные многоугольники, лежащие в параллельных плоскостях, а остальные грани (боковые) — параллелограммы.</li>
                     <li><strong>Прямая призма</strong> — боковые рёбра перпендикулярны основаниям (боковые грани — прямоугольники).</li>
+                    <li><strong>Наклонная призма</strong> — боковые рёбра не перпендикулярны основаниям.</li>
                     <li><strong>Правильная призма</strong> — прямая призма с правильным многоугольником в основании.</li>
-                    <li>Пятиугольная призма: в основании — правильный пятиугольник.</li>
+                    <li><strong>Пятиугольная призма</strong> — в основании правильный пятиугольник.</li>
                 </ul>
             </div>
         </div>
     </div>
 
+    <!-- ===== ЭЛЕМЕНТЫ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🔷 Элементы</div>
         <div class="section-content">
             <div class="def-card">
                 <ul class="comp-list">
-                    <li>Два пятиугольных основания (равны и параллельны)</li>
-                    <li>5 боковых граней — прямоугольников</li>
-                    <li>10 вершин, 15 рёбер</li>
-                    <li>Высота \(h\) — расстояние между основаниями</li>
+                    <li><strong>Основания</strong> — два правильных пятиугольника (равны и параллельны).</li>
+                    <li><strong>Боковые грани</strong> — 5 прямоугольников (у прямой призмы) или параллелограммов (у наклонной).</li>
+                    <li><strong>Вершин:</strong> 10, <strong>рёбер:</strong> 15, <strong>граней:</strong> 7 (5 боковых + 2 основания).</li>
+                    <li><strong>Высота (\(h\))</strong> — расстояние между основаниями (перпендикуляр).</li>
+                    <li><strong>Радиус вписанной окружности (\(r\))</strong> — расстояние от центра основания до стороны.</li>
+                    <li><strong>Боковое ребро (\(L\))</strong> — ребро боковой грани (у прямой призмы равно высоте).</li>
                 </ul>
             </div>
         </div>
     </div>
 
+    <!-- ===== СЕЧЕНИЯ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">✂️ Сечения</div>
         <div class="section-content">
             <div class="def-card">
                 <ul class="comp-list">
-                    <li><strong>Сечение, параллельное основанию</strong> — пятиугольник, равный основанию.</li>
-                    <li><strong>Диагональное сечение</strong> — прямоугольник.</li>
-                    <li><strong>Осевое сечение</strong> (через центр) — прямоугольник.</li>
+                    <li><strong>Сечение, параллельное основанию</strong> — правильный пятиугольник, равный основанию.</li>
+                    <li><strong>Диагональное сечение</strong> — прямоугольник (проходит через диагональ основания).</li>
+                    <li><strong>Осевое сечение</strong> — прямоугольник (проходит через центр основания).</li>
                 </ul>
             </div>
         </div>
     </div>
 
+    <!-- ===== ФОРМУЛЫ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧮 Формулы</div>
         <div class="section-content">
@@ -257,60 +557,168 @@
         </div>
     </div>
 
+    <!-- ===== СВОЙСТВА ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Свойства</div>
         <div class="section-content">
             <div class="def-card">
                 <ul class="comp-list">
-                    <li>Боковые рёбра параллельны и равны (у прямой призмы — высоте)</li>
-                    <li>Боковые грани — прямоугольники (у прямой призмы)</li>
-                    <li>Основания — равные правильные пятиугольники</li>
-                    <li>Теорема Эйлера: \(10 - 15 + 7 = 2\)</li>
+                    <li><strong>Вершин:</strong> 10, <strong>рёбер:</strong> 15, <strong>граней:</strong> 7.</li>
+                    <li><strong>Теорема Эйлера:</strong> \(10 - 15 + 7 = 2\).</li>
+                    <li>Боковые рёбра параллельны и равны.</li>
+                    <li>Боковые грани — прямоугольники (у прямой призмы).</li>
+                    <li>Основания — равные правильные пятиугольники.</li>
+                    <li>Все диагонали основания равны.</li>
                 </ul>
             </div>
         </div>
     </div>
 
-    <div class="note-box">
-        <strong>📌 Запомните:</strong><br>
-        • Площадь боковой поверхности: \(S_{\text{бок}} = P_{\text{осн}} \cdot h\)<br>
-        • Объём: \(V = S_{\text{осн}} \cdot h\)
+    <!-- ===== ЗАДАЧИ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📝 Задачи с 3D-визуализацией</div>
+        <div class="section-content">
+
+            <!-- ЗАДАЧА 1 -->
+            <div class="task-block">
+                <div class="task-title">📘 Задача №1. Нахождение площади боковой поверхности</div>
+                <div class="task-condition">
+                    <strong>Условие:</strong> В правильной пятиугольной призме сторона основания \(a = 4\) см, высота \(h = 6\) см. Найдите площадь боковой поверхности \(S_{\text{бок}}\).
+                </div>
+                <div class="task-canvas-wrapper" id="task1-container">
+                    <canvas id="task1-canvas" class="model-canvas"></canvas>
+                    <button class="task-fullscreen-btn" onclick="toggleTaskFullscreen('task1-container')">⛶</button>
+                    <div class="task-legend">
+                        <span style="color:#34d399;">● Высота (h)</span>
+                        <span style="color:#f472b6;">● Боковое ребро (L)</span>
+                    </div>
+                </div>
+                <button class="show-solution-btn" onclick="toggleSolution('solution1')">📖 Показать решение</button>
+                <div id="solution1" class="task-solution">
+                    <div class="step">
+                        <strong>Шаг 1:</strong> Найдём периметр основания \(P_{\text{осн}}\).<br>
+                        Правильный пятиугольник имеет 5 равных сторон:<br>
+                        <span class="formula">\(P_{\text{осн}} = 5a = 5 \cdot 4 = 20\) см</span>
+                    </div>
+                    <div class="step">
+                        <strong>Шаг 2:</strong> Найдём площадь боковой поверхности по формуле:<br>
+                        <span class="formula">\(S_{\text{бок}} = P_{\text{осн}} \cdot h = 20 \cdot 6 = 120\) см²</span>
+                    </div>
+                    <div class="answer">✅ Ответ: \(S_{\text{бок}} = 120\) см²</div>
+                </div>
+            </div>
+
+            <!-- ЗАДАЧА 2 -->
+            <div class="task-block">
+                <div class="task-title">📘 Задача №2. Нахождение объёма</div>
+                <div class="task-condition">
+                    <strong>Условие:</strong> В правильной пятиугольной призме сторона основания \(a = 3\) см, радиус вписанной окружности \(r = 2\) см, высота \(h = 5\) см. Найдите объём призмы \(V\).
+                </div>
+                <div class="task-canvas-wrapper" id="task2-container">
+                    <canvas id="task2-canvas" class="model-canvas"></canvas>
+                    <button class="task-fullscreen-btn" onclick="toggleTaskFullscreen('task2-container')">⛶</button>
+                    <div class="task-legend">
+                        <span style="color:#34d399;">● Высота (h)</span>
+                        <span style="color:#f97316;">● Радиус впис. окр. (r)</span>
+                    </div>
+                </div>
+                <button class="show-solution-btn" onclick="toggleSolution('solution2')">📖 Показать решение</button>
+                <div id="solution2" class="task-solution">
+                    <div class="step">
+                        <strong>Шаг 1:</strong> Найдём площадь основания \(S_{\text{осн}}\).<br>
+                        Площадь правильного пятиугольника через сторону и радиус вписанной окружности:<br>
+                        <span class="formula">\(S_{\text{осн}} = \frac{5}{2} \cdot a \cdot r = \frac{5}{2} \cdot 3 \cdot 2 = 15\) см²</span>
+                    </div>
+                    <div class="step">
+                        <strong>Шаг 2:</strong> Найдём объём призмы по формуле:<br>
+                        <span class="formula">\(V = S_{\text{осн}} \cdot h = 15 \cdot 5 = 75\) см³</span>
+                    </div>
+                    <div class="answer">✅ Ответ: \(V = 75\) см³</div>
+                </div>
+            </div>
+
+            <!-- ЗАДАЧА 3 -->
+            <div class="task-block">
+                <div class="task-title">📘 Задача №3. Нахождение площади диагонального сечения</div>
+                <div class="task-condition">
+                    <strong>Условие:</strong> В правильной пятиугольной призме сторона основания \(a = 4\) см, высота \(h = 7\) см. Найдите площадь диагонального сечения \(S_{\text{сеч}}\) (сечение проходит через диагональ основания).
+                </div>
+                <div class="task-canvas-wrapper" id="task3-container">
+                    <canvas id="task3-canvas" class="model-canvas"></canvas>
+                    <button class="task-fullscreen-btn" onclick="toggleTaskFullscreen('task3-container')">⛶</button>
+                    <div class="task-legend">
+                        <span style="color:#facc15;">● Диагональное сечение (контур)</span>
+                        <span style="color:#34d399;">● Высота (h)</span>
+                    </div>
+                </div>
+                <button class="show-solution-btn" onclick="toggleSolution('solution3')">📖 Показать решение</button>
+                <div id="solution3" class="task-solution">
+                    <div class="step">
+                        <strong>Шаг 1:</strong> Найдём диагональ основания \(d\).<br>
+                        Для правильного пятиугольника со стороной \(a = 4\) см диагональ вычисляется по формуле:<br>
+                        <span class="formula">\(d = a \cdot \varphi = 4 \cdot \frac{1 + \sqrt{5}}{2} = 4 \cdot 1,618 \approx 6,47\) см</span>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px;">где \(\varphi\) — золотое сечение</p>
+                    </div>
+                    <div class="step">
+                        <strong>Шаг 2:</strong> Диагональное сечение — это прямоугольник, основание которого — диагональ основания \(d\), а высота совпадает с высотой призмы \(h\).<br>
+                        <span class="formula">\(S_{\text{сеч}} = d \cdot h = 6,47 \cdot 7 \approx 45,29\) см²</span>
+                    </div>
+                    <div class="answer">✅ Ответ: \(S_{\text{сеч}} \approx 45,29\) см²</div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <a href="index.html" class="back-link">← Назад к меню</a>
+    <!-- ===== ЗАПОМИНАЛКА ===== -->
+    <div class="note-box">
+        <strong>📌 Запомните:</strong><br>
+        • \(S_{\text{бок}} = P_{\text{осн}} \cdot h\)<br>
+        • \(S_{\text{полн}} = S_{\text{бок}} + 2 \cdot S_{\text{осн}}\)<br>
+        • \(V = S_{\text{осн}} \cdot h\)<br>
+        • \(S_{\text{осн}} = \frac{5}{2} \cdot a \cdot r\)<br>
+        • Диагональ пятиугольника: \(d = a \cdot \frac{1 + \sqrt{5}}{2}\)
+    </div>
+
+    <a href="polyhedrons.html" class="back-link">← Назад</a>
 </div>
 
 <script>
-    // ========== ОПРЕДЕЛЕНИЕ КАЧЕСТВА 3D ==========
-    let quality3D = 'high';
-    if (window.Android && window.Android.getQuality3D) {
-        quality3D = window.Android.getQuality3D();
-    } else {
-        const saved = localStorage.getItem('quality3d');
-        if (saved) quality3D = saved;
+    // ========== ФУНКЦИЯ ДЛЯ РАСКРЫТИЯ РЕШЕНИЙ ==========
+    function toggleSolution(id) {
+        const el = document.getElementById(id);
+        const btn = el.previousElementSibling;
+        if (el.classList.contains('open')) {
+            el.classList.remove('open');
+            btn.textContent = '📖 Показать решение';
+        } else {
+            el.classList.add('open');
+            btn.textContent = '📕 Скрыть решение';
+        }
     }
 
-    const qualitySettings = {
-        low: {
-            segments: 24,
-            opacity: 0.85,
-            transparent: false
-        },
-        medium: {
-            segments: 48,
-            opacity: 0.65,
-            transparent: true
-        },
-        high: {
-            segments: 96,
-            opacity: 0.55,
-            transparent: true
+    // ========== ПОЛНОЭКРАННЫЙ РЕЖИМ ДЛЯ ЗАДАЧ ==========
+    function toggleTaskFullscreen(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            try {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                }
+            } catch(e) {}
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
         }
-    };
+    }
 
-    const settings = qualitySettings[quality3D];
-    // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
-
+    // ========== ТЕМА ==========
     function toggleTheme() {
         const html = document.documentElement;
         const btn = document.getElementById('themeBtn');
@@ -331,6 +739,7 @@
         }
     })();
 
+    // ========== ОСНОВНАЯ 3D МОДЕЛЬ ==========
     (async function() {
         const THREE = await import('three');
         const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
@@ -340,22 +749,14 @@
         const containerElem = document.getElementById('prism-container');
         if (!canvasElem || !containerElem) return;
 
-        const radius = 1.2;
-        const height = 2.4;
-        const halfH = height / 2;
+        let radius = 1.2, height = 2.4, offsetX = 0, offsetZ = 0;
         const sides = 5;
-        const vertices = [];
-        for (let i = 0; i < sides; i++) {
-            const angle = (i / sides) * Math.PI * 2 - Math.PI / 2;
-            vertices.push(new THREE.Vector3(radius * Math.cos(angle), -halfH, radius * Math.sin(angle)));
-        }
 
         const scene = new THREE.Scene();
         scene.background = null;
 
         const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        camera.position.set(4, 3, 5);
-        camera.lookAt(0, 0, 0);
+        camera.position.set(4.5, 3.5, 5.5);
 
         const renderer = new THREE.WebGLRenderer({ canvas: canvasElem, alpha: true, antialias: true });
 
@@ -367,18 +768,28 @@
         containerElem.style.position = 'relative';
         containerElem.appendChild(labelRenderer.domElement);
 
+        const prismGroup = new THREE.Group();
+        scene.add(prismGroup);
+
+        let autoRotate = true;
+        let autoRotateTimeout = null;
+
+        function stopAutoRotate() {
+            autoRotate = false;
+            if (autoRotateTimeout) clearTimeout(autoRotateTimeout);
+            autoRotateTimeout = setTimeout(() => { autoRotate = true; }, 3000);
+        }
+
         function updateSize() {
             const rect = containerElem.getBoundingClientRect();
-            let width = rect.width;
-            let heightVal = rect.height;
+            let width = rect.width, heightVal = rect.height;
             if (document.fullscreenElement === containerElem || document.webkitFullscreenElement === containerElem) {
-                width = window.innerWidth;
-                heightVal = window.innerHeight;
+                width = window.innerWidth; heightVal = window.innerHeight;
             }
             if (width < 10) width = 800;
             if (heightVal < 10) heightVal = 450;
-            canvasElem.style.width = `${width}px`;
-            canvasElem.style.height = `${heightVal}px`;
+            canvasElem.style.width = width + 'px';
+            canvasElem.style.height = heightVal + 'px';
             canvasElem.width = width;
             canvasElem.height = heightVal;
             renderer.setSize(width, heightVal);
@@ -387,15 +798,9 @@
             camera.updateProjectionMatrix();
         }
 
-        function forceResize() {
-            canvasElem.style.width = '';
-            canvasElem.style.height = '';
-            setTimeout(() => { updateSize(); requestAnimationFrame(() => updateSize()); }, 30);
-        }
-
         const resizeObserver = new ResizeObserver(() => updateSize());
         resizeObserver.observe(containerElem);
-        setTimeout(() => updateSize(), 100);
+        setTimeout(updateSize, 100);
 
         const ambientLight = new THREE.AmbientLight(0x40486c, 0.6);
         scene.add(ambientLight);
@@ -408,117 +813,693 @@
         const rimLight = new THREE.PointLight(0x88aaff, 0.5);
         rimLight.position.set(1, 2, -3);
         scene.add(rimLight);
-        const bottomLight = new THREE.PointLight(0x6699cc, 0.35);
-        bottomLight.position.set(0, -1.2, 0);
-        scene.add(bottomLight);
 
         const gridHelper = new THREE.GridHelper(6, 16, 0x5f7f9e, 0x2c4258);
-        gridHelper.position.y = -1.3;
+        gridHelper.position.y = -1.8;
         gridHelper.material.transparent = true;
         gridHelper.material.opacity = 0.2;
         scene.add(gridHelper);
 
-        const shape = new THREE.Shape();
-        shape.moveTo(vertices[0].x, vertices[0].z);
-        for (let i = 1; i < vertices.length; i++) shape.lineTo(vertices[i].x, vertices[i].z);
-        shape.closePath();
-
-        const extrudeSettings = { steps: 1, depth: height, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 3 };
-        const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-        extrudeGeometry.rotateX(-Math.PI / 2);
-        extrudeGeometry.translate(0, -halfH, 0);
-        extrudeGeometry.computeVertexNormals();
-
-        const prismMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x3b82f6, metalness: 0.35, roughness: 0.28,
-            transparent: settings.transparent, opacity: settings.opacity,
-            side: THREE.DoubleSide, emissive: 0x001133, clearcoat: 0.85
-        });
-        const prism = new THREE.Mesh(extrudeGeometry, prismMaterial);
-        prism.castShadow = true;
-        scene.add(prism);
-
-        const edgesGeo = new THREE.EdgesGeometry(extrudeGeometry);
-        const wireframe = new THREE.LineSegments(edgesGeo, new THREE.LineBasicMaterial({ color: 0x7cb8ff }));
-        scene.add(wireframe);
-
-        const heightStart = new THREE.Vector3(0, -halfH, 0);
-        const heightEnd = new THREE.Vector3(0, halfH, 0);
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([heightStart, heightEnd]), new THREE.LineBasicMaterial({ color: 0x10b981, linewidth: 3 })));
-
-        const heightSphereMat = new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x004d2e });
-        const bottomHPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), heightSphereMat);
-        bottomHPoint.position.copy(heightStart);
-        const topHPoint = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), heightSphereMat);
-        topHPoint.position.copy(heightEnd);
-        scene.add(bottomHPoint);
-        scene.add(topHPoint);
-
-        function makeLabel(text, color, position, fontSize = '0.85rem') {
-            const div = document.createElement('div');
-            div.textContent = text;
-            div.style.color = color;
-            div.style.fontSize = fontSize;
-            div.style.fontWeight = 'bold';
-            div.style.fontFamily = "'JetBrains Mono', monospace";
-            div.style.background = 'rgba(10, 15, 26, 0.8)';
-            div.style.padding = '2px 10px';
-            div.style.borderRadius = '24px';
-            div.style.border = `1px solid ${color}`;
-            div.style.backdropFilter = 'blur(6px)';
-            div.style.whiteSpace = 'nowrap';
-            const label = new CSS2DObject(div);
-            label.position.copy(position);
-            scene.add(label);
-            return label;
+        function getVertices(r, h, offX, offZ) {
+            const halfH = h / 2;
+            const verts = [];
+            for (let i = 0; i < sides; i++) {
+                const angle = (i / sides) * Math.PI * 2 - Math.PI / 2;
+                verts.push(new THREE.Vector3(r * Math.cos(angle), -halfH, r * Math.sin(angle)));
+            }
+            const topVerts = verts.map(v => new THREE.Vector3(v.x + offX, v.y + h, v.z + offZ));
+            return { bottom: verts, top: topVerts };
         }
 
-        makeLabel('Высота (h)', '#34d399', new THREE.Vector3(0.9, 0, 0.9), '0.85rem');
-        makeLabel('Нижнее основание', '#60a5fa', new THREE.Vector3(0, -halfH - 0.4, radius + 0.3), '0.75rem');
-        makeLabel('Верхнее основание', '#60a5fa', new THREE.Vector3(0, halfH + 0.4, radius + 0.3), '0.75rem');
+        function buildPrism() {
+            while(prismGroup.children.length > 0) prismGroup.remove(prismGroup.children[0]);
+
+            const { bottom: bottomVerts, top: topVerts } = getVertices(radius, height, offsetX, offsetZ);
+            const halfH = height / 2;
+
+            const sideMat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6, metalness: 0.35, roughness: 0.28,
+                transparent: true, opacity: 0.55, side: THREE.DoubleSide
+            });
+            for (let i = 0; i < sides; i++) {
+                const j = (i + 1) % sides;
+                const p1 = bottomVerts[i], p2 = bottomVerts[j];
+                const p3 = topVerts[j], p4 = topVerts[i];
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(
+                    new Float32Array([
+                        p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z,
+                        p1.x, p1.y, p1.z, p3.x, p3.y, p3.z, p4.x, p4.y, p4.z
+                    ]), 3
+                ));
+                geo.setIndex([0,1,2,3,4,5]);
+                geo.computeVertexNormals();
+                prismGroup.add(new THREE.Mesh(geo, sideMat));
+            }
+
+            const baseMat = new THREE.MeshPhysicalMaterial({
+                color: 0x60a5fa, metalness: 0.3, roughness: 0.4,
+                transparent: true, opacity: 0.5, side: THREE.DoubleSide
+            });
+            const bGeo = new THREE.BufferGeometry();
+            const bv = [];
+            for (const v of bottomVerts) bv.push(v.x, v.y, v.z);
+            bGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(bv), 3));
+            const bIndices = [];
+            for (let i = 1; i < sides - 1; i++) bIndices.push(0, i, i + 1);
+            bGeo.setIndex(bIndices);
+            bGeo.computeVertexNormals();
+            prismGroup.add(new THREE.Mesh(bGeo, baseMat));
+
+            const tGeo = new THREE.BufferGeometry();
+            const tv = [];
+            for (const v of topVerts) tv.push(v.x, v.y, v.z);
+            tGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(tv), 3));
+            const tIndices = [];
+            for (let i = 1; i < sides - 1; i++) tIndices.push(0, i + 1, i);
+            tGeo.setIndex(tIndices);
+            tGeo.computeVertexNormals();
+            prismGroup.add(new THREE.Mesh(tGeo, baseMat));
+
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x7cb8ff });
+            const bl = new THREE.BufferGeometry().setFromPoints([...bottomVerts, bottomVerts[0]]);
+            prismGroup.add(new THREE.Line(bl, edgeMat));
+            const tl = new THREE.BufferGeometry().setFromPoints([...topVerts, topVerts[0]]);
+            prismGroup.add(new THREE.Line(tl, edgeMat));
+            for (let i = 0; i < sides; i++) {
+                const sl = new THREE.BufferGeometry().setFromPoints([bottomVerts[i], topVerts[i]]);
+                prismGroup.add(new THREE.Line(sl, edgeMat));
+            }
+
+            const hMat = new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 3 });
+            const hStart = new THREE.Vector3(0, -halfH, 0);
+            const hEnd = new THREE.Vector3(0, halfH, 0);
+            prismGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([hStart, hEnd]), hMat));
+
+            const oo1Mat = new THREE.LineDashedMaterial({ color: 0xfacc15, dashSize: 0.05, gapSize: 0.05 });
+            const oo1Line = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -halfH, 0), new THREE.Vector3(offsetX, halfH, offsetZ)]),
+                oo1Mat
+            );
+            oo1Line.computeLineDistances();
+            prismGroup.add(oo1Line);
+
+            const rMat = new THREE.LineBasicMaterial({ color: 0xf97316, linewidth: 3 });
+            const center = new THREE.Vector3(0, -halfH, 0);
+            const midPoint = new THREE.Vector3(
+                (bottomVerts[0].x + bottomVerts[1].x) / 2,
+                -halfH,
+                (bottomVerts[0].z + bottomVerts[1].z) / 2
+            );
+            prismGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([center, midPoint]), rMat));
+
+            const lMat = new THREE.LineBasicMaterial({ color: 0xf472b6, linewidth: 3 });
+            prismGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([bottomVerts[0], topVerts[0]]), lMat));
+
+            const sphereMat = new THREE.MeshStandardMaterial({ color: 0x34d399, emissive: 0x004d2e });
+            const s1 = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), sphereMat);
+            s1.position.copy(hStart);
+            prismGroup.add(s1);
+            const s2 = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), sphereMat);
+            s2.position.copy(hEnd);
+            prismGroup.add(s2);
+
+            const rSphereMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0x442200 });
+            const rS = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), rSphereMat);
+            rS.position.copy(midPoint);
+            prismGroup.add(rS);
+
+            const lSphereMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, emissive: 0x442244 });
+            const lS = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), lSphereMat);
+            lS.position.copy(bottomVerts[0]);
+            prismGroup.add(lS);
+
+            function makeLabel(text, color, pos, fs = '0.7rem') {
+                const div = document.createElement('div');
+                div.textContent = text;
+                div.style.color = color;
+                div.style.fontSize = fs;
+                div.style.fontWeight = 'bold';
+                div.style.fontFamily = "'Times New Roman', serif";
+                div.style.background = 'rgba(10, 15, 26, 0.7)';
+                div.style.padding = '0px 6px';
+                div.style.borderRadius = '10px';
+                div.style.border = '1px solid ' + color;
+                div.style.backdropFilter = 'blur(4px)';
+                div.style.pointerEvents = 'none';
+                const label = new CSS2DObject(div);
+                label.position.copy(pos);
+                prismGroup.add(label);
+            }
+
+            const labels = ['A₁', 'A₂', 'A₃', 'A₄', 'A₅'];
+            for (let i = 0; i < sides; i++) {
+                const v = bottomVerts[i];
+                const offset = 0.2;
+                makeLabel(labels[i], '#60a5fa', new THREE.Vector3(v.x + offset * (i === 0 ? -1 : i === 2 ? 1 : 0), v.y - 0.15, v.z + offset * (i === 1 ? 1 : i === 3 ? -1 : 0)));
+            }
+            const labelsTop = ['B₁', 'B₂', 'B₃', 'B₄', 'B₅'];
+            for (let i = 0; i < sides; i++) {
+                const v = topVerts[i];
+                const offset = 0.2;
+                makeLabel(labelsTop[i], '#facc15', new THREE.Vector3(v.x + offset * (i === 0 ? -1 : i === 2 ? 1 : 0), v.y + 0.15, v.z + offset * (i === 1 ? 1 : i === 3 ? -1 : 0)));
+            }
+
+            const hDir = new THREE.Vector3(0.3, 0, 0.3).normalize();
+            makeLabel('h', '#34d399', new THREE.Vector3(hDir.x * 0.3, 0, hDir.z * 0.3), '0.75rem');
+
+            const rDir = new THREE.Vector3(0.3, 0, -0.3).normalize();
+            makeLabel('r', '#f97316', new THREE.Vector3((center.x + midPoint.x) / 2 + rDir.x * 0.3, -halfH, (center.z + midPoint.z) / 2 + rDir.z * 0.3), '0.75rem');
+
+            const lDir = new THREE.Vector3(0.3, 0, 0.3).normalize();
+            makeLabel('L', '#f472b6', new THREE.Vector3((bottomVerts[0].x + topVerts[0].x) / 2 + lDir.x * 0.3, 0, (bottomVerts[0].z + topVerts[0].z) / 2 + lDir.z * 0.3), '0.75rem');
+
+            makeLabel('O', '#34d399', new THREE.Vector3(0, -halfH - 0.2, 0));
+            makeLabel('O₁', '#facc15', new THREE.Vector3(offsetX, halfH + 0.2, offsetZ));
+
+            const oo1Pos = new THREE.Vector3(offsetX/2, 0, offsetZ/2);
+            makeLabel('OO₁', '#facc15', oo1Pos, '0.7rem');
+        }
+
+        buildPrism();
+
+        const heightSlider = document.getElementById('heightSlider');
+        const heightValue = document.getElementById('heightValue');
+        const radiusSlider = document.getElementById('radiusSlider');
+        const radiusValue = document.getElementById('radiusValue');
+        const offsetXSlider = document.getElementById('offsetXSlider');
+        const offsetXValue = document.getElementById('offsetXValue');
+        const offsetZSlider = document.getElementById('offsetZSlider');
+        const offsetZValue = document.getElementById('offsetZValue');
+
+        function updateModel() {
+            height = parseFloat(heightSlider.value);
+            heightValue.textContent = height.toFixed(2);
+            radius = parseFloat(radiusSlider.value);
+            radiusValue.textContent = radius.toFixed(2);
+            offsetX = parseFloat(offsetXSlider.value);
+            offsetXValue.textContent = offsetX.toFixed(2);
+            offsetZ = parseFloat(offsetZSlider.value);
+            offsetZValue.textContent = offsetZ.toFixed(2);
+            buildPrism();
+        }
+
+        heightSlider.addEventListener('input', updateModel);
+        radiusSlider.addEventListener('input', updateModel);
+        offsetXSlider.addEventListener('input', updateModel);
+        offsetZSlider.addEventListener('input', updateModel);
 
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.06;
-        controls.autoRotate = false;
-        controls.enableZoom = true;
-        controls.enablePan = true;
         controls.target.set(0, 0, 0);
 
+        renderer.domElement.addEventListener('pointerdown', stopAutoRotate);
+        renderer.domElement.addEventListener('wheel', stopAutoRotate);
+        renderer.domElement.addEventListener('touchstart', stopAutoRotate);
+
         const fullscreenBtn = document.getElementById('fullscreenBtn');
-        async function toggleFullscreen() {
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                try { await containerElem.requestFullscreen(); fullscreenBtn.textContent = '✖'; } catch(err) {}
+        fullscreenBtn.addEventListener('click', async () => {
+            if (!document.fullscreenElement) {
+                await containerElem.requestFullscreen();
+                fullscreenBtn.textContent = '✖';
             } else {
-                if (document.exitFullscreen) await document.exitFullscreen();
-                else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                await document.exitFullscreen();
                 fullscreenBtn.textContent = '⛶';
-                forceResize();
             }
-        }
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        });
 
         document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement === containerElem || document.webkitFullscreenElement === containerElem) {
+            if (document.fullscreenElement === containerElem) {
                 fullscreenBtn.textContent = '✖';
                 updateSize();
             } else {
                 fullscreenBtn.textContent = '⛶';
-                forceResize();
+                setTimeout(updateSize, 100);
             }
         });
 
         function animate() {
             requestAnimationFrame(animate);
+            if (autoRotate) {
+                prismGroup.rotation.y += 0.005;
+            }
             controls.update();
             renderer.render(scene, camera);
             labelRenderer.render(scene, camera);
         }
         animate();
-        window.addEventListener('resize', () => forceResize());
-    })();
-</script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+        // ===== ЗАДАЧИ: 3D-СЦЕНЫ =====
+        async function initTaskScenes() {
+            const THREE2 = await import('three');
+            const { OrbitControls: OrbitControls2 } = await import('three/addons/controls/OrbitControls.js');
+            const { CSS2DRenderer: CSS2DRenderer2, CSS2DObject: CSS2DObject2 } = await import('three/addons/renderers/CSS2DRenderer.js');
+
+            const taskConfigs = [
+                { containerId: 'task1-container', canvasId: 'task1-canvas',
+                  setup: setupTask1 },
+                { containerId: 'task2-container', canvasId: 'task2-canvas',
+                  setup: setupTask2 },
+                { containerId: 'task3-container', canvasId: 'task3-canvas',
+                  setup: setupTask3 }
+            ];
+
+            for (const cfg of taskConfigs) {
+                const container = document.getElementById(cfg.containerId);
+                const canvas = document.getElementById(cfg.canvasId);
+                if (!container || !canvas) continue;
+
+                const scene = new THREE2.Scene();
+                scene.background = null;
+
+                const camera = new THREE2.PerspectiveCamera(40, 1, 0.1, 100);
+                camera.position.set(3.5, 2.5, 4.5);
+
+                const renderer = new THREE2.WebGLRenderer({ canvas, alpha: true, antialias: true });
+
+                const labelRenderer2 = new CSS2DRenderer2();
+                labelRenderer2.domElement.style.position = 'absolute';
+                labelRenderer2.domElement.style.top = '0px';
+                labelRenderer2.domElement.style.left = '0px';
+                labelRenderer2.domElement.style.pointerEvents = 'none';
+                container.style.position = 'relative';
+                container.appendChild(labelRenderer2.domElement);
+
+                const amb = new THREE2.AmbientLight(0x40486c, 0.6);
+                scene.add(amb);
+                const key = new THREE2.DirectionalLight(0xfff5e0, 1.2);
+                key.position.set(2, 5, 2);
+                scene.add(key);
+                const fill = new THREE2.PointLight(0xccaa77, 0.5);
+                fill.position.set(-1.5, 2, 2);
+                scene.add(fill);
+
+                const controls = new OrbitControls2(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.06;
+                controls.autoRotate = true;
+                controls.autoRotateSpeed = 0.8;
+                controls.enableZoom = true;
+                controls.enablePan = false;
+                controls.target.set(0, 0, 0);
+                controls.maxPolarAngle = Math.PI / 2;
+
+                const group = new THREE2.Group();
+                scene.add(group);
+
+                cfg.setup(scene, group, THREE2, CSS2DRenderer2, CSS2DObject2);
+
+                function updateSize() {
+                    const rect = container.getBoundingClientRect();
+                    const w = rect.width || 400;
+                    const h2 = rect.height || 250;
+                    canvas.style.width = w + 'px';
+                    canvas.style.height = h2 + 'px';
+                    canvas.width = w;
+                    canvas.height = h2;
+                    renderer.setSize(w, h2);
+                    labelRenderer2.setSize(w, h2);
+                    camera.aspect = w / h2;
+                    camera.updateProjectionMatrix();
+                }
+
+                const ro = new ResizeObserver(() => updateSize());
+                ro.observe(container);
+                setTimeout(updateSize, 150);
+
+                function animateTask() {
+                    requestAnimationFrame(animateTask);
+                    controls.update();
+                    renderer.render(scene, camera);
+                    labelRenderer2.render(scene, camera);
+                }
+                animateTask();
+
+                const themeObserver = new MutationObserver(() => setTimeout(updateSize, 50));
+                themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            }
+        }
+
+        // ===== НАСТРОЙКА СЦЕН ДЛЯ ЗАДАЧ =====
+        function setupTask1(scene, group, THREE, CSS2DRenderer, CSS2DObject) {
+            const r = 1.0, h = 1.2, sides = 5;
+            const halfH = h / 2;
+            const verts = [];
+            for (let i = 0; i < sides; i++) {
+                const angle = (i / sides) * Math.PI * 2 - Math.PI / 2;
+                verts.push(new THREE.Vector3(r * Math.cos(angle), -halfH, r * Math.sin(angle)));
+            }
+            const topVerts = verts.map(v => new THREE.Vector3(v.x, v.y + h, v.z));
+
+            const mat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6, transparent: true, opacity: 0.2, side: THREE.DoubleSide
+            });
+            for (let i = 0; i < sides; i++) {
+                const j = (i + 1) % sides;
+                const p1 = verts[i], p2 = verts[j], p3 = topVerts[j], p4 = topVerts[i];
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(
+                    new Float32Array([p1.x,p1.y,p1.z, p2.x,p2.y,p2.z, p3.x,p3.y,p3.z, p1.x,p1.y,p1.z, p3.x,p3.y,p3.z, p4.x,p4.y,p4.z]), 3
+                ));
+                geo.setIndex([0,1,2,3,4,5]);
+                geo.computeVertexNormals();
+                group.add(new THREE.Mesh(geo, mat));
+            }
+
+            const baseMat = new THREE.MeshPhysicalMaterial({
+                color: 0x60a5fa, transparent: true, opacity: 0.4, side: THREE.DoubleSide
+            });
+            const bGeo = new THREE.BufferGeometry();
+            const bv = [];
+            for (const v of verts) bv.push(v.x, v.y, v.z);
+            bGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(bv), 3));
+            const bIndices = [];
+            for (let i = 1; i < sides - 1; i++) bIndices.push(0, i, i + 1);
+            bGeo.setIndex(bIndices);
+            bGeo.computeVertexNormals();
+            group.add(new THREE.Mesh(bGeo, baseMat));
+
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x7cb8ff });
+            const bl = new THREE.BufferGeometry().setFromPoints([...verts, verts[0]]);
+            group.add(new THREE.Line(bl, edgeMat));
+            const tl = new THREE.BufferGeometry().setFromPoints([...topVerts, topVerts[0]]);
+            group.add(new THREE.Line(tl, edgeMat));
+            for (let i = 0; i < sides; i++) {
+                group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([verts[i], topVerts[i]]), edgeMat));
+            }
+
+            const hMat = new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 3 });
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-halfH,0), new THREE.Vector3(0,halfH,0)]), hMat));
+
+            const oo1Mat = new THREE.LineDashedMaterial({ color: 0xfacc15, dashSize: 0.05, gapSize: 0.05 });
+            const oo1Line = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-halfH,0), new THREE.Vector3(0,halfH,0)]),
+                oo1Mat
+            );
+            oo1Line.computeLineDistances();
+            group.add(oo1Line);
+
+            const lMat = new THREE.LineBasicMaterial({ color: 0xf472b6, linewidth: 3 });
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([verts[0], topVerts[0]]), lMat));
+
+            function makeLabel(text, color, pos, fs = '0.6rem') {
+                const div = document.createElement('div');
+                div.textContent = text;
+                div.style.color = color;
+                div.style.fontSize = fs;
+                div.style.fontWeight = 'bold';
+                div.style.fontFamily = "'Times New Roman', serif";
+                div.style.background = 'rgba(10, 15, 26, 0.7)';
+                div.style.padding = '0px 5px';
+                div.style.borderRadius = '8px';
+                div.style.border = '1px solid ' + color;
+                div.style.backdropFilter = 'blur(4px)';
+                div.style.pointerEvents = 'none';
+                const label = new CSS2DObject(div);
+                label.position.copy(pos);
+                group.add(label);
+            }
+
+            const labels = ['A₁', 'A₂', 'A₃', 'A₄', 'A₅'];
+            for (let i = 0; i < sides; i++) {
+                const v = verts[i];
+                makeLabel(labels[i], '#60a5fa', new THREE.Vector3(v.x + (i===0?-0.15:0), v.y - 0.1, v.z + (i===1?0.15:0)));
+            }
+            const labelsTop = ['B₁', 'B₂', 'B₃', 'B₄', 'B₅'];
+            for (let i = 0; i < sides; i++) {
+                const v = topVerts[i];
+                makeLabel(labelsTop[i], '#facc15', new THREE.Vector3(v.x + (i===0?-0.15:0), v.y + 0.1, v.z + (i===1?0.15:0)));
+            }
+
+            makeLabel('O', '#34d399', new THREE.Vector3(0, -halfH - 0.12, 0));
+            makeLabel('O₁', '#facc15', new THREE.Vector3(0, halfH + 0.12, 0));
+
+            const hDir = new THREE.Vector3(0.25, 0, 0.25).normalize();
+            makeLabel('h', '#34d399', new THREE.Vector3(hDir.x * 0.25, 0, hDir.z * 0.25), '0.65rem');
+
+            const lDir = new THREE.Vector3(0.25, 0, 0.25).normalize();
+            makeLabel('L', '#f472b6', new THREE.Vector3((verts[0].x+topVerts[0].x)/2 + lDir.x*0.25, 0, (verts[0].z+topVerts[0].z)/2 + lDir.z*0.25), '0.65rem');
+
+            const oo1Pos = new THREE.Vector3(0.2, 0, 0.2);
+            makeLabel('OO₁', '#facc15', oo1Pos, '0.6rem');
+
+            const grid = new THREE.GridHelper(2.5, 8, 0x5f7f9e, 0x2c4258);
+            grid.position.y = -halfH - 0.01;
+            grid.material.transparent = true;
+            grid.material.opacity = 0.2;
+            group.add(grid);
+        }
+
+        function setupTask2(scene, group, THREE, CSS2DRenderer, CSS2DObject) {
+            const r = 1.0, h = 1.2, sides = 5;
+            const halfH = h / 2;
+            const verts = [];
+            for (let i = 0; i < sides; i++) {
+                const angle = (i / sides) * Math.PI * 2 - Math.PI / 2;
+                verts.push(new THREE.Vector3(r * Math.cos(angle), -halfH, r * Math.sin(angle)));
+            }
+            const topVerts = verts.map(v => new THREE.Vector3(v.x, v.y + h, v.z));
+
+            const mat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6, transparent: true, opacity: 0.2, side: THREE.DoubleSide
+            });
+            for (let i = 0; i < sides; i++) {
+                const j = (i + 1) % sides;
+                const p1 = verts[i], p2 = verts[j], p3 = topVerts[j], p4 = topVerts[i];
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(
+                    new Float32Array([p1.x,p1.y,p1.z, p2.x,p2.y,p2.z, p3.x,p3.y,p3.z, p1.x,p1.y,p1.z, p3.x,p3.y,p3.z, p4.x,p4.y,p4.z]), 3
+                ));
+                geo.setIndex([0,1,2,3,4,5]);
+                geo.computeVertexNormals();
+                group.add(new THREE.Mesh(geo, mat));
+            }
+
+            const baseMat = new THREE.MeshPhysicalMaterial({
+                color: 0x60a5fa, transparent: true, opacity: 0.4, side: THREE.DoubleSide
+            });
+            const bGeo = new THREE.BufferGeometry();
+            const bv = [];
+            for (const v of verts) bv.push(v.x, v.y, v.z);
+            bGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(bv), 3));
+            const bIndices = [];
+            for (let i = 1; i < sides - 1; i++) bIndices.push(0, i, i + 1);
+            bGeo.setIndex(bIndices);
+            bGeo.computeVertexNormals();
+            group.add(new THREE.Mesh(bGeo, baseMat));
+
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x7cb8ff });
+            const bl = new THREE.BufferGeometry().setFromPoints([...verts, verts[0]]);
+            group.add(new THREE.Line(bl, edgeMat));
+            const tl = new THREE.BufferGeometry().setFromPoints([...topVerts, topVerts[0]]);
+            group.add(new THREE.Line(tl, edgeMat));
+            for (let i = 0; i < sides; i++) {
+                group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([verts[i], topVerts[i]]), edgeMat));
+            }
+
+            const hMat = new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 3 });
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-halfH,0), new THREE.Vector3(0,halfH,0)]), hMat));
+
+            const rMat = new THREE.LineBasicMaterial({ color: 0xf97316, linewidth: 3 });
+            const center = new THREE.Vector3(0, -halfH, 0);
+            const midPoint = new THREE.Vector3((verts[0].x + verts[1].x)/2, -halfH, (verts[0].z + verts[1].z)/2);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([center, midPoint]), rMat));
+
+            const mSphereMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0x442200 });
+            const mS = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 12), mSphereMat);
+            mS.position.copy(midPoint);
+            group.add(mS);
+
+            function makeLabel(text, color, pos, fs = '0.6rem') {
+                const div = document.createElement('div');
+                div.textContent = text;
+                div.style.color = color;
+                div.style.fontSize = fs;
+                div.style.fontWeight = 'bold';
+                div.style.fontFamily = "'Times New Roman', serif";
+                div.style.background = 'rgba(10, 15, 26, 0.7)';
+                div.style.padding = '0px 5px';
+                div.style.borderRadius = '8px';
+                div.style.border = '1px solid ' + color;
+                div.style.backdropFilter = 'blur(4px)';
+                div.style.pointerEvents = 'none';
+                const label = new CSS2DObject(div);
+                label.position.copy(pos);
+                group.add(label);
+            }
+
+            const labels = ['A₁', 'A₂', 'A₃', 'A₄', 'A₅'];
+            for (let i = 0; i < sides; i++) {
+                const v = verts[i];
+                makeLabel(labels[i], '#60a5fa', new THREE.Vector3(v.x + (i===0?-0.15: i===2?0.15:0), v.y - 0.1, v.z + (i===1?0.15: i===3?-0.15:0)));
+            }
+            const labelsTop = ['B₁', 'B₂', 'B₃', 'B₄', 'B₅'];
+            for (let i = 0; i < sides; i++) {
+                const v = topVerts[i];
+                makeLabel(labelsTop[i], '#facc15', new THREE.Vector3(v.x + (i===0?-0.15: i===2?0.15:0), v.y + 0.1, v.z + (i===1?0.15: i===3?-0.15:0)));
+            }
+
+            makeLabel('O', '#34d399', new THREE.Vector3(0, -halfH - 0.12, 0));
+            makeLabel('O₁', '#facc15', new THREE.Vector3(0, halfH + 0.12, 0));
+            makeLabel('M', '#f97316', new THREE.Vector3(midPoint.x + 0.12, midPoint.y - 0.1, midPoint.z + 0.12));
+
+            makeLabel('h', '#34d399', new THREE.Vector3(0.25, 0, 0.25), '0.65rem');
+
+            const rDir = new THREE.Vector3(0.25, 0, -0.25).normalize();
+            makeLabel('r', '#f97316', new THREE.Vector3((center.x+midPoint.x)/2 + rDir.x*0.25, -halfH, (center.z+midPoint.z)/2 + rDir.z*0.25), '0.65rem');
+
+            const grid = new THREE.GridHelper(2.5, 8, 0x5f7f9e, 0x2c4258);
+            grid.position.y = -halfH - 0.01;
+            grid.material.transparent = true;
+            grid.material.opacity = 0.2;
+            group.add(grid);
+        }
+
+        function setupTask3(scene, group, THREE, CSS2DRenderer, CSS2DObject) {
+            const r = 1.0, h = 1.8, sides = 5;
+            const halfH = h / 2;
+            const verts = [];
+            for (let i = 0; i < sides; i++) {
+                const angle = (i / sides) * Math.PI * 2 - Math.PI / 2;
+                verts.push(new THREE.Vector3(r * Math.cos(angle), -halfH, r * Math.sin(angle)));
+            }
+            const topVerts = verts.map(v => new THREE.Vector3(v.x, v.y + h, v.z));
+
+            // Боковые грани — прозрачные
+            const mat = new THREE.MeshPhysicalMaterial({
+                color: 0x3b82f6, transparent: true, opacity: 0.15, side: THREE.DoubleSide
+            });
+            for (let i = 0; i < sides; i++) {
+                const j = (i + 1) % sides;
+                const p1 = verts[i], p2 = verts[j], p3 = topVerts[j], p4 = topVerts[i];
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(
+                    new Float32Array([p1.x,p1.y,p1.z, p2.x,p2.y,p2.z, p3.x,p3.y,p3.z, p1.x,p1.y,p1.z, p3.x,p3.y,p3.z, p4.x,p4.y,p4.z]), 3
+                ));
+                geo.setIndex([0,1,2,3,4,5]);
+                geo.computeVertexNormals();
+                group.add(new THREE.Mesh(geo, mat));
+            }
+
+            // Основания — прозрачные
+            const baseMat = new THREE.MeshPhysicalMaterial({
+                color: 0x60a5fa, transparent: true, opacity: 0.2, side: THREE.DoubleSide
+            });
+            const bGeo = new THREE.BufferGeometry();
+            const bv = [];
+            for (const v of verts) bv.push(v.x, v.y, v.z);
+            bGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(bv), 3));
+            const bIndices = [];
+            for (let i = 1; i < sides - 1; i++) bIndices.push(0, i, i + 1);
+            bGeo.setIndex(bIndices);
+            bGeo.computeVertexNormals();
+            group.add(new THREE.Mesh(bGeo, baseMat));
+
+            // ===== ВСЕ РЁБРА ПРИЗМЫ (включая боковые) — отрисовываем ПЕРВЫМИ =====
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x7cb8ff });
+            const bl = new THREE.BufferGeometry().setFromPoints([...verts, verts[0]]);
+            group.add(new THREE.Line(bl, edgeMat));
+            const tl = new THREE.BufferGeometry().setFromPoints([...topVerts, topVerts[0]]);
+            group.add(new THREE.Line(tl, edgeMat));
+            // Все боковые рёбра
+            for (let i = 0; i < sides; i++) {
+                const sl = new THREE.BufferGeometry().setFromPoints([verts[i], topVerts[i]]);
+                group.add(new THREE.Line(sl, edgeMat));
+            }
+
+            // ===== КОНТУР СЕЧЕНИЯ (жёлтый, поверх всех рёбер) =====
+            const secEdgeMat = new THREE.LineBasicMaterial({
+                color: 0xfacc15,
+                linewidth: 3,
+                depthTest: false  // <- ОТКЛЮЧАЕМ ТЕСТ ГЛУБИНЫ, чтобы контур был поверх всего
+            });
+            // Нижняя диагональ
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([verts[0], verts[2]]), secEdgeMat));
+            // Верхняя диагональ
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([topVerts[0], topVerts[2]]), secEdgeMat));
+            // Боковые рёбра сечения
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([verts[0], topVerts[0]]), secEdgeMat));
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([verts[2], topVerts[2]]), secEdgeMat));
+
+            const hMat = new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 3 });
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-halfH,0), new THREE.Vector3(0,halfH,0)]), hMat));
+
+            const oo1Mat = new THREE.LineDashedMaterial({ color: 0xfacc15, dashSize: 0.05, gapSize: 0.05 });
+            const oo1Line = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-halfH,0), new THREE.Vector3(0,halfH,0)]),
+                oo1Mat
+            );
+            oo1Line.computeLineDistances();
+            group.add(oo1Line);
+
+            function makeLabel(text, color, pos, fs = '0.6rem') {
+                const div = document.createElement('div');
+                div.textContent = text;
+                div.style.color = color;
+                div.style.fontSize = fs;
+                div.style.fontWeight = 'bold';
+                div.style.fontFamily = "'Times New Roman', serif";
+                div.style.background = 'rgba(10, 15, 26, 0.7)';
+                div.style.padding = '0px 5px';
+                div.style.borderRadius = '8px';
+                div.style.border = '1px solid ' + color;
+                div.style.backdropFilter = 'blur(4px)';
+                div.style.pointerEvents = 'none';
+                const label = new CSS2DObject(div);
+                label.position.copy(pos);
+                group.add(label);
+            }
+
+            const labels = ['A₁', 'A₂', 'A₃', 'A₄', 'A₅'];
+            for (let i = 0; i < sides; i++) {
+                const v = verts[i];
+                makeLabel(labels[i], '#60a5fa', new THREE.Vector3(v.x + (i===0?-0.15: i===2?0.15:0), v.y - 0.1, v.z + (i===1?0.15: i===3?-0.15:0)));
+            }
+            makeLabel('B₁', '#facc15', new THREE.Vector3(topVerts[0].x - 0.15, topVerts[0].y + 0.1, topVerts[0].z));
+            makeLabel('B₃', '#facc15', new THREE.Vector3(topVerts[2].x + 0.15, topVerts[2].y + 0.1, topVerts[2].z));
+
+            makeLabel('O', '#34d399', new THREE.Vector3(0, -halfH - 0.12, 0));
+            makeLabel('O₁', '#facc15', new THREE.Vector3(0, halfH + 0.12, 0));
+
+            makeLabel('h', '#34d399', new THREE.Vector3(0.25, 0, 0.25), '0.65rem');
+
+            const dMid = new THREE.Vector3((verts[0].x + verts[2].x)/2, -halfH, (verts[0].z + verts[2].z)/2);
+            makeLabel('d', '#facc15', new THREE.Vector3(dMid.x, dMid.y - 0.15, dMid.z), '0.65rem');
+
+            makeLabel('сечение', '#facc15', new THREE.Vector3(0, 0, 0.5), '0.55rem');
+
+            const oo1Pos = new THREE.Vector3(0.2, 0, 0.2);
+            makeLabel('OO₁', '#facc15', oo1Pos, '0.6rem');
+
+            const grid = new THREE.GridHelper(2.5, 8, 0x5f7f9e, 0x2c4258);
+            grid.position.y = -halfH - 0.01;
+            grid.material.transparent = true;
+            grid.material.opacity = 0.2;
+            group.add(grid);
+        }
+
+        setTimeout(initTaskScenes, 500);
+
+    })();
+
+    // ========== ИЗБРАННОЕ ==========
+    const FAV_KEY='math_favorites';
+    function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}
+    function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}
+    function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}
+    function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}
+    function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}
+    updateFavoriteBtn();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const sections = document.querySelectorAll('.section');
+        if (sections.length > 0) {
+            for (let i = 1; i < sections.length; i++) {
+                sections[i].classList.add('collapsed');
+            }
+        }
+    });
+</script>
 </body>
 </html>
