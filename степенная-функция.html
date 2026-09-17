@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Степенная функция — 10-11 класс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --text-muted: #6a8aa0;
+            --border: rgba(245,158,11,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #f59e0b;
+            --example-bg: #162a38;
+            --canvas-bg: #0f1a24;
+            --grid-color: #2a3a4a;
+            --axis-color: #8899aa;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --text-muted: #8a9aae;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #f59e0b;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #fefefe;
+            --grid-color: #dce3ec;
+            --axis-color: #5b7c9c;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); transition: background 0.2s; }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); transition: background 0.2s; }
+        .example { background: var(--example-bg); padding: 14px 18px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); transition: background 0.2s; }
+        .example .step { font-weight: 700; color: #fbbf24; margin-top: 8px; }
+        .example .result { margin-top: 8px; font-weight: 600; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .property-muted { color: var(--text-muted); font-size: 0.85rem; }
+        .property-muted::before { content: "※ "; }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; border-radius: 12px; }
+        table { width: 100%; border-collapse: collapse; color: var(--text); min-width: 700px; }
+        th, td { padding: 12px 16px; border: 1px solid var(--border); text-align: center; font-size: 0.95rem; line-height: 1.8; }
+        th { background: var(--info-bg); font-weight: 700; white-space: nowrap; }
+        .graph-container { text-align: center; margin: 12px 0; background: var(--canvas-bg); border-radius: 16px; padding: 8px; display: none; transition: background 0.2s; }
+        .graph-container.ready { display: block; }
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            display: inline-block;
+            background: var(--canvas-bg);
+            transition: background 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; transition: color 0.2s; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #d97706; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            table { min-width: 600px; }
+            th, td { padding: 8px 10px; font-size: 0.85rem; }
+        }
+
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Степенная функция $y = x^p$</h1>
+
+    <!-- ===== БЛОК 1: ОПРЕДЕЛЕНИЕ ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Определение степенной функции</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Степенной функцией</strong> называется функция вида $y = x^p$, где $p$ — заданное действительное число (показатель степени).</p>
+            <p>Область определения зависит от показателя $p$:</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                    <tr><th>Показатель $p$</th><th>Область определения</th><th>Пример</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr><td>$p \in \mathbb{N}$ (натуральное)</td><td>$x \in \mathbb{R}$</td><td>$y = x^3$</td></tr>
+                    <tr><td>$p \in \mathbb{Z}^-$ (целое отрицательное)</td><td>$x \neq 0$</td><td>$y = x^{-2} = \dfrac{1}{x^2}$</td></tr>
+                    <tr><td>$p = \dfrac{m}{n}$, $n$ нечётное</td><td>$x \in \mathbb{R}$</td><td>$y = x^{1/3} = \sqrt[3]{x}$</td></tr>
+                    <tr><td>$p = \dfrac{m}{n}$, $n$ чётное</td><td>$x \geq 0$</td><td>$y = x^{1/2} = \sqrt{x}$</td></tr>
+                    <tr><td>$p$ иррациональное ($\pi$, $\sqrt{2}$)</td><td>$x > 0$</td><td>$y = x^{\pi}$</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== БЛОК 2: НАТУРАЛЬНЫЙ ЧЁТНЫЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 $y = x^n$, $n$ — чётное</span>
+            <span class="sub-title">$n = 2, 4, 6, \dots$</span>
+        </div>
+        <div class="section-content">
+            <p>Функция $y = x^n$, где $n$ — чётное натуральное число (например, $y = x^2, y = x^4$).</p>
+            <ul>
+                <li><strong>Область определения:</strong> $D(y) = \mathbb{R}$.</li>
+                <li><strong>Область значений:</strong> $E(y) = [0; +\infty)$.</li>
+                <li><strong>Чётность:</strong> <strong>чётная</strong>, $(-x)^n = x^n$. График симметричен относительно $OY$.</li>
+                <li><strong>Монотонность:</strong> убывает на $(-\infty; 0]$, возрастает на $[0; +\infty)$.</li>
+                <li><strong>Нули функции:</strong> $x = 0$.</li>
+                <li><strong>Промежутки знакопостоянства:</strong> $y > 0$ при $x \neq 0$.</li>
+                <li>График проходит через $(0;0)$, $(1;1)$, $(-1;1)$.</li>
+                <li class="property-muted"><strong>Экстремумы:</strong> $x = 0$ — точка минимума, $y_{min} = 0$.</li>
+                <li class="property-muted"><strong>Выпуклость:</strong> график <strong>выпуклый вниз</strong>.</li>
+            </ul>
+            <div class="graph-container" id="gc1">
+                <canvas id="graph1" width="550" height="330"></canvas>
+                <div class="graph-label">$y = x^2$ (зелёный), $y = x^4$ (красный)</div>
+            </div>
+            <div class="example">
+                <strong>📌 Примеры:</strong><br>
+                $y = x^2$ — парабола, $D(y) = \mathbb{R}$, чётная, убывает на $(-\infty;0]$, возрастает на $[0;+\infty)$.<br>
+                $y = x^4$ — $D(y) = \mathbb{R}$, чётная, убывает на $(-\infty;0]$, возрастает на $[0;+\infty)$.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== БЛОК 3: НАТУРАЛЬНЫЙ НЕЧЁТНЫЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 $y = x^n$, $n$ — нечётное</span>
+            <span class="sub-title">$n = 1, 3, 5, \dots$</span>
+        </div>
+        <div class="section-content">
+            <p>Функция $y = x^n$, где $n$ — нечётное натуральное число (например, $y = x^3, y = x^5$).</p>
+            <ul>
+                <li><strong>Область определения:</strong> $D(y) = \mathbb{R}$.</li>
+                <li><strong>Область значений:</strong> $E(y) = \mathbb{R}$.</li>
+                <li><strong>Чётность:</strong> <strong>нечётная</strong>, $(-x)^n = -x^n$. График симметричен относительно начала координат.</li>
+                <li><strong>Монотонность:</strong> <strong>возрастает</strong> на $\mathbb{R}$.</li>
+                <li><strong>Нули функции:</strong> $x = 0$.</li>
+                <li><strong>Промежутки знакопостоянства:</strong> $y < 0$ при $x < 0$; $y > 0$ при $x > 0$.</li>
+                <li>График проходит через $(0;0)$, $(1;1)$, $(-1;-1)$.</li>
+                <li class="property-muted"><strong>Точка перегиба:</strong> $(0;0)$.</li>
+                <li class="property-muted"><strong>Выпуклость:</strong> при $x < 0$ — выпукла вверх, при $x > 0$ — выпукла вниз.</li>
+            </ul>
+            <div class="graph-container" id="gc1_odd">
+                <canvas id="graph1_odd" width="550" height="330"></canvas>
+                <div class="graph-label">$y = x^3$ (синий), $y = x^5$ (красный)</div>
+            </div>
+            <div class="example">
+                <strong>📌 Примеры:</strong><br>
+                $y = x^3$ — кубическая парабола, $D(y) = \mathbb{R}$, нечётная, возрастает на $\mathbb{R}$.<br>
+                $y = x^5$ — $D(y) = \mathbb{R}$, нечётная, возрастает на $\mathbb{R}$.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== БЛОК 4: ЦЕЛЫЙ ОТРИЦАТЕЛЬНЫЙ ЧЁТНЫЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 $y = x^{-n}$, $n$ — чётное</span>
+            <span class="sub-title">$y = \dfrac{1}{x^2}, \dfrac{1}{x^4}, \dots$</span>
+        </div>
+        <div class="section-content">
+            <p>Функция $y = x^{-n} = \dfrac{1}{x^n}$, где $n$ — чётное.</p>
+            <ul>
+                <li><strong>Область определения:</strong> $D(y) = (-\infty; 0) \cup (0; +\infty)$.</li>
+                <li><strong>Область значений:</strong> $E(y) = (0; +\infty)$.</li>
+                <li><strong>Чётность:</strong> <strong>чётная</strong>. Симметрия относительно $OY$.</li>
+                <li><strong>Монотонность:</strong> возрастает на $(-\infty; 0)$, убывает на $(0; +\infty)$.</li>
+                <li><strong>Асимптоты:</strong> $x = 0$ (вертикальная), $y = 0$ (горизонтальная).</li>
+                <li>График проходит через $(1;1)$, $(-1;1)$.</li>
+                <li class="property-muted"><strong>Выпуклость:</strong> график <strong>выпуклый вниз</strong> на каждом промежутке.</li>
+            </ul>
+            <div class="graph-container" id="gc2">
+                <canvas id="graph2" width="550" height="330"></canvas>
+                <div class="graph-label">$y = \dfrac{1}{x^2}$ (зелёный), $y = \dfrac{1}{x^4}$ (красный)</div>
+            </div>
+            <div class="example">
+                <strong>📌 Примеры:</strong><br>
+                $y = x^{-1} = \dfrac{1}{x}$ — гипербола, нечётная, убывает на каждом промежутке.<br>
+                $y = x^{-2} = \dfrac{1}{x^2}$ — чётная, возрастает на $(-\infty;0)$, убывает на $(0;+\infty)$.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== БЛОК 5: ЦЕЛЫЙ ОТРИЦАТЕЛЬНЫЙ НЕЧЁТНЫЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 $y = x^{-n}$, $n$ — нечётное</span>
+            <span class="sub-title">$y = \dfrac{1}{x}, \dfrac{1}{x^3}, \dots$</span>
+        </div>
+        <div class="section-content">
+            <p>Функция $y = x^{-n} = \dfrac{1}{x^n}$, где $n$ — нечётное.</p>
+            <ul>
+                <li><strong>Область определения:</strong> $D(y) = (-\infty; 0) \cup (0; +\infty)$.</li>
+                <li><strong>Область значений:</strong> $E(y) = (-\infty; 0) \cup (0; +\infty)$.</li>
+                <li><strong>Чётность:</strong> <strong>нечётная</strong>. Симметрия относительно начала координат.</li>
+                <li><strong>Монотонность:</strong> <strong>убывает</strong> на каждом промежутке.</li>
+                <li><strong>Асимптоты:</strong> $x = 0$, $y = 0$.</li>
+                <li>График проходит через $(1;1)$, $(-1;-1)$.</li>
+                <li class="property-muted"><strong>Выпуклость:</strong> на $(-\infty;0)$ — выпукла вверх, на $(0;+\infty)$ — выпукла вниз.</li>
+            </ul>
+            <div class="graph-container" id="gc2_odd">
+                <canvas id="graph2_odd" width="550" height="330"></canvas>
+                <div class="graph-label">$y = \dfrac{1}{x}$ (синий), $y = \dfrac{1}{x^3}$ (красный)</div>
+            </div>
+            <div class="example">
+                <strong>📌 Примеры:</strong><br>
+                $y = x^{-1} = \dfrac{1}{x}$ — гипербола, $D(y) = (-\infty;0) \cup (0;+\infty)$, нечётная, убывает на каждом промежутке.<br>
+                $y = x^{-3} = \dfrac{1}{x^3}$ — $D(y) = (-\infty;0) \cup (0;+\infty)$, нечётная, убывает на каждом промежутке.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== БЛОК 6: ДРОБНЫЙ (ЧЁТНЫЙ ЗНАМЕНАТЕЛЬ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 $y = x^{m/n}$, $n$ — чётное</span>
+            <span class="sub-title">$y = \sqrt{x}, \sqrt[4]{x^3}, \dots$</span>
+        </div>
+        <div class="section-content">
+            <p>Функция $y = x^{m/n} = \sqrt[n]{x^m}$, где $n$ — чётное.</p>
+            <ul>
+                <li><strong>Область определения:</strong> $D(y) = [0; +\infty)$.</li>
+                <li><strong>Область значений:</strong> $E(y) = [0; +\infty)$ (при $m>0$).</li>
+                <li><strong>Чётность:</strong> не является ни чётной, ни нечётной.</li>
+                <li><strong>Монотонность:</strong> <strong>возрастает</strong> на $[0; +\infty)$ при $m>0$.</li>
+                <li>График проходит через $(0;0)$, $(1;1)$.</li>
+                <li class="property-muted"><strong>Выпуклость:</strong> график <strong>выпуклый вверх</strong>.</li>
+            </ul>
+            <div class="graph-container" id="gc3">
+                <canvas id="graph3" width="550" height="330"></canvas>
+                <div class="graph-label">$y = \sqrt{x}$ (красный), $y = \sqrt[4]{x}$ (зелёный)</div>
+            </div>
+            <div class="example">
+                <strong>📌 Примеры:</strong><br>
+                $y = \sqrt{x}$ — $D = [0; +\infty)$, возрастает.<br>
+                $y = \sqrt[4]{x}$ — $D = [0; +\infty)$, возрастает.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== БЛОК 7: ДРОБНЫЙ (НЕЧЁТНЫЙ ЗНАМЕНАТЕЛЬ) ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 $y = x^{m/n}$, $n$ — нечётное</span>
+            <span class="sub-title">$y = \sqrt[3]{x}, \sqrt[5]{x^2}, \dots$</span>
+        </div>
+        <div class="section-content">
+            <p>Функция $y = x^{m/n} = \sqrt[n]{x^m}$, где $n$ — нечётное.</p>
+            <ul>
+                <li><strong>Область определения:</strong> $D(y) = \mathbb{R}$.</li>
+                <li><strong>Область значений:</strong> $\mathbb{R}$ (если $m$ нечётное) или $[0;+\infty)$ (если $m$ чётное).</li>
+                <li><strong>Чётность:</strong> совпадает с чётностью $y = x^m$.</li>
+                <li>График проходит через $(0;0)$, $(1;1)$.</li>
+            </ul>
+            <div class="graph-container" id="gc3_odd">
+                <canvas id="graph3_odd" width="550" height="330"></canvas>
+                <div class="graph-label">$y = \sqrt[3]{x}$ (синий), $y = \sqrt[3]{x^2}$ (красный)</div>
+            </div>
+            <div class="example">
+                <strong>📌 Примеры:</strong><br>
+                $y = \sqrt[3]{x}$ — $D = \mathbb{R}$, нечётная, возрастает на $\mathbb{R}$.<br>
+                $y = \sqrt[3]{x^2}$ — $D = \mathbb{R}$, чётная, убывает на $(-\infty;0]$, возрастает на $[0;+\infty)$.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== БЛОК 8: ИРРАЦИОНАЛЬНЫЙ ПОКАЗАТЕЛЬ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 $y = x^p$, $p$ — иррациональное</span>
+            <span class="sub-title">$p = \pi, \sqrt{2}, -\sqrt{3}, \dots$</span>
+        </div>
+        <div class="section-content">
+            <p>Функция $y = x^p$, где $p$ — иррациональное число.</p>
+            <ul>
+                <li><strong>Область определения:</strong> $D(y) = (0; +\infty)$.</li>
+                <li><strong>Область значений:</strong> $E(y) = (0; +\infty)$.</li>
+                <li><strong>Монотонность:</strong> <strong>возрастает</strong> при $p>0$, <strong>убывает</strong> при $p<0$.</li>
+                <li>График проходит через $(1;1)$.</li>
+            </ul>
+            <div class="graph-container" id="gc4">
+                <canvas id="graph4" width="550" height="330"></canvas>
+                <div class="graph-label">$y = x^{\pi}$ (красный), $y = x^{\sqrt{2}}$ (зелёный)</div>
+            </div>
+            <div class="example">
+                <strong>📌 Примеры:</strong><br>
+                $y = x^{\pi}$ — $D = (0; +\infty)$, возрастает.<br>
+                $y = x^{-\sqrt{3}}$ — $D = (0; +\infty)$, убывает.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== БЛОК 9: СВОДНАЯ ТАБЛИЦА ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📊 Сводная таблица свойств</span>
+        </div>
+        <div class="section-content">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                    <tr><th>Показатель $p$</th><th>$D(y)$</th><th>Чётность</th><th>Монотонность</th><th>Особые точки</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr><td>$p = n$ (чётное)</td><td>$\mathbb{R}$</td><td>Чётная</td><td>Убывает на $(-\infty;0]$, возр. на $[0;+\infty)$</td><td>$(0;0),(1;1),(-1;1)$</td></tr>
+                    <tr><td>$p = n$ (нечётное)</td><td>$\mathbb{R}$</td><td>Нечётная</td><td>Возрастает на $\mathbb{R}$</td><td>$(0;0),(1;1),(-1;-1)$</td></tr>
+                    <tr><td>$p = -n$ (чётное $n$)</td><td>$x \neq 0$</td><td>Чётная</td><td>Возр. на $(-\infty;0)$, убыв. на $(0;+\infty)$</td><td>$(1;1),(-1;1)$</td></tr>
+                    <tr><td>$p = -n$ (нечётное $n$)</td><td>$x \neq 0$</td><td>Нечётная</td><td>Убывает на каждом промежутке</td><td>$(1;1),(-1;-1)$</td></tr>
+                    <tr><td>$p = \dfrac{m}{n}$, $n$ чётное</td><td>$[0;+\infty)$</td><td>—</td><td>Возр. при $m>0$</td><td>$(0;0),(1;1)$</td></tr>
+                    <tr><td>$p = \dfrac{m}{n}$, $n$ нечётное</td><td>$\mathbb{R}$</td><td>Как у $x^m$</td><td>Зависит от $m$</td><td>$(0;0),(1;1)$</td></tr>
+                    <tr><td>$p$ иррац., $p>0$</td><td>$(0;+\infty)$</td><td>—</td><td>Возрастает</td><td>$(1;1)$</td></tr>
+                    <tr><td>$p$ иррац., $p<0$</td><td>$(0;+\infty)$</td><td>—</td><td>Убывает</td><td>$(1;1)$</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== БЛОК 10: ПРИМЕРЫ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">✨ Решение примеров</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 1:</strong> Найти область определения $y = (x-2)^{-3/2}$.<br><br>
+                <span class="step">Решение:</span> $p = -\dfrac{3}{2}$, основание $>0$. $x-2 > 0 \Rightarrow x > 2$.<br>
+                <span class="result">Ответ: $D(y) = (2; +\infty)$</span>
+            </div>
+            <div class="example" style="margin-top:10px;">
+                <strong>Пример 2:</strong> Сравнить $(0{,}5)^{\sqrt{3}}$ и $(0{,}5)^{\sqrt{2}}$.<br><br>
+                <span class="step">Решение:</span> Основание $0{,}5 < 1$, функция убывает. $\sqrt{3} > \sqrt{2} \Rightarrow (0{,}5)^{\sqrt{3}} < (0{,}5)^{\sqrt{2}}$.<br>
+                <span class="result">Ответ: $(0{,}5)^{\sqrt{3}} < (0{,}5)^{\sqrt{2}}$</span>
+            </div>
+            <div class="example" style="margin-top:10px;">
+                <strong>Пример 3:</strong> Найти множество значений $y = x^{2/3}$.<br><br>
+                <span class="step">Решение:</span> $y = \sqrt[3]{x^2}$, $D = \mathbb{R}$, $x^2 \geq 0 \Rightarrow y \geq 0$.<br>
+                <span class="result">Ответ: $E(y) = [0; +\infty)$</span>
+            </div>
+            <div class="example" style="margin-top:10px;">
+                <strong>Пример 4:</strong> Найти промежутки возрастания и убывания $y = x^4 - 2x^2$.<br><br>
+                <span class="step">Решение:</span> Используя свойства чётной функции: убывает на $(-\infty; -1]$, возрастает на $[-1; 0]$, убывает на $[0; 1]$, возрастает на $[1; +\infty)$.<br>
+                <span class="result">Ответ: см. решение.</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        drawAllGraphs();
+    }
+
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    function drawOneGraph(canvasId, functions, xMin, xMax, yMin, yMax) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            console.warn('Canvas not found:', canvasId);
+            return false;
+        }
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 45;
+        const pw = w - 2*pad, ph = h - 2*pad;
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+        ctx.lineWidth = 0.6;
+        for (let i = 0; i <= 10; i++) {
+            const x = pad + i * pw / 10;
+            ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, h-pad); ctx.stroke();
+            const y = pad + i * ph / 8;
+            ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w-pad, y); ctx.stroke();
+        }
+
+        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 1.8;
+        const ox = toY(0), oy = toX(0);
+        if (ox >= pad && ox <= h-pad) {
+            ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w-pad, ox); ctx.stroke();
+        }
+        if (oy >= pad && oy <= w-pad) {
+            ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h-pad); ctx.stroke();
+        }
+
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.beginPath(); ctx.moveTo(w-pad, ox); ctx.lineTo(w-pad-8, ox-4); ctx.lineTo(w-pad-8, ox+4); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy-4, pad+8); ctx.lineTo(oy+4, pad+8); ctx.fill();
+
+        ctx.font = '13px "Segoe UI", "JetBrains Mono", monospace';
+        ctx.fillStyle = isLight ? '#1e3a5f' : '#cbdbe6';
+        ctx.fillText('x', w-pad-5, ox-8);
+        ctx.fillText('y', oy+8, pad+14);
+
+        const yOne = toY(1);
+        const xOne = toX(1);
+        if (yOne >= pad && yOne <= h-pad) ctx.fillText('1', oy-15, yOne+4);
+        if (xOne >= pad && xOne <= w-pad) ctx.fillText('1', xOne-6, toY(0)-6);
+        if (oy >= pad && oy <= w-pad) ctx.fillText('0', oy-12, ox-6);
+
+        functions.forEach(fn => {
+            ctx.strokeStyle = fn.color;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            let first = true;
+            const step = (xMax - xMin) / 800;
+            for (let x = xMin; x <= xMax; x += step) {
+                let y;
+                try { y = fn.f(x); } catch(e) { first = true; continue; }
+                if (y === null || y === undefined || isNaN(y) || !isFinite(y) || y < yMin - 0.5 || y > yMax + 0.5) {
+                    first = true;
+                    continue;
+                }
+                const sx = toX(x), sy = toY(y);
+                if (first) { ctx.moveTo(sx, sy); first = false; }
+                else { ctx.lineTo(sx, sy); }
+            }
+            ctx.stroke();
+        });
+
+        ctx.font = '12px "Segoe UI", "JetBrains Mono", monospace';
+        functions.forEach((fn, i) => {
+            ctx.fillStyle = fn.color;
+            const textX = w - pad - 140;
+            const textY = pad + 18 + i * 20;
+            ctx.fillRect(textX - 16, textY - 6, 12, 12);
+            ctx.fillStyle = isLight ? '#1e3a5f' : '#cbdbe6';
+            ctx.fillText(fn.label, textX, textY + 4);
+        });
+        return true;
+    }
+
+    function drawAllGraphs() {
+        // Проверяем, что все canvas элементы существуют
+        const graphs = [
+            { id: 'gc1', canvas: 'graph1' },
+            { id: 'gc1_odd', canvas: 'graph1_odd' },
+            { id: 'gc2', canvas: 'graph2' },
+            { id: 'gc2_odd', canvas: 'graph2_odd' },
+            { id: 'gc3', canvas: 'graph3' },
+            { id: 'gc3_odd', canvas: 'graph3_odd' },
+            { id: 'gc4', canvas: 'graph4' }
+        ];
+
+        // Сначала проверяем, что все canvas существуют
+        let allExist = true;
+        graphs.forEach(g => {
+            if (!document.getElementById(g.canvas)) {
+                console.warn('Canvas missing:', g.canvas);
+                allExist = false;
+            }
+        });
+
+        if (!allExist) {
+            console.warn('Some canvases missing, retrying in 500ms...');
+            setTimeout(drawAllGraphs, 500);
+            return;
+        }
+
+        // Рисуем все графики
+        drawOneGraph('graph1', [
+            { f: x => x*x, color: '#34d399', label: 'y = x²' },
+            { f: x => x*x*x*x, color: '#f87171', label: 'y = x⁴' }
+        ], -2.5, 2.5, -0.5, 6.5);
+        document.getElementById('gc1').classList.add('ready');
+
+        drawOneGraph('graph1_odd', [
+            { f: x => x*x*x, color: '#3b82f6', label: 'y = x³' },
+            { f: x => x*x*x*x*x, color: '#f87171', label: 'y = x⁵' }
+        ], -2.5, 2.5, -8, 8);
+        document.getElementById('gc1_odd').classList.add('ready');
+
+        drawOneGraph('graph2', [
+            { f: x => 1/(x*x), color: '#34d399', label: 'y = 1/x²' },
+            { f: x => 1/(x*x*x*x), color: '#f87171', label: 'y = 1/x⁴' }
+        ], -2.5, 2.5, -0.5, 5);
+        document.getElementById('gc2').classList.add('ready');
+
+        drawOneGraph('graph2_odd', [
+            { f: x => 1/x, color: '#3b82f6', label: 'y = 1/x' },
+            { f: x => 1/(x*x*x), color: '#f87171', label: 'y = 1/x³' }
+        ], -3, 3, -5, 5);
+        document.getElementById('gc2_odd').classList.add('ready');
+
+        drawOneGraph('graph3', [
+            { f: x => x >= 0 ? Math.sqrt(x) : null, color: '#f87171', label: 'y = √x' },
+            { f: x => x >= 0 ? Math.pow(x, 1/4) : null, color: '#34d399', label: 'y = ⁴√x' }
+        ], -0.5, 6, -0.5, 3);
+        document.getElementById('gc3').classList.add('ready');
+
+        drawOneGraph('graph3_odd', [
+            { f: x => Math.cbrt(x), color: '#3b82f6', label: 'y = ∛x' },
+            { f: x => Math.cbrt(x*x), color: '#f87171', label: 'y = ∛(x²)' }
+        ], -3, 3, -1.5, 3);
+        document.getElementById('gc3_odd').classList.add('ready');
+
+        drawOneGraph('graph4', [
+            { f: x => x > 0 ? Math.pow(x, Math.PI) : null, color: '#f87171', label: 'y = x^π' },
+            { f: x => x > 0 ? Math.pow(x, Math.SQRT2) : null, color: '#34d399', label: 'y = x^√2' }
+        ], 0.1, 3, 0, 11);
+        document.getElementById('gc4').classList.add('ready');
+    }
+
+    // Запускаем отрисовку несколькими способами для надёжности
+    function initGraphs() {
+        // Ждём загрузки DOM
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', drawAllGraphs);
+        } else {
+            drawAllGraphs();
+        }
+        // Дополнительный запуск после полной загрузки страницы
+        window.addEventListener('load', drawAllGraphs);
+        // И ещё один запуск через 1.5 секунды (на случай, если MathJax загружается долго)
+        setTimeout(drawAllGraphs, 1500);
+        // И через 3 секунды (на всякий случай)
+        setTimeout(drawAllGraphs, 3000);
+    }
+
+    // Запускаем
+    initGraphs();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

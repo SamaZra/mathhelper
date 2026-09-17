@@ -1,0 +1,990 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <title>Векторы — Декартовы координаты</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(46,204,113,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #2980b9; --example-bg: #162a38; --canvas-bg: #1a2d3c; --theorem-bg: #1a2d3c;
+            --label-vertex: #ffffff;
+            --edge-color: #cfe3f5;
+            --edge-face-color: #4a90d9;
+            --fullscreen-bg: #0a0f16;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #2980b9; --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8; --theorem-bg: #fefce8;
+            --label-vertex: #3a4a5a;
+            --edge-color: #4a6a85;
+            --edge-face-color: #5a8fc0;
+            --fullscreen-bg: #eef2f8;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
+        .section-title:hover { opacity: 0.8; }
+        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .section.collapsed .section-title::after { transform: rotate(-90deg); }
+        .section-content { max-height: 8000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-family: 'Times New Roman', monospace; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.0; color: var(--text); }
+        .example { background: var(--example-bg); padding: 12px 16px; border-radius: 14px; margin-top: 8px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 1.9; color: var(--text); }
+        .example .step { font-weight: 700; color: #60a5fa; margin-top: 8px; }
+        .example .result { margin-top: 8px; font-weight: 600; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ol { padding-left: 22px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .model-container {
+            text-align: center; margin: 16px 0; position: relative; border-radius: 24px; overflow: hidden;
+            background: var(--canvas-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%; aspect-ratio: 16 / 9; min-height: 350px;
+        }
+        .model-container:fullscreen {
+            width: 100vw; height: 100vh; max-width: none; max-height: none;
+            margin: 0; border-radius: 0; background: var(--fullscreen-bg); aspect-ratio: auto;
+        }
+        .model-container:fullscreen .model-canvas { width: 100vw; height: 100vh; border-radius: 0; }
+        .model-canvas { display: block; width: 100%; height: 100%; background: transparent; border-radius: 20px; cursor: grab; touch-action: none; }
+        .model-canvas:active { cursor: grabbing; }
+        .fullscreen-btn {
+            position: absolute; bottom: 15px; right: 15px; width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3); cursor: pointer; font-size: 22px;
+            display: flex; align-items: center; justify-content: center; z-index: 20; color: white;
+            transition: all 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #1c6ea4; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .model-container { min-height: 280px; }
+            .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
+        }
+
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+
+    .action-btns {
+        display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+        margin: 10px 0;
+    }
+    .action-btn {
+        padding: 8px 14px; border-radius: 18px;
+        background: var(--formula-bg); color: var(--text);
+        border: 1px solid var(--special-border);
+        cursor: pointer; font-size: 0.85rem; font-weight: 600;
+        transition: all 0.2s;
+    }
+    .action-btn:hover { background: var(--special-border); color: #fff; }
+    .action-btn.primary { background: var(--special-border); color: #fff; }
+    .action-btn.primary:hover { background: #1c6ea4; }
+    .action-btn.reset { border-color: #7a5c1e; }
+    .action-btn.reset:hover { background: #7a5c1e; }
+    </style>
+    <script>MathJax = {tex: {inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true}, chtml: {scale: 1.0, displayAlign: 'center'}};</script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Декартовы координаты в пространстве</h1>
+
+    <!-- ============ ДЕКАРТОВА СИСТЕМА КООРДИНАТ ============ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📚 Декартова система координат в пространстве</div>
+        <div class="section-content">
+            <div class="model-container" id="container1">
+                <canvas id="canvas1" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs1" title="Во весь экран">⛶</button>
+            </div>
+
+            <p><strong>Определение.</strong> <em>Прямоугольная (декартова) система координат в пространстве</em> — это три взаимно перпендикулярные прямые, пересекающиеся в одной точке $O$, с заданными на каждой из них положительным направлением и единичным отрезком.</p>
+
+            <p><strong>Элементы системы:</strong></p>
+            <ul>
+                <li><strong>начало координат</strong> — точка $O$ пересечения осей;</li>
+                <li><strong>три оси:</strong> $Ox$ — ось абсцисс, $Oy$ — ось ординат, $Oz$ — ось аппликат;</li>
+                <li>оси <strong>попарно перпендикулярны</strong>: $Ox \perp Oy$, $Oy \perp Oz$, $Oz \perp Ox$;</li>
+                <li><strong>единичный отрезок</strong> — одинаковый для всех трёх осей;</li>
+                <li><strong>единичные векторы (орты):</strong> $\vec{i}$ вдоль $Ox$, $\vec{j}$ вдоль $Oy$, $\vec{k}$ вдоль $Oz$, $|\vec{i}| = |\vec{j}| = |\vec{k}| = 1$.</li>
+            </ul>
+
+            <div class="formula-block"><strong>Обозначение системы:</strong> $Oxyz$.</div>
+
+            <p><strong>Координатные плоскости.</strong> Три оси задают три координатные плоскости:</p>
+            <ul>
+                <li>$Oxy$ — плоскость, проходящая через оси $Ox$ и $Oy$ (на рисунке — голубая);</li>
+                <li>$Oyz$ — плоскость через оси $Oy$ и $Oz$ (сиреневая);</li>
+                <li>$Oxz$ — плоскость через оси $Ox$ и $Oz$ (бирюзовая).</li>
+            </ul>
+
+            <p><strong>Как задаётся точка.</strong> Каждой точке $A$ пространства соответствует единственная тройка чисел $A(x, y, z)$ — её <strong>координаты</strong>:</p>
+            <ul>
+                <li>$x$ — абсцисса (проекция на ось $Ox$);</li>
+                <li>$y$ — ордината (проекция на ось $Oy$);</li>
+                <li>$z$ — аппликата (проекция на ось $Oz$).</li>
+            </ul>
+
+            <div class="formula-block"><strong>Точки на осях:</strong><br>
+                $A(x, 0, 0)$ — лежит на оси $Ox$;<br>
+                $B(0, y, 0)$ — на оси $Oy$;<br>
+                $C(0, 0, z)$ — на оси $Oz$.
+            </div>
+
+            <div class="formula-block"><strong>Точки на координатных плоскостях:</strong><br>
+                $M(x, y, 0)$ — в плоскости $Oxy$;<br>
+                $N(0, y, z)$ — в плоскости $Oyz$;<br>
+                $P(x, 0, z)$ — в плоскости $Oxz$.
+            </div>
+
+            <div class="example">
+                <strong>📌 Примеры:</strong><br>
+                $A(2,0,0)$ — точка на оси абсцисс;<br>
+                $B(0,-3,0)$ — точка на оси ординат (в отрицательном направлении);<br>
+                $C(0,0,5)$ — точка на оси аппликат;<br>
+                $M(2,3,0)$ — точка в плоскости $Oxy$;<br>
+                $K(0,-1,4)$ — точка в плоскости $Oyz$;<br>
+                $T(2,0,4)$ — точка в плоскости $Oxz$;<br>
+                $A(2,3,5)$ — точка с положительными координатами.
+            </div>
+
+            <p><strong>Единичный отрезок.</strong> На каждой оси выбирается один и тот же единичный отрезок. Концы единичных отрезков, отложенных из $O$ в положительном направлении, — это точки $(1,0,0)$, $(0,1,0)$, $(0,0,1)$. Векторы $\overrightarrow{O(1,0,0)} = \vec i$, $\overrightarrow{O(0,1,0)} = \vec j$, $\overrightarrow{O(0,0,1)} = \vec k$ — единичные.</p>
+        </div>
+    </div>
+
+    <!-- ============ РАЗЛОЖЕНИЕ ПО ОРТАМ ============ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧭 Координатные векторы и разложение по ним</div>
+        <div class="section-content">
+            <div class="model-container" id="container2">
+                <canvas id="canvas2" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs2" title="Во весь экран">⛶</button>
+            </div>
+            <p>Координатные векторы (орты): $\vec{i}\{1,0,0\}$, $\vec{j}\{0,1,0\}$, $\vec{k}\{0,0,1\}$.</p>
+            <div class="formula-block"><strong>Разложение:</strong><br><br>$\vec{a} = x\vec{i} + y\vec{j} + z\vec{k}$</div>
+            <p><strong>Разложение по трём некомпланарным векторам:</strong> любой вектор $\vec{a}$ можно единственным образом разложить по трём некомпланарным векторам $\vec{p}$, $\vec{q}$, $\vec{r}$:</p>
+            <div class="formula-block">$\vec{a} = \alpha\vec{p} + \beta\vec{q} + \gamma\vec{r}$</div>
+            <p>где $\alpha$, $\beta$, $\gamma$ — единственные числа (коэффициенты разложения).</p>
+            <div class="example"><strong>📌 Пример:</strong><br>$\vec{a}\{3, -2, 5\}$ ⇒ $\vec{a} = 3\vec{i} - 2\vec{j} + 5\vec{k}$</div>
+        </div>
+    </div>
+
+    <!-- ============ КОМПЛАНАРНОСТЬ ============ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Компланарные векторы</div>
+        <div class="section-content">
+            <div class="model-container" id="container3">
+                <canvas id="canvas3" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs3" title="Во весь экран">⛶</button>
+            </div>
+            <p>Компланарные векторы — лежат в одной плоскости или параллельных плоскостях.</p>
+            <ul>
+                <li><strong>Любые два вектора всегда компланарны</strong>.</li>
+                <li>Если $\vec{c} = \alpha\vec{a} + \beta\vec{b}$, то они компланарны.</li>
+            </ul>
+            <div class="example">
+                <strong>📌 Пример:</strong> Проверим, являются ли векторы $\vec{r}\{1, 1, 0\}$, $\vec{p}\{1, 0, 0\}$ и $\vec{q}\{0, 1, 0\}$ компланарными.<br><br>
+                <span class="step">Шаг 1. Проверяем, можно ли выразить $\vec{r}$ через $\vec{p}$ и $\vec{q}$:</span><br>
+                $\vec{r} = \alpha\vec{p} + \beta\vec{q}$<br>
+                $\{1, 1, 0\} = \alpha\{1, 0, 0\} + \beta\{0, 1, 0\}$<br><br>
+                <span class="step">Шаг 2. Составляем систему уравнений по координатам:</span><br>
+                По $x$: $1 = \alpha \cdot 1 + \beta \cdot 0 \;\Rightarrow\; \alpha = 1$<br>
+                По $y$: $1 = \alpha \cdot 0 + \beta \cdot 1 \;\Rightarrow\; \beta = 1$<br>
+                По $z$: $0 = \alpha \cdot 0 + \beta \cdot 0 \;\Rightarrow\; 0 = 0$ (верно)<br><br>
+                <span class="step">Шаг 3. Нашли коэффициенты $\alpha = 1$, $\beta = 1$.</span><br>
+                Подставляем: $\vec{r} = 1 \cdot \vec{p} + 1 \cdot \vec{q}$<br>
+                $\{1, 1, 0\} = \{1, 0, 0\} + \{0, 1, 0\}$<br>
+                Равенство верно.<br><br>
+                <span class="result">Ответ: векторы компланарны, так как $\vec{r}$ выражается через $\vec{p}$ и $\vec{q}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ ДЛИНА ВЕКТОРА ============ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📏 Длина вектора и расстояние</div>
+        <div class="section-content">
+            <div class="model-container" id="container4">
+                <canvas id="canvas4" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs4" title="Во весь экран">⛶</button>
+            </div>
+            <div class="formula-block"><strong>Модуль:</strong><br><br>$|\vec{a}| = \sqrt{x^2 + y^2 + z^2}$</div>
+            <div class="formula-block"><strong>Расстояние:</strong><br><br>$d = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2 + (z_2-z_1)^2}$</div>
+            <div class="example">
+                <strong>📐 Пример:</strong> Найти расстояние между точками $A(1, 2, 3)$ и $B(4, 6, 8)$.<br><br>
+                <span class="step">Шаг 1. Записываем формулу и подставляем координаты:</span><br>
+                $d = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2 + (z_2-z_1)^2}$<br>
+                $x_2 - x_1 = 4 - 1 = 3$<br>
+                $y_2 - y_1 = 6 - 2 = 4$<br>
+                $z_2 - z_1 = 8 - 3 = 5$<br><br>
+                <span class="step">Шаг 2. Вычисляем:</span><br>
+                $d = \sqrt{3^2 + 4^2 + 5^2} = \sqrt{9 + 16 + 25} = \sqrt{50}$<br><br>
+                <span class="step">Шаг 3. Упрощаем:</span><br>
+                $d = \sqrt{50} = \sqrt{25 \cdot 2} = 5\sqrt{2}$<br><br>
+                <span class="result">Ответ: $d = 5\sqrt{2}$</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ РЕШЕНИЕ ЗАДАЧ (ПО УМОЛЧАНИЮ СВЁРНУТ) ============ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧩 Решение задач (3D)</div>
+        <div class="section-content">
+
+            <p><strong>Задача 1.</strong> Даны точки $A(1,2,3)$ и $B(4,6,8)$. Постройте вектор $\overrightarrow{AB}$ и разложите его по ортам $\vec{i}$, $\vec{j}$, $\vec{k}$.</p>
+
+            <div class="model-container" id="container5">
+                <canvas id="canvas5" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs5" title="Во весь экран">⛶</button>
+            </div>
+
+            <div class="action-btns">
+                <button class="action-btn" onclick="window.__show5_step(0)">▶ 1) Орты i, j, k из O</button>
+                <button class="action-btn" onclick="window.__show5_step(1)">▶ 2) Цепочка 3i + 4j + 5k</button>
+                <button class="action-btn" onclick="window.__show5_step(2)">▶ 3) Вектор AB из точки A</button>
+                <button class="action-btn primary" onclick="window.__show5_all()">▶ Показать всё</button>
+                <button class="action-btn reset" onclick="window.__reset5()">⟲ Сбросить</button>
+            </div>
+
+            <div class="formula-block">
+                <strong>Решение:</strong><br>
+                $\overrightarrow{AB} = \{4-1,\; 6-2,\; 8-3\} = \{3,\; 4,\; 5\}$<br><br>
+                Разложение по ортам:<br>
+                $\overrightarrow{AB} = 3\vec{i} + 4\vec{j} + 5\vec{k}$<br><br>
+                <strong>На векторах — метки через каждую единицу:</strong> на оранжевом отрезке видно 3 точки (3 уложенных орта $\vec i$), на фиолетовом — 4 точки, на бирюзовом — 5 точек.
+            </div>
+        </div>
+    </div>
+
+    <!-- Задача 2 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧩 Задача 2. Координаты вектора MN</div>
+        <div class="section-content">
+            <p>Даны точки $M(-1,0,2)$ и $N(3,-4,1)$. Найдите координаты вектора $\overrightarrow{MN}$ и его длину.</p>
+
+            <div class="model-container" id="container6">
+                <canvas id="canvas6" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs6" title="Во весь экран">⛶</button>
+            </div>
+
+            <div class="action-btns">
+                <button class="action-btn" onclick="window.__show6_step(0)">▶ 1) Точки M и N</button>
+                <button class="action-btn" onclick="window.__show6_step(1)">▶ 2) Вектор MN</button>
+                <button class="action-btn" onclick="window.__show6_step(2)">▶ 3) Проекции на оси</button>
+                <button class="action-btn primary" onclick="window.__show6_all()">▶ Показать всё</button>
+                <button class="action-btn reset" onclick="window.__reset6()">⟲ Сбросить</button>
+            </div>
+
+            <div class="formula-block">
+                <strong>Решение:</strong><br>
+                $\overrightarrow{MN} = \{3-(-1),\; -4-0,\; 1-2\} = \{4,\; -4,\; -1\}$<br><br>
+                $|\overrightarrow{MN}| = \sqrt{4^2 + (-4)^2 + (-1)^2} = \sqrt{16+16+1} = \sqrt{33}$
+            </div>
+        </div>
+    </div>
+
+    <!-- Задача 3 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧩 Задача 3. Компланарность векторов</div>
+        <div class="section-content">
+            <p>Проверьте, компланарны ли векторы $\vec{a}\{1,0,0\}$, $\vec{b}\{0,1,0\}$, $\vec{c}\{1,1,0\}$. Если да — запишите разложение $\vec{c}$ через $\vec{a}$ и $\vec{b}$.</p>
+
+            <div class="model-container" id="container7">
+                <canvas id="canvas7" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs7" title="Во весь экран">⛶</button>
+            </div>
+
+            <div class="action-btns">
+                <button class="action-btn" onclick="window.__show7_step(0)">▶ 1) Векторы a и b</button>
+                <button class="action-btn" onclick="window.__show7_step(1)">▶ 2) Сумма a + b</button>
+                <button class="action-btn" onclick="window.__show7_step(2)">▶ 3) Вектор c = a + b</button>
+                <button class="action-btn primary" onclick="window.__show7_all()">▶ Показать всё</button>
+                <button class="action-btn reset" onclick="window.__reset7()">⟲ Сбросить</button>
+            </div>
+
+            <div class="formula-block">
+                <strong>Решение:</strong><br>
+                Ищем $\alpha$, $\beta$ такие, что $\vec{c} = \alpha\vec{a} + \beta\vec{b}$:<br>
+                $\{1,1,0\} = \alpha\{1,0,0\} + \beta\{0,1,0\}$<br>
+                По $x$: $\alpha = 1$; &nbsp; по $y$: $\beta = 1$; &nbsp; по $z$: $0=0$ — верно.<br><br>
+                $\vec{c} = \vec{a} + \vec{b}$, значит векторы <strong>компланарны</strong> (лежат в плоскости $z=0$).
+            </div>
+        </div>
+    </div>
+
+    <a href="vectors.html" class="back-link">← Назад к векторам</a>
+</div>
+
+<script type="module">
+    import * as THREE from 'three';
+    import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+    import {CSS2DRenderer, CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
+
+    let quality3D = 'high';
+    if (window.Android && window.Android.getQuality3D) quality3D = window.Android.getQuality3D();
+    else { const saved = localStorage.getItem('quality3d'); if (saved) quality3D = saved; }
+
+    // Цвета ортов
+    const I_COLOR = 0xff8800;
+    const J_COLOR = 0xb855f7;
+    const K_COLOR = 0x00d4b8;
+
+    const vertexLabels = [];
+    const edgeMaterials = [];
+    const faceMaterials = [];
+
+    function cssVar(name, fallback){
+        const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return v || fallback;
+    }
+    function themeVertexColor(){ return cssVar('--label-vertex', '#ffffff'); }
+    function themeEdgeColor(){ return cssVar('--edge-color', '#cfe3f5'); }
+    function themeFaceColor(){ return cssVar('--edge-face-color', '#4a90d9'); }
+
+    function refreshThemeColors(){
+        const vc = themeVertexColor();
+        vertexLabels.forEach(item=>{ item.el.style.color = vc; });
+        const ec = new THREE.Color(themeEdgeColor());
+        edgeMaterials.forEach(item=>{ item.mat.color.copy(ec); item.mat.opacity = item.baseOpacity; item.mat.needsUpdate = true; });
+        const fc = new THREE.Color(themeFaceColor());
+        faceMaterials.forEach(item=>{ item.mat.color.copy(fc); item.mat.opacity = item.baseOpacity; item.mat.needsUpdate = true; });
+        refreshAllLabelShadows();
+    }
+    function refreshAllLabelShadows(){
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const s = isLight
+            ? '0 0 4px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.95)'
+            : '0 0 4px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.9)';
+        document.querySelectorAll('.model-container div').forEach(el=>{
+            if (el.style && el.style.textShadow !== undefined) el.style.textShadow = s;
+        });
+    }
+
+    function makeLabel(text, color, position, fontSize = '0.75rem') {
+        const div = document.createElement('div');
+        div.textContent = text;
+        div.style.fontSize = fontSize;
+        div.style.fontWeight = 'bold';
+        div.style.fontFamily = "'JetBrains Mono', 'Segoe UI', 'Arial Unicode MS', monospace";
+        div.style.background = 'transparent';
+        div.style.border = 'none';
+        div.style.padding = '0';
+        div.style.textShadow = '0 0 4px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.9)';
+        div.style.whiteSpace = 'nowrap';
+
+        if (color === '__vertex__') {
+            div.style.color = themeVertexColor();
+            vertexLabels.push({el: div});
+        } else {
+            div.style.color = color;
+        }
+        if (document.documentElement.classList.contains('light-mode')) {
+            div.style.textShadow = '0 0 4px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.95)';
+        }
+        const label = new CSS2DObject(div);
+        label.position.copy(position);
+        return label;
+    }
+
+    function addThickLine(group, start, end, color, baseOpacity = 1, thickness = 0.012, registerForTheme = false) {
+        const mainGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+        const mainMat = new THREE.LineBasicMaterial({color, transparent: true, opacity: baseOpacity});
+        group.add(new THREE.Line(mainGeo, mainMat));
+        if (registerForTheme) edgeMaterials.push({mat: mainMat, baseOpacity});
+
+        const dir = end.clone().sub(start);
+        if (dir.length() < 0.001) return;
+        dir.normalize();
+        const up = new THREE.Vector3(0,1,0);
+        let perp1 = new THREE.Vector3().crossVectors(dir, up);
+        if (perp1.length() < 0.001) perp1 = new THREE.Vector3(1,0,0);
+        perp1.normalize().multiplyScalar(thickness);
+        const perp2 = new THREE.Vector3().crossVectors(dir, perp1).normalize().multiplyScalar(thickness);
+        [perp1, perp1.clone().negate(), perp2, perp2.clone().negate()].forEach(off=>{
+            const geo = new THREE.BufferGeometry().setFromPoints([start.clone().add(off), end.clone().add(off)]);
+            const m = new THREE.LineBasicMaterial({color, transparent: true, opacity: baseOpacity * 0.7});
+            group.add(new THREE.Line(geo, m));
+            if (registerForTheme) edgeMaterials.push({mat: m, baseOpacity: baseOpacity * 0.7});
+        });
+    }
+
+    function createVectorLine(start, end, color) {
+        const group = new THREE.Group();
+        addThickLine(group, start, end, color, 1, 0.012, false);
+        const dir = end.clone().sub(start);
+        if (dir.length() > 0.001) {
+            dir.normalize();
+            const coneGeo = new THREE.ConeGeometry(0.07, 0.17, 12);
+            const coneMat = new THREE.MeshStandardMaterial({color, emissive: new THREE.Color(color).multiplyScalar(0.35)});
+            const cone = new THREE.Mesh(coneGeo, coneMat);
+            cone.position.copy(end.clone().add(dir.clone().multiplyScalar(-0.085)));
+            cone.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), dir));
+            group.add(cone);
+        }
+        return group;
+    }
+
+    function createAxisLine(start, end, color) {
+        const group = new THREE.Group();
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+        group.add(new THREE.Line(lineGeo, new THREE.LineBasicMaterial({color})));
+        const dir = end.clone().sub(start);
+        if (dir.length() > 0.001) {
+            dir.normalize();
+            const coneGeo = new THREE.ConeGeometry(0.05, 0.12, 8);
+            const coneMat = new THREE.MeshStandardMaterial({color, emissive: new THREE.Color(color).multiplyScalar(0.3)});
+            const cone = new THREE.Mesh(coneGeo, coneMat);
+            cone.position.copy(end.clone().add(dir.clone().multiplyScalar(-0.06)));
+            cone.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), dir));
+            group.add(cone);
+        }
+        return group;
+    }
+
+    const AXES_LEN = 2.5;
+    function createAxes() {
+        const g = new THREE.Group();
+        g.add(createAxisLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,AXES_LEN), 0x33ff33));
+        g.add(createAxisLine(new THREE.Vector3(0,0,0), new THREE.Vector3(AXES_LEN,0,0), 0xff3333));
+        g.add(createAxisLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,AXES_LEN,0), 0x3388ff));
+        return g;
+    }
+
+    function createSphere(position, color, emissive, radius = 0.06) {
+        const sphere = new THREE.Mesh(
+            new THREE.SphereGeometry(radius, 20, 20),
+            new THREE.MeshStandardMaterial({color, emissive})
+        );
+        sphere.position.copy(position);
+        return sphere;
+    }
+
+    function createDashedLine(start, end, color) {
+        const geo = new THREE.BufferGeometry().setFromPoints([start, end]);
+        const line = new THREE.Line(geo, new THREE.LineDashedMaterial({color, dashSize:0.2, gapSize:0.1}));
+        line.computeLineDistances();
+        return line;
+    }
+
+    function createPlaneFill(p1, p2, p3, p4, color, opacity = 0.08) {
+        const group = new THREE.Group();
+        const geo = new THREE.BufferGeometry();
+        const pts = p4 ? [p1, p2, p3, p1, p3, p4] : [p1, p2, p3];
+        const v = new Float32Array(pts.length * 3);
+        pts.forEach((p,i)=>{ v[i*3] = p.x; v[i*3+1] = p.y; v[i*3+2] = p.z; });
+        geo.setAttribute('position', new THREE.BufferAttribute(v, 3));
+        geo.computeVertexNormals();
+        const mat = new THREE.MeshBasicMaterial({
+            color, side: THREE.DoubleSide, transparent: true, opacity, depthWrite: false
+        });
+        group.add(new THREE.Mesh(geo, mat));
+        return group;
+    }
+
+    function createParallelepipedEdges(origin, vx, vy, vz, colorUnused = 0xffffff, opacity = 0.5) {
+        const group = new THREE.Group();
+        const o = origin, px = o.clone().add(vx), py = o.clone().add(vy), pz = o.clone().add(vz);
+        const pxy = px.clone().add(vy), pxz = px.clone().add(vz), pyz = py.clone().add(vz), pxyz = pxy.clone().add(vz);
+        const edgeCol = new THREE.Color(themeEdgeColor());
+        const faceCol = new THREE.Color(themeFaceColor());
+        const edgeOpacity = Math.min(1, opacity + 0.4);
+
+        const edges = [[o,px],[o,py],[o,pz],[px,pxy],[px,pxz],[py,pxy],[py,pyz],[pz,pxz],[pz,pyz],[pxy,pxyz],[pxz,pxyz],[pyz,pxyz]];
+        edges.forEach(([a,b]) => addThickLine(group, a, b, edgeCol, edgeOpacity, 0.008, true));
+
+        const faceOpacity = 0.06;
+        const faces = [[o,px,pxy,py],[pz,pxz,pxyz,pyz],[o,px,pxz,pz],[py,pxy,pxyz,pyz],[o,py,pyz,pz],[px,pxy,pxyz,pxz]];
+        faces.forEach(quad=>{
+            const geo = new THREE.BufferGeometry();
+            const v = new Float32Array([
+                quad[0].x,quad[0].y,quad[0].z,quad[1].x,quad[1].y,quad[1].z,quad[2].x,quad[2].y,quad[2].z,
+                quad[0].x,quad[0].y,quad[0].z,quad[2].x,quad[2].y,quad[2].z,quad[3].x,quad[3].y,quad[3].z
+            ]);
+            geo.setAttribute('position', new THREE.BufferAttribute(v, 3));
+            geo.computeVertexNormals();
+            const mat = new THREE.MeshBasicMaterial({color: faceCol, side: THREE.DoubleSide, transparent: true, opacity: faceOpacity, depthWrite: false});
+            group.add(new THREE.Mesh(geo, mat));
+            faceMaterials.push({mat, baseOpacity: faceOpacity});
+        });
+        return group;
+    }
+
+    function createFilledQuad(p1, p2, p3, p4, color, opacity = 0.3) {
+        const group = new THREE.Group();
+        const geo = new THREE.BufferGeometry();
+        const vertices = new Float32Array([
+            p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z,
+            p1.x, p1.y, p1.z, p3.x, p3.y, p3.z, p4.x, p4.y, p4.z
+        ]);
+        geo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        geo.computeVertexNormals();
+        const mat = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide, transparent: true, opacity, depthWrite: false});
+        group.add(new THREE.Mesh(geo, mat));
+        const contourGeo = new THREE.BufferGeometry().setFromPoints([p1, p2, p3, p4, p1]);
+        group.add(new THREE.Line(contourGeo, new THREE.LineBasicMaterial({color, linewidth: 2})));
+        return group;
+    }
+
+    function createUnitTicks(start, end, color, unit = 1.0, radius = 0.045) {
+        const group = new THREE.Group();
+        const dir = end.clone().sub(start);
+        const len = dir.length();
+        if (len < 0.001) return group;
+        dir.normalize();
+        const count = Math.floor(len / unit + 1e-6);
+        for (let i = 1; i <= count; i++) {
+            const t = i * unit;
+            const pos = start.clone().add(dir.clone().multiplyScalar(t));
+            const dot = new THREE.Mesh(
+                new THREE.SphereGeometry(radius, 12, 12),
+                new THREE.MeshStandardMaterial({color, emissive: new THREE.Color(color).multiplyScalar(0.4)})
+            );
+            dot.position.copy(pos);
+            group.add(dot);
+        }
+        return group;
+    }
+
+    function initScene(containerId, canvasId, fsBtnId, setupFn) {
+        const container = document.getElementById(containerId);
+        const canvas = document.getElementById(canvasId);
+        if (!container || !canvas) return;
+        const scene = new THREE.Scene(); scene.background = null;
+        const w = container.clientWidth, h = container.clientHeight;
+        const camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 100);
+        camera.position.set(4.5, 4, 5.5);
+        camera.lookAt(1, 0.8, 1);
+        const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+        renderer.setSize(w,h); renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px'; labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        container.style.position = 'relative'; container.appendChild(labelRenderer.domElement);
+
+        function updateSize() {
+            const rect = container.getBoundingClientRect();
+            let rw = rect.width, rh = rect.height;
+            if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
+                rw = window.innerWidth; rh = window.innerHeight;
+            }
+            if (rw < 10) rw = 800; if (rh < 10) rh = 450;
+            canvas.width = rw; canvas.height = rh;
+            renderer.setSize(rw, rh); labelRenderer.setSize(rw, rh);
+            camera.aspect = rw / rh; camera.updateProjectionMatrix();
+        }
+        function forceResize() {
+            canvas.style.width = ''; canvas.style.height = '';
+            setTimeout(() => { updateSize(); requestAnimationFrame(() => updateSize()); }, 30);
+        }
+        new ResizeObserver(() => updateSize()).observe(container);
+        setTimeout(updateSize, 100);
+
+        scene.add(new THREE.AmbientLight(0x40486c,0.6));
+        const kl = new THREE.DirectionalLight(0xfff5e0,1.2); kl.position.set(2,5,2); scene.add(kl);
+        scene.add(new THREE.PointLight(0xccaa77,0.55).position.copy(new THREE.Vector3(-1.5,2,2)));
+        scene.add(new THREE.PointLight(0x88aaff,0.5).position.copy(new THREE.Vector3(1,2,-3)));
+        scene.add(new THREE.PointLight(0x6699cc,0.35).position.copy(new THREE.Vector3(0,-1.2,0)));
+        const grid = new THREE.GridHelper(6,16,0x5f7f9e,0x2c4258);
+        grid.position.y = -0.01; grid.material.transparent=true; grid.material.opacity=0.2; scene.add(grid);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping=true; controls.dampingFactor=0.06;
+        controls.target.set(1,0.8,1); controls.update();
+        setupFn(scene, {makeLabel, createVectorLine, createAxes, createSphere, createDashedLine, createParallelepipedEdges, createFilledQuad, createUnitTicks, createPlaneFill});
+
+        const fsBtn = document.getElementById(fsBtnId);
+        if(fsBtn){
+            fsBtn.addEventListener('click', async () => {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    try { await container.requestFullscreen(); fsBtn.textContent = '✖'; } catch(e) {}
+                } else {
+                    if (document.exitFullscreen) await document.exitFullscreen();
+                    else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                    fsBtn.textContent = '⛶';
+                    forceResize();
+                }
+            });
+            document.addEventListener('fullscreenchange', () => {
+                fsBtn.textContent = (document.fullscreenElement === container || document.webkitFullscreenElement === container) ? '✖' : '⛶';
+                updateSize();
+            });
+        }
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        animate();
+    }
+
+    // ===================== ОБЫЧНЫЕ СЦЕНЫ =====================
+
+    initScene('container1','canvas1','fs1',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+
+        const L = 2.0;
+        // Oxy: z=0 → three Y=0
+        scene.add(t.createPlaneFill(
+            new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,L),
+            new THREE.Vector3(L,0,L), new THREE.Vector3(L,0,0),
+            0x60a5fa, 0.08));
+        scene.add(t.makeLabel('Oxy','#60a5fa', new THREE.Vector3(L*0.65, 0.02, L*0.35), '0.6rem'));
+
+        // Oyz: x=0 → three Z=0
+        scene.add(t.createPlaneFill(
+            new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,L),
+            new THREE.Vector3(0,L,L), new THREE.Vector3(0,L,0),
+            0xb855f7, 0.08));
+        scene.add(t.makeLabel('Oyz','#b855f7', new THREE.Vector3(0.02, L*0.7, L*0.35), '0.6rem'));
+
+        // Oxz: y=0 → three X=0
+        scene.add(t.createPlaneFill(
+            new THREE.Vector3(0,0,0), new THREE.Vector3(L,0,0),
+            new THREE.Vector3(L,L,0), new THREE.Vector3(0,L,0),
+            0x2dd4bf, 0.08));
+        scene.add(t.makeLabel('Oxz','#2dd4bf', new THREE.Vector3(L*0.7, L*0.35, 0.02), '0.6rem'));
+
+        function m2t(xm, ym, zm){ return new THREE.Vector3(ym, zm, xm); }
+
+        // Точки на осях
+        const A1 = m2t(1,0,0);
+        const A2 = m2t(0,1,0);
+        const A3 = m2t(0,0,1);
+        scene.add(t.createSphere(A1, 0x33ff33, 0x0a3320, 0.055));
+        scene.add(t.makeLabel('(1,0,0)','#33ff33', A1.clone().add(new THREE.Vector3(0.08,0.05,0.08)), '0.55rem'));
+        scene.add(t.createSphere(A2, 0xff3333, 0x330a0a, 0.055));
+        scene.add(t.makeLabel('(0,1,0)','#ff3333', A2.clone().add(new THREE.Vector3(0.05,0.05,0.08)), '0.55rem'));
+        scene.add(t.createSphere(A3, 0x3388ff, 0x0a1033, 0.055));
+        scene.add(t.makeLabel('(0,0,1)','#3388ff', A3.clone().add(new THREE.Vector3(0.05,0.08,0.05)), '0.55rem'));
+
+        // Точки на плоскостях
+        const MxyT = m2t(1, 1, 0);
+        const MyzT = m2t(0, 1, 1);
+        const MxzT = m2t(1, 0, 1);
+        scene.add(t.createSphere(MxyT, 0x60a5fa, 0x0a2040, 0.06));
+        scene.add(t.makeLabel('(1,1,0)','#60a5fa', MxyT.clone().add(new THREE.Vector3(0.08,-0.1,0.05)), '0.55rem'));
+        scene.add(t.createSphere(MyzT, 0xb855f7, 0x200a33, 0.06));
+        scene.add(t.makeLabel('(0,1,1)','#b855f7', MyzT.clone().add(new THREE.Vector3(-0.2,0.1,0)), '0.55rem'));
+        scene.add(t.createSphere(MxzT, 0x2dd4bf, 0x0a332e, 0.06));
+        scene.add(t.makeLabel('(1,0,1)','#2dd4bf', MxzT.clone().add(new THREE.Vector3(0.1,-0.15,0)), '0.55rem'));
+
+        // Точка A(x,y,z) с проекциями
+        const A = m2t(1.6, 1.4, 1.3);
+        scene.add(t.createSphere(A, 0xfacc15, 0x442200, 0.075));
+        scene.add(t.makeLabel('A(x,y,z)','#facc15', A.clone().add(new THREE.Vector3(0.12,0.12,0.12)), '0.65rem'));
+        const Ax = m2t(1.6, 0, 0);
+        const Ay = m2t(0, 1.4, 0);
+        const Az = m2t(0, 0, 1.3);
+        const Axy = m2t(1.6, 1.4, 0);
+        scene.add(t.createDashedLine(A, Ax, 0x33ff33));
+        scene.add(t.createDashedLine(A, Ay, 0xff3333));
+        scene.add(t.createDashedLine(A, Az, 0x3388ff));
+        scene.add(t.createDashedLine(A, Axy, 0xaaaaaa));
+        scene.add(t.createSphere(Ax, 0x33ff33, 0x0a3320, 0.045));
+        scene.add(t.createSphere(Ay, 0xff3333, 0x330a0a, 0.045));
+        scene.add(t.createSphere(Az, 0x3388ff, 0x0a1033, 0.045));
+
+        // Орты i, j, k — своими цветами
+        const o = new THREE.Vector3(0,0,0);
+        const iEnd = m2t(1, 0, 0);
+        const jEnd = m2t(0, 1, 0);
+        const kEnd = m2t(0, 0, 1);
+        scene.add(t.createVectorLine(o, iEnd, I_COLOR));
+        scene.add(t.makeLabel('i','#ff8800', iEnd.clone().add(new THREE.Vector3(0.08,-0.12,0)), '0.65rem'));
+        scene.add(t.createVectorLine(o, jEnd, J_COLOR));
+        scene.add(t.makeLabel('j','#b855f7', jEnd.clone().add(new THREE.Vector3(0.08,0.05,0.1)), '0.65rem'));
+        scene.add(t.createVectorLine(o, kEnd, K_COLOR));
+        scene.add(t.makeLabel('k','#00d4b8', kEnd.clone().add(new THREE.Vector3(0.05,0.1,0.05)), '0.65rem'));
+    });
+
+    initScene('container2','canvas2','fs2',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+        const o = new THREE.Vector3(0,0,0);
+        const ax = 1.5, ay = 1.2, az = 1.0;
+        const aEnd = new THREE.Vector3(ay, az, ax);
+        const vx = new THREE.Vector3(0,0,ax);
+        const vy = new THREE.Vector3(ay,0,0);
+        const vz = new THREE.Vector3(0,az,0);
+        scene.add(t.createParallelepipedEdges(o, vx, vy, vz));
+        scene.add(t.createVectorLine(o, aEnd, 0xffaa00));
+        scene.add(t.makeLabel('a','#ffaa00',aEnd.clone().add(new THREE.Vector3(0.12,0.12,0.12)),'0.7rem'));
+
+        const iEnd = new THREE.Vector3(0,0,0.7);
+        const jEnd = new THREE.Vector3(0.7,0,0);
+        const kEnd = new THREE.Vector3(0,0.7,0);
+        scene.add(t.createVectorLine(o,iEnd,I_COLOR));
+        scene.add(t.makeLabel('i','#ff8800',iEnd.clone().add(new THREE.Vector3(0.05,0.05,0.1)),'0.65rem'));
+        scene.add(t.createVectorLine(o,jEnd,J_COLOR));
+        scene.add(t.makeLabel('j','#b855f7',jEnd.clone().add(new THREE.Vector3(0.1,0.05,0.05)),'0.65rem'));
+        scene.add(t.createVectorLine(o,kEnd,K_COLOR));
+        scene.add(t.makeLabel('k','#00d4b8',kEnd.clone().add(new THREE.Vector3(0.05,0.1,0.05)),'0.65rem'));
+    });
+
+    initScene('container3','canvas3','fs3',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        const o = new THREE.Vector3(0,0,0);
+        const vx = new THREE.Vector3(0,0,1.2);
+        const vy = new THREE.Vector3(1.2,0,0);
+        const vz = new THREE.Vector3(0,1.2,0);
+        scene.add(t.createParallelepipedEdges(o,vx,vy,vz));
+        const va = vx.clone().add(vy);
+        const vb = vz.clone();
+        const vc = va.clone().add(vb);
+        scene.add(t.createFilledQuad(o, va, vc, vb, 0x4488ff, 0.25));
+        scene.add(t.createVectorLine(o,va,0xffaa00));
+        scene.add(t.makeLabel('p','#ffaa00',va.clone().add(new THREE.Vector3(0.1,0.08,0.08))));
+        scene.add(t.createVectorLine(o,vb,0xff66aa));
+        scene.add(t.makeLabel('q','#ff66aa',vb.clone().add(new THREE.Vector3(0.08,0.1,0.08))));
+        scene.add(t.createVectorLine(o,vc,0x66aaff));
+        scene.add(t.makeLabel('r','#66aaff',vc.clone().add(new THREE.Vector3(0.08,0.08,0.1))));
+        scene.add(t.createDashedLine(vb,vc,0x888888));
+    });
+
+    initScene('container4','canvas4','fs4',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+        const A = new THREE.Vector3(0.4,0.8,0.6);
+        const B = new THREE.Vector3(1.6,1.8,1.4);
+        scene.add(t.createSphere(A, 0xfacc15, 0x442200));
+        scene.add(t.makeLabel('A(x₁,y₁,z₁)','#facc15',A.clone().add(new THREE.Vector3(0.12,0.12,0.1)),'0.6rem'));
+        scene.add(t.createSphere(B, 0xef4444, 0x441100));
+        scene.add(t.makeLabel('B(x₂,y₂,z₂)','#ef4444',B.clone().add(new THREE.Vector3(0.12,0.12,0.1)),'0.6rem'));
+        scene.add(t.createVectorLine(A, B, 0xa855f7));
+        const mid = A.clone().add(B).multiplyScalar(0.5);
+        scene.add(t.makeLabel('AB','#a855f7',mid.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.65rem'));
+    });
+
+    // ===================== ЗАДАЧА 1 =====================
+    initScene('container5','canvas5','fs5',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+
+        const o = new THREE.Vector3(0,0,0);
+        function m2t(xm, ym, zm){ return new THREE.Vector3(ym, zm, xm); }
+
+        const ortsGroup = new THREE.Group();
+        const iEnd = m2t(1, 0, 0);
+        ortsGroup.add(t.createVectorLine(o, iEnd, I_COLOR));
+        ortsGroup.add(t.makeLabel('i','#ff8800',iEnd.clone().add(new THREE.Vector3(0.1,0.05,0.05)),'0.68rem'));
+        const jEnd = m2t(0, 1, 0);
+        ortsGroup.add(t.createVectorLine(o, jEnd, J_COLOR));
+        ortsGroup.add(t.makeLabel('j','#b855f7',jEnd.clone().add(new THREE.Vector3(0.05,0.05,0.1)),'0.68rem'));
+        const kEnd = m2t(0, 0, 1);
+        ortsGroup.add(t.createVectorLine(o, kEnd, K_COLOR));
+        ortsGroup.add(t.makeLabel('k','#00d4b8',kEnd.clone().add(new THREE.Vector3(0.05,0.1,0.05)),'0.68rem'));
+        ortsGroup.visible = false;
+        scene.add(ortsGroup);
+
+        const chainGroup = new THREE.Group();
+        const p1 = m2t(3, 0, 0);
+        const p2 = m2t(3, 4, 0);
+        const p3 = m2t(3, 4, 5);
+
+        chainGroup.add(t.createVectorLine(o, p1, I_COLOR));
+        chainGroup.add(t.createUnitTicks(o, p1, I_COLOR, 1, 0.05));
+        chainGroup.add(t.makeLabel('3i','#ff8800',m2t(1.5,0,0).add(new THREE.Vector3(0,-0.15,0)),'0.65rem'));
+        chainGroup.add(t.createVectorLine(p1, p2, J_COLOR));
+        chainGroup.add(t.createUnitTicks(p1, p2, J_COLOR, 1, 0.05));
+        chainGroup.add(t.makeLabel('4j','#b855f7',m2t(3,2,0).add(new THREE.Vector3(0.15,0,0)),'0.65rem'));
+        chainGroup.add(t.createVectorLine(p2, p3, K_COLOR));
+        chainGroup.add(t.createUnitTicks(p2, p3, K_COLOR, 1, 0.05));
+        chainGroup.add(t.makeLabel('5k','#00d4b8',m2t(3,4,2.5).add(new THREE.Vector3(0.15,0,0)),'0.65rem'));
+
+        chainGroup.add(t.createDashedLine(o, p3, 0xffffff));
+        chainGroup.add(t.makeLabel('(3,4,5)','#ffffff',p3.clone().add(new THREE.Vector3(0.15,0.1,0)),'0.6rem'));
+        chainGroup.visible = false;
+        scene.add(chainGroup);
+
+        const A = m2t(1,2,3);
+        const B = m2t(4,6,8);
+        const abGroup = new THREE.Group();
+        abGroup.add(t.createSphere(A, 0xef4444, 0x441100));
+        abGroup.add(t.makeLabel('A(1,2,3)','#ef4444',A.clone().add(new THREE.Vector3(-0.35,0.1,0.1)),'0.6rem'));
+        abGroup.add(t.createSphere(B, 0x3b82f6, 0x001133));
+        abGroup.add(t.makeLabel('B(4,6,8)','#3b82f6',B.clone().add(new THREE.Vector3(0.12,0.12,0.12)),'0.6rem'));
+        abGroup.add(t.createVectorLine(A, B, 0xa855f7));
+        abGroup.add(t.makeLabel('AB','#a855f7',A.clone().add(B.clone().sub(A).multiplyScalar(0.5)).add(new THREE.Vector3(0.1,0.1,0.1)),'0.65rem'));
+        abGroup.visible = false;
+        scene.add(abGroup);
+
+        window.__show5_step = function(idx){
+            ortsGroup.visible = false;
+            chainGroup.visible = false;
+            abGroup.visible = false;
+            if (idx === 0) { ortsGroup.visible = true; }
+            if (idx === 1) { ortsGroup.visible = true; chainGroup.visible = true; }
+            if (idx === 2) { abGroup.visible = true; }
+        };
+        window.__show5_all = function(){
+            ortsGroup.visible = true;
+            chainGroup.visible = true;
+            abGroup.visible = true;
+        };
+        window.__reset5 = function(){
+            ortsGroup.visible = false;
+            chainGroup.visible = false;
+            abGroup.visible = false;
+        };
+    });
+
+    // ===================== ЗАДАЧА 2 =====================
+    initScene('container6','canvas6','fs6',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+
+        function m2t(xm, ym, zm){ return new THREE.Vector3(ym, zm, xm); }
+
+        const M = m2t(-1, 0, 2);
+        const N = m2t(3, -4, 1);
+
+        const g1 = new THREE.Group();
+        g1.add(t.createSphere(M, 0xfacc15, 0x442200, 0.07));
+        g1.add(t.makeLabel('M(-1,0,2)','#facc15',M.clone().add(new THREE.Vector3(-0.35,-0.1,0.1)),'0.6rem'));
+        g1.add(t.createSphere(N, 0xef4444, 0x441100, 0.07));
+        g1.add(t.makeLabel('N(3,-4,1)','#ef4444',N.clone().add(new THREE.Vector3(0.15,-0.1,0.1)),'0.6rem'));
+        g1.visible = false;
+        scene.add(g1);
+
+        const g2 = new THREE.Group();
+        g2.add(t.createVectorLine(M, N, 0xa855f7));
+        g2.add(t.makeLabel('MN','#a855f7',M.clone().add(N.clone().sub(M).multiplyScalar(0.5)).add(new THREE.Vector3(0.1,0.1,0.1)),'0.65rem'));
+        g2.visible = false;
+        scene.add(g2);
+
+        const P1 = M.clone().add(m2t(4, 0, 0).sub(m2t(0,0,0)));
+        const P2 = P1.clone().add(m2t(0, -4, 0).sub(m2t(0,0,0)));
+        const g3 = new THREE.Group();
+        g3.add(t.createDashedLine(M, P1, 0x33ff33));
+        g3.add(t.makeLabel('4','#33ff33',M.clone().add(m2t(2,0,0).sub(m2t(0,0,0))).add(new THREE.Vector3(0.1,-0.15,0)),'0.6rem'));
+        g3.add(t.createDashedLine(P1, P2, 0xff3333));
+        g3.add(t.makeLabel('-4','#ff3333',P1.clone().add(m2t(0,-2,0).sub(m2t(0,0,0))).add(new THREE.Vector3(0.1,0.1,0)),'0.6rem'));
+        g3.add(t.createDashedLine(P2, N, 0x3388ff));
+        g3.add(t.makeLabel('-1','#3388ff',P2.clone().add(m2t(0,0,-0.5).sub(m2t(0,0,0))).add(new THREE.Vector3(0.1,0,0.1)),'0.6rem'));
+        g3.visible = false;
+        scene.add(g3);
+
+        window.__show6_step = function(idx){
+            g1.visible = false; g2.visible = false; g3.visible = false;
+            if (idx === 0) { g1.visible = true; }
+            if (idx === 1) { g1.visible = true; g2.visible = true; }
+            if (idx === 2) { g1.visible = true; g2.visible = true; g3.visible = true; }
+        };
+        window.__show6_all = function(){
+            g1.visible = true; g2.visible = true; g3.visible = true;
+        };
+        window.__reset6 = function(){
+            g1.visible = false; g2.visible = false; g3.visible = false;
+        };
+    });
+
+    // ===================== ЗАДАЧА 3 =====================
+    initScene('container7','canvas7','fs7',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+
+        function m2t(xm, ym, zm){ return new THREE.Vector3(ym, zm, xm); }
+        const o = new THREE.Vector3(0,0,0);
+
+        const aEnd = m2t(1, 0, 0);
+        const bEnd = m2t(0, 1, 0);
+        const cEnd = m2t(1, 1, 0);
+
+        const g1 = new THREE.Group();
+        g1.add(t.createVectorLine(o, aEnd, 0xffaa00));
+        g1.add(t.makeLabel('a','#ffaa00',aEnd.clone().add(new THREE.Vector3(0.1,0.05,0)),'0.65rem'));
+        g1.add(t.createVectorLine(o, bEnd, 0xff66aa));
+        g1.add(t.makeLabel('b','#ff66aa',bEnd.clone().add(new THREE.Vector3(0.05,0.1,0)),'0.65rem'));
+        g1.add(t.createDashedLine(aEnd, cEnd, 0x888888));
+        g1.add(t.createDashedLine(bEnd, cEnd, 0x888888));
+        g1.visible = false;
+        scene.add(g1);
+
+        const g2 = new THREE.Group();
+        g2.add(t.createVectorLine(o, cEnd, 0xa855f7));
+        g2.add(t.makeLabel('c = a+b','#a855f7',cEnd.clone().add(new THREE.Vector3(0.12,0.05,0)),'0.65rem'));
+        g2.visible = false;
+        scene.add(g2);
+
+        window.__show7_step = function(idx){
+            g1.visible = false; g2.visible = false;
+            if (idx === 0) { g1.visible = true; }
+            if (idx === 1) { g1.visible = true; }
+            if (idx === 2) { g1.visible = true; g2.visible = true; }
+        };
+        window.__show7_all = function(){
+            g1.visible = true; g2.visible = true;
+        };
+        window.__reset7 = function(){
+            g1.visible = false; g2.visible = false;
+        };
+    });
+
+    window.__themeRefreshAll = function(){ refreshThemeColors(); };
+</script>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        html.classList.toggle('light-mode');
+        const isLight = html.classList.contains('light-mode');
+        localStorage.setItem('mathTheme', isLight ? 'light' : 'dark');
+        btn.textContent = isLight ? '☀️' : '🌙';
+        if (window.__themeRefreshAll) window.__themeRefreshAll();
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            const b = document.getElementById('themeBtn');
+            if (b) b.textContent = '☀️';
+        }
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

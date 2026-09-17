@@ -1,0 +1,860 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Вычисление объёмов через интеграл — 11 класс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
+            color: var(--text);
+            text-decoration: none;
+        }
+        .section-title .sub-title {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-style: italic;
+            margin-top: 2px;
+        }
+        .section-link {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 8px 20px;
+            background: var(--special-border);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .section-link:hover { background: #6d28d9; }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example .formula-line { display: block; margin: 4px 0; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+
+        .graph-container { text-align: center; margin: 12px 0; background: var(--canvas-bg); border-radius: 16px; padding: 8px; display: block; transition: background 0.2s; }
+        .graphs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; }
+        .graph-container canvas { max-width: 100%; height: auto; border-radius: 12px; display: inline-block; background: var(--canvas-bg); transition: background 0.2s; }
+        .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; }
+        .graph-formula { text-align: center; }
+
+        .geo-meaning { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 16px 20px; margin: 12px 0; color: var(--text); line-height: 1.8; }
+        .geo-meaning strong { color: #fbbf24; }
+        .geo-meaning .num { font-weight: 700; color: #a78bfa; }
+
+        .section-link-block {
+            background: var(--info-bg);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .section-link-block .desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 6px 0 12px 0;
+        }
+        .btn-3d-link {
+            display: inline-block;
+            padding: 12px 28px;
+            margin: 4px 0;
+            background: var(--special-border);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 40px;
+            font-size: 1rem;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-3d-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139,92,246,0.3);
+            background: #6d28d9;
+        }
+        .btn-3d-link .icon { font-size: 1.2rem; margin-right: 8px; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .graphs-row { grid-template-columns: 1fr; gap: 12px; }
+            .graph-formula { font-size: 0.85rem !important; }
+            .example { padding: 12px 14px; }
+            .btn-3d-link { padding: 10px 18px; font-size: 0.9rem; }
+        }
+    </style>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: { scale: 1.0, displayAlign: 'center' },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        setTimeout(drawAllGraphs, 400);
+                    });
+                }
+            }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Вычисление объёмов через интеграл</h1>
+
+    <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Определение</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Объём тела</strong> — величина, равная интегралу от площади его поперечного сечения.</p>
+            <div class="important">
+                <strong>📌 Другими словами:</strong><br>
+                Чтобы найти объём тела, нужно <strong>разрезать</strong> его на тонкие слои, <strong>посчитать</strong> площадь каждого слоя, а затем <strong>сложить</strong> все эти площади с помощью интеграла.
+            </div>
+            <div class="formula-block">
+                $$ V = \int_{a}^{b} S(x) \, dx $$
+                где \(S(x)\) — площадь поперечного сечения тела плоскостью, перпендикулярной оси \(Ox\).
+            </div>
+            <div class="formula-block">
+                <strong>Для тел вращения вокруг оси \(Ox\):</strong>
+                $$ V = \pi \int_{a}^{b} [f(x)]^2 \, dx $$
+                <br>
+                <strong style="color:#34d399;">Для тел вращения вокруг оси \(Oy\):</strong>
+                $$ V = \pi \int_{c}^{d} [g(y)]^2 \, dy $$
+                где \(x = g(y)\) — функция, выражающая \(x\) через \(y\).
+            </div>
+
+            <div class="graphs-row">
+                <div class="graph-container" id="gc1">
+                    <div class="graph-formula" style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:6px;">
+                        🔄 Вращение вокруг <strong style="color:#fbbf24;">оси Ox</strong>
+                    </div>
+                    <div class="graph-formula" style="font-size:0.95rem; color:var(--text-secondary); margin-bottom:8px;">
+                        $$ V = \pi \int_{0}^{4} (\sqrt{x})^2 \, dx = 8\pi $$
+                    </div>
+                    <canvas id="graph1" width="500" height="330"></canvas>
+                    <div class="graph-label">
+                        \(y = \sqrt{x}\), \(x \in [0; 4]\)<br>
+                        <span style="color:#fbbf24;">⬤ Жёлтая заливка — вращение вокруг Ox</span><br>
+                        <span style="color:#fbbf24;">●</span> Точка (4; 2)
+                    </div>
+                </div>
+
+                <div class="graph-container" id="gc2">
+                    <div class="graph-formula" style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:6px;">
+                        🔄 Вращение вокруг <strong style="color:#34d399;">оси Oy</strong>
+                    </div>
+                    <div class="graph-formula" style="font-size:0.95rem; color:var(--text-secondary); margin-bottom:8px;">
+                        $$ V = \pi \int_{0}^{4} (\sqrt{y})^2 \, dy = 8\pi $$
+                    </div>
+                    <canvas id="graph2" width="500" height="330"></canvas>
+                    <div class="graph-label">
+                        \(x = \sqrt{y}\) (или \(y = x^2\)), \(y \in [0; 4]\)<br>
+                        <span style="color:#34d399;">⬤ Зелёная заливка — вращение вокруг Oy</span><br>
+                        <span style="color:#34d399;">●</span> Точка (2; 4)
+                    </div>
+                </div>
+            </div>
+            <div class="graph-label" style="margin-top: -4px; font-size:0.8rem;">
+                📌 Левый график — вращение вокруг \(Ox\) (\(y = \sqrt{x}\)). Правый — вращение вокруг \(Oy\) (\(y = x^2\), \(x = \sqrt{y}\)).
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ГЕОМЕТРИЧЕСКИЙ СМЫСЛ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔍 Геометрический смысл</span>
+            <span class="sub-title">нажмите, чтобы открыть</span>
+        </div>
+        <div class="section-content">
+            <div class="geo-meaning">
+                <span class="num">1.</span> Фигура, ограниченная графиком \(y = f(x)\) и осью \(Ox\) на \([a; b]\).<br>
+                При вращении вокруг \(Ox\) получается <strong>тело вращения</strong>.<br><br>
+                <span class="num">2.</span> Разрезаем тело плоскостями, перпендикулярными \(Ox\), на тонкие слои (круги).<br>
+                Каждый слой — поперечное сечение — круг радиуса \(r(x) = f(x)\).<br><br>
+                <span class="num">3.</span> Площадь каждого круга:
+                $$ S(x) = \pi \cdot [r(x)]^2 = \pi \cdot [f(x)]^2 $$<br><br>
+                <span class="num">4.</span> Объём тела = сумма площадей всех кругов:
+                $$ V = \int_{a}^{b} S(x) \, dx $$<br><br>
+                <span class="num">5.</span> Подставляем \(S(x)\):
+                $$ V = \pi \int_{a}^{b} [f(x)]^2 \, dx $$
+            </div>
+            <div class="formula-block">
+                <strong>Площадь поперечного сечения:</strong> \(S(x) = \pi \cdot [r(x)]^2\)<br>
+                <strong>Объём тела вращения:</strong> \(V = \pi \int_{a}^{b} [f(x)]^2 \, dx\)
+            </div>
+            <div class="formula-block" style="border-left-color: #4ecdc4;">
+                <strong>Для вращения вокруг оси \(Oy\):</strong><br>
+                Если фигура задана как \(x = g(y)\), то:
+                $$ V = \pi \int_{c}^{d} [g(y)]^2 \, dy $$
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 3D-МОДЕЛЬ (ССЫЛКА) ===== -->
+    <div class="section">
+        <a href="integral-volume-3d.html" class="section-title" style="text-decoration:none;">
+            <span class="main-title">🔄 3D-модель</span>
+            <span class="sub-title"> для лучшего понимания</span>
+        </a>
+    </div>
+
+    <!-- ===== ВИЗУАЛИЗАЦИЯ ОБЪЁМА (ССЫЛКА) ===== -->
+    <div class="section">
+        <a href="integral-volume-viz.html" class="section-title" style="text-decoration:none;">
+            <span class="main-title">🔄 Визуализация: как интеграл считает объем</span>
+            <span class="sub-title"> интерактивная 3D-модель</span>
+        </a>
+    </div>
+
+    <!-- ===== ПРИМЕРЫ ===== -->
+    <!-- ПРИМЕР 1 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. Параболоид вращения (вокруг \(Ox\))</span>
+            <span class="sub-title">$V = \dfrac{\pi R^2 H}{2}$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси \(Ox\)</strong> фигуры, ограниченной линиями \(y = \sqrt{x}\), \(x = 0\), \(x = 4\).<br><br>
+
+                <div class="explain">📖 Это тело называется <strong>параболоидом вращения</strong>.</div>
+
+                <span class="step">Шаг 1. Формула объёма вращения вокруг оси \(Ox\):</span>
+                <div class="formula-line">$$ V = \pi \int_{a}^{b} [f(x)]^2 \, dx $$</div>
+
+                <span class="step">Шаг 2. Подставляем \(f(x) = \sqrt{x}\), \(a = 0\), \(b = 4\):</span>
+                <div class="formula-line">$$ V = \pi \int_{0}^{4} (\sqrt{x})^2 \, dx = \pi \int_{0}^{4} x \, dx $$</div>
+                <div class="explain">💡 Почему: \((\sqrt{x})^2 = x\).</div>
+
+                <span class="step">Шаг 3. Вычисляем интеграл:</span>
+                <div class="formula-line">$$ V = \pi \cdot \frac{x^2}{2} \Big|_{0}^{4} = \pi \cdot \frac{16}{2} = 8\pi $$</div>
+                <div class="explain">💡 Почему: \(\int x \, dx = x^2/2\).</div>
+
+                <span class="result">Ответ: \(V = 8\pi \approx 25.13\) куб. ед.</span>
+                <div class="explain">✅ Объём параболоида вращения вокруг оси \(Ox\) с высотой 4 и радиусом 2 равен \(8\pi\).</div>
+
+                <br>
+                <strong>Вывод общей формулы для параболоида \(y = R\sqrt{x/H}\):</strong><br><br>
+
+                <span class="step">Шаг 1. Подставляем в формулу:</span>
+                <div class="formula-line">$$ V = \pi \int_{0}^{H} \left( R\sqrt{\frac{x}{H}} \right)^2 dx = \pi R^2 \int_{0}^{H} \frac{x}{H} dx $$</div>
+
+                <span class="step">Шаг 2. Вычисляем:</span>
+                <div class="formula-line">$$ V = \frac{\pi R^2}{H} \cdot \frac{H^2}{2} = \frac{\pi R^2 H}{2} $$</div>
+
+                <span class="result">Общая формула: \(V = \dfrac{\pi R^2 H}{2}\)</span>
+                <div class="explain">📌 Это в 2 раза меньше объёма цилиндра с теми же \(R\) и \(H\).</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 2 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. Вращение синуса (вокруг \(Ox\))</span>
+            <span class="sub-title">$V = \dfrac{\pi^2}{2}$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси \(Ox\)</strong> фигуры, ограниченной линиями \(y = \sin x\), \(x = 0\), \(x = \pi\).<br><br>
+
+                <div class="explain">📖 Тело называется <strong>синусоидой вращения</strong>.</div>
+
+                <span class="step">Шаг 1. Формула объёма:</span>
+                <div class="formula-line">$$ V = \pi \int_{0}^{\pi} \sin^2 x \, dx $$</div>
+
+                <span class="step">Шаг 2. Используем формулу \(\sin^2 x = \frac{1 - \cos 2x}{2}\):</span>
+                <div class="formula-line">$$ V = \frac{\pi}{2} \int_{0}^{\pi} (1 - \cos 2x) \, dx $$</div>
+                <div class="explain">💡 Почему: так легче интегрировать.</div>
+
+                <span class="step">Шаг 3. Вычисляем интеграл:</span>
+                <div class="formula-line">$$ V = \frac{\pi}{2} \left[ x - \frac{\sin 2x}{2} \right]_{0}^{\pi} = \frac{\pi^2}{2} $$</div>
+                <div class="explain">💡 Почему: \(\sin 2\pi = 0\), \(\sin 0 = 0\).</div>
+
+                <span class="result">Ответ: \(V = \dfrac{\pi^2}{2} \approx 4.93\) куб. ед.</span>
+                <div class="explain">✅ Объём тела вращения синуса вокруг оси \(Ox\) на \([0; \pi]\) равен \(\pi^2/2\).</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 3 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. Вращение параболы \(y = x^2\) (вокруг \(Ox\))</span>
+            <span class="sub-title">$V = \dfrac{32\pi}{5}$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Найти объём тела, полученного вращением <strong>вокруг оси \(Ox\)</strong> фигуры, ограниченной линиями \(y = x^2\), \(y = 0\), \(x = 0\), \(x = 2\).<br><br>
+
+                <div class="explain">📖 Вращаем параболу \(y = x^2\) вокруг оси \(Ox\).</div>
+
+                <span class="step">Шаг 1. Формула объёма:</span>
+                <div class="formula-line">$$ V = \pi \int_{0}^{2} (x^2)^2 \, dx = \pi \int_{0}^{2} x^4 \, dx $$</div>
+                <div class="explain">💡 Почему: \((x^2)^2 = x^4\).</div>
+
+                <span class="step">Шаг 2. Вычисляем интеграл:</span>
+                <div class="formula-line">$$ V = \pi \cdot \frac{x^5}{5} \Big|_{0}^{2} = \pi \cdot \frac{32}{5} = \frac{32\pi}{5} $$</div>
+                <div class="explain">💡 Почему: \(\int x^4 dx = x^5/5\).</div>
+
+                <span class="result">Ответ: \(V = \dfrac{32\pi}{5} \approx 20.11\) куб. ед.</span>
+                <div class="explain">✅ Объём тела вращения параболы \(y = x^2\) вокруг оси \(Ox\) на \([0; 2]\) равен \(32\pi/5\).</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 4 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. Вращение вокруг оси \(Oy\)</span>
+            <span class="sub-title">$V = 8\pi$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Найти объём тела, полученного вращением вокруг оси \(Oy\) фигуры, ограниченной линиями \(y = x^2\), \(y = 0\), \(x = 0\), \(x = 2\).<br><br>
+
+                <div class="explain">📖 Вращаем параболу \(y = x^2\) вокруг оси \(Oy\).</div>
+
+                <span class="step">Шаг 1. Выражаем \(x\) через \(y\):</span>
+                <div class="formula-line">$$ x^2 = y \Rightarrow x = \sqrt{y} $$</div>
+                <div class="explain">💡 Почему: для вращения вокруг \(Oy\) нужна функция \(x = g(y)\).</div>
+
+                <span class="step">Шаг 2. Пределы по \(y\): \([0; 4]\)</span>
+                <div class="explain">💡 Почему: при \(x = 2\): \(y = 4\).</div>
+
+                <span class="step">Шаг 3. Формула для вращения вокруг \(Oy\):</span>
+                <div class="formula-line">$$ V = \pi \int_{0}^{4} (\sqrt{y})^2 \, dy = \pi \int_{0}^{4} y \, dy $$</div>
+
+                <span class="step">Шаг 4. Вычисляем:</span>
+                <div class="formula-line">$$ V = \pi \cdot \frac{y^2}{2} \Big|_{0}^{4} = 8\pi $$</div>
+                <div class="explain">💡 Почему: \(\int_0^4 y\,dy = 8\).</div>
+
+                <span class="result">Ответ: \(V = 8\pi \approx 25.13\) куб. ед.</span>
+                <div class="explain">✅ Интересно: тот же объём, что и в примере 1! Это одно и то же тело.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 5 -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5. Вращение прямой вокруг \(Oy\)</span>
+            <span class="sub-title">$V = \dfrac{8\pi}{3}$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Найти объём тела, полученного вращением вокруг оси \(Oy\) фигуры, ограниченной линиями \(x = 2 - y\), \(y = 0\), \(y = 2\).<br><br>
+
+                <div class="explain">📖 Вращаем прямую вокруг оси \(Oy\). Получается <strong>конус</strong>.</div>
+
+                <span class="step">Шаг 1. \(g(y) = 2 - y\), \(y \in [0; 2]\)</span>
+
+                <span class="step">Шаг 2. Подставляем в формулу:</span>
+                <div class="formula-line">$$ V = \pi \int_{0}^{2} (2 - y)^2 \, dy = \pi \int_{0}^{2} (4 - 4y + y^2) \, dy $$</div>
+
+                <span class="step">Шаг 3. Вычисляем:</span>
+                <div class="formula-line">$$ V = \pi \left[ 4y - 2y^2 + \frac{y^3}{3} \right]_{0}^{2} = \frac{8\pi}{3} $$</div>
+                <div class="explain">💡 Почему: подстановка \(y=2\) даёт \(8 - 8 + 8/3 = 8/3\).</div>
+
+                <span class="result">Ответ: \(V = \dfrac{8\pi}{3} \approx 8.38\) куб. ед.</span>
+                <div class="explain">✅ Получили конус: \(V = \frac{1}{3}\pi R^2 H = \frac{1}{3}\pi \cdot 4 \cdot 2 = \frac{8\pi}{3}\).</div>
+            </div>
+        </div>
+    </div>
+
+    <a href="integral.html" class="back-link">← Назад к интегралам</a>
+</div>
+
+<!-- ===== СКРИПТЫ 2D ГРАФИКОВ ===== -->
+<script>
+    // ТЕМА
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        drawAllGraphs();
+        updateLegendColors();
+    }
+
+    function updateLegendColors() {
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const legend = document.querySelector('.legend');
+        if (legend) {
+            legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
+        }
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+        setTimeout(updateLegendColors, 100);
+    })();
+
+    // ИЗБРАННОЕ
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+
+    // ===== 2D ГРАФИКИ =====
+    function drawOneGraph(canvasId, functions, xMin, xMax, yMin, yMax, fillTo) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 45;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+        ctx.lineWidth = 0.6;
+
+        const stepX = 1, stepY = 1;
+        for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x += stepX) {
+            const sx = toX(x);
+            ctx.beginPath();
+            ctx.moveTo(sx, pad);
+            ctx.lineTo(sx, h - pad);
+            ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            if (x !== 0) ctx.fillText(x, sx, h - pad + 4);
+        }
+        for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y += stepY) {
+            const sy = toY(y);
+            ctx.beginPath();
+            ctx.moveTo(pad, sy);
+            ctx.lineTo(w - pad, sy);
+            ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            if (y !== 0) ctx.fillText(y, pad - 8, sy);
+        }
+
+        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 1.8;
+        const ox = toY(0), oy = toX(0);
+        if (ox >= pad && ox <= h - pad) {
+            ctx.beginPath();
+            ctx.moveTo(pad, ox);
+            ctx.lineTo(w - pad, ox);
+            ctx.stroke();
+        }
+        if (oy >= pad && oy <= w - pad) {
+            ctx.beginPath();
+            ctx.moveTo(oy, pad);
+            ctx.lineTo(oy, h - pad);
+            ctx.stroke();
+        }
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.beginPath();
+        ctx.moveTo(w - pad, ox);
+        ctx.lineTo(w - pad - 8, ox - 4);
+        ctx.lineTo(w - pad - 8, ox + 4);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(oy, pad);
+        ctx.lineTo(oy - 4, pad + 8);
+        ctx.lineTo(oy + 4, pad + 8);
+        ctx.fill();
+        ctx.font = '13px "Segoe UI", "JetBrains Mono", monospace';
+        ctx.fillStyle = isLight ? '#1e3a5f' : '#cbdbe6';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('x', w - pad - 5, ox - 8);
+        ctx.fillText('y', oy + 8, pad + 14);
+        if (oy >= pad && oy <= w - pad) {
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
+            ctx.fillText('0', oy - 6, ox + 4);
+        }
+
+        if (fillTo !== undefined && functions.length > 0) {
+            const fn = functions[0];
+            ctx.beginPath();
+            ctx.moveTo(toX(0), toY(0));
+            const step = (xMax - xMin) / 800;
+            for (let x = 0; x <= fillTo; x += step) {
+                let y;
+                try { y = fn.f(x); } catch (e) { continue; }
+                if (y === null || y === undefined || isNaN(y) || !isFinite(y)) continue;
+                ctx.lineTo(toX(x), toY(y));
+            }
+            ctx.lineTo(toX(fillTo), toY(0));
+            ctx.closePath();
+            ctx.fillStyle = functions[0].color;
+            ctx.globalAlpha = 0.2;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        functions.forEach(fn => {
+            ctx.strokeStyle = fn.color;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            let first = true;
+            const step = (xMax - xMin) / 800;
+            for (let x = xMin; x <= xMax; x += step) {
+                let y;
+                try { y = fn.f(x); } catch (e) { first = true; continue; }
+                if (y === null || y === undefined || isNaN(y) || !isFinite(y) || y < yMin - 0.5 || y > yMax + 0.5) {
+                    first = true;
+                    continue;
+                }
+                const sx = toX(x), sy = toY(y);
+                if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+            }
+            ctx.stroke();
+        });
+
+        if (fillTo !== undefined) {
+            const H = fillTo;
+            const R = functions[0].f(H);
+            const color = functions[0].color;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(toX(H), toY(R), 6, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(toX(H), toY(R), 6, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.fillStyle = color;
+            ctx.font = 'bold 13px "Segoe UI", "JetBrains Mono", monospace';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('(' + H + '; ' + R + ')', toX(H) + 10, toY(R) - 4);
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.2;
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(toX(H), toY(R));
+            ctx.lineTo(toX(H), toY(0));
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(toX(H), toY(R));
+            ctx.lineTo(toX(0), toY(R));
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+            ctx.setLineDash([]);
+            ctx.fillStyle = color;
+            ctx.font = 'bold 12px "Segoe UI", "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText('H=' + H, toX(H), toY(0) + 6);
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('R=' + R.toFixed(1), toX(0) - 10, toY(R));
+        }
+    }
+
+    // Специальная функция для второго графика (вращение вокруг Oy)
+    function drawGraph2() {
+        const canvas = document.getElementById('graph2');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 45;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+
+        const yMin = 0, yMax = 4.5;
+        const xMin = 0, xMax = 2.5;
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        // Сетка
+        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+        ctx.lineWidth = 0.6;
+        for (let y = 0; y <= 4; y++) {
+            const sy = toY(y);
+            ctx.beginPath();
+            ctx.moveTo(pad, sy);
+            ctx.lineTo(w - pad, sy);
+            ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(y, pad - 8, sy);
+        }
+        for (let x = 0; x <= 2.5; x += 0.5) {
+            const sx = toX(x);
+            ctx.beginPath();
+            ctx.moveTo(sx, pad);
+            ctx.lineTo(sx, h - pad);
+            ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(x, sx, h - pad + 4);
+        }
+
+        // Оси
+        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 1.8;
+        const ox = toY(0);
+        ctx.beginPath();
+        ctx.moveTo(pad, ox);
+        ctx.lineTo(w - pad, ox);
+        ctx.stroke();
+        const oy = toX(0);
+        ctx.beginPath();
+        ctx.moveTo(oy, pad);
+        ctx.lineTo(oy, h - pad);
+        ctx.stroke();
+
+        // Подписи осей
+        ctx.fillStyle = isLight ? '#1e3a5f' : '#cbdbe6';
+        ctx.font = '13px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('x', w - pad - 5, ox - 8);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('y', oy + 8, pad + 2);
+
+        // Подпись "0"
+        if (oy >= pad && oy <= w - pad) {
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '11px sans-serif';
+            ctx.fillText('0', oy - 6, ox + 4);
+        }
+
+        // === ЗАЛИВКА ДЛЯ ВРАЩЕНИЯ ВОКРУГ Oy (по оси Y) ===
+        ctx.beginPath();
+        ctx.moveTo(toX(0), toY(0));
+        const step = (yMax - yMin) / 400;
+        for (let y = 0; y <= 4; y += step) {
+            const x = Math.sqrt(y);
+            if (x > 2.5) break;
+            ctx.lineTo(toX(x), toY(y));
+        }
+        ctx.lineTo(toX(0), toY(4));
+        ctx.closePath();
+        ctx.fillStyle = '#34d399';
+        ctx.globalAlpha = 0.25;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // === ГРАФИК y = x² (но как x = √y) ===
+        ctx.strokeStyle = '#34d399';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        let first = true;
+        for (let y = 0; y <= 4.2; y += 0.01) {
+            const x = Math.sqrt(y);
+            if (x > 2.5) break;
+            const sx = toX(x), sy = toY(y);
+            if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+        }
+        ctx.stroke();
+
+        // === ТОЧКА (2; 4) ===
+        const dotX = 2, dotY = 4;
+        ctx.fillStyle = '#34d399';
+        ctx.beginPath();
+        ctx.arc(toX(dotX), toY(dotY), 6, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(toX(dotX), toY(dotY), 6, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        // Подпись точки
+        ctx.fillStyle = '#34d399';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('(2; 4)', toX(dotX) + 10, toY(dotY) - 4);
+
+        // Пунктирные линии к осям
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = '#34d399';
+        ctx.lineWidth = 1.2;
+        ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(toX(dotX), toY(dotY));
+        ctx.lineTo(toX(dotX), toY(0));
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(toX(dotX), toY(dotY));
+        ctx.lineTo(toX(0), toY(dotY));
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.setLineDash([]);
+
+        // Подписи H и R
+        ctx.fillStyle = '#34d399';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('H=4', toX(0), toY(4) + 6);
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('R=2', toX(2) + 8, toY(0) - 10);
+    }
+
+    function drawAllGraphs() {
+        drawOneGraph('graph1', [{ f: x => Math.sqrt(x), color: '#fbbf24', label: 'y = √x' }], -0.5, 4.5, -0.5, 3, 4);
+        drawGraph2();
+        document.getElementById('gc1').style.display = 'block';
+        document.getElementById('gc2').style.display = 'block';
+    }
+
+    window.addEventListener('load', function() {
+        setTimeout(drawAllGraphs, 500);
+    });
+</script>
+
+</body>
+</html>

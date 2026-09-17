@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тригонометрическая окружность</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#1a2d3c;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:6px;flex-direction:column;font-family:'Inter','Segoe UI',sans-serif;transition:background 0.3s;}
+        body.light-mode{background:#eef2f8;}
+        
+        .header-block{max-width:780px;width:100%;margin-bottom:10px;position:relative;}
+        .header-block .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            border-left: 4px solid #8b5cf6;
+            padding: 14px 20px;
+            text-align: center;
+            background: #162a38;
+            border-radius: 16px;
+            border: 1px solid rgba(46,204,113,0.1);
+            transition: all 0.3s;
+        }
+        body.light-mode .header-block .section-title{background:#ffffff;border-color:#d0d9e8;color:#1a2a3f;}
+        .header-block .section-title .main-title{color:#fff;display:flex;align-items:center;gap:8px;justify-content:center;}
+        body.light-mode .header-block .section-title .main-title{color:#1a2a3f;}
+        .header-block .section-title .sub-title{font-size:0.8rem;color:#8ba5b8;font-weight:400;font-style:italic;}
+        body.light-mode .header-block .section-title .sub-title{color:#4a6a8a;}
+        
+        .theme-toggle{
+            position:absolute;
+            top:10px;
+            right:10px;
+            width:34px;
+            height:34px;
+            border-radius:50%;
+            background:transparent;
+            border:1px solid rgba(46,204,113,0.2);
+            cursor:pointer;
+            font-size:16px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#8ba5b8;
+            transition:all 0.2s;
+            z-index:10;
+        }
+        body.light-mode .theme-toggle{color:#2c3e50;border-color:#b0c4de;}
+        .theme-toggle:hover{transform:scale(1.1);background:rgba(26,188,156,0.1);}
+        
+        .wrapper{background:#162a38;border-radius:16px;padding:16px;border:1px solid rgba(46,204,113,0.1);max-width:780px;width:100%;transition:background 0.3s;}
+        body.light-mode .wrapper{background:#ffffff;border-color:#d0d9e8;}
+        
+        .controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;justify-content:center;align-items:center;}
+        .controls input[type="range"]{flex:2;min-width:120px;accent-color:#1abc9c;background:#1e3545;height:5px;border-radius:3px;-webkit-appearance:none;}
+        body.light-mode .controls input[type="range"]{background:#c8d6e5;}
+        .controls input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#1abc9c;cursor:pointer;border:2px solid #fff;}
+        body.light-mode .controls input[type="range"]::-webkit-slider-thumb{border-color:#1a2a3f;}
+        .controls .angle-display{color:#fff;font-weight:700;font-size:1.1rem;min-width:70px;text-align:center;}
+        body.light-mode .controls .angle-display{color:#1a2a3f;}
+        .controls .angle-input-field{flex:1;min-width:80px;padding:6px 10px;background:#1e3545;border:1px solid rgba(46,204,113,0.15);border-radius:8px;font-size:0.95rem;color:#fff;text-align:center;outline:none;transition:0.3s;max-width:100px;}
+        body.light-mode .controls .angle-input-field{background:#f0f4fa;border-color:#c8d6e5;color:#1a2a3f;}
+        .controls .angle-input-field:focus{border-color:#1abc9c;}
+        
+        .circle-container{text-align:center;padding:6px;background:#0f1a24;border-radius:12px;border:1px solid rgba(46,204,113,0.05);}
+        body.light-mode .circle-container{background:#e8edf6;border-color:#c8d6e5;}
+        .circle-container canvas{width:100%;height:auto;border-radius:10px;display:block;}
+        
+        /* ТАБЛИЦА ЗНАЧЕНИЙ 2 СТОЛБЦА × 3 СТРОКИ */
+        .values-table{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+        .values-table .v-item{background:#1a2d3c;border-radius:10px;padding:10px 12px;text-align:center;border:1px solid rgba(46,204,113,0.05);transition:0.3s;}
+        body.light-mode .values-table .v-item{background:#eef2f8;border-color:#c8d6e5;}
+        .values-table .v-item .v-label{color:#8ba5b8;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;}
+        body.light-mode .values-table .v-item .v-label{color:#4a6a8a;}
+        .values-table .v-item .v-value{color:#fff;font-weight:700;font-size:1.1rem;margin-top:4px;line-height:1.4;word-break:break-all;}
+        body.light-mode .values-table .v-item .v-value{color:#1a2a3f;}
+        .values-table .v-item .v-value mjx-container{font-size:1.1rem !important;display:inline-block !important;}
+        
+        .back-link{display:block;text-align:center;margin-top:10px;padding:10px;background:#1e3545;border-radius:12px;color:#8ba5b8;text-decoration:none;font-size:0.8rem;transition:0.3s;border:1px solid rgba(46,204,113,0.1);}
+        body.light-mode .back-link{background:#e8edf6;color:#4a6a8a;border-color:#c8d6e5;}
+        .back-link:hover{background:#2a4a5a;color:#fff;}
+        body.light-mode .back-link:hover{background:#d0d9e8;color:#1a2a3f;}
+        
+        @media(max-width:500px){
+            .wrapper{padding:10px;}
+            .header-block .section-title{font-size:1rem;padding:10px 16px;}
+            .header-block .section-title .sub-title{font-size:0.7rem;}
+            .values-table{grid-template-columns:1fr 1fr;gap:6px;}
+            .values-table .v-item .v-value{font-size:0.9rem;}
+            .values-table .v-item .v-value mjx-container{font-size:0.9rem !important;}
+            .controls .angle-display{font-size:0.9rem;min-width:60px;}
+            .controls .angle-input-field{max-width:70px;font-size:0.8rem;padding:4px 8px;}
+            .circle-container{padding:4px;}
+        }
+        @media(max-width:380px){.wrapper{padding:6px;}.values-table{grid-template-columns:1fr 1fr;}.controls input[type="range"]{min-width:80px;}.circle-container{padding:2px;}}
+    </style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                macros: { tg: '\\mathop{\\mathrm{tg}}', ctg: '\\mathop{\\mathrm{ctg}}' }
+            },
+            options: { skipHtmlTypes: 'script', ignoreHtmlClass: 'no-mathjax' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="file:///android_asset/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+
+<div class="header-block">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <div class="section-title">
+        <span class="main-title">Тригонометрическая окружность</span>
+        <span class="sub-title">Выберите угол на окружности</span>
+    </div>
+</div>
+
+<div class="wrapper">
+    <div class="controls">
+        <input type="number" class="angle-input-field" id="angleInput" value="30" min="0" max="360" step="1" oninput="updateFromInput()">
+        <span class="angle-display" id="angleDisplay">30°</span>
+        <input type="range" id="angleSlider" min="0" max="360" value="30" step="15" oninput="updateFromSlider()">
+    </div>
+    
+    <div class="circle-container">
+        <canvas id="circleCanvas" width="800" height="800"></canvas>
+    </div>
+    
+    <!-- ТАБЛИЦА 2×3 -->
+    <div class="values-table">
+        <div class="v-item">
+            <div class="v-label">Угол</div>
+            <div class="v-value" id="vAngle">30°</div>
+        </div>
+        <div class="v-item">
+            <div class="v-label">Радианы</div>
+            <div class="v-value" id="vRadians">$\frac{\pi}{6}$</div>
+        </div>
+        <div class="v-item">
+            <div class="v-label">sin</div>
+            <div class="v-value" id="vSin">$\frac{1}{2}$</div>
+        </div>
+        <div class="v-item">
+            <div class="v-label">cos</div>
+            <div class="v-value" id="vCos">$\frac{\sqrt{3}}{2}$</div>
+        </div>
+        <div class="v-item">
+            <div class="v-label">tg</div>
+            <div class="v-value" id="vTg">$\frac{\sqrt{3}}{3}$</div>
+        </div>
+        <div class="v-item">
+            <div class="v-label">ctg</div>
+            <div class="v-value" id="vCtg">$\sqrt{3}$</div>
+        </div>
+    </div>
+    
+    <a href="trigonometry.html" class="back-link">← Назад к тригонометрии</a>
+</div>
+
+<script>
+function toggleTheme() {
+    const body = document.body;
+    const btn = document.getElementById('themeBtn');
+    if (body.classList.contains('light-mode')) {
+        body.classList.remove('light-mode');
+        localStorage.setItem('circleTheme', 'dark');
+        btn.textContent = '🌙';
+    } else {
+        body.classList.add('light-mode');
+        localStorage.setItem('circleTheme', 'light');
+        btn.textContent = '☀️';
+    }
+    drawCircle();
+}
+if (localStorage.getItem('circleTheme') === 'light') {
+    document.body.classList.add('light-mode');
+    document.getElementById('themeBtn').textContent = '☀️';
+}
+
+function getExactValue(deg, func) {
+    let d = ((deg % 360) + 360) % 360;
+    d = Math.round(d);
+    const table = {
+        0:{sin:'0',cos:'1',tg:'0',ctg:'∞',rad:'0'},
+        15:{sin:'\\frac{\\sqrt{6}-\\sqrt{2}}{4}',cos:'\\frac{\\sqrt{6}+\\sqrt{2}}{4}',tg:'2-\\sqrt{3}',ctg:'2+\\sqrt{3}',rad:'\\frac{\\pi}{12}'},
+        30:{sin:'\\frac{1}{2}',cos:'\\frac{\\sqrt{3}}{2}',tg:'\\frac{\\sqrt{3}}{3}',ctg:'\\sqrt{3}',rad:'\\frac{\\pi}{6}'},
+        45:{sin:'\\frac{\\sqrt{2}}{2}',cos:'\\frac{\\sqrt{2}}{2}',tg:'1',ctg:'1',rad:'\\frac{\\pi}{4}'},
+        60:{sin:'\\frac{\\sqrt{3}}{2}',cos:'\\frac{1}{2}',tg:'\\sqrt{3}',ctg:'\\frac{\\sqrt{3}}{3}',rad:'\\frac{\\pi}{3}'},
+        75:{sin:'\\frac{\\sqrt{6}+\\sqrt{2}}{4}',cos:'\\frac{\\sqrt{6}-\\sqrt{2}}{4}',tg:'2+\\sqrt{3}',ctg:'2-\\sqrt{3}',rad:'\\frac{5\\pi}{12}'},
+        90:{sin:'1',cos:'0',tg:'∞',ctg:'0',rad:'\\frac{\\pi}{2}'},
+        105:{sin:'\\frac{\\sqrt{6}+\\sqrt{2}}{4}',cos:'-\\frac{\\sqrt{6}-\\sqrt{2}}{4}',tg:'-(2+\\sqrt{3})',ctg:'-(2-\\sqrt{3})',rad:'\\frac{7\\pi}{12}'},
+        120:{sin:'\\frac{\\sqrt{3}}{2}',cos:'-\\frac{1}{2}',tg:'-\\sqrt{3}',ctg:'-\\frac{\\sqrt{3}}{3}',rad:'\\frac{2\\pi}{3}'},
+        135:{sin:'\\frac{\\sqrt{2}}{2}',cos:'-\\frac{\\sqrt{2}}{2}',tg:'-1',ctg:'-1',rad:'\\frac{3\\pi}{4}'},
+        150:{sin:'\\frac{1}{2}',cos:'-\\frac{\\sqrt{3}}{2}',tg:'-\\frac{\\sqrt{3}}{3}',ctg:'-\\sqrt{3}',rad:'\\frac{5\\pi}{6}'},
+        165:{sin:'\\frac{\\sqrt{6}-\\sqrt{2}}{4}',cos:'-\\frac{\\sqrt{6}+\\sqrt{2}}{4}',tg:'-(2-\\sqrt{3})',ctg:'-(2+\\sqrt{3})',rad:'\\frac{11\\pi}{12}'},
+        180:{sin:'0',cos:'-1',tg:'0',ctg:'-∞',rad:'\\pi'},
+        195:{sin:'-\\frac{\\sqrt{6}-\\sqrt{2}}{4}',cos:'-\\frac{\\sqrt{6}+\\sqrt{2}}{4}',tg:'2-\\sqrt{3}',ctg:'2+\\sqrt{3}',rad:'\\frac{13\\pi}{12}'},
+        210:{sin:'-\\frac{1}{2}',cos:'-\\frac{\\sqrt{3}}{2}',tg:'\\frac{\\sqrt{3}}{3}',ctg:'\\sqrt{3}',rad:'\\frac{7\\pi}{6}'},
+        225:{sin:'-\\frac{\\sqrt{2}}{2}',cos:'-\\frac{\\sqrt{2}}{2}',tg:'1',ctg:'1',rad:'\\frac{5\\pi}{4}'},
+        240:{sin:'-\\frac{\\sqrt{3}}{2}',cos:'-\\frac{1}{2}',tg:'\\sqrt{3}',ctg:'\\frac{\\sqrt{3}}{3}',rad:'\\frac{4\\pi}{3}'},
+        255:{sin:'-\\frac{\\sqrt{6}+\\sqrt{2}}{4}',cos:'-\\frac{\\sqrt{6}-\\sqrt{2}}{4}',tg:'2+\\sqrt{3}',ctg:'2-\\sqrt{3}',rad:'\\frac{17\\pi}{12}'},
+        270:{sin:'-1',cos:'0',tg:'-∞',ctg:'0',rad:'\\frac{3\\pi}{2}'},
+        285:{sin:'-\\frac{\\sqrt{6}+\\sqrt{2}}{4}',cos:'\\frac{\\sqrt{6}-\\sqrt{2}}{4}',tg:'-(2+\\sqrt{3})',ctg:'-(2-\\sqrt{3})',rad:'\\frac{19\\pi}{12}'},
+        300:{sin:'-\\frac{\\sqrt{3}}{2}',cos:'\\frac{1}{2}',tg:'-\\sqrt{3}',ctg:'-\\frac{\\sqrt{3}}{3}',rad:'\\frac{5\\pi}{3}'},
+        315:{sin:'-\\frac{\\sqrt{2}}{2}',cos:'\\frac{\\sqrt{2}}{2}',tg:'-1',ctg:'-1',rad:'\\frac{7\\pi}{4}'},
+        330:{sin:'-\\frac{1}{2}',cos:'\\frac{\\sqrt{3}}{2}',tg:'-\\frac{\\sqrt{3}}{3}',ctg:'-\\sqrt{3}',rad:'\\frac{11\\pi}{6}'},
+        345:{sin:'-\\frac{\\sqrt{6}-\\sqrt{2}}{4}',cos:'\\frac{\\sqrt{6}+\\sqrt{2}}{4}',tg:'-(2-\\sqrt{3})',ctg:'-(2+\\sqrt{3})',rad:'\\frac{23\\pi}{12}'},
+        360:{sin:'0',cos:'1',tg:'0',ctg:'∞',rad:'2\\pi'}
+    };
+    return table[d] ? table[d][func] : null;
+}
+function getExactRad(deg) {
+    let d = ((deg % 360) + 360) % 360;
+    d = Math.round(d);
+    const table = {0:'0',15:'\\frac{\\pi}{12}',30:'\\frac{\\pi}{6}',45:'\\frac{\\pi}{4}',
+        60:'\\frac{\\pi}{3}',75:'\\frac{5\\pi}{12}',90:'\\frac{\\pi}{2}',
+        105:'\\frac{7\\pi}{12}',120:'\\frac{2\\pi}{3}',135:'\\frac{3\\pi}{4}',
+        150:'\\frac{5\\pi}{6}',165:'\\frac{11\\pi}{12}',180:'\\pi',
+        195:'\\frac{13\\pi}{12}',210:'\\frac{7\\pi}{6}',225:'\\frac{5\\pi}{4}',
+        240:'\\frac{4\\pi}{3}',255:'\\frac{17\\pi}{12}',270:'\\frac{3\\pi}{2}',
+        285:'\\frac{19\\pi}{12}',300:'\\frac{5\\pi}{3}',315:'\\frac{7\\pi}{4}',
+        330:'\\frac{11\\pi}{6}',345:'\\frac{23\\pi}{12}',360:'2\\pi'};
+    return table[d] || null;
+}
+function formatNumber(v) {
+    if (!isFinite(v)) return '∞';
+    if (Math.abs(v) < 1e-12) return '0';
+    return String(Math.round(v * 1e10) / 1e10);
+}
+
+function updateFromInput() {
+    const v = parseInt(document.getElementById('angleInput').value) || 0;
+    let deg = Math.max(0, Math.min(360, v));
+    document.getElementById('angleInput').value = deg;
+    document.getElementById('angleDisplay').textContent = deg + '°';
+    drawCircle(deg);
+}
+function updateFromSlider() {
+    const deg = parseFloat(document.getElementById('angleSlider').value);
+    document.getElementById('angleInput').value = deg;
+    document.getElementById('angleDisplay').textContent = deg + '°';
+    drawCircle(deg);
+}
+
+function drawCircle(deg) {
+    if (deg === undefined) {
+        deg = parseFloat(document.getElementById('angleSlider').value) || 0;
+    }
+    const canvas = document.getElementById('circleCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const cx = w/2, cy = h/2;
+    const r = Math.min(w,h) * 0.44;
+    const pad = 55;
+    const isLight = document.body.classList.contains('light-mode');
+    
+    ctx.fillStyle = isLight ? '#f5f7fa' : '#0a1520';
+    ctx.fillRect(0,0,w,h);
+    
+    const rad = deg * Math.PI / 180;
+    const sinVal = Math.sin(rad);
+    const cosVal = Math.cos(rad);
+    const sinExact = getExactValue(deg, 'sin');
+    const cosExact = getExactValue(deg, 'cos');
+    const tgExact = getExactValue(deg, 'tg');
+    const ctgExact = getExactValue(deg, 'ctg');
+    const radExact = getExactRad(deg);
+    const sinD = sinExact || formatNumber(sinVal);
+    const cosD = cosExact || formatNumber(cosVal);
+    const tgD = tgExact || formatNumber(Math.tan(rad));
+    const ctgD = ctgExact || formatNumber(1/Math.tan(rad));
+    const radD = radExact || rad.toFixed(4);
+    
+    // Сетка
+    ctx.strokeStyle = isLight ? 'rgba(180,195,215,0.35)' : 'rgba(70,90,110,0.35)';
+    ctx.lineWidth = 0.8;
+    for (let a=0; a<360; a+=30) {
+        const ang = a * Math.PI / 180;
+        ctx.beginPath();
+        ctx.moveTo(cx,cy);
+        ctx.lineTo(cx + r*1.08*Math.cos(ang), cy - r*1.08*Math.sin(ang));
+        ctx.stroke();
+    }
+    // Внутренние окружности
+    ctx.strokeStyle = isLight ? 'rgba(180,195,215,0.2)' : 'rgba(70,90,110,0.2)';
+    ctx.lineWidth = 0.8;
+    for (let i=1; i<=2; i++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r*i/3, 0, 2*Math.PI);
+        ctx.stroke();
+    }
+    // Основная окружность
+    ctx.strokeStyle = isLight ? '#4a7a9a' : '#7ab0d0';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2*Math.PI);
+    ctx.stroke();
+    // Оси
+    ctx.strokeStyle = isLight ? '#8899bb' : '#4a5a6a';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(pad,cy); ctx.lineTo(w-pad,cy);
+    ctx.moveTo(cx,pad); ctx.lineTo(cx,h-pad);
+    ctx.stroke();
+    // Стрелки
+    ctx.fillStyle = isLight ? '#8899bb' : '#4a5a6a';
+    ctx.beginPath();
+    ctx.moveTo(w-pad,cy); ctx.lineTo(w-pad-8,cy-6); ctx.lineTo(w-pad-8,cy+6); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx,pad); ctx.lineTo(cx-6,pad+8); ctx.lineTo(cx+6,pad+8); ctx.fill();
+    // Подписи осей
+    ctx.fillStyle = isLight ? '#4a6a8a' : '#8ab0d0';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('x', w-pad+10, cy+4);
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('y', cx+12, pad-4);
+    const lr = r + 26;
+    ctx.font = 'bold 15px sans-serif';
+    ctx.textBaseline = 'top';
+    ctx.fillText('1', cx+lr, cy+2);
+    ctx.fillText('-1', cx-lr-18, cy+2);
+    ctx.textBaseline = 'middle';
+    ctx.fillText('1', cx+4, cy-lr-4);
+    ctx.fillText('-1', cx+4, cy+lr+6);
+    ctx.textBaseline = 'top';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText('0', cx+4, cy+4);
+    
+    // Подписи углов на окружности
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const allAngles = [];
+    for (let a = 0; a <= 360; a += 15) allAngles.push(a);
+    allAngles.forEach(d => {
+        const a = d * Math.PI / 180;
+        const lx = cx + (r + 26)*Math.cos(a), ly = cy - (r + 26)*Math.sin(a);
+        if (lx > pad && lx < w-pad && ly > pad && ly < h-pad) {
+            ctx.fillStyle = isLight ? '#2a5a8a' : '#a0c8e8';
+            ctx.font = (d % 30 === 0) ? 'bold 15px sans-serif' : '13px sans-serif';
+            ctx.shadowColor = isLight ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 4;
+            ctx.fillText(d+'°', lx, ly);
+            ctx.shadowBlur = 0;
+        }
+    });
+    
+    const x = cosVal * r;
+    const y = -sinVal * r;
+    
+    // Пунктиры
+    ctx.save();
+    ctx.setLineDash([6,6]);
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = isLight ? 'rgba(60,140,220,0.6)' : 'rgba(100,180,255,0.6)';
+    ctx.beginPath();
+    ctx.moveTo(cx+x, cy); ctx.lineTo(cx+x, cy+y); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx, cy+y); ctx.lineTo(cx+x, cy+y); ctx.stroke();
+    ctx.restore();
+    
+    // Подписи sin и cos на осях
+    ctx.font = 'bold 18px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    
+    if (Math.abs(cosVal) > 0.01) {
+        const cosX = cx + cosVal * r;
+        ctx.fillStyle = '#60a5fa';
+        ctx.textBaseline = 'bottom';
+        ctx.shadowColor = isLight ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 5;
+        ctx.fillText('cos', cosX, cy - 8);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#60a5fa';
+        ctx.beginPath();
+        ctx.arc(cosX, cy, 7, 0, 2*Math.PI);
+        ctx.fill();
+    }
+    
+    if (Math.abs(sinVal) > 0.01) {
+        const sinY = cy - sinVal * r;
+        ctx.fillStyle = '#34d399';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = isLight ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 5;
+        ctx.fillText('sin', cx - 8, sinY);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#34d399';
+        ctx.beginPath();
+        ctx.arc(cx, sinY, 7, 0, 2*Math.PI);
+        ctx.fill();
+    }
+    
+    // Линия
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 4;
+    ctx.shadowColor = isLight ? 'rgba(255,200,50,0.3)' : 'rgba(255,200,50,0.3)';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy); ctx.lineTo(cx+x,cy+y); ctx.stroke();
+    ctx.shadowBlur = 0;
+    
+    // Дуга
+    ctx.strokeStyle = '#34d399';
+    ctx.lineWidth = 3.5;
+    const arcR = Math.min(r*0.18, 55);
+    ctx.shadowColor = isLight ? 'rgba(50,200,150,0.3)' : 'rgba(50,200,150,0.3)';
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.arc(cx, cy, arcR, 0, -rad, true);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    
+    // Точка
+    ctx.fillStyle = '#ff6b6b';
+    ctx.shadowColor = isLight ? 'rgba(255,100,100,0.4)' : 'rgba(255,100,100,0.4)';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(cx+x, cy+y, 12, 0, 2*Math.PI);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = isLight ? '#f5f7fa' : '#0a1520';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(cx+x, cy+y, 12, 0, 2*Math.PI);
+    ctx.stroke();
+    
+    // Подпись угла
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    const mid = -rad / 2;
+    const lr2 = arcR + 46;
+    let lx = cx + lr2 * Math.cos(mid);
+    let ly = cy + lr2 * Math.sin(mid);
+    ctx.shadowColor = isLight ? 'rgba(255,200,50,0.3)' : 'rgba(255,200,50,0.3)';
+    ctx.shadowBlur = 6;
+    ctx.fillText(deg.toFixed(0)+'°', lx, ly + (ly < cy ? 0 : 26));
+    ctx.shadowBlur = 0;
+    
+    // Обновляем таблицу
+    document.getElementById('vAngle').textContent = deg.toFixed(0) + '°';
+    document.getElementById('vRadians').innerHTML = '$' + radD + '$';
+    document.getElementById('vSin').innerHTML = '$' + sinD + '$';
+    document.getElementById('vCos').innerHTML = '$' + cosD + '$';
+    document.getElementById('vTg').innerHTML = '$' + tgD + '$';
+    document.getElementById('vCtg').innerHTML = '$' + ctgD + '$';
+    if (window.MathJax) MathJax.typesetPromise();
+}
+
+window.addEventListener('load', ()=>setTimeout(()=>drawCircle(30), 300));
+</script>
+</body>
+</html>

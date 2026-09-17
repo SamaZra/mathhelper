@@ -1,0 +1,903 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <title>Векторы — Простейшие задачи</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(46,204,113,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #2980b9; --example-bg: #162a38; --canvas-bg: #1a2d3c; --theorem-bg: #1a2d3c;
+            --label-vertex: #ffffff;
+            --edge-color: #cfe3f5;
+            --edge-face-color: #4a90d9;
+            --fullscreen-bg: #0a0f16;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #2980b9; --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8; --theorem-bg: #fefce8;
+            --label-vertex: #3a4a5a;
+            --edge-color: #4a6a85;
+            --edge-face-color: #5a8fc0;
+            --fullscreen-bg: #eef2f8;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
+        .section-title:hover { opacity: 0.8; }
+        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .section.collapsed .section-title::after { transform: rotate(-90deg); }
+        .section-content { max-height: 8000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-family: 'Times New Roman', monospace; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.0; color: var(--text); }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .star { color: #facc15; font-weight: bold; margin-left: 4px; }
+        .model-container {
+            text-align: center; margin: 16px 0; position: relative; border-radius: 24px; overflow: hidden;
+            background: var(--canvas-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%; aspect-ratio: 16 / 9; min-height: 350px;
+        }
+        .model-container:fullscreen {
+            width: 100vw; height: 100vh; max-width: none; max-height: none;
+            margin: 0; border-radius: 0; background: var(--fullscreen-bg); aspect-ratio: auto;
+        }
+        .model-container:fullscreen .model-canvas { width: 100vw; height: 100vh; border-radius: 0; }
+        .model-canvas { display: block; width: 100%; height: 100%; background: transparent; border-radius: 20px; cursor: grab; touch-action: none; }
+        .model-canvas:active { cursor: grabbing; }
+        .fullscreen-btn {
+            position: absolute; bottom: 15px; right: 15px; width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3); cursor: pointer; font-size: 22px;
+            display: flex; align-items: center; justify-content: center; z-index: 20; color: white;
+            transition: all 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #1c6ea4; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .model-container { min-height: 280px; }
+            .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
+        }
+
+    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.active { color: #facc15; }
+
+    .action-btns {
+        display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+        margin: 10px 0;
+    }
+    .action-btn {
+        padding: 8px 14px; border-radius: 18px;
+        background: var(--formula-bg); color: var(--text);
+        border: 1px solid var(--special-border);
+        cursor: pointer; font-size: 0.85rem; font-weight: 600;
+        transition: all 0.2s;
+    }
+    .action-btn:hover { background: var(--special-border); color: #fff; }
+    .action-btn.primary { background: var(--special-border); color: #fff; }
+    .action-btn.primary:hover { background: #1c6ea4; }
+    .action-btn.reset { border-color: #7a5c1e; }
+    .action-btn.reset:hover { background: #7a5c1e; }
+    </style>
+    <script>MathJax = {tex: {inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true}, chtml: {scale: 1.0, displayAlign: 'center'}};</script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <h1>Простейшие задачи в координатах</h1>
+
+    <!-- Задача 1: Координаты середины отрезка -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 1. Координаты середины отрезка</div>
+        <div class="section-content">
+            <div class="model-container" id="container1">
+                <canvas id="canvas1" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs1" title="Во весь экран">⛶</button>
+            </div>
+            <div class="formula-block">Если $A(x_1, y_1, z_1)$ и $B(x_2, y_2, z_2)$, то середина $M$ отрезка $AB$:<br><br>$$M\left( \frac{x_1 + x_2}{2},\; \frac{y_1 + y_2}{2},\; \frac{z_1 + z_2}{2} \right)$$</div>
+            <p><strong>Обратная задача:</strong> если известны координаты середины $M$ и одного из концов отрезка, то координаты другого конца находятся по формулам:</p>
+            <div class="formula-block">
+                $x_2 = 2x_M - x_1$<br>
+                $y_2 = 2y_M - y_1$<br>
+                $z_2 = 2z_M - z_1$
+            </div>
+            <p><strong>Пример:</strong> Даны точки $A(3, -2, 5)$ и $B(7, 4, -3)$. Найти координаты середины отрезка $AB$.</p>
+            <div class="formula-block">
+                $x_M = \dfrac{3+7}{2}=5$<br>
+                $y_M = \dfrac{-2+4}{2}=1$<br>
+                $z_M = \dfrac{5+(-3)}{2}=1$<br><br>
+                Ответ: $M(5,1,1)$
+            </div>
+        </div>
+    </div>
+
+    <!-- Задача 2: Длина вектора -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 2. Длина вектора по его координатам</div>
+        <div class="section-content">
+            <div class="model-container" id="container2">
+                <canvas id="canvas2" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs2" title="Во весь экран">⛶</button>
+            </div>
+            <div class="formula-block">Для вектора $\vec{a}\{x, y, z\}$:<br><br>$|\vec{a}| = \sqrt{x^2 + y^2 + z^2}$</div>
+            <p><strong>Пример:</strong> Дан вектор $\vec{a}\{3, -4, 12\}$. Найти его длину.</p>
+            <div class="formula-block">
+                $|\vec{a}| = \sqrt{3^2+(-4)^2+12^2}=$<br>
+                $= \sqrt{9+16+144}= \sqrt{169}=13$
+            </div>
+            <p>Для вектора $\overrightarrow{AB}$:<br>$\overrightarrow{AB} = \{x_2-x_1,\; y_2-y_1,\; z_2-z_1\}$<br>$|\overrightarrow{AB}| = \sqrt{(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}$</p>
+        </div>
+    </div>
+
+    <!-- Задача 3: Расстояние между двумя точками -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 3. Расстояние между двумя точками</div>
+        <div class="section-content">
+            <div class="model-container" id="container3">
+                <canvas id="canvas3" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs3" title="Во весь экран">⛶</button>
+            </div>
+            <div class="formula-block">$d = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2 + (z_2-z_1)^2}$</div>
+            <p><strong>Пример:</strong> Найти расстояние между $A(1,2,3)$ и $B(4,6,8)$.</p>
+            <div class="formula-block">
+                $d = \sqrt{(4-1)^2+(6-2)^2+(8-3)^2}=$<br>
+                $= \sqrt{3^2+4^2+5^2}= \sqrt{50}=5\sqrt{2}$
+            </div>
+            <p><strong>Ещё пример:</strong> $P(2,-1,3)$, $Q(5,2,-1)$:</p>
+            <div class="formula-block">
+                $d = \sqrt{(5-2)^2+(2-(-1))^2+(-1-3)^2}=$<br>
+                $= \sqrt{3^2+3^2+(-4)^2}= \sqrt{34}$
+            </div>
+        </div>
+    </div>
+
+    <!-- Задача 4: Деление отрезка в заданном отношении -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 4. Деление отрезка в заданном отношении <span class="star">★</span></div>
+        <div class="section-content">
+            <div class="model-container" id="container4">
+                <canvas id="canvas4" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs4" title="Во весь экран">⛶</button>
+            </div>
+            <p>Если точка $M$ делит отрезок $AB$ в отношении $\lambda = \dfrac{AM}{MB}$, то:</p>
+            <div class="formula-block">
+                $M\left( \dfrac{x_1 + \lambda x_2}{1 + \lambda},\; \dfrac{y_1 + \lambda y_2}{1 + \lambda},\; \dfrac{z_1 + \lambda z_2}{1 + \lambda} \right)$
+            </div>
+            <p>При $\lambda = 1$ точка $M$ — середина отрезка.</p>
+            <p><strong>Пример:</strong> Даны точки $A(1,2,3)$ и $B(7,8,9)$. Найти точку $M$, которая делит отрезок $AB$ в отношении $2:1$ ($\lambda = 2$).</p>
+            <div class="formula-block">
+                $x_M = \dfrac{1 + 2 \cdot 7}{1 + 2} = \dfrac{15}{3} = 5$<br>
+                $y_M = \dfrac{2 + 2 \cdot 8}{1 + 2} = \dfrac{18}{3} = 6$<br>
+                $z_M = \dfrac{3 + 2 \cdot 9}{1 + 2} = \dfrac{21}{3} = 7$<br><br>
+                Ответ: $M(5,6,7)$
+            </div>
+        </div>
+    </div>
+
+    <!-- Задача 5: Центр масс треугольника -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 5. Центр масс треугольника <span class="star">★</span></div>
+        <div class="section-content">
+            <div class="model-container" id="container5">
+                <canvas id="canvas5" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs5" title="Во весь экран">⛶</button>
+            </div>
+            <p>Координаты центра масс (точки пересечения медиан) треугольника с вершинами $A(x_1,y_1,z_1)$, $B(x_2,y_2,z_2)$, $C(x_3,y_3,z_3)$:</p>
+            <div class="formula-block">
+                $G\left( \dfrac{x_1+x_2+x_3}{3},\; \dfrac{y_1+y_2+y_3}{3},\; \dfrac{z_1+z_2+z_3}{3} \right)$
+            </div>
+            <p><strong>Пример:</strong> Дан треугольник с вершинами $A(1,2,3)$, $B(4,5,6)$, $C(7,8,9)$. Найти центр масс.</p>
+            <div class="formula-block">
+                $x_G = \dfrac{1+4+7}{3} = 4$<br>
+                $y_G = \dfrac{2+5+8}{3} = 5$<br>
+                $z_G = \dfrac{3+6+9}{3} = 6$<br><br>
+                Ответ: $G(4,5,6)$
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ ЗАДАЧИ ПОСЛОЖНЕЕ ============ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задачи посложнее (3D)</div>
+        <div class="section-content">
+
+            <!-- Задача 6 -->
+            <p><strong>Задача 6.</strong> Точка $M$ — середина отрезка $AB$, где $A(2,-1,4)$ и $B(6,3,0)$. Найдите координаты середины $M$. Затем найдите точку $C$, симметричную $A$ относительно $M$.</p>
+
+            <div class="model-container" id="container6">
+                <canvas id="canvas6" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs6" title="Во весь экран">⛶</button>
+            </div>
+
+            <div class="action-btns">
+                <button class="action-btn" onclick="window.__show6_step(0)">▶ 1) Точки A и B</button>
+                <button class="action-btn" onclick="window.__show6_step(1)">▶ 2) Середина M</button>
+                <button class="action-btn" onclick="window.__show6_step(2)">▶ 3) Точка C</button>
+                <button class="action-btn primary" onclick="window.__show6_all()">▶ Показать всё</button>
+                <button class="action-btn reset" onclick="window.__reset6()">⟲ Сбросить</button>
+            </div>
+
+            <div class="formula-block">
+                <strong>Решение:</strong><br>
+                $x_M = \dfrac{2+6}{2} = 4$; &nbsp; $y_M = \dfrac{-1+3}{2} = 1$; &nbsp; $z_M = \dfrac{4+0}{2} = 2$ ⇒ $M(4,1,2)$.<br><br>
+                Симметричная точка $C$: $M$ — середина $AC$, значит<br>
+                $x_C = 2x_M - x_A = 8 - 2 = 6$;<br>
+                $y_C = 2y_M - y_A = 2 - (-1) = 3$;<br>
+                $z_C = 2z_M - z_A = 4 - 4 = 0$ ⇒ $C(6,3,0)$.<br><br>
+                <strong>Заметим:</strong> $C$ совпала с $B$ — потому что $A$, $M$, $B$ лежат на одной прямой, и $M$ — середина $AB$.
+            </div>
+
+            <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+
+            <!-- Задача 7 — БЕЗ 3D -->
+            <p><strong>Задача 7.</strong> Точка $C$ делит отрезок $AB$ в отношении $AC:CB = 1:3$, где $A(0,0,0)$, $B(8,4,12)$. Найдите координаты точки $C$.</p>
+
+            <div class="formula-block">
+                <strong>Напоминание формулы.</strong> Если точка $M$ делит отрезок $AB$ в отношении $\lambda = \dfrac{AM}{MB}$, то её координаты:
+                $$M\left( \dfrac{x_1 + \lambda x_2}{1 + \lambda},\; \dfrac{y_1 + \lambda y_2}{1 + \lambda},\; \dfrac{z_1 + \lambda z_2}{1 + \lambda} \right)$$
+            </div>
+
+            <div class="formula-block">
+                <strong>Решение.</strong><br>
+                Дано $AC:CB = 1:3$, значит $\lambda = \dfrac{AC}{CB} = \dfrac{1}{3}$.<br>
+                Координаты $A(0,0,0)$, $B(8,4,12)$.<br><br>
+                $x_C = \dfrac{0 + \frac13 \cdot 8}{1 + \frac13} = \dfrac{8/3}{4/3} = 2$<br>
+                $y_C = \dfrac{0 + \frac13 \cdot 4}{1 + \frac13} = \dfrac{4/3}{4/3} = 1$<br>
+                $z_C = \dfrac{0 + \frac13 \cdot 12}{1 + \frac13} = \dfrac{12/3}{4/3} = 3$<br><br>
+                <strong>Ответ:</strong> $C(2,1,3)$.
+            </div>
+
+            <div class="formula-block">
+                <strong>Проверка.</strong> Найдём векторы $\overrightarrow{AC}$ и $\overrightarrow{CB}$:<br>
+                $\overrightarrow{AC} = C - A = \{2-0,\; 1-0,\; 3-0\} = \{2,1,3\}$<br>
+                $\overrightarrow{CB} = B - C = \{8-2,\; 4-1,\; 12-3\} = \{6,3,9\}$<br><br>
+                Замечаем: $\overrightarrow{CB} = 3 \cdot \overrightarrow{AC}$:<br>
+                $3 \cdot \{2,1,3\} = \{6,3,9\}$ ✓<br><br>
+                Значит, отношение длин $AC : CB = 1 : 3$ выполнено.
+            </div>
+
+            <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+
+            <!-- Задача 8 -->
+            <p><strong>Задача 8.</strong> Дан треугольник $A(1,1,1)$, $B(4,4,1)$, $C(1,4,5)$. Найдите длину медианы $AM$, где $M$ — середина $BC$.</p>
+
+            <div class="model-container" id="container8">
+                <canvas id="canvas8" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="fs8" title="Во весь экран">⛶</button>
+            </div>
+
+            <div class="action-btns">
+                <button class="action-btn" onclick="window.__show8_step(0)">▶ 1) Треугольник</button>
+                <button class="action-btn" onclick="window.__show8_step(1)">▶ 2) Середина M</button>
+                <button class="action-btn" onclick="window.__show8_step(2)">▶ 3) Медиана AM</button>
+                <button class="action-btn primary" onclick="window.__show8_all()">▶ Показать всё</button>
+                <button class="action-btn reset" onclick="window.__reset8()">⟲ Сбросить</button>
+            </div>
+
+            <div class="formula-block">
+                <strong>Решение:</strong><br>
+                Середина $BC$:<br>
+                $x_M = \dfrac{4+1}{2} = 2{,}5$; &nbsp; $y_M = \dfrac{4+4}{2} = 4$; &nbsp; $z_M = \dfrac{1+5}{2} = 3$ ⇒ $M(2{,}5;\,4;\,3)$.<br><br>
+                Длина медианы $AM$:<br>
+                $AM = \sqrt{(2{,}5-1)^2 + (4-1)^2 + (3-1)^2}$<br>
+                $= \sqrt{1{,}5^2 + 3^2 + 2^2} = \sqrt{2{,}25 + 9 + 4} = \sqrt{15{,}25}$<br><br>
+                Ответ: $AM = \sqrt{15{,}25} = \dfrac{\sqrt{61}}{2}$.
+            </div>
+
+            <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+
+            <!-- Задача 9 — БЕЗ 3D -->
+            <p><strong>Задача 9.</strong> Даны точки $A(1,2,3)$, $B(2,4,1)$, $C(3,6,-1)$. Лежат ли они на одной прямой?</p>
+
+            <div class="formula-block">
+                <strong>Идея.</strong> Три точки $A$, $B$, $C$ лежат на одной прямой тогда и только тогда, когда векторы $\overrightarrow{AB}$ и $\overrightarrow{AC}$ <strong>коллинеарны</strong>, то есть один получается из другого умножением на число:<br><br>
+                $\overrightarrow{AC} = k \cdot \overrightarrow{AB}$ &nbsp; для некоторого $k$.
+            </div>
+
+            <div class="formula-block">
+                <strong>Решение.</strong><br>
+                Найдём координаты векторов:<br><br>
+                $\overrightarrow{AB} = B - A = \{2-1,\; 4-2,\; 1-3\} = \{1,\; 2,\; -2\}$<br>
+                $\overrightarrow{AC} = C - A = \{3-1,\; 6-2,\; -1-3\} = \{2,\; 4,\; -4\}$<br><br>
+                Проверим пропорциональность координат:<br>
+                $\dfrac{2}{1} = 2$; &nbsp; $\dfrac{4}{2} = 2$; &nbsp; $\dfrac{-4}{-2} = 2$ — все три отношения равны $2$.<br><br>
+                Значит, $\overrightarrow{AC} = 2 \cdot \overrightarrow{AB}$.<br><br>
+                <strong>Ответ:</strong> да, точки $A$, $B$, $C$ лежат на одной прямой. Более того, $B$ — <strong>середина отрезка $AC$</strong>, потому что $\overrightarrow{AC} = 2\overrightarrow{AB}$ (то есть $AB = BC$).
+            </div>
+
+            <div class="formula-block">
+                <strong>Дополнительно: как проверять коллинеарность.</strong><br>
+                Если $\overrightarrow{AB}\{p_1, p_2, p_3\}$ и $\overrightarrow{AC}\{q_1, q_2, q_3\}$, то условие коллинеарности:
+                $$\dfrac{q_1}{p_1} = \dfrac{q_2}{p_2} = \dfrac{q_3}{p_3}$$
+                (при условии, что ни одна из координат $p_i \neq 0$).
+            </div>
+
+            <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+
+            <!-- Задача 10 — БЕЗ 3D -->
+            <p><strong>Задача 10.</strong> Даны точки $A(1,0,2)$, $B(3,2,-1)$, $C(0,-1,3)$, $D(2,1,0)$. Докажите, что четырёхугольник $ABCD$ — параллелограмм.</p>
+
+            <div class="formula-block">
+                <strong>Идея (признак параллелограмма).</strong> Четырёхугольник является параллелограммом тогда и только тогда, когда <strong>две противоположные стороны равны и параллельны</strong>.<br><br>
+                В координатах это означает: $\overrightarrow{AB} = \overrightarrow{DC}$.
+            </div>
+
+            <div class="formula-block">
+                <strong>Решение.</strong><br>
+                Найдём векторы сторон $AB$ и $DC$:<br><br>
+                $\overrightarrow{AB} = B - A = \{3-1,\; 2-0,\; -1-2\} = \{2,\; 2,\; -3\}$<br>
+                $\overrightarrow{DC} = C - D = \{0-2,\; -1-1,\; 3-0\} = \{-2,\; -2,\; 3\}$<br><br>
+                Сравниваем: $\overrightarrow{DC} = \{-2,-2,3\} = -\overrightarrow{AB}$.<br>
+                Значит, $\overrightarrow{AB} = -\overrightarrow{DC} = \overrightarrow{CD}$.<br><br>
+                <strong>Вывод:</strong> $\overrightarrow{AB} = \overrightarrow{CD}$, то есть стороны $AB$ и $CD$ <strong>равны и параллельны</strong>.<br><br>
+                По признаку параллелограмма (если в четырёхугольнике две противоположные стороны равны и параллельны, то это параллелограмм):<br><br>
+                <strong>Ответ:</strong> $ABCD$ — параллелограмм.
+            </div>
+
+            <div class="formula-block">
+                <strong>Альтернативный способ (через середины диагоналей).</strong><br>
+                В параллелограмме диагонали точкой пересечения делятся пополам, то есть середины диагоналей $AC$ и $BD$ совпадают.<br><br>
+                Середина $AC$:<br>
+                $\left(\dfrac{1+0}{2},\; \dfrac{0+(-1)}{2},\; \dfrac{2+3}{2}\right) = \left(0{,}5;\; -0{,}5;\; 2{,}5\right)$<br><br>
+                Середина $BD$:<br>
+                $\left(\dfrac{3+2}{2},\; \dfrac{2+1}{2},\; \dfrac{-1+0}{2}\right) = \left(2{,}5;\; 1{,}5;\; -0{,}5\right)$<br><br>
+                Середины не совпали — этот способ к данному набору точек <strong>не подходит</strong>, потому что порядок вершин $ABCD$ <strong>не означает</strong>, что $AC$ и $BD$ — диагонали. Здесь работает проверка через $\overrightarrow{AB} = \overrightarrow{DC}$ (см. выше).
+            </div>
+        </div>
+    </div>
+
+    <div class="formula-block" style="background:var(--info-bg); border-left:4px solid var(--special-border); margin-top:16px; line-height:1.9;">
+        <strong>Шпаргалка:</strong><br><br>
+        Середина: $M\left(\dfrac{x_1+x_2}{2},\dfrac{y_1+y_2}{2},\dfrac{z_1+z_2}{2}\right)$<br>
+        Расстояние: $d = \sqrt{(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}$<br>
+        Деление в отношении $\lambda$: $M\left(\dfrac{x_1+\lambda x_2}{1+\lambda},\dfrac{y_1+\lambda y_2}{1+\lambda},\dfrac{z_1+\lambda z_2}{1+\lambda}\right)$<br>
+        Центр масс: $G\left(\dfrac{x_1+x_2+x_3}{3},\dfrac{y_1+y_2+y_3}{3},\dfrac{z_1+z_2+z_3}{3}\right)$
+    </div>
+
+    <a href="vectors.html" class="back-link">← Назад к векторам</a>
+</div>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+    let quality3D = 'high';
+    if (window.Android && window.Android.getQuality3D) quality3D = window.Android.getQuality3D();
+    else { const saved = localStorage.getItem('quality3d'); if (saved) quality3D = saved; }
+
+    const vertexLabels = [];
+    const edgeMaterials = [];
+    const faceMaterials = [];
+
+    function cssVar(name, fallback){
+        const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return v || fallback;
+    }
+    function themeVertexColor(){ return cssVar('--label-vertex', '#ffffff'); }
+    function themeEdgeColor(){ return cssVar('--edge-color', '#cfe3f5'); }
+    function themeFaceColor(){ return cssVar('--edge-face-color', '#4a90d9'); }
+
+    function refreshThemeColors(){
+        const vc = themeVertexColor();
+        vertexLabels.forEach(item=>{ item.el.style.color = vc; });
+        const ec = new THREE.Color(themeEdgeColor());
+        edgeMaterials.forEach(item=>{ item.mat.color.copy(ec); item.mat.opacity = item.baseOpacity; item.mat.needsUpdate = true; });
+        const fc = new THREE.Color(themeFaceColor());
+        faceMaterials.forEach(item=>{ item.mat.color.copy(fc); item.mat.opacity = item.baseOpacity; item.mat.needsUpdate = true; });
+        refreshAllLabelShadows();
+    }
+    function refreshAllLabelShadows(){
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const s = isLight
+            ? '0 0 4px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.95)'
+            : '0 0 4px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.9)';
+        document.querySelectorAll('.model-container div').forEach(el=>{
+            if (el.style && el.style.textShadow !== undefined) el.style.textShadow = s;
+        });
+    }
+
+    function makeLabel(text, color, position, fontSize = '0.75rem') {
+        const div = document.createElement('div');
+        div.textContent = text;
+        div.style.fontSize = fontSize;
+        div.style.fontWeight = 'bold';
+        div.style.fontFamily = "'JetBrains Mono', 'Segoe UI', 'Arial Unicode MS', monospace";
+        div.style.background = 'transparent';
+        div.style.border = 'none';
+        div.style.padding = '0';
+        div.style.textShadow = '0 0 4px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.9)';
+        div.style.whiteSpace = 'nowrap';
+
+        if (color === '__vertex__') {
+            div.style.color = themeVertexColor();
+            vertexLabels.push({el: div});
+        } else {
+            div.style.color = color;
+        }
+        if (document.documentElement.classList.contains('light-mode')) {
+            div.style.textShadow = '0 0 4px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.95)';
+        }
+        const label = new CSS2DObject(div);
+        label.position.copy(position);
+        return label;
+    }
+
+    function addThickLine(group, start, end, color, baseOpacity = 1, thickness = 0.012, registerForTheme = false) {
+        const mainGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+        const mainMat = new THREE.LineBasicMaterial({color, transparent: true, opacity: baseOpacity});
+        group.add(new THREE.Line(mainGeo, mainMat));
+        if (registerForTheme) edgeMaterials.push({mat: mainMat, baseOpacity});
+
+        const dir = end.clone().sub(start);
+        if (dir.length() < 0.001) return;
+        dir.normalize();
+        const up = new THREE.Vector3(0,1,0);
+        let perp1 = new THREE.Vector3().crossVectors(dir, up);
+        if (perp1.length() < 0.001) perp1 = new THREE.Vector3(1,0,0);
+        perp1.normalize().multiplyScalar(thickness);
+        const perp2 = new THREE.Vector3().crossVectors(dir, perp1).normalize().multiplyScalar(thickness);
+        [perp1, perp1.clone().negate(), perp2, perp2.clone().negate()].forEach(off=>{
+            const geo = new THREE.BufferGeometry().setFromPoints([start.clone().add(off), end.clone().add(off)]);
+            const m = new THREE.LineBasicMaterial({color, transparent: true, opacity: baseOpacity * 0.7});
+            group.add(new THREE.Line(geo, m));
+            if (registerForTheme) edgeMaterials.push({mat: m, baseOpacity: baseOpacity * 0.7});
+        });
+    }
+
+    function createVectorLine(start, end, color) {
+        const group = new THREE.Group();
+        addThickLine(group, start, end, color, 1, 0.012, false);
+        const dir = end.clone().sub(start);
+        if (dir.length() > 0.001) {
+            dir.normalize();
+            const coneGeo = new THREE.ConeGeometry(0.07, 0.17, 12);
+            const coneMat = new THREE.MeshStandardMaterial({color, emissive: new THREE.Color(color).multiplyScalar(0.35)});
+            const cone = new THREE.Mesh(coneGeo, coneMat);
+            cone.position.copy(end.clone().add(dir.clone().multiplyScalar(-0.085)));
+            cone.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), dir));
+            group.add(cone);
+        }
+        return group;
+    }
+
+    function createAxisLine(start, end, color) {
+        const group = new THREE.Group();
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+        group.add(new THREE.Line(lineGeo, new THREE.LineBasicMaterial({color})));
+        const dir = end.clone().sub(start);
+        if (dir.length() > 0.001) {
+            dir.normalize();
+            const coneGeo = new THREE.ConeGeometry(0.05, 0.12, 8);
+            const coneMat = new THREE.MeshStandardMaterial({color, emissive: new THREE.Color(color).multiplyScalar(0.3)});
+            const cone = new THREE.Mesh(coneGeo, coneMat);
+            cone.position.copy(end.clone().add(dir.clone().multiplyScalar(-0.06)));
+            cone.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), dir));
+            group.add(cone);
+        }
+        return group;
+    }
+
+    const AXES_LEN = 2.5;
+    function createAxes() {
+        const g = new THREE.Group();
+        g.add(createAxisLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,AXES_LEN), 0x33ff33));
+        g.add(createAxisLine(new THREE.Vector3(0,0,0), new THREE.Vector3(AXES_LEN,0,0), 0xff3333));
+        g.add(createAxisLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,AXES_LEN,0), 0x3388ff));
+        return g;
+    }
+
+    function createSphere(position, color, emissive, radius = 0.06) {
+        const sphere = new THREE.Mesh(
+            new THREE.SphereGeometry(radius, 20, 20),
+            new THREE.MeshStandardMaterial({color, emissive})
+        );
+        sphere.position.copy(position);
+        return sphere;
+    }
+
+    function createSegmentLine(start, end, color) {
+        const geo = new THREE.BufferGeometry().setFromPoints([start, end]);
+        return new THREE.Line(geo, new THREE.LineBasicMaterial({color}));
+    }
+
+    function createDashedLine(start, end, color) {
+        const geo = new THREE.BufferGeometry().setFromPoints([start, end]);
+        const line = new THREE.Line(geo, new THREE.LineDashedMaterial({color, dashSize:0.2, gapSize:0.1}));
+        line.computeLineDistances();
+        return line;
+    }
+
+    function createParallelepipedEdges(origin, vx, vy, vz, colorUnused = 0xffffff, opacity = 0.5) {
+        const group = new THREE.Group();
+        const o = origin, px = o.clone().add(vx), py = o.clone().add(vy), pz = o.clone().add(vz);
+        const pxy = px.clone().add(vy), pxz = px.clone().add(vz), pyz = py.clone().add(vz), pxyz = pxy.clone().add(vz);
+        const edgeCol = new THREE.Color(themeEdgeColor());
+        const faceCol = new THREE.Color(themeFaceColor());
+        const edgeOpacity = Math.min(1, opacity + 0.4);
+
+        const edges = [[o,px],[o,py],[o,pz],[px,pxy],[px,pxz],[py,pxy],[py,pyz],[pz,pxz],[pz,pyz],[pxy,pxyz],[pxz,pxyz],[pyz,pxyz]];
+        edges.forEach(([a,b]) => addThickLine(group, a, b, edgeCol, edgeOpacity, 0.008, true));
+
+        const faceOpacity = 0.06;
+        const faces = [[o,px,pxy,py],[pz,pxz,pxyz,pyz],[o,px,pxz,pz],[py,pxy,pxyz,pyz],[o,py,pyz,pz],[px,pxy,pxyz,pxz]];
+        faces.forEach(quad=>{
+            const geo = new THREE.BufferGeometry();
+            const v = new Float32Array([
+                quad[0].x,quad[0].y,quad[0].z,quad[1].x,quad[1].y,quad[1].z,quad[2].x,quad[2].y,quad[2].z,
+                quad[0].x,quad[0].y,quad[0].z,quad[2].x,quad[2].y,quad[2].z,quad[3].x,quad[3].y,quad[3].z
+            ]);
+            geo.setAttribute('position', new THREE.BufferAttribute(v, 3));
+            geo.computeVertexNormals();
+            const mat = new THREE.MeshBasicMaterial({color: faceCol, side: THREE.DoubleSide, transparent: true, opacity: faceOpacity, depthWrite: false});
+            group.add(new THREE.Mesh(geo, mat));
+            faceMaterials.push({mat, baseOpacity: faceOpacity});
+        });
+        return group;
+    }
+
+    // ====== ЛЕНИВАЯ ИНИЦИАЛИЗАЦИЯ (IntersectionObserver) ======
+    // Сцена создаётся только когда контейнер попал в зону видимости.
+    // Это позволяет не держать 10 WebGL-контекстов одновременно на телефоне.
+
+    function initScene(containerId, canvasId, fsBtnId, setupFn) {
+        const container = document.getElementById(containerId);
+        const canvas = document.getElementById(canvasId);
+        if (!container || !canvas) return;
+
+        let initialized = false;
+        let scene, camera, renderer, labelRenderer, controls;
+
+        function doInit() {
+            if (initialized) return;
+            initialized = true;
+
+            scene = new THREE.Scene(); scene.background = null;
+            let w = container.clientWidth, h = container.clientHeight;
+            if (w < 10) w = 800;
+            if (h < 10) h = 450;
+            camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 100);
+            camera.position.set(4.5, 4, 5.5);
+            camera.lookAt(1, 0.8, 1);
+
+            try {
+                renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+            } catch(e) {
+                console.warn('WebGL не создался для', containerId, e);
+                return;
+            }
+            renderer.setSize(w, h);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.left = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            container.style.position = 'relative';
+            container.appendChild(labelRenderer.domElement);
+
+            scene.add(new THREE.AmbientLight(0x40486c,0.6));
+            const kl = new THREE.DirectionalLight(0xfff5e0,1.2); kl.position.set(2,5,2); scene.add(kl);
+            scene.add(new THREE.PointLight(0xccaa77,0.55).position.copy(new THREE.Vector3(-1.5,2,2)));
+            scene.add(new THREE.PointLight(0x88aaff,0.5).position.copy(new THREE.Vector3(1,2,-3)));
+            scene.add(new THREE.PointLight(0x6699cc,0.35).position.copy(new THREE.Vector3(0,-1.2,0)));
+            const grid = new THREE.GridHelper(6,16,0x5f7f9e,0x2c4258);
+            grid.position.y = -0.01; grid.material.transparent=true; grid.material.opacity=0.2; scene.add(grid);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping=true; controls.dampingFactor=0.06;
+            controls.target.set(1,0.8,1); controls.update();
+
+            setupFn(scene, {makeLabel, createVectorLine, createAxes, createSphere, createSegmentLine, createDashedLine, createParallelepipedEdges});
+
+            function updateSize() {
+                const rect = container.getBoundingClientRect();
+                let rw = rect.width, rh = rect.height;
+                if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
+                    rw = window.innerWidth; rh = window.innerHeight;
+                }
+                if (rw < 10) rw = 800;
+                if (rh < 10) rh = 450;
+                canvas.width = rw; canvas.height = rh;
+                renderer.setSize(rw, rh); labelRenderer.setSize(rw, rh);
+                camera.aspect = rw / rh; camera.updateProjectionMatrix();
+            }
+            function forceResize() {
+                canvas.style.width = ''; canvas.style.height = '';
+                setTimeout(() => { updateSize(); requestAnimationFrame(() => updateSize()); }, 30);
+            }
+            new ResizeObserver(() => updateSize()).observe(container);
+            setTimeout(updateSize, 100);
+
+            const fsBtn = document.getElementById(fsBtnId);
+            if (fsBtn) {
+                fsBtn.addEventListener('click', async () => {
+                    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                        try { await container.requestFullscreen(); fsBtn.textContent = '✖'; } catch(e) {}
+                    } else {
+                        if (document.exitFullscreen) await document.exitFullscreen();
+                        else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                        fsBtn.textContent = '⛶';
+                        forceResize();
+                    }
+                });
+                document.addEventListener('fullscreenchange', () => {
+                    fsBtn.textContent = (document.fullscreenElement === container || document.webkitFullscreenElement === container) ? '✖' : '⛶';
+                    updateSize();
+                });
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // Инициализация по IntersectionObserver — когда контейнер попал в viewport
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        doInit();
+                        observer.disconnect();
+                    }
+                });
+            }, { rootMargin: '200px' });  // сработает немного заранее
+            observer.observe(container);
+        } else {
+            // Фолбэк: инициализируем по таймауту
+            setTimeout(doInit, 200);
+        }
+    }
+
+    // ===================== СЦЕНЫ =====================
+
+    initScene('container1','canvas1','fs1',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+        const A = new THREE.Vector3(0.6,0.8,0.4);
+        const B = new THREE.Vector3(1.8,1.6,1.2);
+        const M = A.clone().add(B).multiplyScalar(0.5);
+        scene.add(t.createSphere(A, 0xef4444, 0x441100));
+        scene.add(t.makeLabel('A(x₁,y₁,z₁)','#ef4444',A.clone().add(new THREE.Vector3(0.12,0.12,0.1)),'0.6rem'));
+        scene.add(t.createSphere(B, 0x3b82f6, 0x001133));
+        scene.add(t.makeLabel('B(x₂,y₂,z₂)','#3b82f6',B.clone().add(new THREE.Vector3(0.12,0.12,0.1)),'0.6rem'));
+        scene.add(t.createSphere(M, 0xfacc15, 0x442200, 0.07));
+        scene.add(t.makeLabel('M','#facc15',M.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.7rem'));
+        scene.add(t.createSegmentLine(A, B, 0xaaaaaa));
+        const projA_XY = new THREE.Vector3(A.x, 0, A.z);
+        const projB_XY = new THREE.Vector3(B.x, 0, B.z);
+        scene.add(t.createDashedLine(A, projA_XY, 0x888888));
+        scene.add(t.createDashedLine(B, projB_XY, 0x888888));
+        scene.add(t.createDashedLine(projA_XY, new THREE.Vector3(0,0,A.z), 0x888888));
+        scene.add(t.createDashedLine(projA_XY, new THREE.Vector3(A.x,0,0), 0x888888));
+        scene.add(t.createDashedLine(projB_XY, new THREE.Vector3(0,0,B.z), 0x888888));
+        scene.add(t.createDashedLine(projB_XY, new THREE.Vector3(B.x,0,0), 0x888888));
+    });
+
+    initScene('container2','canvas2','fs2',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+        const o = new THREE.Vector3(0,0,0);
+        const aEnd = new THREE.Vector3(0.8,1.2,1.0);
+        const vx = new THREE.Vector3(0,0,aEnd.z);
+        const vy = new THREE.Vector3(aEnd.x,0,0);
+        const vz = new THREE.Vector3(0,aEnd.y,0);
+        scene.add(t.createParallelepipedEdges(o, vx, vy, vz));
+        scene.add(t.createVectorLine(o, aEnd, 0xffaa00));
+        scene.add(t.makeLabel('a{x,y,z}','#ffaa00',aEnd.clone().add(new THREE.Vector3(0.12,0.12,0.12)),'0.65rem'));
+    });
+
+    initScene('container3','canvas3','fs3',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+        const A = new THREE.Vector3(0.4,0.6,0.5);
+        const B = new THREE.Vector3(1.6,1.4,1.3);
+        const mid = A.clone().add(B).multiplyScalar(0.5);
+        scene.add(t.createSphere(A, 0xef4444, 0x441100));
+        scene.add(t.makeLabel('A(x₁,y₁,z₁)','#ef4444',A.clone().add(new THREE.Vector3(0.12,0.12,0.1)),'0.6rem'));
+        scene.add(t.createSphere(B, 0x3b82f6, 0x001133));
+        scene.add(t.makeLabel('B(x₂,y₂,z₂)','#3b82f6',B.clone().add(new THREE.Vector3(0.12,0.12,0.1)),'0.6rem'));
+        scene.add(t.createSegmentLine(A, B, 0x66aaff));
+        scene.add(t.makeLabel('d','#66aaff',mid.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.65rem'));
+    });
+
+    initScene('container4','canvas4','fs4',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+        const A = new THREE.Vector3(0.4,0.6,0.5);
+        const B = new THREE.Vector3(1.8,1.6,1.4);
+        const lambda = 2;
+        const M = A.clone().add(B.clone().sub(A).multiplyScalar(lambda/(1+lambda)));
+        scene.add(t.createSphere(A, 0xef4444, 0x441100));
+        scene.add(t.makeLabel('A','#ef4444',A.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.7rem'));
+        scene.add(t.createSphere(B, 0x3b82f6, 0x001133));
+        scene.add(t.makeLabel('B','#3b82f6',B.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.7rem'));
+        scene.add(t.createSphere(M, 0xfacc15, 0x442200, 0.07));
+        scene.add(t.makeLabel('M(λ=2)','#facc15',M.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.6rem'));
+        scene.add(t.createSegmentLine(A, B, 0xaaaaaa));
+    });
+
+    initScene('container5','canvas5','fs5',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+        const A = new THREE.Vector3(0.3,0.5,0.4);
+        const B = new THREE.Vector3(1.6,0.8,0.6);
+        const C = new THREE.Vector3(0.9,1.5,1.2);
+        const G = A.clone().add(B).add(C).multiplyScalar(1/3);
+        const midAB = A.clone().add(B).multiplyScalar(0.5);
+        const midBC = B.clone().add(C).multiplyScalar(0.5);
+        const midCA = C.clone().add(A).multiplyScalar(0.5);
+        scene.add(t.createSphere(A, 0xef4444, 0x441100));
+        scene.add(t.makeLabel('A','#ef4444',A.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.7rem'));
+        scene.add(t.createSphere(B, 0x3b82f6, 0x001133));
+        scene.add(t.makeLabel('B','#3b82f6',B.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.7rem'));
+        scene.add(t.createSphere(C, 0x10b981, 0x064e3b));
+        scene.add(t.makeLabel('C','#10b981',C.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.7rem'));
+        scene.add(t.createSphere(G, 0xfacc15, 0x442200, 0.07));
+        scene.add(t.makeLabel('G','#facc15',G.clone().add(new THREE.Vector3(0.1,0.1,0.1)),'0.7rem'));
+        scene.add(t.createSegmentLine(A, B, 0xaaaaaa));
+        scene.add(t.createSegmentLine(B, C, 0xaaaaaa));
+        scene.add(t.createSegmentLine(C, A, 0xaaaaaa));
+        scene.add(t.createDashedLine(A, midBC, 0x888888));
+        scene.add(t.createDashedLine(B, midCA, 0x888888));
+        scene.add(t.createDashedLine(C, midAB, 0x888888));
+    });
+
+    initScene('container6','canvas6','fs6',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+
+        function m2t(xm, ym, zm){ return new THREE.Vector3(ym, zm, xm); }
+        const base = m2t(0.3, 1.0, 0.3);
+        const A = m2t(2, -1, 4).add(base);
+        const B = m2t(6, 3, 0).add(base);
+        const M = A.clone().add(B).multiplyScalar(0.5);
+        const C = M.clone().multiplyScalar(2).sub(A);
+
+        const g1 = new THREE.Group();
+        g1.add(t.createSphere(A, 0xef4444, 0x441100, 0.07));
+        g1.add(t.makeLabel('A(2,-1,4)','#ef4444',A.clone().add(new THREE.Vector3(-0.35,0.1,0.1)),'0.6rem'));
+        g1.add(t.createSphere(B, 0x3b82f6, 0x001133, 0.07));
+        g1.add(t.makeLabel('B(6,3,0)','#3b82f6',B.clone().add(new THREE.Vector3(0.15,0.1,0.1)),'0.6rem'));
+        g1.add(t.createSegmentLine(A, B, 0xaaaaaa));
+        g1.visible = false;
+        scene.add(g1);
+
+        const g2 = new THREE.Group();
+        g2.add(t.createSphere(M, 0xfacc15, 0x442200, 0.08));
+        g2.add(t.makeLabel('M(4,1,2)','#facc15',M.clone().add(new THREE.Vector3(0.15,0.12,0.1)),'0.65rem'));
+        g2.visible = false;
+        scene.add(g2);
+
+        const g3 = new THREE.Group();
+        g3.add(t.createSphere(C, 0x10b981, 0x064e3b, 0.07));
+        g3.add(t.makeLabel('C(6,3,0)','#10b981',C.clone().add(new THREE.Vector3(0.1,-0.25,0.1)),'0.6rem'));
+        g3.visible = false;
+        scene.add(g3);
+
+        window.__show6_step = function(idx){
+            g1.visible = false; g2.visible = false; g3.visible = false;
+            if (idx === 0) { g1.visible = true; }
+            if (idx === 1) { g1.visible = true; g2.visible = true; }
+            if (idx === 2) { g1.visible = true; g2.visible = true; g3.visible = true; }
+        };
+        window.__show6_all = function(){ g1.visible = true; g2.visible = true; g3.visible = true; };
+        window.__reset6 = function(){ g1.visible = false; g2.visible = false; g3.visible = false; };
+    });
+
+    initScene('container8','canvas8','fs8',(scene,t)=>{
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.3)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.3,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.3,0)));
+        scene.add(t.makeLabel('O','__vertex__',new THREE.Vector3(-0.15,-0.15,-0.15),'0.6rem'));
+
+        function m2t(xm, ym, zm){ return new THREE.Vector3(ym, zm, xm); }
+        const base = m2t(0.3, 1.0, 0.3);
+        const A = m2t(1, 1, 1).add(base);
+        const B = m2t(4, 4, 1).add(base);
+        const C = m2t(1, 4, 5).add(base);
+        const M = m2t(2.5, 4, 3).add(base);
+
+        const g1 = new THREE.Group();
+        g1.add(t.createSphere(A, 0xef4444, 0x441100, 0.07));
+        g1.add(t.makeLabel('A(1,1,1)','#ef4444',A.clone().add(new THREE.Vector3(-0.35,0.1,0.1)),'0.6rem'));
+        g1.add(t.createSphere(B, 0x3b82f6, 0x001133, 0.07));
+        g1.add(t.makeLabel('B(4,4,1)','#3b82f6',B.clone().add(new THREE.Vector3(0.15,-0.15,0.1)),'0.6rem'));
+        g1.add(t.createSphere(C, 0x10b981, 0x064e3b, 0.07));
+        g1.add(t.makeLabel('C(1,4,5)','#10b981',C.clone().add(new THREE.Vector3(-0.35,0.1,0.1)),'0.6rem'));
+        g1.add(t.createSegmentLine(A, B, 0xaaaaaa));
+        g1.add(t.createSegmentLine(B, C, 0xaaaaaa));
+        g1.add(t.createSegmentLine(C, A, 0xaaaaaa));
+        g1.visible = false;
+        scene.add(g1);
+
+        const g2 = new THREE.Group();
+        g2.add(t.createSphere(M, 0xfacc15, 0x442200, 0.08));
+        g2.add(t.makeLabel('M(2,5;4;3)','#facc15',M.clone().add(new THREE.Vector3(0.15,0.12,0.1)),'0.6rem'));
+        g2.visible = false;
+        scene.add(g2);
+
+        const g3 = new THREE.Group();
+        g3.add(t.createVectorLine(A, M, 0xa855f7));
+        g3.add(t.makeLabel('AM','#a855f7',A.clone().add(M.clone().sub(A).multiplyScalar(0.5)).add(new THREE.Vector3(0.1,0.1,0.1)),'0.65rem'));
+        g3.visible = false;
+        scene.add(g3);
+
+        window.__show8_step = function(idx){
+            g1.visible = false; g2.visible = false; g3.visible = false;
+            if (idx === 0) { g1.visible = true; }
+            if (idx === 1) { g1.visible = true; g2.visible = true; }
+            if (idx === 2) { g1.visible = true; g2.visible = true; g3.visible = true; }
+        };
+        window.__show8_all = function(){ g1.visible = true; g2.visible = true; g3.visible = true; };
+        window.__reset8 = function(){ g1.visible = false; g2.visible = false; g3.visible = false; };
+    });
+
+    window.__themeRefreshAll = function(){ refreshThemeColors(); };
+</script>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        html.classList.toggle('light-mode');
+        const isLight = html.classList.contains('light-mode');
+        localStorage.setItem('mathTheme', isLight ? 'light' : 'dark');
+        btn.textContent = isLight ? '☀️' : '🌙';
+        if (window.__themeRefreshAll) window.__themeRefreshAll();
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            const b = document.getElementById('themeBtn');
+            if (b) b.textContent = '☀️';
+        }
+    })();
+</script>
+
+<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+</body>
+</html>

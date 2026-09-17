@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Логарифмы — определение, свойства, примеры</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --info-border: #2c7cb6;
+            --example-bg: #162a38;
+            --step-color: #a78bfa;
+            --result-color: #34d399;
+            --explain-color: #34d399;
+            --info-bg: #1a4a5a;
+            --special-border: #2c7cb6;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --info-border: #2c7cb6;
+            --example-bg: #f8fafc;
+            --step-color: #7c3aed;
+            --result-color: #059669;
+            --explain-color: #059669;
+            --info-bg: #e8f0fe;
+            --special-border: #2c7cb6;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:1000px;margin:0 auto;position:relative;}
+
+        .theme-toggle{position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
+        .theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+        .section{margin-bottom:14px;}
+        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--info-border);padding-left:12px;text-align:center;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title .main-title{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;color:var(--text);}
+        .section-title .sub-title{font-size:0.85rem;color:var(--text-secondary);font-weight:400;font-style:italic;margin-top:2px;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:10000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:16px 20px;border-radius:16px;margin:12px 0;}
+        .definition-block p{font-size:1rem;line-height:1.5;color:var(--text);}
+        .definition-block p strong{color:var(--text);}
+        .definition-block ul{padding-left:20px;margin:6px 0;font-size:0.95rem;line-height:1.5;color:var(--text);}
+        .definition-block ul li{margin:2px 0;}
+
+        .formula-block{background:var(--bg);padding:18px 22px;border-radius:16px;font-size:1.3rem;margin:10px 0;border-left:6px solid var(--special-border);word-break:break-word;overflow-x:visible;line-height:2.4;color:var(--text);text-align:center;}
+        .formula-block mjx-container{font-size:1.5rem !important;}
+
+        .example{background:var(--example-bg);padding:16px 20px;border-radius:14px;margin-top:10px;border-left:5px solid var(--special-border);font-size:0.95rem;line-height:2.0;color:var(--text);word-break:break-word;overflow-x:visible;}
+        .example mjx-container{font-size:1.1rem !important;}
+        .example .step{font-weight:700;color:var(--step-color);margin-top:10px;margin-bottom:2px;display:block;font-size:1.05rem;}
+        .example .result{margin-top:10px;font-weight:600;color:var(--result-color);display:block;font-size:1.1rem;}
+        .example .explain{color:var(--explain-color);font-style:italic;margin:4px 0 8px 16px;border-left:2px solid var(--explain-color);padding-left:12px;display:block;font-size:0.95rem;}
+        .example .formula-line{display:block;margin:4px 0;word-break:break-word;font-size:1.05rem;}
+        .example-short{background:var(--example-bg);padding:12px 18px;border-radius:12px;margin-top:6px;border-left:4px solid var(--special-border);font-size:0.95rem;line-height:1.8;color:var(--text);word-break:break-word;}
+        .example-short .formula-line{display:block;margin:2px 0;word-break:break-word;font-size:1rem;}
+        .example-short .result{margin-top:4px;font-weight:600;color:var(--result-color);display:block;font-size:1rem;}
+
+        p{margin:8px 0;font-size:1rem;line-height:1.6;color:var(--text);}
+        .important{background:var(--info-bg);border-left:4px solid #fbbf24;border-radius:14px;padding:12px 16px;margin:12px 0;color:var(--text);font-size:1rem;}
+        .important strong{color:#fbbf24;}
+
+        .back-link{display:inline-block;margin:16px 0 8px;padding:10px 20px;background:var(--special-border);color:white;text-decoration:none;font-weight:bold;border-radius:20px;font-size:0.95rem;transition:background 0.2s;}
+        .back-link:hover{background:#1a6b8a;}
+        mjx-container{font-size:1.1em !important;overflow-x:visible !important;max-width:100% !important;}
+
+        .favorite-btn{position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;z-index:1000;color:var(--text-secondary);transition:all 0.2s;backdrop-filter:blur(4px);}
+        .favorite-btn:hover{transform:scale(1.1);}
+        .favorite-btn.active{color:#facc15;}
+
+        .property-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0;}
+        .property-card{background:var(--bg);border-radius:14px;padding:14px 16px;border:1px solid var(--border);text-align:center;transition:all 0.2s;}
+        .property-card:hover{transform:translateY(-2px);border-color:var(--accent);}
+        .property-card .prop-name{color:var(--text-secondary);font-size:0.8rem;font-weight:600;margin-bottom:4px;}
+        .property-card .prop-formula{color:var(--text);font-size:1.2rem;font-weight:600;}
+        .property-card .prop-formula mjx-container{font-size:1.2rem !important;}
+
+        .special-log-block{background:var(--bg);border-radius:14px;padding:16px 20px;margin:12px 0;border-left:5px solid #60a5fa;}
+        .special-log-block .label{color:#60a5fa;font-weight:700;font-size:1.1rem;}
+        .special-log-block .label2{color:#f59e0b;font-weight:700;font-size:1.1rem;}
+
+        .special-log-block .definition-formula{font-size:1.5rem;text-align:center;padding:10px 0;color:var(--text);}
+        .special-log-block .definition-formula mjx-container{font-size:1.5rem !important;}
+        .special-log-block .small-text{font-size:1rem;text-align:center;padding:4px 0;color:var(--text);}
+        .special-log-block .small-text mjx-container{font-size:1.1rem !important;}
+        .special-log-block .desc{color:var(--text-secondary);font-size:0.9rem;text-align:center;}
+
+        @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.definition-block p{font-size:0.95rem;}.example{padding:12px 14px;font-size:0.9rem;}.formula-block{padding:14px 16px;font-size:1.1rem;}.formula-block mjx-container{font-size:1.2rem !important;}.property-grid{grid-template-columns:1fr;}mjx-container{font-size:0.9em !important;}.special-log-block .definition-formula{font-size:1.2rem;}.special-log-block .definition-formula mjx-container{font-size:1.2rem !important;}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    </style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                macros: {
+                    lg: '\\mathop{\\mathrm{lg}}',
+                    ln: '\\mathop{\\mathrm{ln}}'
+                }
+            },
+            options: { skipHtmlTypes: 'script', ignoreHtmlClass: 'no-mathjax' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<div class="container">
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+
+    <div class="header"><h1>Логарифмы</h1><div class="subtitle">Определение · Свойства · Примеры с подробным решением</div></div>
+    <div class="content-card">
+
+        <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📖 Что такое логарифм?</span>
+            </div>
+            <div class="section-content">
+                <div class="definition-block">
+                    <p><strong>Логарифмом</strong> числа \(b\) по основанию \(a\) (\(a > 0, a \neq 1\)) называется показатель степени, в которую нужно возвести основание \(a\), чтобы получить число \(b\):</p>
+                    <p style="text-align:center;font-size:1.5rem;margin-top:12px;">$$ \log_a b = c \quad \Longleftrightarrow \quad a^c = b $$</p>
+                    <p style="margin-top:8px;">где \(a > 0\), \(a \neq 1\), \(b > 0\).</p>
+                </div>
+
+                <div class="important">
+                    <strong>📌 Важно запомнить:</strong><br>
+                    • \(\log_a 1 = 0\) (так как \(a^0 = 1\))<br>
+                    • \(\log_a a = 1\) (так как \(a^1 = a\))<br>
+                    • \(\log_a a^c = c\)<br>
+                    • \(a^{\log_a b} = b\) — основное логарифмическое тождество
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ОСОБЫЕ ЛОГАРИФМЫ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">Виды логарифмов</span>
+            </div>
+            <div class="section-content">
+
+                <!-- ===== ДЕСЯТИЧНЫЙ ЛОГАРИФМ ===== -->
+                <div class="special-log-block">
+                    <div class="label">📌 Десятичный логарифм</div>
+
+                    <div class="definition-formula">$$ \lg b = \log_{10} b $$</div>
+
+                    <div class="small-text">логарифм по основанию \(10\)</div>
+                    <div class="small-text">Обозначение: \(\lg b\)</div>
+
+                    <div class="small-text">\(\lg 1000 = 3\)</div>
+                    <div class="desc">💡 \(10^3 = 1000\)</div>
+
+                    <div class="small-text">\(\lg 0.001 = -3\)</div>
+                    <div class="desc">💡 \(10^{-3} = 0.001\)</div>
+                </div>
+
+                <!-- ===== НАТУРАЛЬНЫЙ ЛОГАРИФМ ===== -->
+                <div class="special-log-block" style="border-left-color:#f59e0b;">
+                    <div class="label2">📌 Натуральный логарифм</div>
+
+                    <div class="definition-formula">$$ \ln b = \log_e b $$</div>
+
+                    <div class="small-text">логарифм по основанию \(e\), где \(e \approx 2.71828\) (число Эйлера)</div>
+                    <div class="small-text">Обозначение: \(\ln b\)</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ===== СВОЙСТВА ЛОГАРИФМОВ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📋 Свойства логарифмов</span>
+            </div>
+            <div class="section-content">
+                <div class="property-grid">
+                    <div class="property-card">
+                        <div class="prop-name">Логарифм произведения</div>
+                        <div class="prop-formula">\(\log_a (x \cdot y) = \log_a x + \log_a y\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Логарифм частного</div>
+                        <div class="prop-formula">\(\log_a \dfrac{x}{y} = \log_a x - \log_a y\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Логарифм степени</div>
+                        <div class="prop-formula">\(\log_a x^p = p \cdot \log_a x\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Переход к новому основанию</div>
+                        <div class="prop-formula">\(\log_a b = \dfrac{\log_c b}{\log_c a}\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Логарифм основания в степени</div>
+                        <div class="prop-formula">\(\log_{a^p} b = \dfrac{1}{p} \log_a b\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Степень основания и аргумента</div>
+                        <div class="prop-formula">\(\log_{a^p} b^q = \dfrac{q}{p} \log_a b\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Логарифм единицы</div>
+                        <div class="prop-formula">\(\log_a 1 = 0\)</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="prop-name">Логарифм основания</div>
+                        <div class="prop-formula">\(\log_a a = 1\)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕРЫ НА СВОЙСТВА ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📚 Примеры с подробным решением</span>
+            </div>
+            <div class="section-content">
+
+                <div class="example">
+                    <span class="step">📌 Пример 1. \(\log_2 8 + \log_2 4\)</span>
+                    <div class="explain">💡 Используем свойство \(\log_a (x \cdot y) = \log_a x + \log_a y\)</div>
+                    <div class="formula-line">\(\log_2 8 + \log_2 4 = \log_2 (8 \cdot 4) = \log_2 32\)</div>
+                    <div class="formula-line">\(\log_2 32 = 5\) (так как \(2^5 = 32\))</div>
+                    <span class="result">✅ Ответ: \(5\)</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 2. \(\log_3 81 - \log_3 9\)</span>
+                    <div class="explain">💡 Используем свойство \(\log_a \dfrac{x}{y} = \log_a x - \log_a y\)</div>
+                    <div class="formula-line">\(\log_3 81 - \log_3 9 = \log_3 \dfrac{81}{9} = \log_3 9\)</div>
+                    <div class="formula-line">\(\log_3 9 = 2\) (так как \(3^2 = 9\))</div>
+                    <span class="result">✅ Ответ: \(2\)</span>
+                </div>
+
+                <div class="example">
+                    <span class="step">📌 Пример 3. \(\log_5 25^3\)</span>
+                    <div class="explain">💡 Используем свойство \(\log_a x^p = p \cdot \log_a x\)</div>
+                    <div class="formula-line">\(\log_5 25^3 = 3 \cdot \log_5 25\)</div>
+                    <div class="formula-line">\(\log_5 25 = 2\) (так как \(5^2 = 25\))</div>
+                    <div class="formula-line">\(3 \cdot 2 = 6\)</div>
+                    <span class="result">✅ Ответ: \(6\)</span>
+                </div>
+
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(\log_2 16 + \log_3 27 - \log_5 25\)</span>
+                    <div class="formula-line">\(\log_2 16 = 4,\; \log_3 27 = 3,\; \log_5 25 = 2\)</div>
+                    <div class="formula-line">\(4 + 3 - 2 = 5\)</div>
+                    <span class="result">✅ Ответ: \(5\)</span>
+                </div>
+
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(2\log_3 6 - \log_3 4\)</span>
+                    <div class="formula-line">\(2\log_3 6 = \log_3 36\)</div>
+                    <div class="formula-line">\(\log_3 36 - \log_3 4 = \log_3 \dfrac{36}{4} = \log_3 9 = 2\)</div>
+                    <span class="result">✅ Ответ: \(2\)</span>
+                </div>
+
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(\log_2 3 + \log_2 12 - \log_2 9\)</span>
+                    <div class="formula-line">\(\log_2 3 + \log_2 12 = \log_2 36\)</div>
+                    <div class="formula-line">\(\log_2 36 - \log_2 9 = \log_2 \dfrac{36}{9} = \log_2 4 = 2\)</div>
+                    <span class="result">✅ Ответ: \(2\)</span>
+                </div>
+
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(\log_2 8 \cdot \log_3 9\)</span>
+                    <div class="formula-line">\(\log_2 8 = 3,\; \log_3 9 = 2\)</div>
+                    <div class="formula-line">\(3 \cdot 2 = 6\)</div>
+                    <span class="result">✅ Ответ: \(6\)</span>
+                </div>
+
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 \(\log_5 125 + \log_2 32\)</span>
+                    <div class="formula-line">\(\log_5 125 = 3,\; \log_2 32 = 5\)</div>
+                    <div class="formula-line">\(3 + 5 = 8\)</div>
+                    <span class="result">✅ Ответ: \(8\)</span>
+                </div>
+
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 Найти \(x\): \(\log_2 (x+3) = 4\)</span>
+                    <div class="formula-line">\(2^4 = x+3\)</div>
+                    <div class="formula-line">\(16 = x+3 \Rightarrow x = 13\)</div>
+                    <span class="result">✅ Ответ: \(x = 13\)</span>
+                </div>
+
+                <div class="example-short">
+                    <span class="step" style="font-weight:700;color:var(--step-color);font-size:1rem;">📌 Найти \(x\): \(\log_3 (2x-1) = 2\)</span>
+                    <div class="formula-line">\(3^2 = 2x-1\)</div>
+                    <div class="formula-line">\(9 = 2x-1 \Rightarrow x = 5\)</div>
+                    <span class="result">✅ Ответ: \(x = 5\)</span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <a href="index.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+    }
+
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    // ИЗБРАННОЕ
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+</body>
+</html>
