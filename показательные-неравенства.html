@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Показательные неравенства — 10-11 класс</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -10,11 +10,17 @@
             --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
             --border: rgba(16,185,129,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
             --special-border: #10b981; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --graph-bg: #243848;
         }
         :root.light-mode {
             --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
             --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
-            --info-bg: #e8f0fe; --special-border: #10b981; --example-bg: #e8f0fe;
+            --info-bg: #e8f0fe; --special-border: #10b981; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --graph-bg: #f8fafc;
         }
         body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
         .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
@@ -28,17 +34,19 @@
         .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
         .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
         .section-title:hover { opacity: 0.8; }
-        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section-content { max-height: 12000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
         .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
         .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
-        .example .step { font-weight: 700; color: #34d399; margin-top: 12px; margin-bottom: 4px; }
-        .example .result { margin-top: 10px; font-weight: 600; color: #4ade80; }
-        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
-        .important strong { color: #fbbf24; }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
         .keep-sign { background: #065f46; color: #6ee7b7; padding: 2px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap; }
         .flip-sign { background: #991b1b; color: #fca5a5; padding: 2px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap; }
-        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
         .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
         .back-link:hover { background: #059669; }
         mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
@@ -48,10 +56,29 @@
             .section-title { font-size: 1rem; }
             .example { padding: 12px 14px; }
         }
-    
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        .number-line { margin: 15px 0; text-align: center; }
+        .number-line svg { max-width: 100%; height: auto; }
+        .number-line .tick { font-size: 12px; fill: var(--text-secondary); }
+        .number-line .line { stroke: var(--text); stroke-width: 2; }
+        .number-line .solution-line { stroke: var(--result-color); stroke-width: 4; }
+        .number-line .point-filled { fill: var(--result-color); }
+        .number-line .point-open { fill: var(--card-bg); stroke: var(--result-color); stroke-width: 2; }
+
+        .graph-container { background: var(--graph-bg); border-radius: 12px; margin: 10px 0; padding: 6px; border: 1px solid var(--border); width: 100%; }
+        .graph-container canvas { display: block; width: 100%; height: auto; border-radius: 10px; }
+        .graph-container canvas.parabola-plot { aspect-ratio: 650 / 220; min-height: 170px; }
+
+        .error-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9rem; border-radius: 12px; overflow: hidden; }
+        .error-table th { background: var(--special-border); color: white; padding: 10px 12px; text-align: left; font-weight: 700; }
+        .error-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; background: var(--card-bg); }
+        .error-table tr:nth-child(even) td { background: var(--formula-bg); }
+        .error-table tr:last-child td { border-bottom: none; }
+        .error-table .wrong { color: var(--danger-color); font-weight: 700; }
+        .error-table .right { color: var(--result-color); font-weight: 700; }
     </style>
     <script>
         MathJax = {
@@ -63,140 +90,275 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>Показательные неравенства</h1>
 
+    <!-- 1. ВВЕДЕНИЕ — через парадокс -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📖 Что такое показательное неравенство</span>
         </div>
         <div class="section-content">
-            <p><strong>Показательное неравенство</strong> — неравенство, в котором переменная содержится в показателе степени.</p>
+            <p>Вопрос на подумать: что растёт быстрее — $2^x$ или $x^{100}$? Кажется, что многочлен должен победить: он же «в сотой степени». Но уже при $x = 1000$ имеем $2^{1000} \approx 10^{301}$, а $1000^{100} = 10^{300}$. Показательная функция обгоняет и не оглядывается. Такие «взрывающиеся» величины и описывают <strong>показательные неравенства</strong>.</p>
             <div class="formula-block">
                 $2^x > 8$<br>
                 $3^{x+1} \leq 27$<br>
                 $\left(\dfrac{1}{2}\right)^x < 4$<br>
                 $5^{2x} + 5^x - 2 \geq 0$
             </div>
+            <p>Технически всё сводится к одному: привести обе части к одинаковому основанию. Но есть подвох — <strong>знак неравенства зависит от основания</strong>. Именно это — главная ловушка темы.</p>
             <div class="important">
-                <strong>💡 Ключевой принцип:</strong><br>
+                <strong>💡 Запомни раз и навсегда:</strong><br>
                 Если основание $a > 1$ — <span class="keep-sign">знак сохраняется</span><br>
                 Если $0 < a < 1$ — <span class="flip-sign">знак меняется</span>
             </div>
         </div>
     </div>
 
+    <!-- 2. ОСНОВАНИЕ БОЛЬШЕ 1 -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Основание больше 1 (функция возрастает)</span>
-            <span class="sub-title">$a > 1$</span>
+            <span class="main-title">📐 Основание больше 1</span>
+            <span class="sub-title">$a > 1$ — функция возрастает</span>
         </div>
         <div class="section-content">
+            <p>При $a > 1$ показательная функция <strong>возрастает</strong>. Чем больше показатель, тем больше значение. Поэтому знак неравенства между степенями совпадает со знаком между показателями.</p>
             <div class="formula-block">
                 Если $a > 1$, то $a^{f(x)} > a^{g(x)} \Leftrightarrow f(x) > g(x)$<br>
                 <span class="keep-sign">знак неравенства сохраняется</span>
+            </div>
+            <div class="important">
+                <strong>💡 Почему так?</strong> Функция $y = a^x$ при $a > 1$ монотонно возрастает. Из $a^u > a^v$ следует $u > v$. Никаких «переворотов» нет.
             </div>
 
             <div class="example">
                 <strong>Пример 1.</strong> $2^x > 8$<br><br>
                 <span class="step">Шаг 1. Приводим к одному основанию.</span>
-                $2^x > 2^3$. Основание $2 > 1$ — <span class="keep-sign">знак сохраняется</span>.<br><br>
-                <span class="step">Шаг 2. Сравниваем показатели.</span>
-                $x > 3$.<br><br>
+                $8 = 2^3$, поэтому $2^x > 2^3$.<br>
+                <span class="step">Шаг 2. Основание $2 > 1$ — <span class="keep-sign">знак сохраняется</span>.</span>
+                $x > 3$.<br>
+                <div class="hint">💡 Большему показателю соответствует большее значение степени, поэтому знак не меняется.</div>
+                <span class="step">Шаг 3. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">3</text>
+                        <line x1="200" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (3; +\infty)$.</span>
             </div>
 
             <div class="example" style="margin-top:12px;">
                 <strong>Пример 2.</strong> $5^{x-2} \leq 25$<br><br>
-                <span class="step">Шаг 1.</span> $25 = 5^2$. Основание $5 > 1$ — <span class="keep-sign">знак сохраняется</span>.<br><br>
-                <span class="step">Шаг 2.</span> $x-2 \leq 2 \Rightarrow x \leq 4$.<br><br>
+                <span class="step">Шаг 1.</span> $25 = 5^2$, поэтому $5^{x-2} \leq 5^2$.<br>
+                <span class="step">Шаг 2. Основание $5 > 1$ — <span class="keep-sign">знак сохраняется</span>.</span>
+                $x - 2 \leq 2 \Rightarrow x \leq 4$.<br>
+                <span class="step">Шаг 3. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="260" y1="25" x2="260" y2="35" class="line" />
+                        <text x="260" y="50" text-anchor="middle" class="tick">4</text>
+                        <line x1="20" y1="30" x2="260" y2="30" class="solution-line" />
+                        <circle cx="260" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (-\infty; 4]$.</span>
             </div>
 
             <div class="example" style="margin-top:12px;">
                 <strong>Пример 3.</strong> $3^{2x-1} > 27$<br><br>
-                <span class="step">Шаг 1.</span> $27 = 3^3$. Основание $3 > 1$ — <span class="keep-sign">знак сохраняется</span>.<br><br>
-                <span class="step">Шаг 2.</span> $2x-1 > 3 \Rightarrow 2x > 4 \Rightarrow x > 2$.<br><br>
+                <span class="step">Шаг 1.</span> $27 = 3^3$, поэтому $3^{2x-1} > 3^3$.<br>
+                <span class="step">Шаг 2. Основание $3 > 1$ — <span class="keep-sign">знак сохраняется</span>.</span>
+                $2x - 1 > 3 \Rightarrow 2x > 4 \Rightarrow x > 2$.<br>
+                <span class="step">Шаг 3. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">2</text>
+                        <line x1="200" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (2; +\infty)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 3. ОСНОВАНИЕ 0 < a < 1 -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Основание от 0 до 1 (функция убывает)</span>
-            <span class="sub-title">$0 < a < 1$</span>
+            <span class="main-title">📐 Основание от 0 до 1</span>
+            <span class="sub-title">$0 < a < 1$ — функция убывает</span>
         </div>
         <div class="section-content">
+            <p>При $0 < a < 1$ показательная функция <strong>убывает</strong>. Чем больше показатель, тем <strong>меньше</strong> значение. Значит, при переходе к показателям знак неравенства меняется.</p>
             <div class="formula-block">
                 Если $0 < a < 1$, то $a^{f(x)} > a^{g(x)} \Leftrightarrow f(x) < g(x)$<br>
                 <span class="flip-sign">знак неравенства меняется на противоположный</span>
+            </div>
+            <div class="important">
+                <strong>💡 Как не запутаться?</strong> Мысленно представь график: при $a < 1$ он «падает» слева направо. Значит, большему $x$ соответствует меньшее $y$ — знак переворачивается.
             </div>
 
             <div class="example">
                 <strong>Пример 4.</strong> $\left(\dfrac{1}{2}\right)^x < 4$<br><br>
                 <span class="step">Шаг 1. Приводим к основанию $\frac{1}{2}$.</span>
-                $4 = \left(\dfrac{1}{2}\right)^{-2}$. Основание $\dfrac{1}{2} \in (0; 1)$ — <span class="flip-sign">знак меняется</span>!<br><br>
-                <span class="step">Шаг 2. Меняем знак и сравниваем показатели.</span>
-                $x > -2$.<br><br>
+                $4 = \left(\dfrac{1}{2}\right)^{-2}$, поэтому $\left(\dfrac{1}{2}\right)^x < \left(\dfrac{1}{2}\right)^{-2}$.<br>
+                <span class="step">Шаг 2. Основание $\dfrac{1}{2} \in (0; 1)$ — <span class="flip-sign">знак меняется</span>.</span>
+                $x > -2$.<br>
+                <div class="hint">💡 Было $<$, стало $>$ — потому что функция убывает.</div>
+                <span class="step">Шаг 3. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="120" y1="25" x2="120" y2="35" class="line" />
+                        <text x="120" y="50" text-anchor="middle" class="tick">-2</text>
+                        <line x1="120" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="120" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (-2; +\infty)$.</span>
             </div>
 
             <div class="example" style="margin-top:12px;">
                 <strong>Пример 5.</strong> $\left(\dfrac{2}{3}\right)^{x+1} \geq \dfrac{8}{27}$<br><br>
-                <span class="step">Шаг 1.</span> $\dfrac{8}{27} = \left(\dfrac{2}{3}\right)^3$. Основание $\dfrac{2}{3} \in (0; 1)$ — <span class="flip-sign">знак меняется</span>.<br><br>
-                <span class="step">Шаг 2.</span> $x+1 \leq 3 \Rightarrow x \leq 2$.<br><br>
+                <span class="step">Шаг 1.</span> $\dfrac{8}{27} = \left(\dfrac{2}{3}\right)^3$, поэтому $\left(\dfrac{2}{3}\right)^{x+1} \geq \left(\dfrac{2}{3}\right)^3$.<br>
+                <span class="step">Шаг 2. Основание $\dfrac{2}{3} \in (0; 1)$ — <span class="flip-sign">знак меняется</span>.</span>
+                $x + 1 \leq 3 \Rightarrow x \leq 2$.<br>
+                <span class="step">Шаг 3. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="220" y1="25" x2="220" y2="35" class="line" />
+                        <text x="220" y="50" text-anchor="middle" class="tick">2</text>
+                        <line x1="20" y1="30" x2="220" y2="30" class="solution-line" />
+                        <circle cx="220" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (-\infty; 2]$.</span>
             </div>
 
             <div class="example" style="margin-top:12px;">
                 <strong>Пример 6.</strong> $(0{,}1)^{2x} > 0{,}01$<br><br>
-                <span class="step">Шаг 1.</span> $0{,}01 = (0{,}1)^2$. Основание $0{,}1 \in (0; 1)$ — <span class="flip-sign">знак меняется</span>.<br><br>
-                <span class="step">Шаг 2.</span> $2x < 2 \Rightarrow x < 1$.<br><br>
+                <span class="step">Шаг 1.</span> $0{,}01 = (0{,}1)^2$, поэтому $(0{,}1)^{2x} > (0{,}1)^2$.<br>
+                <span class="step">Шаг 2. Основание $0{,}1 \in (0; 1)$ — <span class="flip-sign">знак меняется</span>.</span>
+                $2x < 2 \Rightarrow x < 1$.<br>
+                <span class="step">Шаг 3. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="220" y1="25" x2="220" y2="35" class="line" />
+                        <text x="220" y="50" text-anchor="middle" class="tick">1</text>
+                        <line x1="20" y1="30" x2="220" y2="30" class="solution-line" />
+                        <circle cx="220" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (-\infty; 1)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 4. ЗАМЕНА ПЕРЕМЕННОЙ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Метод замены переменной</span>
             <span class="sub-title">сведение к квадратному неравенству</span>
         </div>
         <div class="section-content">
+            <p>Если в неравенстве встречаются $a^x$ и $a^{2x}$ — делаем замену $t = a^x$, $t > 0$. Получаем квадратное неравенство относительно $t$.</p>
+
             <div class="example">
                 <strong>Пример 7.</strong> $4^x - 2^x - 12 \geq 0$<br><br>
                 <span class="step">Шаг 1. Замена.</span> $t = 2^x$, $t > 0$. Тогда $4^x = t^2$.<br>
-                $t^2 - t - 12 \geq 0$.<br><br>
+                Неравенство: $t^2 - t - 12 \geq 0$.<br>
                 <span class="step">Шаг 2. Решаем квадратное неравенство.</span>
                 Корни: $t_1 = -3$, $t_2 = 4$. Парабола ветвями вверх: $t \leq -3$ или $t \geq 4$.<br>
-                Учитывая $t > 0$: $t \geq 4$.<br><br>
-                <span class="step">Шаг 3. Возврат.</span> $2^x \geq 4 = 2^2$. Основание $2 > 1$ — <span class="keep-sign">знак сохраняется</span>: $x \geq 2$.<br><br>
+                С учётом $t > 0$: $t \geq 4$.<br><br>
+                <div class="graph-container">
+                    <canvas id="parabola7" class="parabola-plot" width="650" height="220"></canvas>
+                </div>
+                <span class="step">Шаг 3. Возврат к $x$.</span>
+                $2^x \geq 4 = 2^2$. Основание $2 > 1$ — <span class="keep-sign">знак сохраняется</span>: $x \geq 2$.<br>
+                <span class="step">Шаг 4. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">2</text>
+                        <line x1="200" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in [2; +\infty)$.</span>
             </div>
 
             <div class="example" style="margin-top:12px;">
                 <strong>Пример 8.</strong> $9^x - 10 \cdot 3^x + 9 \leq 0$<br><br>
-                <span class="step">Шаг 1.</span> $t = 3^x$, $t > 0$. $9^x = t^2$. $t^2 - 10t + 9 \leq 0$.<br><br>
+                <span class="step">Шаг 1. Замена $t = 3^x$, $t > 0$.</span> $9^x = t^2$. Неравенство: $t^2 - 10t + 9 \leq 0$.<br>
                 <span class="step">Шаг 2.</span> Корни: $t_1 = 1$, $t_2 = 9$. Решение: $1 \leq t \leq 9$.<br><br>
-                <span class="step">Шаг 3.</span> $1 \leq 3^x \leq 9$, то есть $3^0 \leq 3^x \leq 3^2$. Основание $3 > 1$ — <span class="keep-sign">знак сохраняется</span>: $0 \leq x \leq 2$.<br><br>
+                <div class="graph-container">
+                    <canvas id="parabola8" class="parabola-plot" width="650" height="220"></canvas>
+                </div>
+                <span class="step">Шаг 3. Возврат.</span>
+                $1 \leq 3^x \leq 9$, то есть $3^0 \leq 3^x \leq 3^2$. Основание $3 > 1$ — <span class="keep-sign">знак сохраняется</span>: $0 \leq x \leq 2$.<br>
+                <span class="step">Шаг 4. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="140" y1="25" x2="140" y2="35" class="line" />
+                        <text x="140" y="50" text-anchor="middle" class="tick">0</text>
+                        <line x1="260" y1="25" x2="260" y2="35" class="line" />
+                        <text x="260" y="50" text-anchor="middle" class="tick">2</text>
+                        <line x1="140" y1="30" x2="260" y2="30" class="solution-line" />
+                        <circle cx="140" cy="30" r="5" class="point-filled" />
+                        <circle cx="260" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in [0; 2]$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 5. РАЗНЫЕ ОСНОВАНИЯ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Неравенства с разными основаниями</span>
             <span class="sub-title">деление на степень</span>
         </div>
         <div class="section-content">
+            <p>Если основания разные, но показатели одинаковые — делим обе части на одну из степеней. Получаем неравенство вида $c^x \lessgtr 1$.</p>
+
             <div class="example">
                 <strong>Пример 9.</strong> $2^x > 3^x$<br><br>
                 <span class="step">Шаг 1. Делим на $3^x$ ($3^x > 0$).</span>
                 $\left(\dfrac{2}{3}\right)^x > 1 = \left(\dfrac{2}{3}\right)^0$.<br>
-                Основание $\dfrac{2}{3} \in (0; 1)$ — <span class="flip-sign">знак меняется</span>.<br><br>
-                <span class="step">Шаг 2.</span> $x < 0$.<br><br>
+                <span class="step">Шаг 2. Основание $\dfrac{2}{3} \in (0; 1)$ — <span class="flip-sign">знак меняется</span>.</span>
+                $x < 0$.<br>
+                <span class="step">Шаг 3. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">0</text>
+                        <line x1="20" y1="30" x2="200" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (-\infty; 0)$.</span>
             </div>
 
@@ -204,33 +366,69 @@
                 <strong>Пример 10.</strong> $5^{x} \leq 2^{x}$<br><br>
                 <span class="step">Шаг 1. Делим на $2^x$.</span>
                 $\left(\dfrac{5}{2}\right)^x \leq 1 = \left(\dfrac{5}{2}\right)^0$.<br>
-                Основание $\dfrac{5}{2} > 1$ — <span class="keep-sign">знак сохраняется</span>.<br><br>
-                <span class="step">Шаг 2.</span> $x \leq 0$.<br><br>
+                <span class="step">Шаг 2. Основание $\dfrac{5}{2} > 1$ — <span class="keep-sign">знак сохраняется</span>.</span>
+                $x \leq 0$.<br>
+                <span class="step">Шаг 3. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">0</text>
+                        <line x1="20" y1="30" x2="200" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (-\infty; 0]$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 6. ТИПИЧНЫЕ ОШИБКИ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Однородные неравенства ★</span>
-            <span class="sub-title">деление на старшую степень</span>
+            <span class="main-title">⚠️ Типичные ошибки</span>
         </div>
         <div class="section-content">
-            <div class="example">
-                <strong>Пример 11.</strong> $4^x - 2^x \cdot 3^x - 2 \cdot 9^x > 0$<br><br>
-                <span class="step">Шаг 1. Делим на $9^x$.</span>
-                $\left(\dfrac{4}{9}\right)^x - \left(\dfrac{2}{3}\right)^x - 2 > 0$<br>
-                $\left(\dfrac{2}{3}\right)^{2x} - \left(\dfrac{2}{3}\right)^x - 2 > 0$.<br><br>
-                <span class="step">Шаг 2. Замена $t = \left(\dfrac{2}{3}\right)^x$, $t > 0$.</span> $t^2 - t - 2 > 0$.<br>
-                Корни: $t_1 = -1$, $t_2 = 2$. Решение: $t > 2$ (с учётом $t > 0$).<br><br>
-                <span class="step">Шаг 3.</span> $\left(\dfrac{2}{3}\right)^x > 2$. Основание $\dfrac{2}{3} \in (0; 1)$ — <span class="flip-sign">знак меняется</span>:
-                $x < \log_{\frac{2}{3}} 2$.<br><br>
-                <span class="result">Ответ: $x \in (-\infty; \log_{\frac{2}{3}} 2)$.</span>
-            </div>
+            <table class="error-table">
+                <thead><tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr></thead>
+                <tbody>
+                <tr>
+                    <td class="wrong">Забыли поменять знак при $0 < a < 1$</td>
+                    <td>Функция убывает, поэтому знак неравенства переворачивается.</td>
+                    <td class="right">$0 < a < 1$: $a^f > a^g \Rightarrow f < g$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">$a^{f+g} = a^f + a^g$</td>
+                    <td>Степень суммы не равна сумме степеней.</td>
+                    <td class="right">$a^{f+g} = a^f \cdot a^g$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">Считают $2^{-x}$ невозможным</td>
+                    <td>Отрицательный показатель — это просто дробь: $2^{-x} = \dfrac{1}{2^x}$.</td>
+                    <td class="right">Свойство степени: $a^{-x} = \dfrac{1}{a^x}$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">При замене $t = 2^x$ не пишут $t > 0$</td>
+                    <td>Могут остаться отрицательные корни квадратного неравенства, которые не подходят.</td>
+                    <td class="right">Всегда: $t > 0$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">При делении на $b^x$ забывают, что $b^x > 0$</td>
+                    <td>Деление на положительное число безопасно — знак не меняется.</td>
+                    <td class="right">Отметить: $b^x > 0$, делим смело</td>
+                </tr>
+                <tr>
+                    <td class="wrong">Путают $a^{2x}$ и $(a^x)^2$</td>
+                    <td>Это одно и то же: $a^{2x} = (a^x)^2$. Оба варианта верны.</td>
+                    <td class="right">$a^{2x} = (a^x)^2$</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
+    <!-- 7. СВОДНАЯ ТАБЛИЦА -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📊 Сводная таблица</span>
@@ -241,7 +439,7 @@
                 <strong>2.</strong> $a^{f(x)} > a^{g(x)}$, $0 < a < 1$ — <span class="flip-sign">знак меняется</span>: $f(x) < g(x)$<br><br>
                 <strong>3.</strong> $a^{2x} + b \cdot a^x + c \geq 0$ — замена $t = a^x$, $t > 0$<br><br>
                 <strong>4.</strong> $a^x > b^x$ — делим на $b^x$, получаем $\left(\dfrac{a}{b}\right)^x > 1$<br><br>
-                <strong>5.</strong> Однородное — делим на старшую степень, замена $t = \left(\dfrac{a}{b}\right)^x$
+                <strong>5.</strong> Общий алгоритм: привести к одинаковому основанию → учесть знак основания → сравнить показатели.
             </div>
         </div>
     </div>
@@ -262,6 +460,8 @@
             localStorage.setItem('mathTheme', 'light');
             btn.textContent = '☀️';
         }
+        if (window.MathJax) MathJax.typesetPromise();
+        setTimeout(drawAllPlots, 400);
     }
     (function () {
         if (localStorage.getItem('mathTheme') === 'light') {
@@ -269,8 +469,151 @@
             document.getElementById('themeBtn').textContent = '☀️';
         }
     })();
-</script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+    function drawAllPlots() {
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const colors = {
+            axis: isLight ? '#5a7a94' : '#8ba5b8',
+            text: isLight ? '#1a2a3f' : '#ffffff',
+            bg: isLight ? '#f8fafc' : '#162a38',
+            grid: isLight ? 'rgba(26,42,63,0.1)' : 'rgba(139,165,184,0.2)',
+            plus: isLight ? '#059669' : '#34d399',
+            minus: isLight ? '#dc2626' : '#f87171',
+            curve: '#1abc9c',
+            point: '#e67e22',
+            fillPlus: isLight ? 'rgba(5,150,105,0.15)' : 'rgba(52,211,153,0.15)',
+            fillMinus: isLight ? 'rgba(220,38,38,0.15)' : 'rgba(248,113,113,0.15)'
+        };
+
+        function drawParabola(canvasId, roots, a, xMin, xMax, yMin, yMax) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const parentWidth = canvas.parentElement.clientWidth - 8;
+            const w = parentWidth < 100 ? 600 : parentWidth;
+            const h = w * 220 / 650;
+            canvas.width = 650;
+            canvas.height = 220;
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+
+            const ctx = canvas.getContext('2d');
+            const W = 650, H = 220;
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, W, H);
+
+            const pad = 45;
+            const xScale = (W - 2 * pad) / (xMax - xMin);
+            const yScale = (H - 2 * pad) / (yMax - yMin);
+            function toX(x) { return pad + (x - xMin) * xScale; }
+            function toY(y) { return pad + (yMax - y) * yScale; }
+
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 0.8;
+            for (let x = Math.ceil(xMin); x <= xMax; x++) {
+                if (Math.abs(x) < 0.01) continue;
+                const xc = toX(x);
+                ctx.beginPath(); ctx.moveTo(xc, pad); ctx.lineTo(xc, H - pad); ctx.stroke();
+                ctx.fillStyle = colors.text;
+                ctx.font = '11px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(x.toString(), xc, H - pad + 4);
+            }
+
+            ctx.strokeStyle = colors.axis;
+            ctx.lineWidth = 2;
+            const y0 = toY(0);
+            if (y0 >= pad && y0 <= H - pad) {
+                ctx.beginPath(); ctx.moveTo(pad, y0); ctx.lineTo(W - pad, y0); ctx.stroke();
+            }
+            const x0 = toX(0);
+            if (x0 >= pad && x0 <= W - pad) {
+                ctx.beginPath(); ctx.moveTo(x0, pad); ctx.lineTo(x0, H - pad); ctx.stroke();
+            }
+
+            for (const r of roots) {
+                const rx = toX(r);
+                ctx.fillStyle = colors.point;
+                ctx.beginPath();
+                ctx.arc(rx, y0, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = colors.text;
+                ctx.font = 'bold 12px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(r.toString(), rx, y0 + 8);
+            }
+
+            ctx.strokeStyle = colors.curve;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            let first = true;
+            for (let i = 0; i <= 200; i++) {
+                const t = i / 200;
+                const xVal = xMin + t * (xMax - xMin);
+                let yVal = a;
+                for (const r of roots) yVal *= (xVal - r);
+                const xc2 = toX(xVal), yc2 = toY(yVal);
+                if (yc2 < pad - 30 || yc2 > H - pad + 30) { first = true; continue; }
+                if (first) { ctx.moveTo(xc2, yc2); first = false; }
+                else ctx.lineTo(xc2, yc2);
+            }
+            ctx.stroke();
+
+            for (let i = 0; i <= roots.length; i++) {
+                const xS = (i === 0) ? xMin : roots[i - 1];
+                const xE = (i === roots.length) ? xMax : roots[i];
+                const midX = (xS + xE) / 2;
+                let yMid = a;
+                for (const r of roots) yMid *= (midX - r);
+                const isPlus = (yMid > 0);
+                const xSPx = toX(xS), xEPx = toX(xE);
+                if (xEPx - xSPx < 2) continue;
+
+                ctx.fillStyle = isPlus ? colors.fillPlus : colors.fillMinus;
+                ctx.fillRect(xSPx, pad, xEPx - xSPx, H - 2 * pad);
+
+                const midPx = (xSPx + xEPx) / 2;
+                ctx.fillStyle = isPlus ? colors.plus : colors.minus;
+                ctx.font = 'bold 22px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(isPlus ? ' + ' : ' − ', midPx, y0 + 20);
+            }
+        }
+
+        drawParabola('parabola7', [-3, 4], 1, -5, 6, -14, 6);
+        drawParabola('parabola8', [1, 9], 1, 0, 11, -5, 15);
+    }
+
+    setTimeout(function () {
+        drawAllPlots();
+        if (window.MathJax) MathJax.typesetPromise();
+    }, 600);
+
+    window.addEventListener('resize', drawAllPlots);
+
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
 </body>
 </html>

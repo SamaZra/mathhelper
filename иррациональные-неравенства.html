@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Иррациональные неравенства — 10-11 класс</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -10,11 +10,17 @@
             --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
             --border: rgba(239,68,68,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
             --special-border: #ef4444; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --graph-bg: #243848;
         }
         :root.light-mode {
             --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
             --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
-            --info-bg: #e8f0fe; --special-border: #ef4444; --example-bg: #e8f0fe;
+            --info-bg: #e8f0fe; --special-border: #ef4444; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --graph-bg: #f8fafc;
         }
         body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
         .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
@@ -28,16 +34,21 @@
         .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
         .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
         .section-title:hover { opacity: 0.8; }
-        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section-content { max-height: 12000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
         .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
         .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
-        .example .step { font-weight: 700; color: #f87171; margin-top: 12px; margin-bottom: 4px; }
-        .example .result { margin-top: 10px; font-weight: 600; color: #4ade80; }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .formula-highlight { color: var(--formula-color); font-weight: 600; }
+        .example .danger-text { color: var(--danger-color); font-weight: 700; }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        .example .idea { color: var(--accent); font-weight: 600; }
         p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
         ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
-        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
-        .important strong { color: #fbbf24; }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .warning-text { color: var(--warning-border); font-weight: 700; }
         .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
         .back-link:hover { background: #dc2626; }
         mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
@@ -47,10 +58,75 @@
             .section-title { font-size: 1rem; }
             .example { padding: 12px 14px; }
         }
-    
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        .number-line { margin: 15px 0; text-align: center; }
+        .number-line svg { max-width: 100%; height: auto; }
+        .number-line .tick { font-size: 12px; fill: var(--text-secondary); }
+        .number-line .line { stroke: var(--text); stroke-width: 2; }
+        .number-line .solution-line { stroke: var(--result-color); stroke-width: 4; }
+        .number-line .point-filled { fill: var(--result-color); }
+        .number-line .point-open { fill: var(--card-bg); stroke: var(--result-color); stroke-width: 2; }
+
+        .graph-container {
+            background: var(--graph-bg);
+            border-radius: 12px;
+            margin: 10px 0;
+            padding: 6px;
+            border: 1px solid var(--border);
+            width: 100%;
+        }
+        .graph-container canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .graph-container canvas.parabola-plot {
+            aspect-ratio: 650 / 220;
+            min-height: 170px;
+        }
+
+        .plus { color: #27ae60; font-weight: 700; }
+        .minus { color: #e74c3c; font-weight: 700; }
+
+        .error-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .error-table th {
+            background: var(--special-border);
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 700;
+        }
+        .error-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            vertical-align: top;
+        }
+        .error-table tr:nth-child(even) td {
+            background: var(--formula-bg);
+        }
+        .error-table tr:last-child td {
+            border-bottom: none;
+        }
+        .error-table .wrong {
+            color: var(--danger-color);
+            font-weight: 700;
+        }
+        .error-table .right {
+            color: var(--result-color);
+            font-weight: 700;
+        }
     </style>
     <script>
         MathJax = {
@@ -62,15 +138,18 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>Иррациональные неравенства</h1>
 
+    <!-- 1. ВВЕДЕНИЕ -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📖 Что такое иррациональное неравенство</span>
         </div>
         <div class="section-content">
-            <p><strong>Иррациональное неравенство</strong> — неравенство, в котором переменная содержится под знаком корня (радикала).</p>
+            <p>Представь, что в неравенстве есть корень, под которым стоит переменная <strong>$x$</strong>. Например, $\sqrt{x+1} > 3$. Такое неравенство называется <strong>иррациональным</strong>.</p>
+            <p>Почему это особая тема? Потому что корень <strong>нельзя просто так возвести в квадрат</strong>, не проверив условия. Например, если $\sqrt{x} = -5$, решений нет, ведь корень не может быть отрицательным. А если $\sqrt{x} < -3$ — тоже нет, по той же причине. Такие «ловушки» требуют особого подхода.</p>
             <div class="formula-block">
                 $\sqrt{x+1} > 3$<br>
                 $\sqrt{x+5} < x-1$<br>
@@ -78,142 +157,526 @@
                 $\sqrt{x} + \sqrt{x-1} \leq 3$
             </div>
             <div class="important">
-                <strong>⚠️ Основной принцип:</strong> Иррациональные неравенства решаются методом <strong>равносильных переходов</strong> — переходом к системе (или совокупности) неравенств без корня с учётом ОДЗ.
+                <strong>⚠️ Главная идея:</strong> Мы <strong>не решаем</strong> иррациональное неравенство напрямую. Вместо этого мы заменяем его на <strong>равносильную систему</strong> (или совокупность), где корней уже нет — только обычные рациональные неравенства. Этот приём называется <strong>методом равносильных переходов</strong>.
             </div>
         </div>
     </div>
 
+    <!-- 2. СРАВНЕНИЕ С ЧИСЛОМ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Сравнение с числом</span>
+            <span class="sub-title">$\sqrt{f(x)} \geq a$, $\sqrt{f(x)} \leq a$</span>
+        </div>
+        <div class="section-content">
+            <p>Самый простой случай: справа стоит не переменная, а <strong>число</strong>. Здесь важно следить за знаком этого числа.</p>
+            <div class="formula-block">
+                <strong>1.</strong> $\sqrt{f(x)} \geq a, \ a \geq 0 \Leftrightarrow f(x) \geq a^2$<br><br>
+                <strong>2.</strong> $\sqrt{f(x)} \geq a, \ a < 0 \Leftrightarrow f(x) \geq 0$<br><br>
+                <strong>3.</strong> $\sqrt{f(x)} \leq a, \ a \geq 0 \Leftrightarrow \begin{cases} f(x) \geq 0 \\ f(x) \leq a^2 \end{cases}$<br><br>
+                <strong>4.</strong> $\sqrt{f(x)} < a, \ a \leq 0 \Leftrightarrow \text{нет решений } (x \in \varnothing)$
+            </div>
+            <div class="important">
+                <strong>💡 Почему так?</strong><br>
+                • Корень всегда <strong>$\geq 0$</strong>. Если правая часть $\geq 0$, можно возводить в квадрат.<br>
+                • Если правая часть $< 0$, а слева корень — неравенство $\geq$ <strong>всегда верно</strong> (при ОДЗ), а $\leq$ — <strong>никогда</strong>.<br>
+                • При возведении в квадрат нужно помнить про ОДЗ: $f(x) \geq 0$.
+            </div>
+
+            <div class="example">
+                <strong>Пример 1.</strong> $\sqrt{2x-1} \geq 3$<br><br>
+                <span class="step">Шаг 1. Анализируем.</span> Справа стоит $3 > 0$, значит можно возводить в квадрат.<br>
+                <span class="step">Шаг 2. Возводим в квадрат.</span>
+                $2x-1 \geq 9$.<br>
+                <span class="step">Шаг 3. Решаем.</span>
+                $2x \geq 10 \Rightarrow x \geq 5$.<br>
+                <div class="hint">💡 ОДЗ здесь выполняется автоматически: если $x \geq 5$, то $2x-1 \geq 9 > 0$.</div>
+                <span class="step">Шаг 4. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">5</text>
+                        <line x1="200" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
+                <span class="result">Ответ: $x \in [5; +\infty)$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2.</strong> $\sqrt{x+2} \leq 4$<br><br>
+                <span class="step">Шаг 1. Анализируем.</span> Справа стоит $4 > 0$. Но здесь неравенство $\leq$ — значит, нужно <strong>два условия</strong>: подкоренное $\geq 0$ и подкоренное $\leq 16$.<br>
+                <span class="step">Шаг 2. Записываем систему.</span>
+                $\begin{cases} x+2 \geq 0 \\ x+2 \leq 16 \end{cases}$<br>
+                <div class="hint">💡 Первое неравенство — это ОДЗ. Второе — результат возведения в квадрат.</div>
+                <span class="step">Шаг 3. Решаем.</span>
+                $\begin{cases} x \geq -2 \\ x \leq 14 \end{cases} \Rightarrow -2 \leq x \leq 14$.<br><br>
+                <span class="step">Шаг 4. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="80" y1="25" x2="80" y2="35" class="line" />
+                        <text x="80" y="50" text-anchor="middle" class="tick">-2</text>
+                        <line x1="300" y1="25" x2="300" y2="35" class="line" />
+                        <text x="300" y="50" text-anchor="middle" class="tick">14</text>
+                        <line x1="80" y1="30" x2="300" y2="30" class="solution-line" />
+                        <circle cx="80" cy="30" r="5" class="point-filled" />
+                        <circle cx="300" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
+                <span class="result">Ответ: $x \in [-2; 14]$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. КОРЕНЬ МЕНЬШЕ ФУНКЦИИ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Корень меньше функции</span>
             <span class="sub-title">$\sqrt{f(x)} < g(x)$</span>
         </div>
         <div class="section-content">
+            <p>Здесь справа уже не число, а выражение с $x$. Это сложнее: нужно следить за тем, чтобы правая часть была <strong>положительной</strong>, иначе возводить в квадрат нельзя.</p>
             <div class="formula-block">
                 $\sqrt{f(x)} < g(x) \Leftrightarrow \begin{cases} f(x) \geq 0 \\ g(x) > 0 \\ f(x) < g^2(x) \end{cases}$
             </div>
+            <div class="important">
+                <strong>💡 Логика перехода:</strong><br>
+                • <strong>$f(x) \geq 0$</strong> — подкоренное должно быть неотрицательным (ОДЗ).<br>
+                • <strong>$g(x) > 0$</strong> — правая часть должна быть положительной, иначе корень (который $\geq 0$) не может быть меньше отрицательного числа.<br>
+                • <strong>$f(x) < g^2(x)$</strong> — возводим обе части в квадрат (это можно, так как обе части неотрицательны).
+            </div>
 
             <div class="example">
-                <strong>Пример 1.</strong> $\sqrt{x+3} < x-1$<br><br>
+                <strong>Пример 3.</strong> $\sqrt{x+3} < x-1$<br><br>
                 <span class="step">Шаг 1. Записываем равносильную систему.</span>
-                $\begin{cases} x+3 \geq 0 \\ x-1 > 0 \\ x+3 < (x-1)^2 \end{cases}$<br><br>
+                $\begin{cases} x+3 \geq 0 \\ x-1 > 0 \\ x+3 < (x-1)^2 \end{cases}$<br>
+                <div class="hint">💡 Первое — ОДЗ. Второе — правая часть должна быть строго положительной. Третье — возведение в квадрат.</div>
                 <span class="step">Шаг 2. Решаем первые два неравенства.</span>
-                $x \geq -3$, $x > 1$. Итого: $x > 1$.<br><br>
+                $x \geq -3$, $x > 1$. Берём пересечение: $x > 1$.<br>
+                <div class="hint">💡 Обрати внимание: $x > 1$ автоматически «перекрывает» условие $x \geq -3$, поэтому ОДЗ выполняется.</div>
                 <span class="step">Шаг 3. Решаем третье неравенство.</span>
                 $x+3 < x^2-2x+1 \Rightarrow x^2-3x-2 > 0$.<br>
-                Корни: $x = \dfrac{3 \pm \sqrt{17}}{2}$. Решение: $x < \dfrac{3-\sqrt{17}}{2}$ или $x > \dfrac{3+\sqrt{17}}{2}$.<br><br>
+                Находим корни: $x = \dfrac{3 \pm \sqrt{17}}{2}$, т.е. $x_1 \approx -0{,}56$, $x_2 \approx 3{,}56$.<br><br>
+                <div class="graph-container">
+                    <canvas id="parabola3" class="parabola-plot" width="650" height="220"></canvas>
+                </div>
+                <div class="hint">💡 Парабола ветвями вверх ($a=1>0$). Нам нужно $f(x) > 0$ — там, где парабола выше оси $x$: $x < -0{,}56$ или $x > 3{,}56$.</div>
                 <span class="step">Шаг 4. Пересекаем с $x > 1$.</span>
-                $x > \dfrac{3+\sqrt{17}}{2} \approx 3{,}56$.<br><br>
+                Из двух промежутков ($-\infty; -0{,}56$) и ($3{,}56; +\infty$) с условием $x > 1$ пересекается только второй.<br>
+                Получаем: $x > \dfrac{3+\sqrt{17}}{2} \approx 3{,}56$.<br><br>
+                <span class="step">Шаг 5. Числовая прямая (итоговое пересечение).</span>
+                <div class="number-line">
+                    <svg width="500" height="60" viewBox="0 0 500 60">
+                        <line x1="20" y1="30" x2="480" y2="30" class="line" />
+                        <polygon points="480,30 470,25 470,35" fill="var(--text)" />
+                        <line x1="60" y1="25" x2="60" y2="35" class="line" />
+                        <text x="60" y="50" text-anchor="middle" class="tick">-3</text>
+                        <line x1="180" y1="25" x2="180" y2="35" class="line" />
+                        <text x="180" y="50" text-anchor="middle" class="tick">1</text>
+                        <line x1="380" y1="25" x2="380" y2="35" class="line" />
+                        <text x="380" y="50" text-anchor="middle" class="tick">3.56</text>
+                        <line x1="380" y1="30" x2="480" y2="30" class="solution-line" />
+                        <circle cx="380" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in \left(\dfrac{3+\sqrt{17}}{2}; +\infty\right)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 4. КОРЕНЬ БОЛЬШЕ ФУНКЦИИ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Корень больше функции</span>
             <span class="sub-title">$\sqrt{f(x)} > g(x)$</span>
         </div>
         <div class="section-content">
+            <p>Здесь появляется <strong>два принципиально разных случая</strong>. Если правая часть отрицательна — неравенство верно автоматически (корень-то $\geq 0$). Если правая часть неотрицательна — можно возводить в квадрат. Поэтому получается <strong>совокупность</strong> (объединение), а не система.</p>
             <div class="formula-block">
                 $\sqrt{f(x)} > g(x) \Leftrightarrow \left[\begin{array}{l} \begin{cases} f(x) \geq 0 \\ g(x) < 0 \end{cases} \\ \begin{cases} g(x) \geq 0 \\ f(x) > g^2(x) \end{cases} \end{array}\right.$
             </div>
+            <div class="important">
+                <strong>💡 Почему совокупность, а не система?</strong><br>
+                Потому что эти два случая <strong>не пересекаются</strong> — они происходят при разных условиях ($g < 0$ и $g \geq 0$). Достаточно, чтобы выполнялся <strong>хотя бы один</strong> из них. Поэтому объединяем решения.
+            </div>
 
             <div class="example">
-                <strong>Пример 2.</strong> $\sqrt{x^2-4} \geq x-2$<br><br>
+                <strong>Пример 4.</strong> $\sqrt{x^2-4} \geq x-2$<br><br>
                 <span class="step">Шаг 1. Записываем равносильную совокупность.</span>
                 $\left[\begin{array}{l} \begin{cases} x^2-4 \geq 0 \\ x-2 < 0 \end{cases} \\ \begin{cases} x-2 \geq 0 \\ x^2-4 \geq (x-2)^2 \end{cases} \end{array}\right.$<br><br>
-                <span class="step">Шаг 2. Первая система.</span>
-                $x \leq -2$ или $x \geq 2$, и $x < 2$. Пересечение: $x \leq -2$.<br><br>
-                <span class="step">Шаг 3. Вторая система.</span>
+                <span class="step">Шаг 2. Решаем первую систему.</span>
+                $x^2-4 \geq 0 \Rightarrow x \leq -2$ или $x \geq 2$.<br>
+                $x-2 < 0 \Rightarrow x < 2$.<br>
+                Пересечение: $x \leq -2$.<br>
+                <div class="hint">💡 В этом случае правая часть отрицательна, а корень $\geq 0$ — значит, неравенство выполнено автоматически.</div>
+                <span class="step">Шаг 3. Решаем вторую систему.</span>
                 $x \geq 2$, и $x^2-4 \geq x^2-4x+4 \Rightarrow 4x \geq 8 \Rightarrow x \geq 2$.<br>
-                Пересечение: $x \geq 2$.<br><br>
-                <span class="step">Шаг 4. Объединяем.</span> $x \leq -2$ или $x \geq 2$.<br><br>
+                Пересечение: $x \geq 2$.<br>
+                <span class="step">Шаг 4. Объединяем решения.</span>
+                $x \leq -2$ или $x \geq 2$.<br><br>
+                <span class="step">Шаг 5. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="500" height="60" viewBox="0 0 500 60">
+                        <line x1="20" y1="30" x2="480" y2="30" class="line" />
+                        <polygon points="480,30 470,25 470,35" fill="var(--text)" />
+                        <line x1="120" y1="25" x2="120" y2="35" class="line" />
+                        <text x="120" y="50" text-anchor="middle" class="tick">-2</text>
+                        <line x1="320" y1="25" x2="320" y2="35" class="line" />
+                        <text x="320" y="50" text-anchor="middle" class="tick">2</text>
+                        <line x1="20" y1="30" x2="120" y2="30" class="solution-line" />
+                        <circle cx="120" cy="30" r="5" class="point-filled" />
+                        <line x1="320" y1="30" x2="480" y2="30" class="solution-line" />
+                        <circle cx="320" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (-\infty; -2] \cup [2; +\infty)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 5. СРАВНЕНИЕ ДВУХ КОРНЕЙ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Нестрогое неравенство</span>
-            <span class="sub-title">$\sqrt{f(x)} \geq g(x)$</span>
+            <span class="main-title">📐 Сравнение двух корней</span>
+            <span class="sub-title">$\sqrt{f(x)} < \sqrt{g(x)}$ и $\sqrt{f(x)} > \sqrt{g(x)}$</span>
         </div>
         <div class="section-content">
+            <p>Когда с обеих сторон стоят корни, ситуация упрощается: оба выражения неотрицательны, и можно сразу возводить в квадрат, не следя за знаком правой части.</p>
             <div class="formula-block">
-                $\sqrt{f(x)} \geq g(x) \Leftrightarrow \left[\begin{array}{l} \begin{cases} f(x) \geq 0 \\ g(x) \leq 0 \end{cases} \\ \begin{cases} g(x) \geq 0 \\ f(x) \geq g^2(x) \end{cases} \end{array}\right.$
+                <strong>1.</strong> $\sqrt{f(x)} < \sqrt{g(x)} \Leftrightarrow \begin{cases} f(x) \geq 0 \\ g(x) \geq 0 \\ f(x) < g(x) \end{cases}$<br><br>
+                <strong>2.</strong> $\sqrt{f(x)} > \sqrt{g(x)} \Leftrightarrow \begin{cases} f(x) \geq 0 \\ g(x) \geq 0 \\ f(x) > g(x) \end{cases}$<br><br>
+                <strong>3.</strong> $\sqrt[2n+1]{f(x)} > \sqrt[2n+1]{g(x)} \Leftrightarrow f(x) > g(x)$ — для нечётной степени ОДЗ не нужно.
+            </div>
+            <div class="important">
+                <strong>💡 Почему так просто?</strong> Потому что оба корня <strong>неотрицательны</strong>. Возведение в квадрат не меняет знак неравенства, и никаких дополнительных условий на правую часть не нужно — только ОДЗ под обоими корнями.
             </div>
 
             <div class="example">
-                <strong>Пример 3.</strong> $\sqrt{2x+1} \geq x-1$<br><br>
-                <span class="step">Шаг 1. Записываем совокупность.</span>
-                $\left[\begin{array}{l} \begin{cases} 2x+1 \geq 0 \\ x-1 \leq 0 \end{cases} \\ \begin{cases} x-1 \geq 0 \\ 2x+1 \geq (x-1)^2 \end{cases} \end{array}\right.$<br><br>
-                <span class="step">Шаг 2. Первая система.</span>
-                $x \geq -\dfrac{1}{2}$, $x \leq 1$. Пересечение: $-\dfrac{1}{2} \leq x \leq 1$.<br><br>
-                <span class="step">Шаг 3. Вторая система.</span>
-                $x \geq 1$, и $2x+1 \geq x^2-2x+1 \Rightarrow x^2-4x \leq 0 \Rightarrow 0 \leq x \leq 4$.<br>
-                Пересечение: $1 \leq x \leq 4$.<br><br>
-                <span class="step">Шаг 4. Объединяем.</span> $-\dfrac{1}{2} \leq x \leq 4$.<br><br>
-                <span class="result">Ответ: $x \in \left[-\dfrac{1}{2}; 4\right]$.</span>
+                <strong>Пример 5.</strong> $\sqrt{2x-1} < \sqrt{x+3}$<br><br>
+                <span class="step">Шаг 1. Записываем систему.</span>
+                $\begin{cases} 2x-1 \geq 0 \\ x+3 \geq 0 \\ 2x-1 < x+3 \end{cases}$<br><br>
+                <span class="step">Шаг 2. Решаем ОДЗ.</span>
+                $x \geq 0{,}5$, $x \geq -3$. Берём более сильное условие: $x \geq 0{,}5$.<br>
+                <span class="step">Шаг 3. Решаем третье неравенство.</span>
+                $2x-1 < x+3 \Rightarrow x < 4$.<br>
+                <span class="step">Шаг 4. Пересекаем.</span>
+                $0{,}5 \leq x < 4$.<br><br>
+                <span class="step">Шаг 5. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="100" y1="25" x2="100" y2="35" class="line" />
+                        <text x="100" y="50" text-anchor="middle" class="tick">0.5</text>
+                        <line x1="280" y1="25" x2="280" y2="35" class="line" />
+                        <text x="280" y="50" text-anchor="middle" class="tick">4</text>
+                        <line x1="100" y1="30" x2="280" y2="30" class="solution-line" />
+                        <circle cx="100" cy="30" r="5" class="point-filled" />
+                        <circle cx="280" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
+                <span class="result">Ответ: $x \in [0{,}5; 4)$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 6.</strong> $\sqrt[3]{2x-1} > \sqrt[3]{x+2}$<br><br>
+                <span class="step">Шаг 1. Корень нечётной степени.</span> ОДЗ не нужно — подкоренное может быть любым.<br>
+                <span class="step">Шаг 2. Возводим в куб.</span> $2x-1 > x+2 \Rightarrow x > 3$.<br><br>
+                <span class="step">Шаг 3. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">3</text>
+                        <line x1="200" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
+                <span class="result">Ответ: $x \in (3; +\infty)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 6. НЕРАВЕНСТВА С НЕСКОЛЬКИМИ КОРНЯМИ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Неравенства с несколькими корнями</span>
             <span class="sub-title">уединение радикала и возведение в степень</span>
         </div>
         <div class="section-content">
+            <p>Если корней несколько, нужно <strong>«уединить» один из них</strong> — оставить его в одной части, а всё остальное перенести в другую. Тогда после возведения в квадрат второй корень исчезнет.</p>
             <div class="example">
-                <strong>Пример 4.</strong> $\sqrt{x+8} > \sqrt{x} + 2$<br><br>
-                <span class="step">Шаг 1. ОДЗ.</span> $x \geq 0$.<br><br>
+                <strong>Пример 7.</strong> $\sqrt{x+8} > \sqrt{x} + 2$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x+8 \geq 0$ и $x \geq 0$ $\Rightarrow x \geq 0$.<br>
                 <span class="step">Шаг 2. Возводим в квадрат.</span>
-                $x+8 > x + 4\sqrt{x} + 4 \Rightarrow 4 > 4\sqrt{x} \Rightarrow \sqrt{x} < 1 \Rightarrow x < 1$.<br><br>
-                <span class="step">Шаг 3. Учитываем ОДЗ.</span> $0 \leq x < 1$.<br><br>
+                Левая часть — один корень, правая — сумма. Возводим обе части в квадрат:<br>
+                $x+8 > x + 4\sqrt{x} + 4$.<br>
+                <div class="hint">💡 Слева корень уединён, справа — нет. После возведения в квадрат справа появится $4\sqrt{x}$ — это нормально.</div>
+                <span class="step">Шаг 3. Упрощаем.</span>
+                $x+8 > x + 4\sqrt{x} + 4 \Rightarrow 4 > 4\sqrt{x} \Rightarrow \sqrt{x} < 1$.<br>
+                <span class="step">Шаг 4. Возводим в квадрат ещё раз.</span>
+                $x < 1$.<br>
+                <span class="step">Шаг 5. Учитываем ОДЗ.</span>
+                $0 \leq x < 1$.<br><br>
+                <span class="step">Шаг 6. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="100" y1="25" x2="100" y2="35" class="line" />
+                        <text x="100" y="50" text-anchor="middle" class="tick">0</text>
+                        <line x1="260" y1="25" x2="260" y2="35" class="line" />
+                        <text x="260" y="50" text-anchor="middle" class="tick">1</text>
+                        <line x1="100" y1="30" x2="260" y2="30" class="solution-line" />
+                        <circle cx="100" cy="30" r="5" class="point-filled" />
+                        <circle cx="260" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in [0; 1)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 7. НЕРАВЕНСТВА С КУБИЧЕСКИМИ КОРНЯМИ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Неравенства с кубическими корнями</span>
             <span class="sub-title">корень нечётной степени — ОДЗ не нужен</span>
         </div>
         <div class="section-content">
+            <p>Корень <strong>нечётной</strong> степени (3, 5, 7…) определён при любом значении подкоренного выражения. Поэтому ОДЗ искать не нужно, а возведение в степень <strong>не меняет знак</strong> неравенства.</p>
+            <div class="important">
+                <strong>💡 Важно:</strong> для нечётной степени $\sqrt[3]{f(x)} > \sqrt[3]{g(x)} \Leftrightarrow f(x) > g(x)$. Никаких дополнительных условий.
+            </div>
             <div class="example">
-                <strong>Пример 5.</strong> $\sqrt[3]{x-2} > 1$<br><br>
-                <span class="step">Шаг 1. ОДЗ.</span> Корень кубический определён при любом $x$.<br><br>
+                <strong>Пример 8.</strong> $\sqrt[3]{x-2} > 1$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> Корень кубический определён при любом $x$.<br>
                 <span class="step">Шаг 2. Возводим в куб (знак сохраняется).</span> $x-2 > 1 \Rightarrow x > 3$.<br><br>
+                <span class="step">Шаг 3. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">3</text>
+                        <line x1="200" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (3; +\infty)$.</span>
             </div>
 
             <div class="example" style="margin-top:12px;">
-                <strong>Пример 6.</strong> $\sqrt[3]{x+1} \leq \sqrt[3]{2x-3}$<br><br>
+                <strong>Пример 9.</strong> $\sqrt[3]{x+1} \leq \sqrt[3]{2x-3}$<br><br>
                 <span class="step">Шаг 1.</span> Возводим в куб: $x+1 \leq 2x-3 \Rightarrow x \geq 4$.<br><br>
+                <span class="step">Шаг 2. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">4</text>
+                        <line x1="200" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in [4; +\infty)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 8. СИСТЕМЫ ИРРАЦИОНАЛЬНЫХ НЕРАВЕНСТВ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Системы иррациональных неравенств</span>
             <span class="sub-title">пересечение решений</span>
         </div>
         <div class="section-content">
+            <p>Система означает, что оба неравенства должны выполняться <strong>одновременно</strong>. Поэтому сначала находим ОДЗ для каждого, решаем по отдельности, а затем берём <strong>пересечение</strong>.</p>
             <div class="example">
-                <strong>Пример 7.</strong> $\begin{cases} \sqrt{x-1} \leq 2 \\ \sqrt{5-x} > 1 \end{cases}$<br><br>
-                <span class="step">Шаг 1. ОДЗ.</span> $x \geq 1$, $x \leq 5$. Общая ОДЗ: $1 \leq x \leq 5$.<br><br>
-                <span class="step">Шаг 2. Первое неравенство.</span> $x-1 \leq 4 \Rightarrow x \leq 5$. С учётом ОДЗ: $1 \leq x \leq 5$.<br><br>
-                <span class="step">Шаг 3. Второе неравенство.</span> $5-x > 1 \Rightarrow x < 4$. С учётом ОДЗ: $1 \leq x < 4$.<br><br>
+                <strong>Пример 10.</strong> $\begin{cases} \sqrt{x-1} \leq 2 \\ \sqrt{5-x} > 1 \end{cases}$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x \geq 1$, $x \leq 5$. Общая ОДЗ: $1 \leq x \leq 5$.<br>
+                <span class="step">Шаг 2. Первое неравенство.</span> $x-1 \leq 4 \Rightarrow x \leq 5$. С учётом ОДЗ: $1 \leq x \leq 5$.<br>
+                <span class="step">Шаг 3. Второе неравенство.</span> $5-x > 1 \Rightarrow x < 4$. С учётом ОДЗ: $1 \leq x < 4$.<br>
                 <span class="step">Шаг 4. Пересекаем.</span> $1 \leq x < 4$.<br><br>
+                <span class="step">Шаг 5. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="500" height="60" viewBox="0 0 500 60">
+                        <line x1="20" y1="30" x2="480" y2="30" class="line" />
+                        <polygon points="480,30 470,25 470,35" fill="var(--text)" />
+                        <line x1="100" y1="25" x2="100" y2="35" class="line" />
+                        <text x="100" y="50" text-anchor="middle" class="tick">1</text>
+                        <line x1="340" y1="25" x2="340" y2="35" class="line" />
+                        <text x="340" y="50" text-anchor="middle" class="tick">4</text>
+                        <line x1="420" y1="25" x2="420" y2="35" class="line" />
+                        <text x="420" y="50" text-anchor="middle" class="tick">5</text>
+                        <line x1="100" y1="30" x2="340" y2="30" class="solution-line" />
+                        <circle cx="100" cy="30" r="5" class="point-filled" />
+                        <circle cx="340" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in [1; 4)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 9. ЗАМЕНА ПЕРЕМЕННОЙ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Замена переменной</span>
+            <span class="sub-title">сведение к квадратному неравенству</span>
+        </div>
+        <div class="section-content">
+            <p>Иногда корень встречается в неравенстве <strong>дважды</strong> — например, $\sqrt{x}$ и $x$. Это подсказка: нужно сделать замену $t = \sqrt{x}$. Тогда $x = t^2$, и неравенство превращается в обычное квадратное.</p>
+            <div class="important">
+                <strong>💡 Главное правило:</strong> после замены обязательно пишем $t \geq 0$ — ведь корень неотрицателен. Потом решаем квадратное неравенство и <strong>возвращаемся к $x$</strong>.
+            </div>
+            <div class="example">
+                <strong>Пример 11.</strong> $x - 5\sqrt{x} + 6 < 0$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x \geq 0$.<br>
+                <span class="step">Шаг 2. Замена.</span> Пусть $t = \sqrt{x}$, тогда $t \geq 0$ и $x = t^2$.<br>
+                Неравенство принимает вид: $t^2 - 5t + 6 < 0$.<br>
+                <span class="step">Шаг 3. Решаем квадратное неравенство.</span>
+                Корни: $t = 2$ и $t = 3$. Парабола ветвями вверх ($a = 1 > 0$), значит решение: $t \in (2; 3)$.<br><br>
+                <div class="graph-container">
+                    <canvas id="parabola11" class="parabola-plot" width="650" height="220"></canvas>
+                </div>
+                <div class="hint">💡 Нам нужно $f(t) < 0$ — там, где парабола ниже оси $t$: между корнями $2$ и $3$.</div>
+                <span class="step">Шаг 4. Обратная замена.</span>
+                $2 < \sqrt{x} < 3$. Возводим в квадрат: $4 < x < 9$.<br><br>
+                <span class="step">Шаг 5. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="120" y1="25" x2="120" y2="35" class="line" />
+                        <text x="120" y="50" text-anchor="middle" class="tick">4</text>
+                        <line x1="280" y1="25" x2="280" y2="35" class="line" />
+                        <text x="280" y="50" text-anchor="middle" class="tick">9</text>
+                        <line x1="120" y1="30" x2="280" y2="30" class="solution-line" />
+                        <circle cx="120" cy="30" r="5" class="point-open" />
+                        <circle cx="280" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
+                <span class="result">Ответ: $x \in (4; 9)$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 12.</strong> $x + \sqrt{x-1} > 3$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x - 1 \geq 0 \Rightarrow x \geq 1$.<br>
+                <span class="step">Шаг 2. Замена.</span> Пусть $t = \sqrt{x-1}$, тогда $t \geq 0$ и $x = t^2 + 1$.<br>
+                Неравенство принимает вид: $t^2 + 1 + t > 3 \Rightarrow t^2 + t - 2 > 0$.<br>
+                <span class="step">Шаг 3. Решаем квадратное неравенство.</span>
+                Корни: $t = -2$ и $t = 1$. Парабола ветвями вверх, значит $t < -2$ или $t > 1$.<br>
+                С учётом $t \geq 0$ остаётся: $t > 1$.<br><br>
+                <div class="graph-container">
+                    <canvas id="parabola12" class="parabola-plot" width="650" height="220"></canvas>
+                </div>
+                <div class="hint">💡 Промежуток $t < -2$ не подходит, так как $t \geq 0$. Поэтому оставляем только $t > 1$.</div>
+                <span class="step">Шаг 4. Обратная замена.</span>
+                $\sqrt{x-1} > 1 \Rightarrow x - 1 > 1 \Rightarrow x > 2$.<br><br>
+                <span class="step">Шаг 5. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">2</text>
+                        <line x1="200" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
+                <span class="result">Ответ: $x \in (2; +\infty)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. НЕРАВЕНСТВА С ПАРАМЕТРОМ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Неравенства с параметром</span>
+            <span class="sub-title">исследование в зависимости от $a$</span>
+        </div>
+        <div class="section-content">
+            <p>В неравенствах с параметром ответ зависит от значения $a$. Нужно рассмотреть <strong>все возможные случаи</strong>: когда $a < 0$, $a = 0$, $a > 0$ и так далее. Часто помогает графическая интерпретация.</p>
+            <div class="example">
+                <strong>Пример 13.</strong> При каких значениях $a$ неравенство $\sqrt{x-a} > x$ имеет решения?<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x \geq a$.<br>
+                <span class="step">Шаг 2. Равносильный переход.</span>
+                $\sqrt{x-a} > x \Leftrightarrow \left[\begin{array}{l} \begin{cases} x-a \geq 0 \\ x < 0 \end{cases} \\ \begin{cases} x \geq 0 \\ x-a > x^2 \end{cases} \end{array}\right.$<br>
+                <div class="hint">💡 Первая система — случай, когда правая часть отрицательна. Вторая — когда неотрицательна.</div>
+                <span class="step">Шаг 3. Первая система.</span>
+                $x \geq a$ и $x < 0$. Решения есть, если $a < 0$ (тогда $x \in [a; 0)$).<br>
+                <span class="step">Шаг 4. Вторая система.</span>
+                $x \geq 0$ и $x - a > x^2 \Rightarrow x^2 - x + a < 0$.<br>
+                Квадратное неравенство имеет решения, когда дискриминант $D = 1 - 4a > 0$, т.е. $a < \dfrac{1}{4}$.<br>
+                При этом корни: $x_{1,2} = \dfrac{1 \pm \sqrt{1-4a}}{2}$.<br>
+                Но нужно ещё $x \geq 0$. Это выполняется, если $x_2 > 0$, т.е. при $a > 0$.<br>
+                <span class="step">Шаг 5. Объединяем случаи.</span>
+                Неравенство имеет решения при $a < 0$ (первая система) или при $0 < a < \dfrac{1}{4}$ (вторая система).<br>
+                При $a = 0$: $\sqrt{x} > x$ имеет решения $x \in (0; 1)$.<br><br>
+                <span class="result">Ответ: $a < \dfrac{1}{4}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 11. ТИПИЧНЫЕ ОШИБКИ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚠️ Типичные ошибки</span>
+        </div>
+        <div class="section-content">
+            <p>Эти ошибки встречаются чаще всего. Проверь себя — не допускаешь ли ты их?</p>
+            <table class="error-table">
+                <thead>
+                <tr>
+                    <th>Ошибка</th>
+                    <th>Почему неверно</th>
+                    <th>Как правильно</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="wrong">$\sqrt{f(x)} < g(x) \Rightarrow f(x) < g^2(x)$</td>
+                    <td>Забыли, что должно быть $g(x) > 0$. Если правая часть отрицательна, возводить в квадрат нельзя — корень не может быть меньше отрицательного числа.</td>
+                    <td class="right">$\begin{cases} f(x) \geq 0 \\ g(x) > 0 \\ f(x) < g^2(x) \end{cases}$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">$\sqrt{f(x)} > g(x) \Rightarrow f(x) > g^2(x)$</td>
+                    <td>Потеряли случай, когда $g(x) < 0$ — тогда неравенство верно автоматически при $f(x) \geq 0$, и эти решения тоже нужно включить.</td>
+                    <td class="right">$\left[\begin{array}{l} \begin{cases} f \geq 0 \\ g < 0 \end{cases} \\ \begin{cases} g \geq 0 \\ f > g^2 \end{cases} \end{array}\right.$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">$\sqrt{f(x)} < a \Rightarrow f(x) < a^2$</td>
+                    <td>Если $a \leq 0$, решений нет: корень $\geq 0$, а правая часть $\leq 0$. Неравенство $\sqrt{f} < a$ при $a \leq 0$ невозможно.</td>
+                    <td class="right">При $a \leq 0$: $x \in \varnothing$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">Забыли про ОДЗ</td>
+                    <td>Если подкоренное выражение отрицательно, корень не существует — такие $x$ не могут быть решением.</td>
+                    <td class="right">Всегда проверять $f(x) \geq 0$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">Возвели в квадрат, не проверив знак</td>
+                    <td>При возведении в квадрат могут появиться лишние решения, которые не удовлетворяют исходному неравенству.</td>
+                    <td class="right">Использовать равносильные переходы с условиями</td>
+                </tr>
+                <tr>
+                    <td class="wrong">В системе взяли объединение вместо пересечения</td>
+                    <td>Система означает «и то, и другое одновременно» — значит, нужно пересечение. Объединение — только для совокупности.</td>
+                    <td class="right">Система → $\cap$, совокупность → $\cup$</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 12. СВОДНАЯ ТАБЛИЦА -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📊 Сводная таблица</span>
@@ -221,9 +684,17 @@
         <div class="section-content">
             <div class="formula-block">
                 <strong>$\sqrt{f(x)} < g(x)$</strong> $\Leftrightarrow \begin{cases} f(x) \geq 0 \\ g(x) > 0 \\ f(x) < g^2(x) \end{cases}$<br><br>
+                <strong>$\sqrt{f(x)} \leq g(x)$</strong> $\Leftrightarrow \begin{cases} f(x) \geq 0 \\ g(x) \geq 0 \\ f(x) \leq g^2(x) \end{cases}$<br><br>
                 <strong>$\sqrt{f(x)} > g(x)$</strong> $\Leftrightarrow \left[\begin{array}{l} \begin{cases} f(x) \geq 0 \\ g(x) < 0 \end{cases} \\ \begin{cases} g(x) \geq 0 \\ f(x) > g^2(x) \end{cases} \end{array}\right.$<br><br>
                 <strong>$\sqrt{f(x)} \geq g(x)$</strong> $\Leftrightarrow \left[\begin{array}{l} \begin{cases} f(x) \geq 0 \\ g(x) \leq 0 \end{cases} \\ \begin{cases} g(x) \geq 0 \\ f(x) \geq g^2(x) \end{cases} \end{array}\right.$<br><br>
-                <strong>Несколько корней:</strong> найти ОДЗ, уединить, возвести в степень.
+                <strong>Сравнение двух корней:</strong><br>
+                $\sqrt{f} < \sqrt{g} \Leftrightarrow \begin{cases} f \geq 0 \\ g \geq 0 \\ f < g \end{cases}$<br>
+                $\sqrt{f} > \sqrt{g} \Leftrightarrow \begin{cases} f \geq 0 \\ g \geq 0 \\ f > g \end{cases}$<br><br>
+                <strong>Сравнение с числом:</strong><br>
+                $\sqrt{f} \geq a, a \geq 0 \Leftrightarrow f \geq a^2$<br>
+                $\sqrt{f} \leq a, a \geq 0 \Leftrightarrow \begin{cases} f \geq 0 \\ f \leq a^2 \end{cases}$<br><br>
+                <strong>Нечётная степень:</strong> $\sqrt[2n+1]{f} > \sqrt[2n+1]{g} \Leftrightarrow f > g$ (ОДЗ не нужно)<br><br>
+                <strong>Замена переменной:</strong> $t = \sqrt{f(x)}$, $t \geq 0$ — сведение к квадратному неравенству.
             </div>
         </div>
     </div>
@@ -233,8 +704,8 @@
 
 <script>
     function toggleTheme() {
-        const html = document.documentElement;
-        const btn = document.getElementById('themeBtn');
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
         if (html.classList.contains('light-mode')) {
             html.classList.remove('light-mode');
             localStorage.setItem('mathTheme', 'dark');
@@ -244,6 +715,8 @@
             localStorage.setItem('mathTheme', 'light');
             btn.textContent = '☀️';
         }
+        if (window.MathJax) MathJax.typesetPromise();
+        setTimeout(drawAllPlots, 400);
     }
     (function () {
         if (localStorage.getItem('mathTheme') === 'light') {
@@ -251,8 +724,219 @@
             document.getElementById('themeBtn').textContent = '☀️';
         }
     })();
-</script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+    function drawAllPlots() {
+        var isLight = document.documentElement.classList.contains('light-mode');
+        var colors = {
+            axis: isLight ? '#5a7a94' : '#8ba5b8',
+            text: isLight ? '#1a2a3f' : '#ffffff',
+            bg: isLight ? '#f8fafc' : '#162a38',
+            grid: isLight ? 'rgba(26,42,63,0.1)' : 'rgba(139,165,184,0.2)',
+            plus: isLight ? '#059669' : '#34d399',
+            minus: isLight ? '#dc2626' : '#f87171',
+            curve: '#1abc9c',
+            point: '#e67e22',
+            fillPlus: isLight ? 'rgba(5,150,105,0.15)' : 'rgba(52,211,153,0.15)',
+            fillMinus: isLight ? 'rgba(220,38,38,0.15)' : 'rgba(248,113,113,0.15)'
+        };
+
+        function drawParabola(canvasId, roots, a, xMin, xMax, yMin, yMax) {
+            var canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            var parentWidth = canvas.parentElement.clientWidth - 8;
+            if (parentWidth < 100) parentWidth = 600;
+            var h = parentWidth * 220 / 650;
+            canvas.width = 650;
+            canvas.height = 220;
+            canvas.style.width = parentWidth + 'px';
+            canvas.style.height = h + 'px';
+
+            var ctx = canvas.getContext('2d');
+            var W = 650, H = 220;
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, W, H);
+
+            var pad = 45;
+            var xScale = (W - 2 * pad) / (xMax - xMin);
+            var yScale = (H - 2 * pad) / (yMax - yMin);
+            function toX(x) { return pad + (x - xMin) * xScale; }
+            function toY(y) { return pad + (yMax - y) * yScale; }
+
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 0.8;
+            for (var x = Math.ceil(xMin); x <= xMax; x++) {
+                if (Math.abs(x) < 0.01) continue;
+                var xc = toX(x);
+                ctx.beginPath();
+                ctx.moveTo(xc, pad);
+                ctx.lineTo(xc, H - pad);
+                ctx.stroke();
+                ctx.fillStyle = colors.text;
+                ctx.font = '11px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(x.toString(), xc, H - pad + 4);
+            }
+            for (var y = Math.ceil(yMin); y <= yMax; y++) {
+                if (Math.abs(y) < 0.01) continue;
+                var yc = toY(y);
+                ctx.beginPath();
+                ctx.moveTo(pad, yc);
+                ctx.lineTo(W - pad, yc);
+                ctx.stroke();
+                ctx.fillStyle = colors.text;
+                ctx.font = '11px Inter,sans-serif';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(y.toString(), pad - 6, yc);
+            }
+
+            ctx.strokeStyle = colors.axis;
+            ctx.lineWidth = 2;
+            var y0 = toY(0);
+            if (y0 >= pad && y0 <= H - pad) {
+                ctx.beginPath();
+                ctx.moveTo(pad, y0);
+                ctx.lineTo(W - pad, y0);
+                ctx.stroke();
+            }
+            var x0 = toX(0);
+            if (x0 >= pad && x0 <= W - pad) {
+                ctx.beginPath();
+                ctx.moveTo(x0, pad);
+                ctx.lineTo(x0, H - pad);
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = colors.text;
+            ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            if (y0 >= pad && y0 <= H - pad) ctx.fillText('x', W - pad - 4, y0 - 4);
+            if (x0 >= pad && x0 <= W - pad) ctx.fillText('y', x0 + 6, pad + 10);
+            if (x0 >= pad && x0 <= W - pad && y0 >= pad && y0 <= H - pad) {
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'top';
+                ctx.fillText('0', x0 - 4, y0 + 3);
+            }
+
+            for (var ri = 0; ri < roots.length; ri++) {
+                var rx = toX(roots[ri]);
+                ctx.fillStyle = colors.point;
+                ctx.beginPath();
+                ctx.arc(rx, y0, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = colors.axis;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                ctx.fillStyle = colors.text;
+                ctx.font = 'bold 12px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(roots[ri].toString(), rx, y0 + 8);
+            }
+
+            ctx.shadowColor = 'rgba(26,188,156,0.2)';
+            ctx.shadowBlur = 4;
+            ctx.strokeStyle = colors.curve;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            var first = true;
+            var steps = 200;
+            for (var i = 0; i <= steps; i++) {
+                var t = i / steps;
+                var xVal = xMin + t * (xMax - xMin);
+                var yVal = a;
+                for (var j = 0; j < roots.length; j++) {
+                    yVal *= (xVal - roots[j]);
+                }
+                var xc2 = toX(xVal), yc2 = toY(yVal);
+                if (yc2 < pad - 30 || yc2 > H - pad + 30) { first = true; continue; }
+                if (first) { ctx.moveTo(xc2, yc2); first = false; }
+                else ctx.lineTo(xc2, yc2);
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            for (var ri2 = 0; ri2 < roots.length + 1; ri2++) {
+                var xStart2 = (ri2 === 0) ? xMin : roots[ri2 - 1];
+                var xEnd2 = (ri2 === roots.length) ? xMax : roots[ri2];
+                var midX = (xStart2 + xEnd2) / 2;
+                var yMid = a;
+                for (var j2 = 0; j2 < roots.length; j2++) {
+                    yMid *= (midX - roots[j2]);
+                }
+                var isPlus2 = (yMid > 0);
+                var xStartPx = toX(xStart2);
+                var xEndPx = toX(xEnd2);
+                if (xEndPx - xStartPx < 2) continue;
+
+                ctx.beginPath();
+                ctx.fillStyle = isPlus2 ? colors.fillPlus : colors.fillMinus;
+                ctx.fillRect(xStartPx, pad, xEndPx - xStartPx, H - 2 * pad);
+
+                var midPx = (xStartPx + xEndPx) / 2;
+                ctx.fillStyle = isPlus2 ? colors.plus : colors.minus;
+                ctx.font = 'bold 22px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(isPlus2 ? ' + ' : ' − ', midPx, y0 + 20);
+            }
+        }
+
+        drawParabola('parabola3', [-0.56, 3.56], 1, -3, 6, -4, 4);
+        drawParabola('parabola11', [2, 3], 1, 0, 5, -2, 4);
+        drawParabola('parabola12', [-2, 1], 1, -4, 3, -4, 4);
+    }
+
+    setTimeout(function () {
+        drawAllPlots();
+        if (window.MathJax) MathJax.typesetPromise();
+    }, 600);
+
+    window.addEventListener('resize', drawAllPlots);
+    var observer = new MutationObserver(function () { drawAllPlots(); });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() {
+        const s = localStorage.getItem(FAV_KEY);
+        return s ? JSON.parse(s) : [];
+    }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        return getFavorites().includes(u);
+    }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+</script>
 </body>
 </html>

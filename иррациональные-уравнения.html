@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Иррациональные уравнения — 10-11 класс</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -10,11 +10,17 @@
             --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
             --border: rgba(239,68,68,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
             --special-border: #ef4444; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --graph-bg: #243848;
         }
         :root.light-mode {
             --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
             --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
-            --info-bg: #e8f0fe; --special-border: #ef4444; --example-bg: #e8f0fe;
+            --info-bg: #e8f0fe; --special-border: #ef4444; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --graph-bg: #f8fafc;
         }
         body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
         .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
@@ -28,17 +34,22 @@
         .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
         .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
         .section-title:hover { opacity: 0.8; }
-        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section-content { max-height: 12000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
         .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
         .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
-        .example .step { font-weight: 700; color: #f87171; margin-top: 12px; margin-bottom: 4px; }
-        .example .result { margin-top: 10px; font-weight: 600; color: #4ade80; }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .formula-highlight { color: var(--formula-color); font-weight: 600; }
+        .example .danger-text { color: var(--danger-color); font-weight: 700; }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        .example .idea { color: var(--accent); font-weight: 600; }
+        .example .star { color: var(--formula-color); font-weight: bold; margin-left: 4px; }
         p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
         ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
-        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
-        .important strong { color: #fbbf24; }
-        .star { color: #fbbf24; font-weight: bold; margin-left: 4px; }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .warning-text { color: var(--warning-border); font-weight: 700; }
         .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
         .back-link:hover { background: #dc2626; }
         mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
@@ -48,10 +59,62 @@
             .section-title { font-size: 1rem; }
             .example { padding: 12px 14px; }
         }
-    
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        .number-line { margin: 15px 0; text-align: center; }
+        .number-line svg { max-width: 100%; height: auto; }
+        .number-line .tick { font-size: 12px; fill: var(--text-secondary); }
+        .number-line .line { stroke: var(--text); stroke-width: 2; }
+        .number-line .solution-line { stroke: var(--result-color); stroke-width: 4; }
+        .number-line .point-filled { fill: var(--result-color); }
+        .number-line .point-open { fill: var(--card-bg); stroke: var(--result-color); stroke-width: 2; }
+
+        .graph-container {
+            background: var(--graph-bg);
+            border-radius: 12px;
+            margin: 10px 0;
+            padding: 6px;
+            border: 1px solid var(--border);
+            width: 100%;
+        }
+        .graph-container canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .graph-container canvas.plot {
+            aspect-ratio: 650 / 240;
+            min-height: 180px;
+        }
+
+        .error-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .error-table th {
+            background: var(--special-border);
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 700;
+        }
+        .error-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            vertical-align: top;
+        }
+        .error-table tr:nth-child(even) td { background: var(--formula-bg); }
+        .error-table tr:last-child td { border-bottom: none; }
+        .error-table .wrong { color: var(--danger-color); font-weight: 700; }
+        .error-table .right { color: var(--result-color); font-weight: 700; }
     </style>
     <script>
         MathJax = {
@@ -63,9 +126,11 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>Иррациональные уравнения</h1>
 
+    <!-- 1. ВВЕДЕНИЕ -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📖 Что такое иррациональное уравнение</span>
@@ -77,12 +142,59 @@
                 $\sqrt[3]{2x-1} = \sqrt{x}$<br>
                 $\sqrt{x+5} + \sqrt{x} = 5$
             </div>
+            <p>Почему это особая тема? Потому что корень — «капризная» функция. Например, $\sqrt{x} = -3$ не имеет решений: корень чётной степени <strong>не бывает отрицательным</strong>. А при возведении в квадрат могут появиться <strong>посторонние корни</strong> — такие, которые формально подходят после преобразований, но не подходят к исходному уравнению.</p>
             <div class="important">
-                <strong>⚠️ Важно:</strong> При решении необходимо учитывать <strong>ОДЗ</strong> — подкоренное выражение корня чётной степени должно быть $\geq 0$!
+                <strong>⚠️ Главная идея:</strong> Каждое решение иррационального уравнения заканчивается <strong>проверкой</strong>. Не потому что «так принято», а потому что возведение в чётную степень может расширить множество решений. Проверка — не формальность, а необходимый шаг!
+            </div>
+            <div class="important">
+                <strong>💡 ОДЗ:</strong> Подкоренное выражение корня <strong>чётной</strong> степени должно быть $\geq 0$. Для корня <strong>нечётной</strong> степени ОДЗ не нужно — подкоренное выражение может быть любым.
             </div>
         </div>
     </div>
 
+    <!-- 2. СРАВНЕНИЕ С ЧИСЛОМ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Уравнение вида $\sqrt{f(x)} = a$</span>
+            <span class="sub-title">сравнение с числом</span>
+        </div>
+        <div class="section-content">
+            <p>Самый простой случай: справа стоит <strong>число</strong>. Здесь важно следить за его знаком.</p>
+            <div class="formula-block">
+                $\sqrt{f(x)} = a \Leftrightarrow \begin{cases} f(x) = a^2 \\ a \geq 0 \end{cases}$
+            </div>
+            <div class="important">
+                <strong>💡 Почему так?</strong><br>
+                • Корень чётной степени <strong>всегда $\geq 0$</strong>. Если $a < 0$, решений нет.<br>
+                • Если $a \geq 0$, можно возводить в квадрат: $\sqrt{f(x)} = a \Rightarrow f(x) = a^2$.<br>
+                • Дополнительно нужно, чтобы $f(x) \geq 0$ — но это выполняется автоматически, так как $f(x) = a^2 \geq 0$.
+            </div>
+
+            <div class="example">
+                <strong>Пример 1.</strong> $\sqrt{x+2} = 4$<br><br>
+                <span class="step">Шаг 1. Проверяем знак правой части.</span>
+                $4 \geq 0$ — можно возводить в квадрат.<br>
+                <span class="step">Шаг 2. Возводим в квадрат.</span>
+                $x + 2 = 16$.<br>
+                <span class="step">Шаг 3. Решаем.</span>
+                $x = 14$.<br>
+                <span class="step">Шаг 4. Проверка.</span>
+                $\sqrt{14 + 2} = \sqrt{16} = 4$ — верно.<br>
+                <div class="hint">💡 ОДЗ здесь выполняется автоматически: при $x = 14$ подкоренное $= 16 > 0$.</div>
+                <span class="result">Ответ: $x = 14$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2.</strong> $\sqrt{x+5} = -3$<br><br>
+                <span class="step">Шаг 1. Анализируем.</span>
+                Справа стоит $-3 < 0$. Корень чётной степени не может быть отрицательным.<br>
+                <span class="result">Ответ: решений нет.</span>
+                <div class="hint">💡 Не пытайтесь возводить в квадрат — это приведёт к ложному корню $x = 4$, который не подходит.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. МЕТОД ВОЗВЕДЕНИЯ В СТЕПЕНЬ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Метод возведения в степень</span>
@@ -91,222 +203,284 @@
         <div class="section-content">
             <div class="formula-block">
                 <strong>Алгоритм:</strong><br>
-                1. Найти ОДЗ<br>
+                1. Найти ОДЗ (для корней чётной степени)<br>
                 2. Возвести обе части в степень<br>
                 3. Решить полученное уравнение<br>
                 4. Проверить корни подстановкой в исходное уравнение
             </div>
 
             <div class="example">
-                <strong>Пример 1:</strong> Решить уравнение $\sqrt{x+2} = 4$.<br><br>
+                <strong>Пример 3.</strong> $\sqrt{x+2} = 4$<br><br>
                 <span class="step">Шаг 1. Находим ОДЗ.</span>
-                Подкоренное выражение должно быть неотрицательным:<br>
-                $x + 2 \geq 0$<br>
-                $x \geq -2$<br><br>
+                $x + 2 \geq 0 \Rightarrow x \geq -2$.<br>
                 <span class="step">Шаг 2. Возводим обе части в квадрат.</span>
-                $(\sqrt{x+2})^2 = 4^2$<br>
-                $x + 2 = 16$<br><br>
-                <span class="step">Шаг 3. Решаем полученное уравнение.</span>
-                $x = 16 - 2$<br>
-                $x = 14$<br><br>
+                $(\sqrt{x+2})^2 = 4^2 \Rightarrow x + 2 = 16$.<br>
+                <span class="step">Шаг 3. Решаем.</span>
+                $x = 14$.<br>
                 <span class="step">Шаг 4. Проверка.</span>
-                Подставляем $x = 14$ в исходное уравнение:<br>
-                $\sqrt{14 + 2} = \sqrt{16} = 4$<br>
-                $4 = 4$ — верно.<br>
-                Также проверяем ОДЗ: $14 \geq -2$ — подходит.<br><br>
+                $\sqrt{14 + 2} = \sqrt{16} = 4$ — верно. ОДЗ: $14 \geq -2$ — подходит.<br><br>
                 <span class="result">Ответ: $x = 14$.</span>
             </div>
 
             <div class="example" style="margin-top:12px;">
-                <strong>Пример 2:</strong> Решить уравнение $\sqrt{x+3} = x-3$.<br><br>
-                <span class="step">Шаг 1. Находим ОДЗ.</span>
-                Подкоренное выражение: $x + 3 \geq 0 \Rightarrow x \geq -3$.<br>
+                <strong>Пример 4.</strong> $\sqrt{x+3} = x-3$<br><br>
+                <span class="step">Шаг 1. ОДЗ + условие на правую часть.</span>
+                Подкоренное: $x + 3 \geq 0 \Rightarrow x \geq -3$.<br>
                 Правая часть (значение корня): $x - 3 \geq 0 \Rightarrow x \geq 3$.<br>
-                Общая ОДЗ: $x \geq 3$.<br><br>
-                <span class="step">Шаг 2. Возводим обе части в квадрат.</span>
-                $(\sqrt{x+3})^2 = (x-3)^2$<br>
-                $x + 3 = x^2 - 6x + 9$<br><br>
+                Общая ОДЗ: $x \geq 3$.<br>
+                <div class="hint">💡 Второе условие важно: если $x - 3 < 0$, то правая часть отрицательна, а корень — нет. Такие $x$ не подходят.</div>
+                <span class="step">Шаг 2. Возводим в квадрат.</span>
+                $x + 3 = (x-3)^2 = x^2 - 6x + 9$.<br>
                 <span class="step">Шаг 3. Решаем квадратное уравнение.</span>
-                $x^2 - 6x + 9 - x - 3 = 0$<br>
-                $x^2 - 7x + 6 = 0$<br>
-                Находим дискриминант: $D = (-7)^2 - 4 \cdot 1 \cdot 6 = 49 - 24 = 25$<br>
-                $\sqrt{D} = 5$<br>
-                $x_1 = \dfrac{7 + 5}{2} = 6$<br>
-                $x_2 = \dfrac{7 - 5}{2} = 1$<br><br>
-                <span class="step">Шаг 4. Проверка корней с учётом ОДЗ.</span>
-                Проверяем $x = 6$:<br>
-                $\sqrt{6 + 3} = \sqrt{9} = 3$<br>
-                Правая часть: $6 - 3 = 3$<br>
-                $3 = 3$ — верно. ОДЗ: $6 \geq 3$ — подходит.<br><br>
-                Проверяем $x = 1$:<br>
-                ОДЗ: $1 \geq 3$ — не выполняется.<br>
-                Корень $x = 1$ не удовлетворяет ОДЗ.<br><br>
+                $x^2 - 7x + 6 = 0$.<br>
+                $D = 49 - 24 = 25$, $\sqrt{D} = 5$.<br>
+                $x_1 = 6$, $x_2 = 1$.<br>
+                <span class="step">Шаг 4. Проверка с учётом ОДЗ.</span>
+                $x = 6$: $\sqrt{6+3} = 3$, $6 - 3 = 3$ — верно. ОДЗ: $6 \geq 3$ — подходит.<br>
+                $x = 1$: ОДЗ $1 \geq 3$ — <span class="danger-text">не выполняется</span>. Не подходит.<br><br>
                 <span class="result">Ответ: $x = 6$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 4. УРАВНЕНИЯ ВИДА √f(x) = g(x) -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Уравнение вида $\sqrt{f(x)} = g(x)$</span>
+            <span class="sub-title">главное правило: $g(x) \geq 0$</span>
+        </div>
+        <div class="section-content">
+            <p>Это самый важный случай. Здесь правая часть — не число, а выражение с $x$. Нужно <strong>два условия</strong>: подкоренное $\geq 0$ и правая часть $\geq 0$.</p>
+            <div class="formula-block">
+                $\sqrt{f(x)} = g(x) \Leftrightarrow \begin{cases} f(x) = g^2(x) \\ g(x) \geq 0 \end{cases}$
+            </div>
+            <div class="important">
+                <strong>💡 Почему $g(x) \geq 0$?</strong> Потому что левая часть (корень) <strong>всегда неотрицательна</strong>. Если правая часть отрицательна, равенство невозможно. Это условие часто забывают — и получают посторонние корни.
+            </div>
+            <div class="important">
+                <strong>💡 А где же ОДЗ $f(x) \geq 0$?</strong> Оно выполняется автоматически: если $f(x) = g^2(x)$, то $f(x) \geq 0$. Поэтому отдельно его писать не нужно, но помнить — обязательно.
+            </div>
+
+            <div class="example">
+                <strong>Пример 5.</strong> $\sqrt{x^2 - 4} = x - 2$<br><br>
+                <span class="step">Шаг 1. Записываем систему.</span>
+                $\begin{cases} x^2 - 4 = (x-2)^2 \\ x - 2 \geq 0 \end{cases}$<br>
+                <span class="step">Шаг 2. Решаем уравнение.</span>
+                $x^2 - 4 = x^2 - 4x + 4 \Rightarrow -4 = -4x + 4 \Rightarrow 4x = 8 \Rightarrow x = 2$.<br>
+                <span class="step">Шаг 3. Проверяем условие $g(x) \geq 0$.</span>
+                $x - 2 \geq 0 \Rightarrow 2 - 2 = 0 \geq 0$ — верно.<br>
+                <span class="step">Шаг 4. Проверка подстановкой.</span>
+                $\sqrt{4 - 4} = \sqrt{0} = 0$, $2 - 2 = 0$ — верно.<br><br>
+                <span class="result">Ответ: $x = 2$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 6 (появление постороннего корня).</strong> $\sqrt{x+3} = x - 3$<br><br>
+                <span class="step">Шаг 1. Система.</span>
+                $\begin{cases} x + 3 = (x-3)^2 \\ x - 3 \geq 0 \end{cases}$<br>
+                <span class="step">Шаг 2. Уравнение.</span>
+                $x + 3 = x^2 - 6x + 9 \Rightarrow x^2 - 7x + 6 = 0 \Rightarrow x_1 = 6, x_2 = 1$.<br>
+                <span class="step">Шаг 3. Условие $g(x) \geq 0$.</span>
+                $x - 3 \geq 0 \Rightarrow x \geq 3$.<br>
+                Подходит только $x = 6$. Корень $x = 1$ — <span class="danger-text">посторонний</span>.<br>
+                <div class="hint">💡 Если бы мы не проверили условие $g(x) \geq 0$, то получили бы два корня: 6 и 1. Но $x = 1$ даёт $\sqrt{4} = 1 - 3 = -2$ — неверно.</div>
+                <span class="result">Ответ: $x = 6$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. УРАВНЕНИЯ С КОРНЕМ В ЗНАМЕНАТЕЛЕ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Корень в знаменателе</span>
+            <span class="sub-title">ОДЗ строгое: $f(x) > 0$</span>
+        </div>
+        <div class="section-content">
+            <p>Если корень стоит в знаменателе, подкоренное выражение должно быть <strong>строго положительным</strong>. Иначе знаменатель обращается в ноль, и выражение не имеет смысла.</p>
+            <div class="formula-block">
+                $\dfrac{1}{\sqrt{f(x)}} = g(x) \Leftrightarrow \begin{cases} f(x) > 0 \\ g(x) > 0 \\ 1 = g(x) \cdot \sqrt{f(x)} \end{cases}$
+            </div>
+            <div class="important">
+                <strong>💡 Почему строго $> 0$?</strong> Потому что на ноль делить нельзя. Если $f(x) = 0$, знаменатель равен нулю — выражение не определено.
+            </div>
+
+            <div class="example">
+                <strong>Пример 7.</strong> $\dfrac{1}{\sqrt{x-1}} = 2$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                $x - 1 > 0 \Rightarrow x > 1$.<br>
+                <span class="step">Шаг 2. Умножаем обе части на $\sqrt{x-1}$ (это можно, так как корень $> 0$).</span>
+                $1 = 2\sqrt{x-1}$.<br>
+                <span class="step">Шаг 3. Возводим в квадрат.</span>
+                $1 = 4(x-1) \Rightarrow 1 = 4x - 4 \Rightarrow 4x = 5 \Rightarrow x = \dfrac{5}{4}$.<br>
+                <span class="step">Шаг 4. Проверка.</span>
+                $x = 1{,}25 > 1$ — ОДЗ выполняется.<br>
+                $\dfrac{1}{\sqrt{1{,}25 - 1}} = \dfrac{1}{\sqrt{0{,}25}} = \dfrac{1}{0{,}5} = 2$ — верно.<br><br>
+                <span class="result">Ответ: $x = \dfrac{5}{4}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. КУБИЧЕСКИЕ КОРНИ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Уравнения с кубическими корнями</span>
             <span class="sub-title">корни нечётной степени — ОДЗ не нужен</span>
         </div>
         <div class="section-content">
-            <p>Для корней <strong>нечётной степени</strong> ОДЗ не требуется — подкоренное выражение может быть любым действительным числом.</p>
+            <p>Для корней <strong>нечётной степени</strong> ОДЗ не требуется — подкоренное выражение может быть любым действительным числом. Возведение в куб <strong>не меняет знак</strong> и не создаёт посторонних корней.</p>
+            <div class="formula-block">
+                $\sqrt[3]{f(x)} = g(x) \Leftrightarrow f(x) = g^3(x)$
+            </div>
+            <div class="important">
+                <strong>💡 Почему нет посторонних корней?</strong> Функция $y = x^3$ строго возрастает на $\mathbb{R}$, поэтому равенство $a = b$ равносильно $a^3 = b^3$. Никаких дополнительных условий не нужно.
+            </div>
 
             <div class="example">
-                <strong>Пример 3:</strong> Решить уравнение $\sqrt[3]{2x-1} = 3$.<br><br>
+                <strong>Пример 8.</strong> $\sqrt[3]{2x-1} = 3$<br><br>
                 <span class="step">Шаг 1. ОДЗ.</span>
-                Корень кубический определён при любом $x$, поэтому ОДЗ: $x \in \mathbb{R}$.<br><br>
-                <span class="step">Шаг 2. Возводим обе части в куб.</span>
-                $(\sqrt[3]{2x-1})^3 = 3^3$<br>
-                $2x - 1 = 27$<br><br>
-                <span class="step">Шаг 3. Решаем линейное уравнение.</span>
-                $2x = 27 + 1$<br>
-                $2x = 28$<br>
-                $x = 14$<br><br>
-                <span class="step">Шаг 4. Проверка.</span>
-                Подставляем $x = 14$:<br>
-                $\sqrt[3]{2 \cdot 14 - 1} = \sqrt[3]{28 - 1} = \sqrt[3]{27} = 3$<br>
-                $3 = 3$ — верно.<br><br>
+                Не нужно — корень кубический.<br>
+                <span class="step">Шаг 2. Возводим в куб.</span>
+                $2x - 1 = 27 \Rightarrow 2x = 28 \Rightarrow x = 14$.<br>
+                <span class="step">Шаг 3. Проверка.</span>
+                $\sqrt[3]{28 - 1} = \sqrt[3]{27} = 3$ — верно.<br><br>
                 <span class="result">Ответ: $x = 14$.</span>
             </div>
 
             <div class="example" style="margin-top:12px;">
-                <strong>Пример 4:</strong> Решить уравнение $\sqrt[3]{x+1} = \sqrt[3]{2x-3}$.<br><br>
-                <span class="step">Шаг 1. ОДЗ.</span>
-                Оба корня кубические, определены при любых $x$. ОДЗ: $x \in \mathbb{R}$.<br><br>
-                <span class="step">Шаг 2. Возводим обе части в куб.</span>
-                $(\sqrt[3]{x+1})^3 = (\sqrt[3]{2x-3})^3$<br>
-                $x + 1 = 2x - 3$<br><br>
-                <span class="step">Шаг 3. Решаем линейное уравнение.</span>
-                $x - 2x = -3 - 1$<br>
-                $-x = -4$<br>
-                $x = 4$<br><br>
-                <span class="step">Шаг 4. Проверка.</span>
-                Левая часть: $\sqrt[3]{4 + 1} = \sqrt[3]{5}$<br>
-                Правая часть: $\sqrt[3]{2 \cdot 4 - 3} = \sqrt[3]{8 - 3} = \sqrt[3]{5}$<br>
+                <strong>Пример 9.</strong> $\sqrt[3]{x+1} = \sqrt[3]{2x-3}$<br><br>
+                <span class="step">Шаг 1. Возводим в куб.</span>
+                $x + 1 = 2x - 3 \Rightarrow x = 4$.<br>
+                <span class="step">Шаг 2. Проверка.</span>
                 $\sqrt[3]{5} = \sqrt[3]{5}$ — верно.<br><br>
                 <span class="result">Ответ: $x = 4$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 7. ЗАМЕНА ПЕРЕМЕННОЙ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Метод замены переменной</span>
             <span class="sub-title">сведение к квадратному уравнению</span>
         </div>
         <div class="section-content">
+            <p>Если корень встречается дважды — например, $\sqrt{x}$ и $\sqrt[4]{x}$, — это подсказка: сделайте замену $t = \sqrt[4]{x}$. Тогда $\sqrt{x} = t^2$, и уравнение превратится в квадратное.</p>
+            <div class="important">
+                <strong>💡 Главное правило:</strong> после замены обязательно пишем $t \geq 0$ (для чётной степени). Потом решаем квадратное уравнение и <strong>отбрасываем</strong> корни, не удовлетворяющие условию $t \geq 0$.
+            </div>
+
             <div class="example">
-                <strong>Пример 5:</strong> Решить уравнение $\sqrt{x} + \sqrt[4]{x} = 6$.<br><br>
+                <strong>Пример 10.</strong> $\sqrt{x} + \sqrt[4]{x} = 6$<br><br>
                 <span class="step">Шаг 1. ОДЗ.</span>
-                $\sqrt{x}$ определён при $x \geq 0$, $\sqrt[4]{x}$ также при $x \geq 0$.<br>
-                ОДЗ: $x \geq 0$.<br><br>
-                <span class="step">Шаг 2. Вводим замену переменной.</span>
-                Пусть $t = \sqrt[4]{x}$, тогда $t \geq 0$.<br>
-                Выразим $\sqrt{x}$ через $t$: $\sqrt{x} = (\sqrt[4]{x})^2 = t^2$.<br>
-                Уравнение принимает вид:<br>
-                $t^2 + t = 6$<br>
-                $t^2 + t - 6 = 0$<br><br>
-                <span class="step">Шаг 3. Решаем квадратное уравнение относительно $t$.</span>
-                $D = 1^2 - 4 \cdot 1 \cdot (-6) = 1 + 24 = 25$<br>
-                $\sqrt{D} = 5$<br>
-                $t_1 = \dfrac{-1 + 5}{2} = 2$<br>
-                $t_2 = \dfrac{-1 - 5}{2} = -3$<br><br>
-                <span class="step">Шаг 4. Отбираем корни с учётом условия $t \geq 0$.</span>
-                $t = 2$ — подходит.<br>
-                $t = -3$ — не подходит (корень четвёртой степени не может быть отрицательным).<br><br>
-                <span class="step">Шаг 5. Возвращаемся к переменной $x$.</span>
-                $\sqrt[4]{x} = 2$<br>
-                Возводим в четвёртую степень:<br>
-                $x = 2^4 = 16$<br><br>
-                <span class="step">Шаг 6. Проверка.</span>
-                $\sqrt{16} + \sqrt[4]{16} = 4 + 2 = 6$<br>
-                $6 = 6$ — верно.<br><br>
+                $x \geq 0$.<br>
+                <span class="step">Шаг 2. Замена.</span>
+                Пусть $t = \sqrt[4]{x} \geq 0$. Тогда $\sqrt{x} = t^2$.<br>
+                Уравнение принимает вид: $t^2 + t - 6 = 0$.<br>
+                <span class="step">Шаг 3. Решаем квадратное уравнение.</span>
+                $D = 1 + 24 = 25$, $t_1 = 2$, $t_2 = -3$.<br>
+                С учётом $t \geq 0$: $t = 2$.<br>
+                <span class="step">Шаг 4. Обратная замена.</span>
+                $\sqrt[4]{x} = 2 \Rightarrow x = 2^4 = 16$.<br>
+                <span class="step">Шаг 5. Проверка.</span>
+                $\sqrt{16} + \sqrt[4]{16} = 4 + 2 = 6$ — верно.<br><br>
                 <span class="result">Ответ: $x = 16$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 11.</strong> $x - 3\sqrt{x} + 2 = 0$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                $x \geq 0$.<br>
+                <span class="step">Шаг 2. Замена.</span>
+                Пусть $t = \sqrt{x} \geq 0$. Тогда $x = t^2$.<br>
+                Уравнение: $t^2 - 3t + 2 = 0$.<br>
+                <span class="step">Шаг 3. Решаем.</span>
+                $D = 9 - 8 = 1$, $t_1 = 2$, $t_2 = 1$. Оба $\geq 0$ — подходят.<br>
+                <span class="step">Шаг 4. Обратная замена.</span>
+                $\sqrt{x} = 2 \Rightarrow x = 4$.<br>
+                $\sqrt{x} = 1 \Rightarrow x = 1$.<br>
+                <span class="step">Шаг 5. Проверка.</span>
+                $x = 4$: $4 - 3 \cdot 2 + 2 = 0$ — верно.<br>
+                $x = 1$: $1 - 3 \cdot 1 + 2 = 0$ — верно.<br><br>
+                <span class="result">Ответ: $x = 1$ и $x = 4$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 8. УЕДИНЕНИЕ РАДИКАЛА -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Метод уединения радикала</span>
             <span class="sub-title">уравнения с несколькими корнями</span>
         </div>
         <div class="section-content">
-            <p>Если в уравнении несколько корней, нужно уединить один из них (перенести всё остальное в другую часть) и возвести в степень.</p>
+            <p>Если в уравнении несколько корней, нужно <strong>«уединить» один из них</strong> — оставить его в одной части, а всё остальное перенести в другую. Тогда после возведения в квадрат второй корень исчезнет.</p>
 
             <div class="example">
-                <strong>Пример 6:</strong> Решить уравнение $\sqrt{x+5} + \sqrt{x} = 5$.<br><br>
-                <span class="step">Шаг 1. Находим ОДЗ.</span>
-                $\sqrt{x+5}$: $x + 5 \geq 0 \Rightarrow x \geq -5$<br>
-                $\sqrt{x}$: $x \geq 0$<br>
-                Общая ОДЗ: $x \geq 0$.<br><br>
+                <strong>Пример 12.</strong> $\sqrt{x+5} + \sqrt{x} = 5$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                $x + 5 \geq 0$ и $x \geq 0$ $\Rightarrow x \geq 0$.<br>
                 <span class="step">Шаг 2. Уединяем радикал.</span>
-                Переносим $\sqrt{x}$ в правую часть:<br>
-                $\sqrt{x+5} = 5 - \sqrt{x}$<br>
-                Заметим, что правая часть должна быть неотрицательна:<br>
-                $5 - \sqrt{x} \geq 0 \Rightarrow \sqrt{x} \leq 5 \Rightarrow x \leq 25$<br><br>
-                <span class="step">Шаг 3. Возводим обе части в квадрат.</span>
-                $(\sqrt{x+5})^2 = (5 - \sqrt{x})^2$<br>
-                $x + 5 = 25 - 10\sqrt{x} + x$<br><br>
+                $\sqrt{x+5} = 5 - \sqrt{x}$.<br>
+                Правая часть должна быть $\geq 0$: $5 - \sqrt{x} \geq 0 \Rightarrow \sqrt{x} \leq 5 \Rightarrow x \leq 25$.<br>
+                <span class="step">Шаг 3. Возводим в квадрат.</span>
+                $x + 5 = 25 - 10\sqrt{x} + x$.<br>
                 <span class="step">Шаг 4. Приводим подобные.</span>
-                $x + 5 - 25 - x = -10\sqrt{x}$<br>
-                $-20 = -10\sqrt{x}$<br>
-                $10\sqrt{x} = 20$<br>
-                $\sqrt{x} = 2$<br><br>
+                $5 = 25 - 10\sqrt{x} \Rightarrow 10\sqrt{x} = 20 \Rightarrow \sqrt{x} = 2$.<br>
                 <span class="step">Шаг 5. Возводим в квадрат ещё раз.</span>
-                $x = 4$<br><br>
+                $x = 4$.<br>
                 <span class="step">Шаг 6. Проверка.</span>
-                $\sqrt{4 + 5} + \sqrt{4} = \sqrt{9} + 2 = 3 + 2 = 5$<br>
-                $5 = 5$ — верно.<br>
-                Проверяем ОДЗ: $x = 4$, $0 \leq 4 \leq 25$ — подходит.<br><br>
+                $\sqrt{9} + \sqrt{4} = 3 + 2 = 5$ — верно. ОДЗ: $0 \leq 4 \leq 25$ — подходит.<br><br>
                 <span class="result">Ответ: $x = 4$.</span>
             </div>
-        </div>
-    </div>
 
-    <div class="section collapsed">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Повторное возведение в степень</span>
-            <span class="sub-title">если радикал не исчез после первого шага</span>
-        </div>
-        <div class="section-content">
-            <p>Иногда после первого возведения в квадрат корень остаётся — тогда возводим ещё раз.</p>
-
-            <div class="example">
-                <strong>Пример 7:</strong> Решить уравнение $\sqrt{x+3} + \sqrt{x-2} = 5$.<br><br>
-                <span class="step">Шаг 1. Находим ОДЗ.</span>
-                $\sqrt{x+3}$: $x + 3 \geq 0 \Rightarrow x \geq -3$<br>
-                $\sqrt{x-2}$: $x - 2 \geq 0 \Rightarrow x \geq 2$<br>
-                Общая ОДЗ: $x \geq 2$.<br><br>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 13.</strong> $\sqrt{x+3} + \sqrt{x-2} = 5$<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span>
+                $x \geq 2$.<br>
                 <span class="step">Шаг 2. Уединяем первый радикал.</span>
-                $\sqrt{x+3} = 5 - \sqrt{x-2}$<br>
-                Правая часть: $5 - \sqrt{x-2} \geq 0 \Rightarrow \sqrt{x-2} \leq 5 \Rightarrow x-2 \leq 25 \Rightarrow x \leq 27$<br><br>
-                <span class="step">Шаг 3. Возводим в квадрат первый раз.</span>
-                $(\sqrt{x+3})^2 = (5 - \sqrt{x-2})^2$<br>
-                $x + 3 = 25 - 10\sqrt{x-2} + (x - 2)$<br>
-                $x + 3 = 25 - 10\sqrt{x-2} + x - 2$<br>
-                $x + 3 = x + 23 - 10\sqrt{x-2}$<br><br>
+                $\sqrt{x+3} = 5 - \sqrt{x-2}$.<br>
+                Условие: $5 - \sqrt{x-2} \geq 0 \Rightarrow x \leq 27$.<br>
+                <span class="step">Шаг 3. Возводим в квадрат.</span>
+                $x + 3 = 25 - 10\sqrt{x-2} + (x - 2)$.<br>
+                $x + 3 = x + 23 - 10\sqrt{x-2}$.<br>
                 <span class="step">Шаг 4. Приводим подобные.</span>
-                $x + 3 - x - 23 = -10\sqrt{x-2}$<br>
-                $-20 = -10\sqrt{x-2}$<br>
-                $10\sqrt{x-2} = 20$<br>
-                $\sqrt{x-2} = 2$<br><br>
+                $3 - 23 = -10\sqrt{x-2} \Rightarrow -20 = -10\sqrt{x-2} \Rightarrow \sqrt{x-2} = 2$.<br>
                 <span class="step">Шаг 5. Возводим в квадрат второй раз.</span>
-                $x - 2 = 4$<br>
-                $x = 6$<br><br>
+                $x - 2 = 4 \Rightarrow x = 6$.<br>
                 <span class="step">Шаг 6. Проверка.</span>
-                Подставляем $x = 6$ в исходное уравнение:<br>
-                $\sqrt{6 + 3} + \sqrt{6 - 2} = \sqrt{9} + \sqrt{4} = 3 + 2 = 5$<br>
-                $5 = 5$ — верно.<br>
-                Проверяем ОДЗ: $2 \leq 6 \leq 27$ — подходит.<br><br>
+                $\sqrt{9} + \sqrt{4} = 3 + 2 = 5$ — верно. ОДЗ: $2 \leq 6 \leq 27$ — подходит.<br><br>
                 <span class="result">Ответ: $x = 6$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 9. ГРАФИЧЕСКАЯ ИНТЕРПРЕТАЦИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Графическая интерпретация</span>
+            <span class="sub-title">почему появляются посторонние корни</span>
+        </div>
+        <div class="section-content">
+            <p>Иррациональное уравнение можно решить графически: построить график левой части и правой части, найти точки пересечения. Это помогает <strong>увидеть</strong>, почему появляются посторонние корни.</p>
+
+            <div class="example">
+                <strong>Пример 14.</strong> Рассмотрим уравнение $\sqrt{x+3} = x - 3$.<br><br>
+                <span class="step">Шаг 1. Строим графики.</span>
+                Левая часть: $y = \sqrt{x+3}$ — «половинка» параболы, сдвинутая на 3 влево.<br>
+                Правая часть: $y = x - 3$ — прямая с угловым коэффициентом 1.<br>
+                <div class="graph-container">
+                    <canvas id="graph14" class="plot" width="650" height="240"></canvas>
+                </div>
+                <span class="step">Шаг 2. Находим точки пересечения.</span>
+                Графики пересекаются в точке $x = 6$: $\sqrt{9} = 3$, $6 - 3 = 3$.<br>
+                <span class="step">Шаг 3. Почему корень $x = 1$ — посторонний?</span>
+                Если бы мы возвели в квадрат, то получили бы $x = 1$. Но при $x = 1$: $\sqrt{4} = 2$, а правая часть $1 - 3 = -2$. Графики в этой точке <strong>не пересекаются</strong> — корень $x = 1$ появился «искусственно» из-за возведения в квадрат.<br><br>
+                <span class="result">Ответ: $x = 6$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. СИСТЕМЫ ИРРАЦИОНАЛЬНЫХ УРАВНЕНИЙ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Системы иррациональных уравнений</span>
@@ -314,42 +488,28 @@
         </div>
         <div class="section-content">
             <div class="example">
-                <strong>Пример 8:</strong> Решить систему уравнений $\begin{cases} \sqrt{x} + \sqrt{y} = 5 \\ x + y = 13 \end{cases}$.<br><br>
+                <strong>Пример 15.</strong> $\begin{cases} \sqrt{x} + \sqrt{y} = 5 \\ x + y = 13 \end{cases}$<br><br>
                 <span class="step">Шаг 1. ОДЗ.</span>
-                $\sqrt{x}$ определён при $x \geq 0$, $\sqrt{y}$ — при $y \geq 0$.<br>
-                ОДЗ: $x \geq 0$, $y \geq 0$.<br><br>
-                <span class="step">Шаг 2. Вводим замену переменных.</span>
-                Пусть $a = \sqrt{x} \geq 0$, $b = \sqrt{y} \geq 0$.<br>
-                Тогда $x = a^2$, $y = b^2$.<br>
-                Система принимает вид:<br>
-                $\begin{cases} a + b = 5 \\ a^2 + b^2 = 13 \end{cases}$<br><br>
+                $x \geq 0$, $y \geq 0$.<br>
+                <span class="step">Шаг 2. Замена.</span>
+                Пусть $a = \sqrt{x} \geq 0$, $b = \sqrt{y} \geq 0$. Тогда $x = a^2$, $y = b^2$.<br>
+                Система: $\begin{cases} a + b = 5 \\ a^2 + b^2 = 13 \end{cases}$<br>
                 <span class="step">Шаг 3. Выражаем $a^2 + b^2$ через сумму и произведение.</span>
-                $a^2 + b^2 = (a+b)^2 - 2ab$<br>
-                $13 = 5^2 - 2ab$<br>
-                $13 = 25 - 2ab$<br>
-                $2ab = 25 - 13 = 12$<br>
-                $ab = 6$<br><br>
-                <span class="step">Шаг 4. Составляем квадратное уравнение.</span>
-                Числа $a$ и $b$ — корни уравнения $t^2 - 5t + 6 = 0$ (по теореме Виета: сумма корней $5$, произведение $6$).<br>
-                Решаем: $D = 25 - 24 = 1$<br>
-                $t_1 = \dfrac{5 + 1}{2} = 3$<br>
-                $t_2 = \dfrac{5 - 1}{2} = 2$<br><br>
-                <span class="step">Шаг 5. Находим $a$ и $b$.</span>
-                Возможны два случая:<br>
-                Случай 1: $a = 3$, $b = 2$<br>
-                Случай 2: $a = 2$, $b = 3$<br>
-                Оба подходят, так как $a,b \geq 0$.<br><br>
-                <span class="step">Шаг 6. Возвращаемся к $x$ и $y$.</span>
-                Случай 1: $\sqrt{x} = 3 \Rightarrow x = 9$, $\sqrt{y} = 2 \Rightarrow y = 4$.<br>
-                Случай 2: $\sqrt{x} = 2 \Rightarrow x = 4$, $\sqrt{y} = 3 \Rightarrow y = 9$.<br><br>
-                <span class="step">Шаг 7. Проверка.</span>
-                Для $(9; 4)$: $\sqrt{9} + \sqrt{4} = 3 + 2 = 5$, $9 + 4 = 13$ — верно.<br>
-                Для $(4; 9)$: $\sqrt{4} + \sqrt{9} = 2 + 3 = 5$, $4 + 9 = 13$ — верно.<br><br>
+                $a^2 + b^2 = (a+b)^2 - 2ab \Rightarrow 13 = 25 - 2ab \Rightarrow ab = 6$.<br>
+                <span class="step">Шаг 4. Квадратное уравнение.</span>
+                $a$ и $b$ — корни $t^2 - 5t + 6 = 0$: $t_1 = 3$, $t_2 = 2$.<br>
+                <span class="step">Шаг 5. Возвращаемся к $x$ и $y$.</span>
+                Случай 1: $a = 3, b = 2 \Rightarrow x = 9, y = 4$.<br>
+                Случай 2: $a = 2, b = 3 \Rightarrow x = 4, y = 9$.<br>
+                <span class="step">Шаг 6. Проверка.</span>
+                Для $(9; 4)$: $\sqrt{9} + \sqrt{4} = 5$, $9 + 4 = 13$ — верно.<br>
+                Для $(4; 9)$: $\sqrt{4} + \sqrt{9} = 5$, $4 + 9 = 13$ — верно.<br><br>
                 <span class="result">Ответ: $(4; 9)$ и $(9; 4)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 11. ЗАДАЧИ С ПАРАМЕТРОМ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">🎯 Задачи с параметром <span class="star">★</span></span>
@@ -357,68 +517,119 @@
         </div>
         <div class="section-content">
             <div class="example">
-                <strong>Пример 9:</strong> При каких значениях параметра $a$ уравнение $\sqrt{x+a} = x$ имеет ровно один корень?<br><br>
+                <strong>Пример 16.</strong> При каких значениях параметра $a$ уравнение $\sqrt{x+a} = x$ имеет ровно один корень?<br><br>
                 <span class="step">Шаг 1. ОДЗ.</span>
-                Корень квадратный: $x + a \geq 0 \Rightarrow x \geq -a$.<br>
-                Правая часть (значение корня): $x \geq 0$.<br>
+                $x + a \geq 0 \Rightarrow x \geq -a$.<br>
+                Правая часть: $x \geq 0$.<br>
                 Общая ОДЗ: $x \geq \max(0, -a)$.<br><br>
                 <span class="step">Шаг 2. Возводим в квадрат.</span>
-                $x + a = x^2$<br>
-                $x^2 - x - a = 0$<br><br>
-                <span class="step">Шаг 3. Анализируем квадратное уравнение.</span>
-                Дискриминант: $D = 1 + 4a$.<br>
-                Уравнение имеет корни, если $D \geq 0$, то есть $a \geq -\dfrac{1}{4}$.<br>
-                Корни: $x_{1,2} = \dfrac{1 \pm \sqrt{1 + 4a}}{2}$.<br><br>
-                <span class="step">Шаг 4. Проверяем ОДЗ для каждого корня.</span>
-                Оба корня должны удовлетворять $x \geq 0$ и $x \geq -a$.<br><br>
-                <strong>Случай $a < 0$:</strong> $-a > 0$, ОДЗ: $x \geq -a$.<br>
-                Меньший корень: $x_2 = \dfrac{1 - \sqrt{1+4a}}{2}$.<br>
-                При $a < 0$: $\sqrt{1+4a} < 1$, значит $x_2 > 0$.<br>
-                Проверяем $x_2 \geq -a$: это выполняется не всегда. Анализ показывает, что при $a < 0$ подходит только больший корень, если $a > -2$.<br><br>
-                <strong>Случай $a = 0$:</strong> $x^2 - x = 0$, корни $0$ и $1$. Оба подходят — два корня.<br><br>
-                <strong>Случай $a > 0$:</strong> $-a < 0$, ОДЗ: $x \geq 0$.<br>
-                Меньший корень $x_2 < 0$ (не подходит). Больший корень $x_1 > 0$ (подходит). Итого один корень.<br><br>
-                <strong>Случай $a = -\dfrac{1}{4}$:</strong> $D = 0$, единственный корень $x = \dfrac{1}{2}$. Проверяем ОДЗ: подходит.<br><br>
-                <span class="step">Шаг 5. Итоговый анализ.</span>
-                Один корень будет при $a = -\dfrac{1}{4}$ и при $a > 0$.<br>
-                При $a \in (-\dfrac{1}{4}; 0]$ — два корня.<br>
-                При $a < -\dfrac{1}{4}$ — корней нет.<br><br>
+                $x + a = x^2 \Rightarrow x^2 - x - a = 0$.<br>
+                <span class="step">Шаг 3. Дискриминант.</span>
+                $D = 1 + 4a$. Корни есть при $a \geq -\dfrac{1}{4}$.<br>
+                Корни: $x_{1,2} = \dfrac{1 \pm \sqrt{1+4a}}{2}$.<br>
+                <span class="step">Шаг 4. Анализ случаев.</span>
+                <strong>Случай $a < 0$:</strong> ОДЗ $x \geq -a > 0$. Подходит только больший корень, если $a > -2$.<br>
+                <strong>Случай $a = 0$:</strong> корни $0$ и $1$ — два корня.<br>
+                <strong>Случай $a > 0$:</strong> ОДЗ $x \geq 0$. Меньший корень $< 0$ — не подходит. Больший $> 0$ — подходит. Один корень.<br>
+                <strong>Случай $a = -\dfrac{1}{4}$:</strong> $D = 0$, единственный корень $x = \dfrac{1}{2}$ — подходит.<br><br>
                 <span class="result">Ответ: $a = -\dfrac{1}{4}$ или $a > 0$.</span>
             </div>
 
             <div class="example" style="margin-top:12px;">
-                <strong>Пример 10 (ЕГЭ):</strong> Найти все значения $a$, при которых уравнение $\sqrt{15x^2+6ax+9} = x^2+ax+3$ имеет ровно три различных корня.<br><br>
+                <strong>Пример 17 (ЕГЭ).</strong> Найти все значения $a$, при которых уравнение $\sqrt{15x^2+6ax+9} = x^2+ax+3$ имеет ровно три различных корня.<br><br>
                 <span class="step">Шаг 1. ОДЗ.</span>
-                Правая часть (значение корня): $x^2 + ax + 3 \geq 0$.<br>
-                Дискриминант правой части: $D = a^2 - 12$.<br>
-                Если $|a| \leq 2\sqrt{3}$, то $x^2+ax+3 > 0$ при всех $x$.<br><br>
+                Правая часть $\geq 0$: $x^2 + ax + 3 \geq 0$. Дискриминант $D = a^2 - 12$.<br>
+                Если $|a| \leq 2\sqrt{3}$, то правая часть $> 0$ при всех $x$.<br>
                 <span class="step">Шаг 2. Возводим в квадрат.</span>
-                $15x^2 + 6ax + 9 = (x^2 + ax + 3)^2$<br>
-                Раскрываем правую часть:<br>
-                $(x^2 + ax + 3)^2 = x^4 + 2ax^3 + (a^2+6)x^2 + 6ax + 9$<br><br>
-                <span class="step">Шаг 3. Приравниваем и приводим подобные.</span>
-                $15x^2 + 6ax + 9 = x^4 + 2ax^3 + (a^2+6)x^2 + 6ax + 9$<br>
-                $0 = x^4 + 2ax^3 + (a^2+6-15)x^2 + (6a-6a)x + (9-9)$<br>
-                $0 = x^4 + 2ax^3 + (a^2-9)x^2$<br>
-                $x^2(x^2 + 2ax + a^2 - 9) = 0$<br><br>
-                <span class="step">Шаг 4. Решаем уравнение.</span>
-                $x^2 = 0 \Rightarrow x = 0$ (кратный корень, считается за один).<br>
-                $x^2 + 2ax + a^2 - 9 = 0$<br>
-                $(x + a)^2 - 9 = 0$<br>
-                $(x + a)^2 = 9$<br>
-                $x + a = \pm 3$<br>
-                $x = -a \pm 3$<br><br>
-                <span class="step">Шаг 5. Анализируем количество корней.</span>
-                Имеем три кандидата: $x = 0$, $x = -a+3$, $x = -a-3$.<br>
-                Чтобы было ровно три РАЗЛИЧНЫХ корня, все три должны быть различны и удовлетворять ОДЗ.<br><br>
-                Условие $x=0$ совпадает с $x=-a+3$, если $-a+3=0 \Rightarrow a=3$.<br>
-                Условие $x=0$ совпадает с $x=-a-3$, если $-a-3=0 \Rightarrow a=-3$.<br>
-                При $a \neq \pm 3$ все три корня различны.<br><br>
-                <span class="step">Шаг 6. Проверяем ОДЗ.</span>
-                Для $a = 3$: корни $0$, $0$, $-6$ — два различных (0 и -6), не подходит.<br>
-                Для $a = -3$: корни $0$, $6$, $0$ — два различных (0 и 6), не подходит.<br>
-                Для других $a$ нужно проверить ОДЗ. Анализ показывает, что при $|a| < \sqrt{12}$ все три корня удовлетворяют ОДЗ.<br><br>
+                $15x^2 + 6ax + 9 = (x^2+ax+3)^2$.<br>
+                <span class="step">Шаг 3. Раскрываем и приводим подобные.</span>
+                $(x^2+ax+3)^2 = x^4 + 2ax^3 + (a^2+6)x^2 + 6ax + 9$.<br>
+                $x^4 + 2ax^3 + (a^2-9)x^2 = 0$.<br>
+                $x^2(x^2 + 2ax + a^2 - 9) = 0$.<br>
+                <span class="step">Шаг 4. Решаем.</span>
+                $x = 0$ (кратный).<br>
+                $x^2 + 2ax + a^2 - 9 = 0 \Rightarrow (x+a)^2 = 9 \Rightarrow x = -a \pm 3$.<br>
+                <span class="step">Шаг 5. Три различных корня.</span>
+                Кандидаты: $0$, $-a+3$, $-a-3$.<br>
+                Совпадения: $a = 3$ (0 совпадает с $-a+3$) и $a = -3$ (0 совпадает с $-a-3$).<br>
+                При $a \neq \pm 3$ все три корня различны.<br>
+                <span class="step">Шаг 6. Проверка ОДЗ.</span>
+                При $|a| < 2\sqrt{3}$ все три корня удовлетворяют ОДЗ.<br><br>
                 <span class="result">Ответ: $a \in (-2\sqrt{3}; 2\sqrt{3}) \setminus \{-3; 3\}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 12. ТИПИЧНЫЕ ОШИБКИ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚠️ Типичные ошибки</span>
+        </div>
+        <div class="section-content">
+            <p>Эти ошибки встречаются чаще всего. Проверь себя — не допускаешь ли ты их?</p>
+            <table class="error-table">
+                <thead>
+                <tr>
+                    <th>Ошибка</th>
+                    <th>Почему неверно</th>
+                    <th>Как правильно</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="wrong">$\sqrt{f(x)} = g(x) \Rightarrow f(x) = g^2(x)$</td>
+                    <td>Забыли условие $g(x) \geq 0$. Если правая часть отрицательна, корень (который $\geq 0$) не может быть ей равен.</td>
+                    <td class="right">$\begin{cases} f(x) = g^2(x) \\ g(x) \geq 0 \end{cases}$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">$\sqrt{f(x)} = a$, возводят в квадрат при $a < 0$</td>
+                    <td>Корень чётной степени не может быть отрицательным. Решений нет, а возведение в квадрат даёт ложный корень.</td>
+                    <td class="right">При $a < 0$: $x \in \varnothing$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">Забыли про ОДЗ</td>
+                    <td>Если подкоренное выражение отрицательно, корень не существует — такие $x$ не могут быть решением.</td>
+                    <td class="right">Всегда проверять $f(x) \geq 0$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">Не проверили корни после возведения в квадрат</td>
+                    <td>Возведение в чётную степень может создать посторонние корни, которые не удовлетворяют исходному уравнению.</td>
+                    <td class="right">Обязательная проверка подстановкой</td>
+                </tr>
+                <tr>
+                    <td class="wrong">При возведении в квадрат суммы двух корней забыли удвоенное произведение</td>
+                    <td>$(a+b)^2 = a^2 + 2ab + b^2$, а не $a^2 + b^2$. Это приводит к потере корня.</td>
+                    <td class="right">Писать полностью: $(a+b)^2 = a^2 + 2ab + b^2$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">После замены $t = \sqrt{x}$ забыли условие $t \geq 0$</td>
+                    <td>Корень чётной степени неотрицателен. Отрицательные корни квадратного уравнения — посторонние.</td>
+                    <td class="right">Всегда писать $t \geq 0$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">При корне в знаменателе пишут $f(x) \geq 0$ вместо $f(x) > 0$</td>
+                    <td>На ноль делить нельзя. При $f(x) = 0$ знаменатель обращается в ноль.</td>
+                    <td class="right">Строгое условие: $f(x) > 0$</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 13. СВОДНАЯ ТАБЛИЦА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📊 Сводная таблица</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>$\sqrt{f(x)} = a$</strong> $\Leftrightarrow \begin{cases} f(x) = a^2 \\ a \geq 0 \end{cases}$<br><br>
+                <strong>$\sqrt{f(x)} = g(x)$</strong> $\Leftrightarrow \begin{cases} f(x) = g^2(x) \\ g(x) \geq 0 \end{cases}$<br><br>
+                <strong>$\sqrt[3]{f(x)} = g(x)$</strong> $\Leftrightarrow f(x) = g^3(x)$ — ОДЗ не нужно<br><br>
+                <strong>Корень в знаменателе:</strong> $\dfrac{1}{\sqrt{f(x)}} = g(x) \Leftrightarrow f(x) > 0$<br><br>
+                <strong>Замена переменной:</strong> $t = \sqrt{f(x)}$, $t \geq 0$ — сведение к квадратному уравнению.<br><br>
+                <strong>Уединение радикала:</strong> перенести один корень в одну часть, остальное — в другую, затем возводить в квадрат.<br><br>
+                <strong>Проверка:</strong> обязательна при возведении в чётную степень.
             </div>
         </div>
     </div>
@@ -428,8 +639,8 @@
 
 <script>
     function toggleTheme() {
-        const html = document.documentElement;
-        const btn = document.getElementById('themeBtn');
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
         if (html.classList.contains('light-mode')) {
             html.classList.remove('light-mode');
             localStorage.setItem('mathTheme', 'dark');
@@ -439,6 +650,8 @@
             localStorage.setItem('mathTheme', 'light');
             btn.textContent = '☀️';
         }
+        if (window.MathJax) MathJax.typesetPromise();
+        setTimeout(drawAllPlots, 400);
     }
     (function () {
         if (localStorage.getItem('mathTheme') === 'light') {
@@ -446,8 +659,182 @@
             document.getElementById('themeBtn').textContent = '☀️';
         }
     })();
-</script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+    function drawAllPlots() {
+        var isLight = document.documentElement.classList.contains('light-mode');
+        var colors = {
+            axis: isLight ? '#5a7a94' : '#8ba5b8',
+            text: isLight ? '#1a2a3f' : '#ffffff',
+            bg: isLight ? '#f8fafc' : '#162a38',
+            grid: isLight ? 'rgba(26,42,63,0.1)' : 'rgba(139,165,184,0.2)',
+            curve1: '#1abc9c',
+            curve2: '#e74c3c',
+            point: '#e67e22'
+        };
+
+        var canvas = document.getElementById('graph14');
+        if (!canvas) return;
+        var parentWidth = canvas.parentElement.clientWidth - 8;
+        if (parentWidth < 100) parentWidth = 600;
+        var h = parentWidth * 240 / 650;
+        canvas.width = 650;
+        canvas.height = 240;
+        canvas.style.width = parentWidth + 'px';
+        canvas.style.height = h + 'px';
+
+        var ctx = canvas.getContext('2d');
+        var W = 650, H = 240;
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = colors.bg;
+        ctx.fillRect(0, 0, W, H);
+
+        var pad = 40;
+        var xMin = -4, xMax = 10;
+        var yMin = -4, yMax = 6;
+        var xScale = (W - 2 * pad) / (xMax - xMin);
+        var yScale = (H - 2 * pad) / (yMax - yMin);
+        function toX(x) { return pad + (x - xMin) * xScale; }
+        function toY(y) { return pad + (yMax - y) * yScale; }
+
+        ctx.strokeStyle = colors.grid;
+        ctx.lineWidth = 0.8;
+        for (var x = Math.ceil(xMin); x <= xMax; x++) {
+            if (Math.abs(x) < 0.01) continue;
+            var xc = toX(x);
+            ctx.beginPath();
+            ctx.moveTo(xc, pad);
+            ctx.lineTo(xc, H - pad);
+            ctx.stroke();
+            ctx.fillStyle = colors.text;
+            ctx.font = '10px Inter,sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(x.toString(), xc, H - pad + 4);
+        }
+        for (var y = Math.ceil(yMin); y <= yMax; y++) {
+            if (Math.abs(y) < 0.01) continue;
+            var yc = toY(y);
+            ctx.beginPath();
+            ctx.moveTo(pad, yc);
+            ctx.lineTo(W - pad, yc);
+            ctx.stroke();
+            ctx.fillStyle = colors.text;
+            ctx.font = '10px Inter,sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(y.toString(), pad - 6, yc);
+        }
+
+        ctx.strokeStyle = colors.axis;
+        ctx.lineWidth = 2;
+        var y0 = toY(0);
+        if (y0 >= pad && y0 <= H - pad) {
+            ctx.beginPath();
+            ctx.moveTo(pad, y0);
+            ctx.lineTo(W - pad, y0);
+            ctx.stroke();
+        }
+        var x0 = toX(0);
+        if (x0 >= pad && x0 <= W - pad) {
+            ctx.beginPath();
+            ctx.moveTo(x0, pad);
+            ctx.lineTo(x0, H - pad);
+            ctx.stroke();
+        }
+        ctx.fillStyle = colors.text;
+        ctx.font = '12px Inter,sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        if (y0 >= pad && y0 <= H - pad) ctx.fillText('x', W - pad - 4, y0 - 4);
+        if (x0 >= pad && x0 <= W - pad) ctx.fillText('y', x0 + 6, pad + 10);
+
+        // y = sqrt(x+3)
+        ctx.strokeStyle = colors.curve1;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        var first = true;
+        for (var i = 0; i <= 200; i++) {
+            var xVal = -3 + i * 0.1;
+            if (xVal > xMax) break;
+            var yVal = Math.sqrt(xVal + 3);
+            if (yVal > yMax) continue;
+            var xc2 = toX(xVal), yc2 = toY(yVal);
+            if (first) { ctx.moveTo(xc2, yc2); first = false; }
+            else ctx.lineTo(xc2, yc2);
+        }
+        ctx.stroke();
+
+        // y = x - 3
+        ctx.strokeStyle = colors.curve2;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(toX(xMin), toY(xMin - 3));
+        ctx.lineTo(toX(xMax), toY(xMax - 3));
+        ctx.stroke();
+
+        // Точка пересечения (6, 3)
+        var px = toX(6), py = toY(3);
+        ctx.fillStyle = colors.point;
+        ctx.beginPath();
+        ctx.arc(px, py, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = colors.axis;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = colors.text;
+        ctx.font = 'bold 13px Inter,sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('(6; 3)', px + 10, py - 6);
+    }
+
+    setTimeout(function () {
+        drawAllPlots();
+        if (window.MathJax) MathJax.typesetPromise();
+    }, 600);
+
+    window.addEventListener('resize', drawAllPlots);
+    var observer = new MutationObserver(function () { drawAllPlots(); });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() {
+        const s = localStorage.getItem(FAV_KEY);
+        return s ? JSON.parse(s) : [];
+    }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        return getFavorites().includes(u);
+    }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+</script>
 </body>
 </html>

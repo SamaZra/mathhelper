@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Логарифмические неравенства — 10-11 класс</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -10,11 +10,17 @@
             --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
             --border: rgba(139,92,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
             --special-border: #8b5cf6; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --graph-bg: #243848;
         }
         :root.light-mode {
             --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
             --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
-            --info-bg: #e8f0fe; --special-border: #8b5cf6; --example-bg: #e8f0fe;
+            --info-bg: #e8f0fe; --special-border: #8b5cf6; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --graph-bg: #f8fafc;
         }
         body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
         .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
@@ -28,17 +34,22 @@
         .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
         .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
         .section-title:hover { opacity: 0.8; }
-        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section-content { max-height: 12000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
         .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
         .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
-        .example .step { font-weight: 700; color: #a78bfa; margin-top: 12px; margin-bottom: 4px; }
-        .example .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; }
-        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
-        .important strong { color: #fbbf24; }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .formula-highlight { color: var(--formula-color); font-weight: 600; }
+        .example .danger-text { color: var(--danger-color); font-weight: 700; }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .warning-text { color: var(--warning-border); font-weight: 700; }
         .keep-sign { background: #065f46; color: #6ee7b7; padding: 2px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap; }
         .flip-sign { background: #991b1b; color: #fca5a5; padding: 2px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap; }
-        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
         .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
         .back-link:hover { background: #7c3aed; }
         mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
@@ -48,10 +59,28 @@
             .section-title { font-size: 1rem; }
             .example { padding: 12px 14px; }
         }
-    
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
+        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.active { color: #facc15; }
+
+        .number-line { margin: 15px 0; text-align: center; }
+        .number-line svg { max-width: 100%; height: auto; }
+        .number-line .tick { font-size: 12px; fill: var(--text-secondary); }
+        .number-line .line { stroke: var(--text); stroke-width: 2; }
+        .number-line .solution-line { stroke: var(--result-color); stroke-width: 4; }
+        .number-line .point-filled { fill: var(--result-color); }
+        .number-line .point-open { fill: var(--card-bg); stroke: var(--result-color); stroke-width: 2; }
+
+        .error-table {
+            width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9rem;
+            border-radius: 12px; overflow: hidden;
+        }
+        .error-table th { background: var(--special-border); color: white; padding: 10px 12px; text-align: left; font-weight: 700; }
+        .error-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+        .error-table tr:nth-child(even) td { background: var(--formula-bg); }
+        .error-table tr:last-child td { border-bottom: none; }
+        .error-table .wrong { color: var(--danger-color); font-weight: 700; }
+        .error-table .right { color: var(--result-color); font-weight: 700; }
     </style>
     <script>
         MathJax = {
@@ -63,49 +92,70 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>Логарифмические неравенства</h1>
 
+    <!-- 1. ВВЕДЕНИЕ -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📖 Что такое логарифмическое неравенство</span>
         </div>
         <div class="section-content">
-            <p><strong>Логарифмическое неравенство</strong> — неравенство, в котором переменная содержится под знаком логарифма.</p>
+            <p>С логарифмическими уравнениями мы уже разобрались: там было важно, чтобы аргумент был положительным. С неравенствами — ещё интереснее. Появляется новая ловушка: <strong>знак неравенства зависит от основания</strong>. При одном основании он сохраняется, при другом — переворачивается.</p>
             <div class="formula-block">
                 $\log_2 x > 3$<br>
                 $\log_{0{,}5}(x+1) \leq 2$<br>
                 $\log_3(x-1) < \log_3(2x+3)$<br>
                 $\log_2^2 x - 3\log_2 x + 2 \geq 0$
             </div>
+            <p>Хочешь интуицию? Смотри: при $a > 1$ функция $y = \log_a x$ <strong>возрастает</strong>. Значит, большему аргументу соответствует больший логарифм — и знак не меняется. При $0 < a < 1$ всё наоборот: функция <strong>убывает</strong>, и знак переворачивается.</p>
             <div class="important">
-                <strong>💡 Ключевой принцип:</strong><br>
-                Если основание $a > 1$ — <span class="keep-sign">знак сохраняется</span><br>
-                Если $0 < a < 1$ — <span class="flip-sign">знак меняется</span><br>
-                И всегда проверяем <strong>ОДЗ</strong>: аргумент логарифма $> 0$!
+                <strong>💡 Два правила, которые решают всё:</strong><br>
+                • Основание $a > 1$ — <span class="keep-sign">знак сохраняется</span><br>
+                • Основание $0 < a < 1$ — <span class="flip-sign">знак меняется</span><br>
+                • И всегда ОДЗ: аргумент $> 0$.
             </div>
         </div>
     </div>
 
+    <!-- 2. ОСНОВАНИЕ БОЛЬШЕ 1 -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Основание больше 1</span>
-            <span class="sub-title">$a > 1$</span>
+            <span class="sub-title">$a > 1$ — функция возрастает</span>
         </div>
         <div class="section-content">
+            <p>Когда основание $a > 1$, логарифмическая функция <strong>возрастает</strong>. Значит, чем больше аргумент, тем больше логарифм. Поэтому знак неравенства между логарифмами совпадает со знаком между аргументами.</p>
             <div class="formula-block">
-                Если $a > 1$, то $\log_a f(x) > \log_a g(x) \Leftrightarrow f(x) > g(x)$<br>
+                Если $a > 1$, то $\log_a f(x) > \log_a g(x) \Leftrightarrow \begin{cases} f(x) > g(x) \\ f(x) > 0 \\ g(x) > 0 \end{cases}$<br>
                 <span class="keep-sign">знак неравенства сохраняется</span>
+            </div>
+            <div class="important">
+                <strong>💡 Почему так?</strong> Функция $y = \log_a x$ при $a > 1$ монотонно возрастает. Это значит: из $\log_a f > \log_a g$ следует $f > g$. Никаких «переворотов» не происходит.
             </div>
 
             <div class="example">
                 <strong>Пример 1.</strong> $\log_2(x-1) > 3$<br><br>
-                <span class="step">Шаг 1. ОДЗ.</span> $x-1 > 0 \Rightarrow x > 1$.<br><br>
-                <span class="step">Шаг 2. Представим $3$ как логарифм.</span>
-                $3 = \log_2 8$. Неравенство: $\log_2(x-1) > \log_2 8$.<br>
-                Основание $2 > 1$ — <span class="keep-sign">знак сохраняется</span>.<br><br>
-                <span class="step">Шаг 3.</span> $x-1 > 8 \Rightarrow x > 9$.<br>
-                С учётом ОДЗ: $x > 9$.<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x-1 > 0 \Rightarrow x > 1$.<br>
+                <div class="hint">💡 Под знаком логарифма может стоять только положительное число. Это ОДЗ.</div>
+                <span class="step">Шаг 2. Представим $3$ как логарифм по основанию $2$.</span>
+                $3 = \log_2 8$, так как $2^3 = 8$.<br>
+                Неравенство: $\log_2(x-1) > \log_2 8$.<br>
+                <span class="step">Шаг 3. Основание $2 > 1$ — <span class="keep-sign">знак сохраняется</span>.</span>
+                $x-1 > 8 \Rightarrow x > 9$.<br>
+                <span class="step">Шаг 4. Пересекаем с ОДЗ.</span> $x > 9$ (условие $x > 1$ выполняется автоматически).<br><br>
+                <span class="step">Шаг 5. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="200" y1="25" x2="200" y2="35" class="line" />
+                        <text x="200" y="50" text-anchor="middle" class="tick">9</text>
+                        <line x1="200" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="200" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (9; +\infty)$.</span>
             </div>
 
@@ -114,34 +164,64 @@
                 <span class="step">Шаг 1. ОДЗ.</span>
                 $x-1 > 0 \Rightarrow x > 1$<br>
                 $2x+3 > 0 \Rightarrow x > -1{,}5$<br>
-                Общая ОДЗ: $x > 1$.<br><br>
-                <span class="step">Шаг 2.</span> Основание $3 > 1$ — <span class="keep-sign">знак сохраняется</span>.<br>
-                $x-1 < 2x+3 \Rightarrow -x < 4 \Rightarrow x > -4$.<br><br>
+                Общая ОДЗ: $x > 1$.<br>
+                <span class="step">Шаг 2. Основание $3 > 1$ — <span class="keep-sign">знак сохраняется</span>.</span>
+                $x-1 < 2x+3 \Rightarrow -x < 4 \Rightarrow x > -4$.<br>
+                <div class="hint">💡 Обрати внимание: при переносе $x-1 < 2x+3$ получаем $-x < 4$, то есть $x > -4$. Знак меняется, потому что делим на $-1$.</div>
                 <span class="step">Шаг 3. Пересекаем с ОДЗ.</span> $x > 1$.<br><br>
+                <span class="step">Шаг 4. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="180" y1="25" x2="180" y2="35" class="line" />
+                        <text x="180" y="50" text-anchor="middle" class="tick">1</text>
+                        <line x1="180" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="180" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (1; +\infty)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 3. ОСНОВАНИЕ ОТ 0 ДО 1 -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Основание от 0 до 1</span>
-            <span class="sub-title">$0 < a < 1$</span>
+            <span class="sub-title">$0 < a < 1$ — функция убывает</span>
         </div>
         <div class="section-content">
+            <p>Когда основание $0 < a < 1$, логарифмическая функция <strong>убывает</strong>. Чем больше аргумент, тем <strong>меньше</strong> логарифм. Поэтому знак неравенства между логарифмами <strong>меняется на противоположный</strong> при переходе к аргументам.</p>
             <div class="formula-block">
-                Если $0 < a < 1$, то $\log_a f(x) > \log_a g(x) \Leftrightarrow f(x) < g(x)$<br>
-                <span class="flip-sign">знак неравенства меняется на противоположный</span>
+                Если $0 < a < 1$, то $\log_a f(x) > \log_a g(x) \Leftrightarrow \begin{cases} f(x) < g(x) \\ f(x) > 0 \\ g(x) > 0 \end{cases}$<br>
+                <span class="flip-sign">знак неравенства меняется</span>
+            </div>
+            <div class="important">
+                <strong>💡 Почему так?</strong> Функция $y = \log_a x$ при $0 < a < 1$ убывает. Это значит: большему аргументу соответствует <strong>меньшее</strong> значение логарифма. Поэтому при отбрасывании логарифмов знак переворачивается.
             </div>
 
             <div class="example">
                 <strong>Пример 3.</strong> $\log_{0{,}5}(x+1) \leq 2$<br><br>
-                <span class="step">Шаг 1. ОДЗ.</span> $x+1 > 0 \Rightarrow x > -1$.<br><br>
-                <span class="step">Шаг 2.</span> $2 = \log_{0{,}5}(0{,}25)$.<br>
-                $\log_{0{,}5}(x+1) \leq \log_{0{,}5}(0{,}25)$.<br>
-                Основание $0{,}5 \in (0; 1)$ — <span class="flip-sign">знак меняется</span>!<br><br>
-                <span class="step">Шаг 3.</span> $x+1 \geq 0{,}25 \Rightarrow x \geq -0{,}75$.<br>
-                С учётом ОДЗ: $x \geq -0{,}75$.<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x+1 > 0 \Rightarrow x > -1$.<br>
+                <span class="step">Шаг 2. Представим $2$ как логарифм по основанию $0{,}5$.</span>
+                $2 = \log_{0{,}5}(0{,}25)$, так как $(0{,}5)^2 = 0{,}25$.<br>
+                Неравенство: $\log_{0{,}5}(x+1) \leq \log_{0{,}5}(0{,}25)$.<br>
+                <span class="step">Шаг 3. Основание $0{,}5 \in (0; 1)$ — <span class="flip-sign">знак меняется</span>.</span>
+                $x+1 \geq 0{,}25 \Rightarrow x \geq -0{,}75$.<br>
+                <div class="hint">💡 Было $\leq$, стало $\geq$ — потому что функция убывает.</div>
+                <span class="step">Шаг 4. Пересекаем с ОДЗ.</span> $x \geq -0{,}75$ (условие $x > -1$ выполняется).<br><br>
+                <span class="step">Шаг 5. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="120" y1="25" x2="120" y2="35" class="line" />
+                        <text x="120" y="50" text-anchor="middle" class="tick">-0.75</text>
+                        <line x1="120" y1="30" x2="380" y2="30" class="solution-line" />
+                        <circle cx="120" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in [-0{,}75; +\infty)$.</span>
             </div>
 
@@ -150,77 +230,191 @@
                 <span class="step">Шаг 1. ОДЗ.</span>
                 $2x-1 > 0 \Rightarrow x > 0{,}5$<br>
                 $x+3 > 0 \Rightarrow x > -3$<br>
-                Общая ОДЗ: $x > 0{,}5$.<br><br>
-                <span class="step">Шаг 2.</span> Основание $\dfrac{1}{3} \in (0; 1)$ — <span class="flip-sign">знак меняется</span>!<br>
-                $2x-1 < x+3 \Rightarrow x < 4$.<br><br>
+                Общая ОДЗ: $x > 0{,}5$.<br>
+                <span class="step">Шаг 2. Основание $\dfrac{1}{3} \in (0; 1)$ — <span class="flip-sign">знак меняется</span>.</span>
+                $2x-1 < x+3 \Rightarrow x < 4$.<br>
+                <div class="hint">💡 Было $>$, стало $<$ — потому что функция убывает.</div>
                 <span class="step">Шаг 3. Пересекаем с ОДЗ.</span> $0{,}5 < x < 4$.<br><br>
+                <span class="step">Шаг 4. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="100" y1="25" x2="100" y2="35" class="line" />
+                        <text x="100" y="50" text-anchor="middle" class="tick">0.5</text>
+                        <line x1="280" y1="25" x2="280" y2="35" class="line" />
+                        <text x="280" y="50" text-anchor="middle" class="tick">4</text>
+                        <line x1="100" y1="30" x2="280" y2="30" class="solution-line" />
+                        <circle cx="100" cy="30" r="5" class="point-open" />
+                        <circle cx="280" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (0{,}5; 4)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 4. ЗАМЕНА ПЕРЕМЕННОЙ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📐 Метод замены переменной</span>
             <span class="sub-title">сведение к квадратному неравенству</span>
         </div>
         <div class="section-content">
+            <p>Если логарифм встречается дважды — например, $\log_2 x$ и $\log_2^2 x$, — это подсказка: сделайте замену $t = \log_a x$. Тогда неравенство превратится в квадратное.</p>
+            <div class="important">
+                <strong>💡 Главное правило:</strong> после замены решаем квадратное неравенство относительно $t$, а затем <strong>возвращаемся к $x$</strong>. Не забудьте про ОДЗ: $x > 0$.
+            </div>
+
             <div class="example">
                 <strong>Пример 5.</strong> $\log_2^2 x - 3\log_2 x + 2 \geq 0$<br><br>
-                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$.<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$.<br>
                 <span class="step">Шаг 2. Замена $t = \log_2 x$.</span>
                 $t^2 - 3t + 2 \geq 0$.<br>
-                Корни: $t_1 = 1$, $t_2 = 2$. Парабола ветвями вверх: $t \leq 1$ или $t \geq 2$.<br><br>
-                <span class="step">Шаг 3. Возврат.</span>
+                Корни: $t_1 = 1$, $t_2 = 2$. Парабола ветвями вверх: $t \leq 1$ или $t \geq 2$.<br>
+                <span class="step">Шаг 3. Возврат к $x$.</span>
                 $\log_2 x \leq 1 \Rightarrow 0 < x \leq 2$ (основание $2 > 1$ — <span class="keep-sign">знак сохраняется</span>).<br>
                 $\log_2 x \geq 2 \Rightarrow x \geq 4$.<br><br>
+                <span class="step">Шаг 4. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="450" height="60" viewBox="0 0 450 60">
+                        <line x1="20" y1="30" x2="430" y2="30" class="line" />
+                        <polygon points="430,30 420,25 420,35" fill="var(--text)" />
+                        <line x1="80" y1="25" x2="80" y2="35" class="line" />
+                        <text x="80" y="50" text-anchor="middle" class="tick">0</text>
+                        <line x1="180" y1="25" x2="180" y2="35" class="line" />
+                        <text x="180" y="50" text-anchor="middle" class="tick">2</text>
+                        <line x1="320" y1="25" x2="320" y2="35" class="line" />
+                        <text x="320" y="50" text-anchor="middle" class="tick">4</text>
+                        <line x1="80" y1="30" x2="180" y2="30" class="solution-line" />
+                        <circle cx="80" cy="30" r="5" class="point-open" />
+                        <circle cx="180" cy="30" r="5" class="point-filled" />
+                        <line x1="320" y1="30" x2="430" y2="30" class="solution-line" />
+                        <circle cx="320" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (0; 2] \cup [4; +\infty)$.</span>
             </div>
 
             <div class="example" style="margin-top:12px;">
                 <strong>Пример 6.</strong> $\log_{0{,}5}^2 x + \log_{0{,}5} x - 2 \leq 0$<br><br>
-                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$. Замена $t = \log_{0{,}5} x$.<br><br>
-                <span class="step">Шаг 2.</span> $t^2 + t - 2 \leq 0$. Корни: $t_1 = -2$, $t_2 = 1$. Решение: $-2 \leq t \leq 1$.<br><br>
-                <span class="step">Шаг 3. Возврат.</span>
+                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$. Замена $t = \log_{0{,}5} x$.<br>
+                <span class="step">Шаг 2.</span> $t^2 + t - 2 \leq 0$. Корни: $t_1 = -2$, $t_2 = 1$. Решение: $-2 \leq t \leq 1$.<br>
+                <span class="step">Шаг 3. Возврат к $x$.</span>
                 $-2 \leq \log_{0{,}5} x \leq 1$.<br>
                 $\log_{0{,}5} x \geq -2 = \log_{0{,}5} 4$ — <span class="flip-sign">знак меняется</span>: $x \leq 4$.<br>
                 $\log_{0{,}5} x \leq 1 = \log_{0{,}5} 0{,}5$ — <span class="flip-sign">знак меняется</span>: $x \geq 0{,}5$.<br>
-                Пересечение: $0{,}5 \leq x \leq 4$.<br><br>
+                Пересечение с ОДЗ: $0{,}5 \leq x \leq 4$.<br><br>
+                <span class="step">Шаг 4. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="450" height="60" viewBox="0 0 450 60">
+                        <line x1="20" y1="30" x2="430" y2="30" class="line" />
+                        <polygon points="430,30 420,25 420,35" fill="var(--text)" />
+                        <line x1="120" y1="25" x2="120" y2="35" class="line" />
+                        <text x="120" y="50" text-anchor="middle" class="tick">0.5</text>
+                        <line x1="320" y1="25" x2="320" y2="35" class="line" />
+                        <text x="320" y="50" text-anchor="middle" class="tick">4</text>
+                        <line x1="120" y1="30" x2="320" y2="30" class="solution-line" />
+                        <circle cx="120" cy="30" r="5" class="point-filled" />
+                        <circle cx="320" cy="30" r="5" class="point-filled" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in [0{,}5; 4]$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 5. РАЗНЫЕ ОСНОВАНИЯ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-            <span class="main-title">📐 Смешанные неравенства ★</span>
-            <span class="sub-title">логарифмы с разными основаниями</span>
+            <span class="main-title">📐 Логарифмы с разными основаниями</span>
+            <span class="sub-title">приведение к одному основанию</span>
         </div>
         <div class="section-content">
+            <p>Если основания разные, сначала приводим все логарифмы к одному основанию по формуле перехода: $\log_a b = \dfrac{\log_c b}{\log_c a}$.</p>
+
             <div class="example">
                 <strong>Пример 7.</strong> $\log_2 x + \log_4 x < 3$<br><br>
-                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$.<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $x > 0$.<br>
                 <span class="step">Шаг 2. Приводим к основанию $2$.</span>
-                $\log_4 x = \dfrac{\log_2 x}{2}$.<br>
-                $\log_2 x + \dfrac{1}{2}\log_2 x < 3 \Rightarrow \dfrac{3}{2}\log_2 x < 3 \Rightarrow \log_2 x < 2$.<br><br>
+                $\log_4 x = \dfrac{\log_2 x}{\log_2 4} = \dfrac{\log_2 x}{2}$.<br>
+                $\log_2 x + \dfrac{1}{2}\log_2 x < 3 \Rightarrow \dfrac{3}{2}\log_2 x < 3 \Rightarrow \log_2 x < 2$.<br>
                 <span class="step">Шаг 3.</span> Основание $2 > 1$ — <span class="keep-sign">знак сохраняется</span>: $x < 4$.<br>
                 С учётом ОДЗ: $0 < x < 4$.<br><br>
+                <span class="step">Шаг 4. Числовая прямая.</span>
+                <div class="number-line">
+                    <svg width="400" height="60" viewBox="0 0 400 60">
+                        <line x1="20" y1="30" x2="380" y2="30" class="line" />
+                        <polygon points="380,30 370,25 370,35" fill="var(--text)" />
+                        <line x1="100" y1="25" x2="100" y2="35" class="line" />
+                        <text x="100" y="50" text-anchor="middle" class="tick">0</text>
+                        <line x1="260" y1="25" x2="260" y2="35" class="line" />
+                        <text x="260" y="50" text-anchor="middle" class="tick">4</text>
+                        <line x1="100" y1="30" x2="260" y2="30" class="solution-line" />
+                        <circle cx="100" cy="30" r="5" class="point-open" />
+                        <circle cx="260" cy="30" r="5" class="point-open" />
+                    </svg>
+                </div>
                 <span class="result">Ответ: $x \in (0; 4)$.</span>
             </div>
         </div>
     </div>
 
+    <!-- 6. ТИПИЧНЫЕ ОШИБКИ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚠️ Типичные ошибки</span>
+        </div>
+        <div class="section-content">
+            <p>Эти ошибки встречаются чаще всего. Проверь себя — не допускаешь ли ты их?</p>
+            <table class="error-table">
+                <thead>
+                <tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="wrong">Забыли поменять знак при $0 < a < 1$</td>
+                    <td>Функция убывает, поэтому знак неравенства переворачивается.</td>
+                    <td class="right">$0 < a < 1$: знак меняется на противоположный</td>
+                </tr>
+                <tr>
+                    <td class="wrong">Не учли ОДЗ</td>
+                    <td>Аргумент логарифма должен быть строго положительным.</td>
+                    <td class="right">Всегда писать $f(x) > 0$, $g(x) > 0$</td>
+                </tr>
+                <tr>
+                    <td class="wrong">Привели к общему основанию и забыли про знак</td>
+                    <td>Если новое основание $< 1$, знак тоже меняется.</td>
+                    <td class="right">Следить за знаком основания при каждом переходе</td>
+                </tr>
+                <tr>
+                    <td class="wrong">После замены $t = \log_a x$ забыли вернуться к $x$</td>
+                    <td>Ответ должен быть в терминах исходной переменной $x$, а не $t$.</td>
+                    <td class="right">Обязательный обратный переход</td>
+                </tr>
+                <tr>
+                    <td class="wrong">Считают, что $\log_a x > 0$ при любом $x > 0$</td>
+                    <td>Логарифм может быть отрицательным: например, $\log_2 0{,}5 = -1$.</td>
+                    <td class="right">Помнить: $\log_a x > 0 \Leftrightarrow x > 1$ при $a > 1$</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 7. СВОДНАЯ ТАБЛИЦА -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
             <span class="main-title">📊 Сводная таблица</span>
         </div>
         <div class="section-content">
             <div class="formula-block">
-                <strong>1.</strong> $\log_a f(x) > \log_a g(x)$, $a > 1$ — <span class="keep-sign">знак сохраняется</span>: $f(x) > g(x)$<br><br>
-                <strong>2.</strong> $\log_a f(x) > \log_a g(x)$, $0 < a < 1$ — <span class="flip-sign">знак меняется</span>: $f(x) < g(x)$<br><br>
-                <strong>3.</strong> Всегда проверяем ОДЗ: $f(x) > 0$, $g(x) > 0$<br><br>
+                <strong>1.</strong> $\log_a f > \log_a g$, $a > 1$ — <span class="keep-sign">знак сохраняется</span>: $f > g$<br><br>
+                <strong>2.</strong> $\log_a f > \log_a g$, $0 < a < 1$ — <span class="flip-sign">знак меняется</span>: $f < g$<br><br>
+                <strong>3.</strong> Всегда проверяем ОДЗ: $f > 0$, $g > 0$<br><br>
                 <strong>4.</strong> $\log_a^2 x + b\log_a x + c \geq 0$ — замена $t = \log_a x$<br><br>
-                <strong>5.</strong> Разные основания — приводим к одному основанию
+                <strong>5.</strong> Разные основания — приводим к одному по формуле $\log_a b = \dfrac{\log_c b}{\log_c a}$<br><br>
+                <strong>6.</strong> $\log_a x > b \Leftrightarrow$ при $a > 1$: $x > a^b$; при $0 < a < 1$: $0 < x < a^b$
             </div>
         </div>
     </div>
@@ -230,8 +424,8 @@
 
 <script>
     function toggleTheme() {
-        const html = document.documentElement;
-        const btn = document.getElementById('themeBtn');
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
         if (html.classList.contains('light-mode')) {
             html.classList.remove('light-mode');
             localStorage.setItem('mathTheme', 'dark');
@@ -241,6 +435,7 @@
             localStorage.setItem('mathTheme', 'light');
             btn.textContent = '☀️';
         }
+        if (window.MathJax) MathJax.typesetPromise();
     }
     (function () {
         if (localStorage.getItem('mathTheme') === 'light') {
@@ -248,8 +443,27 @@
             document.getElementById('themeBtn').textContent = '☀️';
         }
     })();
-</script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
 </body>
 </html>
