@@ -3,222 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Тригонометрия — Чётность и нечётность</title>
+    <title>Чётность и нечётность тригонометрических функций</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
-            --bg: #1a2d3c;
-            --card-bg: #1e3545;
-            --text: #ffffff;
-            --text-secondary: #8ba5b8;
-            --accent: #1abc9c;
-            --border: rgba(46, 204, 113, 0.1);
-            --formula-card-bg: #1e3545;
-            --example-bg: #162a38;
-            --info-bg: #1a4a5a;
-            --special-border: #2c7cb6;
-            --step-color: #a78bfa;
-            --result-color: #34d399;
-            --example-text: #ffffff;
-            --formula-used-text: #ffffff;
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #3b82f6; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --circle-stroke: #4a7a9c; --circle-axis: #5a7a94; --circle-text: #8ba5b8;
+            --circle-bg: #1a2d3c;
         }
-
         :root.light-mode {
-            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
-            --card-bg: white;
-            --text: #1a2a3f;
-            --text-secondary: #5a7a94;
-            --accent: #1abc9c;
-            --border: #eff3f8;
-            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
-            --example-bg: #f8fafc;
-            --info-bg: #e8f0fe;
-            --special-border: #2c7cb6;
-            --step-color: #7c3aed;
-            --result-color: #059669;
-            --example-text: #1a2a3f;
-            --formula-used-text: #1a5276;
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #3b82f6; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --circle-stroke: #2980b9; --circle-axis: #2c3e50; --circle-text: #2c3e50;
+            --circle-bg: #eef2f8;
         }
-
-        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; }
-        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; }
-
-        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
-        .theme-toggle:hover{transform:scale(1.1);}
-
-        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 12px auto; padding-bottom: 8px; border-bottom: 4px solid #2980b9; text-align: center; }
-        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin: 10px 0; }
-        .formula-card { background: var(--formula-card-bg); border-radius: 16px; padding: 16px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; word-wrap: break-word; }
-        .formula-card p { margin: 6px 0; font-family: 'Times New Roman', monospace; font-size: 1.2rem; font-weight: bold; color: var(--text); }
-        .formula-card .note { font-size: 0.85rem; color: var(--text-secondary); font-weight: normal; font-family: 'Segoe UI', sans-serif; margin-top: 2px; }
-
-        .info-block { background: var(--info-bg); border-radius: 16px; padding: 14px 16px; margin: 10px 0; border-left: 4px solid var(--special-border); }
-        .info-block p { margin: 6px 0; font-size: 0.95rem; line-height: 1.5; color: var(--text); }
-        .info-block ul { padding-left: 20px; margin: 6px 0; font-size: 0.95rem; line-height: 1.5; color: var(--text); }
-        .info-block ul li { margin: 2px 0; }
-        .info-block a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); }
-        .info-block a:hover { opacity: 0.8; }
-
-        .example-block { background: var(--example-bg); border-radius: 16px; padding: 14px 16px; margin: 10px 0; border: 1px solid var(--border); overflow-x: auto; word-wrap: break-word; }
-        .example-block p { margin: 4px 0; font-size: 1rem; line-height: 1.6; color: var(--example-text); word-wrap: break-word; overflow-wrap: break-word; }
-        .example-block .step { color: var(--step-color); font-weight: 600; }
-        .example-block .result { background: #d1fae5; display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.9rem; color: #065f46; font-weight: 600; }
-        .example-block .formula-used { background: var(--info-bg); display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.9rem; color: var(--formula-used-text); font-weight: 600; }
-        .example-block .math-line { display: block; margin: 2px 0; word-break: break-word; overflow-wrap: break-word; }
-
-        .section { margin-bottom: 14px; }
-        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
         .section-title:hover { opacity: 0.8; }
-        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.9rem; transition: transform 0.3s; color: var(--text-secondary); }
-        .section.collapsed .section-title::after { transform: rotate(-90deg); }
-        .section-content { max-height: 3000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section-content { max-height: 8000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
-
-        .circle-container { display: flex; justify-content: center; margin: 16px 0; padding: 12px; background: var(--info-bg); border-radius: 20px; border: 1px solid var(--border); }
-        .circle-svg { max-width: 100%; height: auto; border-radius: 12px; }
-
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #2563eb; }
         mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
-        .back-link { display: inline-block; margin: 20px 0 10px; padding: 10px 20px; background: #2980b9; color: white; text-decoration: none; font-weight: bold; border-radius: 20px; }
-        .nav-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
-        .nav-links a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); font-size: 0.9rem; }
-
-        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-        .favorite-btn:hover { transform: scale(1.1); }
-        .favorite-btn.active { color: #facc15; }
-
-        @media (max-width: 600px) {
-            .example-block { padding: 10px 12px; }
-            .example-block p { font-size: 0.9rem; line-height: 1.5; }
-            h1 { font-size: 1.3rem; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
         }
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 10px 0; }
+        .formula-card { background: var(--formula-bg); border-radius: 16px; padding: 14px 10px; text-align: center; border: 1px solid var(--border); border-left: 4px solid var(--accent); }
+        .formula-card p { margin: 4px 0; font-size: 1.15rem; font-weight: 600; color: var(--text); font-family: 'Times New Roman', monospace; }
+        .formula-card .note { font-size: 0.8rem; color: var(--text-secondary); font-weight: normal; font-family: 'Segoe UI', sans-serif; margin-top: 4px; }
+
+        .circle-container { display: flex; justify-content: center; margin: 16px 0; padding: 12px; background: var(--circle-bg); border-radius: 20px; border: 1px solid var(--border); }
+        .circle-svg { max-width: 100%; height: auto; border-radius: 12px; }
+        .circle-caption { text-align: center; margin-top: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+
+        .nav-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; justify-content: center; }
+        .nav-links a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); font-size: 0.9rem; padding: 4px 0; }
+        .nav-links a:hover { opacity: 0.8; }
     </style>
-    <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true,macros:{tg:'\\mathop{\\mathrm{tg}}',ctg:'\\mathop{\\mathrm{ctg}}'}},chtml:{scale:0.95}};</script>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true,
+                   macros: { tg: '\\mathop{\\mathrm{tg}}', ctg: '\\mathop{\\mathrm{ctg}}' } },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
     <script src="mathjax/es5/tex-chtml.js" async></script>
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
     <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
-
     <h1>Чётность и нечётность тригонометрических функций</h1>
 
-    <!-- ===== ТЕОРИЯ ===== -->
+    <!-- 1. ВВЕДЕНИЕ — через круг -->
     <div class="section">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Теория: чётность и нечётность</div>
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Откуда берётся чётность и нечётность</span>
+        </div>
         <div class="section-content">
-            <div class="info-block">
-                <p><strong>Чётная функция</strong> — функция, для которой \(f(-x) = f(x)\). График чётной функции симметричен относительно оси \(OY\).</p>
-                <p><strong>Нечётная функция</strong> — функция, для которой \(f(-x) = -f(x)\). График нечётной функции симметричен относительно начала координат.</p>
-            </div>
+            <p>Отложим на тригонометрическом круге угол $\alpha$ и угол $-\alpha$ (то есть тот же угол, но в обратную сторону). Точки, которые получатся, будут <strong>симметричны относительно оси $Ox$</strong>.</p>
+            <p>Что это значит для координат?</p>
+            <ul>
+                <li>$x$-координата у симметричных точек <strong>одинаковая</strong> → $\cos(-\alpha) = \cos\alpha$</li>
+                <li>$y$-координата меняет знак → $\sin(-\alpha) = -\sin\alpha$</li>
+            </ul>
+            <p>Отсюда сразу получаются все формулы этой темы. Их не нужно заучивать — достаточно мысленно представить точку и её отражение.</p>
 
             <div class="circle-container">
-                <svg class="circle-svg" width="380" height="380" viewBox="-190 -190 380 380" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="-190" y="-190" width="380" height="380" fill="transparent"/>
-                    <line x1="-160" y1="0" x2="160" y2="0" stroke="var(--text-secondary)" stroke-width="1.5"/>
-                    <line x1="0" y1="-160" x2="0" y2="160" stroke="var(--text-secondary)" stroke-width="1.5"/>
-                    <circle cx="0" cy="0" r="140" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
-                    <circle cx="0" cy="0" r="3" fill="var(--accent)"/>
+                <svg class="circle-svg" width="360" height="360" viewBox="-180 -180 360 360" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="-150" y1="0" x2="150" y2="0" stroke="var(--circle-axis)" stroke-width="1.5"/>
+                    <line x1="0" y1="-150" x2="0" y2="150" stroke="var(--circle-axis)" stroke-width="1.5"/>
+                    <circle cx="0" cy="0" r="130" fill="none" stroke="var(--circle-stroke)" stroke-width="2"/>
+                    <circle cx="0" cy="0" r="3" fill="var(--circle-stroke)"/>
 
                     <!-- Точка x (положительный угол) -->
-                    <circle cx="99" cy="-99" r="5" fill="#e74c3c"/>
-                    <text x="115" y="-105" font-size="14" fill="#e74c3c" font-weight="bold">x</text>
-                    <text x="100" y="-86" font-size="11" fill="var(--text-secondary)">(cos x, sin x)</text>
+                    <circle cx="92" cy="-92" r="6" fill="#e74c3c"/>
+                    <line x1="0" y1="0" x2="92" y2="-92" stroke="#e74c3c" stroke-width="2.5"/>
+                    <text x="105" y="-95" font-size="15" fill="#e74c3c" font-weight="bold">α</text>
+                    <text x="100" y="-78" font-size="12" fill="var(--circle-text)">(cos α, sin α)</text>
 
-                    <!-- Точка -x (отрицательный угол) -->
-                    <circle cx="99" cy="99" r="5" fill="#3498db"/>
-                    <text x="115" y="105" font-size="14" fill="#3498db" font-weight="bold">-x</text>
-                    <text x="100" y="122" font-size="11" fill="var(--text-secondary)">(cos x, -sin x)</text>
+                    <!-- Точка -x -->
+                    <circle cx="92" cy="92" r="6" fill="#3498db"/>
+                    <line x1="0" y1="0" x2="92" y2="92" stroke="#3498db" stroke-width="2.5"/>
+                    <text x="105" y="102" font-size="15" fill="#3498db" font-weight="bold">−α</text>
+                    <text x="100" y="118" font-size="12" fill="var(--circle-text)">(cos α, −sin α)</text>
+
+                    <!-- Ось симметрии -->
+                    <text x="-160" y="8" font-size="12" fill="var(--circle-text)">ось симметрии →</text>
 
                     <!-- Подписи осей -->
-                    <text x="170" y="8" font-size="14" fill="var(--text-secondary)">cos</text>
-                    <text x="12" y="-170" font-size="14" fill="var(--text-secondary)">sin</text>
-
-                    <!-- Пояснение -->
-                    <text x="-170" y="170" font-size="12" fill="var(--text-secondary)">sin(-x) = -sin(x)</text>
-                    <text x="-170" y="185" font-size="12" fill="var(--text-secondary)">cos(-x) = cos(x)</text>
+                    <text x="155" y="5" font-size="14" fill="var(--circle-text)" font-weight="bold">x</text>
+                    <text x="6" y="-155" font-size="14" fill="var(--circle-text)" font-weight="bold">y</text>
                 </svg>
             </div>
-            <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);margin-top:-4px;">
-                На единичной окружности: \(\sin(-x) = -\sin x\), \(\cos(-x) = \cos x\)
-            </p>
+            <p class="circle-caption">📐 Точки α и −α симметричны относительно оси Ox: косинусы равны, синусы противоположны</p>
 
-            <div class="nav-links">
-                <a href="Знаки тригонометрических функций.html">Знаки по четвертям</a>
-                <a href="Тождества.html">Основные тождества</a>
+            <div class="important">
+                <strong>💡 Главная идея:</strong> «чётная» функция не меняет знак при замене $x \to -x$, «нечётная» — меняет знак на противоположный. В тригонометрии это просто симметрия точек на круге.
             </div>
         </div>
     </div>
 
-    <!-- ===== ФОРМУЛЫ ===== -->
+    <!-- 2. ФОРМУЛЫ -->
     <div class="section collapsed">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Формулы чётности</div>
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Четыре формулы</span>
+            <span class="sub-title">чётная — cos, нечётные — sin, tg, ctg</span>
+        </div>
         <div class="section-content">
             <div class="formula-grid">
                 <div class="formula-card">
-                    <p>\(\sin(-x) = -\sin x\)</p>
+                    <p>$\sin(-x) = -\sin x$</p>
                     <p class="note">нечётная функция</p>
                 </div>
                 <div class="formula-card">
-                    <p>\(\cos(-x) = \cos x\)</p>
+                    <p>$\cos(-x) = \cos x$</p>
                     <p class="note">чётная функция</p>
                 </div>
                 <div class="formula-card">
-                    <p>\(\tg(-x) = -\tg x\)</p>
+                    <p>$\tg(-x) = -\tg x$</p>
                     <p class="note">нечётная функция</p>
                 </div>
                 <div class="formula-card">
-                    <p>\(\ctg(-x) = -\ctg x\)</p>
+                    <p>$\ctg(-x) = -\ctg x$</p>
                     <p class="note">нечётная функция</p>
                 </div>
+            </div>
+            <div class="important">
+                <strong>💡 Как запомнить, не заучивая:</strong> только <strong>косинус</strong> «добрый» — он единственный не меняет знак. Все остальные знак переворачивают.
             </div>
         </div>
     </div>
 
-    <!-- ===== ПРИМЕРЫ ===== -->
+    <!-- 3. ПРИМЕРЫ -->
     <div class="section collapsed">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📝 Примеры применения</div>
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📝 Примеры применения</span>
+            <span class="sub-title">вычисление, упрощение, доказательство</span>
+        </div>
         <div class="section-content">
-            <div class="example-block">
-                <p><strong>Пример 1.</strong> Упростить: \(\sin(-30^\circ)\).</p>
-                <p><span class="step">Решение:</span></p>
-                <p>Используем свойство нечётности <span class="formula-used">\(\sin(-x) = -\sin x\)</span>:</p>
-                <p class="math-line">\(\sin(-30^\circ) = -\sin 30^\circ = -\dfrac{1}{2}\).</p>
-                <p><span class="result">Ответ: \(-\dfrac{1}{2}\).</span></p>
+
+            <div class="example">
+                <strong>Пример 1 (вычисление).</strong> Найти $\sin(-30°)$.<br><br>
+                <span class="step">Решение.</span>
+                По формуле нечётности: $\sin(-30°) = -\sin 30° = -\dfrac{1}{2}$.<br>
+                <div class="hint">💡 Знак «минус» выносится перед функцией — и всё.</div>
+                <span class="result">Ответ: $-\dfrac{1}{2}$.</span>
             </div>
 
-            <div class="example-block">
-                <p><strong>Пример 2.</strong> Упростить: \(\cos(-45^\circ)\).</p>
-                <p><span class="step">Решение:</span></p>
-                <p>Используем свойство чётности <span class="formula-used">\(\cos(-x) = \cos x\)</span>:</p>
-                <p class="math-line">\(\cos(-45^\circ) = \cos 45^\circ = \dfrac{\sqrt{2}}{2}\).</p>
-                <p><span class="result">Ответ: \(\dfrac{\sqrt{2}}{2}\).</span></p>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2 (вычисление).</strong> Найти $\cos(-45°)$.<br><br>
+                <span class="step">Решение.</span>
+                Косинус чётный: $\cos(-45°) = \cos 45° = \dfrac{\sqrt{2}}{2}$.<br>
+                <div class="hint">💡 Минус просто исчезает — так работает чётность.</div>
+                <span class="result">Ответ: $\dfrac{\sqrt{2}}{2}$.</span>
             </div>
 
-            <div class="example-block">
-                <p><strong>Пример 3.</strong> Упростить: \(\sin(-x)\cos(-x)\).</p>
-                <p><span class="step">Решение:</span></p>
-                <p>\(\sin(-x) = -\sin x\), \(\cos(-x) = \cos x\).</p>
-                <p class="math-line">\(\sin(-x)\cos(-x) = (-\sin x)(\cos x) = -\sin x\cos x\).</p>
-                <p><span class="result">Ответ: \(-\sin x\cos x\).</span></p>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 3 (упрощение).</strong> Упростить: $\sin(-x)\cos(-x)$.<br><br>
+                <span class="step">Решение.</span>
+                $\sin(-x) = -\sin x$, $\cos(-x) = \cos x$.<br>
+                Значит: $\sin(-x)\cos(-x) = (-\sin x)\cdot\cos x = -\sin x\cos x$.<br>
+                <div class="hint">💡 Из двух множителей только один «переворачивается» — общий знак «минус».</div>
+                <span class="result">Ответ: $-\sin x\cos x$.</span>
             </div>
 
-            <div class="example-block">
-                <p><strong>Пример 4.</strong> Доказать, что функция \(f(x) = x^3\sin x\) является чётной.</p>
-                <p><span class="step">Решение:</span></p>
-                <p>Проверим: \(f(-x) = (-x)^3\sin(-x)\).</p>
-                <p class="math-line">\(= -x^3 \cdot (-\sin x) = x^3\sin x = f(x)\).</p>
-                <p>Так как \(f(-x) = f(x)\), функция <strong>чётная</strong>.</p>
-                <p><span class="result">Ответ: функция чётная.</span></p>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 4 (исследование функции).</strong> Является ли функция $f(x) = x^3\sin x$ чётной?<br><br>
+                <span class="step">Шаг 1. Подставляем $-x$.</span>
+                $f(-x) = (-x)^3 \cdot \sin(-x)$.<br>
+                <span class="step">Шаг 2. Раскрываем.</span>
+                $(-x)^3 = -x^3$ (нечётная степень). $\sin(-x) = -\sin x$ (нечётность синуса).<br>
+                Значит, $f(-x) = (-x^3)\cdot(-\sin x) = x^3\sin x$.<br>
+                <span class="step">Шаг 3. Сравниваем.</span>
+                $f(-x) = f(x)$ — функция <strong>чётная</strong>.<br>
+                <div class="hint">💡 Два «минуса» дали «плюс». Это типичная ситуация: произведение двух нечётных функций — чётная функция.</div>
+                <span class="result">Ответ: функция чётная.</span>
             </div>
 
-            <div class="example-block">
-                <p><strong>Пример 5.</strong> Доказать, что функция \(f(x) = x\cos x\) является нечётной.</p>
-                <p><span class="step">Решение:</span></p>
-                <p>Проверим: \(f(-x) = (-x)\cos(-x)\).</p>
-                <p class="math-line">\(= -x\cos x = -f(x)\).</p>
-                <p>Так как \(f(-x) = -f(x)\), функция <strong>нечётная</strong>.</p>
-                <p><span class="result">Ответ: функция нечётная.</span></p>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 5 (исследование функции).</strong> Является ли функция $f(x) = x\cos x$ нечётной?<br><br>
+                <span class="step">Шаг 1. Подставляем $-x$.</span>
+                $f(-x) = (-x)\cdot\cos(-x)$.<br>
+                <span class="step">Шаг 2. Раскрываем.</span>
+                $(-x) = -x$ (нечётно). $\cos(-x) = \cos x$ (чётно).<br>
+                Значит, $f(-x) = -x\cos x = -f(x)$.<br>
+                <span class="step">Шаг 3. Вывод.</span>
+                $f(-x) = -f(x)$ — функция <strong>нечётная</strong>.<br>
+                <span class="result">Ответ: функция нечётная.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. НА ЧТО ОБРАТИТЬ ВНИМАНИЕ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚠️ На что обратить внимание</span>
+        </div>
+        <div class="section-content">
+            <p>Пара мыслей, которые сэкономят время и нервы:</p>
+            <ul>
+                <li><strong>Не путать «минус в аргументе» и «минус перед функцией».</strong> $\sin(-x) = -\sin x$ — минус «выходит наружу». А вот $\sin x^2$ — здесь минус был бы уже внутри квадрата, и это совсем другое дело.</li>
+                <li><strong>Косинус — единственный «чётный».</strong> Если сомневаешься — вспомни график $\cos x$: он симметричен относительно оси $Oy$.</li>
+                <li><strong>Произведение двух нечётных — чётная функция.</strong> Произведение чётной и нечётной — нечётная. Это помогает быстро определять вид сложной функции без подстановки.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 5. ССЫЛКИ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔗 Связанные темы</span>
+        </div>
+        <div class="section-content">
+            <div class="nav-links">
+                <a href="Знаки тригонометрических функций.html">📐 Знаки по четвертям</a>
+                <a href="Тождества.html">📖 Основные тождества</a>
+                <a href="Формулы приведения.html">↻ Формулы приведения</a>
+                <a href="trig_circle.htm">🎯 Интерактивный круг</a>
             </div>
         </div>
     </div>
@@ -227,17 +257,48 @@
 </div>
 
 <script>
-    function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
-    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
-    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+    function toggleTheme() {
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
 
-    const FAV_KEY='math_favorites';
-    function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}
-    function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}
-    function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}
-    function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}
-    function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
     updateFavoriteBtn();
 </script>
+<script src="favorites.js"></script>
 </body>
 </html>

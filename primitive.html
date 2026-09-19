@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -21,6 +21,11 @@
             --table-row-even: #1e3545;
             --table-row-odd: #162a38;
             --table-row-hover: #2a4a5a;
+            --formula-color: #fbbf24;
+            --result-color: #4ade80;
+            --danger-color: #f87171;
+            --warning-bg: rgba(251,191,36,0.15);
+            --warning-border: #fbbf24;
         }
 
         :root.light-mode {
@@ -37,6 +42,11 @@
             --table-row-even: #ffffff;
             --table-row-odd: #f1f5f9;
             --table-row-hover: #e2e8f0;
+            --formula-color: #b45309;
+            --result-color: #059669;
+            --danger-color: #dc2626;
+            --warning-bg: #fffbeb;
+            --warning-border: #f59e0b;
         }
 
         body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
@@ -48,13 +58,13 @@
         .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
         h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
         .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
-        .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+        .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;color:var(--text);}
         .section{margin-bottom:20px;}
         .section-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;border-left:4px solid #ec489a;padding-left:12px;cursor:pointer;user-select:none;}
         .section-title:hover{opacity:0.8;}
         .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
         .section.collapsed .section-title::after{transform:rotate(-90deg);}
-        .section-content{max-height:3000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section-content{max-height:12000px;overflow:hidden;transition:max-height 0.4s ease;}
         .section.collapsed .section-content{max-height:0;}
 
         .definition-block{background:var(--info-bg);border-left:4px solid #ec489a;border-radius:14px;padding:14px 16px;margin:12px 0;}
@@ -66,19 +76,9 @@
         th{background:#103956;color:white;font-weight:700;padding:10px 8px;text-align:center;border:1px solid #265d84;}
         td{padding:10px 8px;border:1px solid var(--border);vertical-align:middle;text-align:center;color:var(--text);}
 
-        /* ===== ЧЕРЕДОВАНИЕ СТРОК + HOVER ===== */
-        .table-wrapper table tbody tr:nth-child(even) {
-            background-color: var(--table-row-even);
-            transition: background-color 0.2s ease;
-        }
-        .table-wrapper table tbody tr:nth-child(odd) {
-            background-color: var(--table-row-odd);
-            transition: background-color 0.2s ease;
-        }
-        .table-wrapper table tbody tr:hover {
-            background-color: var(--table-row-hover) !important;
-            transition: background-color 0.1s ease;
-        }
+        .table-wrapper table tbody tr:nth-child(even) { background-color: var(--table-row-even); transition: background-color 0.2s ease; }
+        .table-wrapper table tbody tr:nth-child(odd) { background-color: var(--table-row-odd); transition: background-color 0.2s ease; }
+        .table-wrapper table tbody tr:hover { background-color: var(--table-row-hover) !important; transition: background-color 0.1s ease; }
 
         .col-func{font-weight:600;}
 
@@ -93,26 +93,58 @@
 
         .examples-title{font-size:1rem;font-weight:600;color:var(--text-secondary);margin:16px 0 8px 0;padding-left:8px;border-left:3px solid #ec489a;}
 
+        /* ===== НОВОЕ: введение ===== */
+        .intro-block{background:var(--info-bg);border-left:4px solid #ec489a;border-radius:14px;padding:14px 16px;margin:12px 0;}
+        .intro-block p{font-size:0.95rem;line-height:1.5;color:var(--text);margin-bottom:8px;}
+        .intro-block p:last-child{margin-bottom:0;}
+
+        /* ===== НОВОЕ: подсказки ===== */
+        .hint{color:var(--text-secondary);font-style:italic;font-size:0.9rem;margin:6px 0 6px 12px;border-left:3px solid var(--accent);padding-left:10px;line-height:1.5;}
+
+        /* ===== НОВОЕ: врезка-предупреждение ===== */
+        .important{background:var(--warning-bg);border-left:4px solid var(--warning-border);border-radius:14px;padding:12px 16px;margin:12px 0;color:var(--text);}
+        .important strong{color:var(--warning-border);}
+
+        /* ===== НОВОЕ: таблица ошибок ===== */
+        .table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:10px 0;border-radius:12px;}
+        .error-table{width:100%;border-collapse:collapse;font-size:0.85rem;border-radius:12px;overflow:hidden;min-width:600px;}
+        .error-table th{background:#ec489a;color:white;padding:10px 12px;text-align:left;font-weight:700;}
+        .error-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;background:var(--card-bg);text-align:left;}
+        .error-table tr:nth-child(even) td{background:var(--table-row-odd);}
+        .error-table tr:last-child td{border-bottom:none;}
+        .error-table .wrong{color:var(--danger-color);font-weight:700;}
+        .error-table .right{color:var(--result-color);font-weight:700;}
+
         .back-link{display:inline-block;margin-top:24px;padding:10px 24px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
         .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
         @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:18px;}.section-title{font-size:1.1rem;}.example-card{flex:1 1 100%;}}
         @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
         .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
 
-        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-        .favorite-btn:hover { transform: scale(1.1); }
-        .favorite-btn.active { color: #facc15; }
-    </style>
+        </style>
     <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.05,displayAlign:'center'}};</script>
     <script src="mathjax/es5/tex-chtml.js" async></script>
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>
     <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
 
-    <div class="header"><h1>Первообразная</h1><div class="subtitle">F'(x) = f(x) · множество функций + C</div></div>
+    <div class="header"><h1>Первообразная</h1><div class="subtitle">$F'(x) = f(x)$ · множество функций $+ C$</div></div>
     <div class="content-card">
+        <!-- ===== НОВОЕ: ВВЕДЕНИЕ ===== -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Зачем нужна первообразная</div>
+            <div class="section-content">
+                <div class="intro-block">
+                    <p>До сих пор ты двигался «вперёд»: по функции находил её производную — то есть <strong>скорость изменения</strong>. А что, если задача обратная? Дана скорость, нужно найти саму функцию.</p>
+                    <p>Например: известна скорость движения тела $v(t)$. Как найти путь $s(t)$? Нужно «отменить» дифференцирование. Эта операция называется <strong>интегрированием</strong>, а её результат — <strong>первообразной</strong>.</p>
+                    <p>Первообразная — это «функция, производная которой равна данной». Именно она лежит в основе интегралов, площадей под графиком и объёмов тел вращения.</p>
+                </div>
+                <div class="important">
+                    <strong>💡 Главная идея:</strong> первообразная — это <strong>обратная операция к производной</strong>. Если $(F(x))' = f(x)$, то $F$ — первообразная для $f$. И таких функций бесконечно много — все они отличаются на константу $C$.
+                </div>
+            </div>
+        </div>
 
         <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
         <div class="section">
@@ -223,6 +255,7 @@
                     <p style="margin-top:4px;color:var(--text-secondary);font-size:0.95rem;">
                         <strong>Шаг 4.</strong> Складываем: \(F(x) = x^3 - \frac{\cos(2x)}{2} + C\)
                     </p>
+                    <div class="hint">💡 Здесь работают **два правила сразу**: сумма (правило 1) и линейная замена $kx+b$ (правило 3). Не забудь поделить на $k = 2$ при интегрировании $\sin(2x)$.</div>
                     <p style="margin-top:8px;color:#34d399;font-weight:600;">
                         ✅ Проверка: \(F'(x) = 3x^2 + \sin(2x) = f(x)\) ✓
                     </p>
@@ -242,11 +275,59 @@
                     <p style="margin-top:4px;color:var(--text-secondary);font-size:0.95rem;">
                         <strong>Шаг 4.</strong> Складываем: \(F(x) = \frac{5}{3}\ln|3x-1| + \frac{e^{2x}}{2} + C\)
                     </p>
+                    <div class="hint">💡 Коэффициент **выносится** за знак первообразной (правило 2), а $1/k$ появляется из-за линейной замены (правило 3).</div>
                     <p style="margin-top:8px;color:#34d399;font-weight:600;">
                         ✅ Проверка: \(F'(x) = \frac{5}{3} \cdot \frac{3}{3x-1} + \frac{1}{2}\cdot 2e^{2x} = \frac{5}{3x-1} + e^{2x} = f(x)\) ✓
                     </p>
                 </div>
 
+            </div>
+        </div>
+
+        <!-- ===== НОВОЕ: ТИПИЧНЫЕ ОШИБКИ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚠️ Типичные ошибки</div>
+            <div class="section-content">
+                <p>Эти ошибки встречаются чаще всего. Проверь себя — не допускаешь ли ты их?</p>
+                <div class="table-scroll">
+                    <table class="error-table">
+                        <thead>
+                        <tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="wrong">Забыли $+C$ в ответе</td>
+                            <td>Первообразных бесконечно много — все они отличаются на константу. Без $+C$ ответ неполный.</td>
+                            <td class="right">Всегда писать $+ C$ в конце</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">$\int \sin x \, dx = \cos x + C$</td>
+                            <td>Знак перепутан. Производная $\cos x$ равна $-\sin x$, а не $\sin x$.</td>
+                            <td class="right">$\int \sin x \, dx = -\cos x + C$</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">При линейной замене забыли разделить на $k$</td>
+                            <td>Например, $\int \sin(5x)\,dx = -\cos(5x) + C$ — неверно. Нужно разделить на 5.</td>
+                            <td class="right">$\int \sin(5x)\,dx = -\dfrac{\cos(5x)}{5} + C$</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">$\int \dfrac{1}{x}\,dx = \dfrac{x^0}{0} + C$</td>
+                            <td>Формула $\dfrac{x^{n+1}}{n+1}$ работает только при $n \neq -1$. При $n = -1$ она «ломается».</td>
+                            <td class="right">$\int \dfrac{1}{x}\,dx = \ln|x| + C$</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">Не пишут модуль в $\ln|x|$</td>
+                            <td>Под логарифмом должно быть положительное число. Но $x$ может быть отрицательным.</td>
+                            <td class="right">Писать $\ln|x|$, а не $\ln x$</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">$\int a^x\,dx = a^x + C$</td>
+                            <td>Забыли разделить на $\ln a$.</td>
+                            <td class="right">$\int a^x\,dx = \dfrac{a^x}{\ln a} + C$</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -260,6 +341,6 @@
     function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
 </script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+<script src="favorites.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -35,6 +35,17 @@
         .section.collapsed .section-title::after { transform: rotate(-90deg); }
         .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
+        .important {
+    background: var(--info-bg);
+    border-left: 4px solid #fbbf24;
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    color: var(--text);
+}
+.important strong {
+    color: #fbbf24;
+}
         .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-family: 'Times New Roman', monospace; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.0; color: var(--text); }
         .example { background: var(--example-bg); padding: 12px 16px; border-radius: 14px; margin-top: 8px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 1.9; color: var(--text); }
         p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
@@ -66,10 +77,6 @@
             .model-container { min-height: 280px; }
             .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
         }
-
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
 
     .action-btns {
         display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
@@ -108,45 +115,87 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>Вектор и действия над векторами</h1>
 
+    <!-- ===== ВВЕДЕНИЕ ===== -->
     <div class="section">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Что такое вектор в пространстве</div>
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Зачем нужны векторы</div>
+        <div class="section-content">
+            <p>Представь, что ты стоишь на перроне, а мимо проносится поезд. Ты можешь сказать: «Поезд движется со скоростью 60 км/ч». Но этого <strong>мало</strong>. Куда он едет — на север, на юг, на восток? Скорость без направления — это только половина информации.</p>
+            <p><strong>Вектор</strong> — это математический объект, который отвечает сразу на два вопроса: <strong>куда</strong> и <strong>как далеко</strong>. Он объединяет в себе <strong>направление</strong> и <strong>длину</strong> — и именно поэтому с ним так удобно работать в физике, навигации и компьютерной графике.</p>
+            <div class="important">
+                <strong>💡 Где встречаются векторы:</strong><br>
+                • <strong>Физика:</strong> сила, скорость, ускорение, напряжённость поля — всё это векторы.<br>
+                • <strong>Навигация:</strong> курс самолёта или корабля задаётся вектором.<br>
+                • <strong>Компьютерная графика:</strong> положение и движение объектов в игре — векторы.<br>
+                • <strong>Экономика:</strong> план выпуска продукции — тоже вектор (сколько чего произвести).
+            </div>
+            <p>В этом разделе мы разберём, что такое вектор, как его складывать, вычитать, умножать на число и решать с ним задачи в пространстве.</p>
+        </div>
+    </div>
+    <!-- ===== ЧТО ТАКОЕ ВЕКТОР ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Что такое вектор в пространстве</div>
         <div class="section-content">
             <div class="model-container" id="container1">
                 <canvas id="canvas1" class="model-canvas"></canvas>
                 <button class="fullscreen-btn" id="fs1" title="Во весь экран">⛶</button>
             </div>
+
             <p><strong>Вектор в пространстве</strong> — это направленный отрезок, который характеризуется:</p>
             <ul>
                 <li><strong>Направлением</strong> (от начала к концу)</li>
                 <li><strong>Длиной (модулем)</strong> — положительным числом</li>
                 <li><strong>Точкой приложения</strong> (началом вектора)</li>
             </ul>
+
             <div class="formula-block"><strong>Обозначения:</strong> $\vec{a}$, $\overrightarrow{AB}$</div>
             <div class="formula-block"><strong>Модуль вектора:</strong> $|\vec{a}|$, $|\overrightarrow{AB}|$ — длина отрезка $AB$</div>
             <div class="formula-block"><strong>Длина вектора $\vec{a}\{x,y,z\}$:</strong> $|\vec{a}| = \sqrt{x^2 + y^2 + z^2}$</div>
+
             <p><strong>Нулевой вектор</strong> $\vec{0}$ имеет длину $0$, направление не определено.</p>
             <p><strong>Коллинеарные векторы</strong> — лежат на одной прямой или на параллельных прямых.</p>
             <p><strong>Компланарные векторы</strong> — лежат в одной плоскости или в параллельных плоскостях.</p>
+
+            <div class="important">
+                <strong>💡 Главная идея:</strong> вектор — это не просто «отрезок со стрелкой». Два вектора <strong>считаются равными</strong>, если они <strong>сонаправлены</strong> и имеют <strong>одинаковую длину</strong>, даже если нарисованы в разных местах пространства. Вектор можно <strong>переносить параллельно самому себе</strong> — его свойства от этого не меняются.
+            </div>
         </div>
     </div>
-
-    <div class="section">
+    <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📏 Коллинеарные векторы</div>
         <div class="section-content">
             <div class="model-container" id="container2">
                 <canvas id="canvas2" class="model-canvas"></canvas>
                 <button class="fullscreen-btn" id="fs2" title="Во весь экран">⛶</button>
             </div>
+
+            <p><strong>Коллинеарные векторы</strong> — векторы, которые лежат на одной прямой или на параллельных прямых.</p>
+
+            <p>Коллинеарные векторы бывают двух видов:</p>
+            <ul>
+                <li><strong>Сонаправленные</strong> — направлены в одну сторону. Обозначение: $\vec{a} \uparrow\uparrow \vec{b}$.</li>
+                <li><strong>Противоположно направленные</strong> — направлены в противоположные стороны. Обозначение: $\vec{a} \uparrow\downarrow \vec{b}$.</li>
+            </ul>
+
+            <div class="important">
+                <strong>💡 Как определить вид по коэффициенту $\lambda$:</strong><br>
+                Если $\vec{a} = \lambda \vec{b}$, то:<br>
+                • $\lambda > 0$ — векторы <strong>сонаправленные</strong> ($\uparrow\uparrow$);<br>
+                • $\lambda < 0$ — векторы <strong>противоположно направленные</strong> ($\uparrow\downarrow$).<br><br>
+                На модели: оранжевый $\vec{a}$ и розовый $\vec{b}=2\vec{a}$ — сонаправленные, а бирюзовый $\vec{c}=-\vec{a}$ — противоположно направленный.
+            </div>
+
             <div class="formula-block"><strong>Условие коллинеарности:</strong> векторы $\vec{a}$ и $\vec{b}$ коллинеарны, если существует такое число $\lambda$, что $\vec{a} = \lambda\vec{b}$</div>
             <div class="formula-block">В координатах: $\dfrac{x_1}{x_2} = \dfrac{y_1}{y_2} = \dfrac{z_1}{z_2}$ (при ненулевых координатах)</div>
-            <div class="example"><strong>📌 Пример:</strong> $\vec{c}\{2,4,6\}$ и $\vec{d}\{1,2,3\}$ коллинеарны, т.к. $2=2·1,\;4=2·2,\;6=2·3$.</div>
+
+            <div class="example"><strong>📌 Пример 1 (сонаправленные):</strong> $\vec{c}\{2,4,6\}$ и $\vec{d}\{1,2,3\}$ коллинеарны и сонаправлены, т.к. $2 = 2·1,\;4 = 2·2,\;6 = 2·3$, коэффициент $\lambda = 2 > 0$.</div>
+            <div class="example" style="margin-top:8px;"><strong>📌 Пример 2 (противоположно направленные):</strong> $\vec{c}\{-2,-4,-6\}$ и $\vec{d}\{1,2,3\}$ тоже коллинеарны, но противоположно направлены: коэффициент $\lambda = -2 < 0$.</div>
         </div>
     </div>
 
-    <div class="section">
+    <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Компланарные векторы</div>
         <div class="section-content">
             <div class="model-container" id="container3">
@@ -205,7 +254,7 @@
         </div>
     </div>
 
-    <div class="section">
+    <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🧩 Решение задач (3D)</div>
         <div class="section-content">
 
@@ -616,22 +665,35 @@
     });
 
     initScene('container2','canvas2','fs2',(scene,t)=>{
-        scene.add(t.createAxes());
-        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.4)));
-        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.4,0,0)));
-        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.4,0)));
-        const o = new THREE.Vector3(0,0,0);
-        const aEnd = new THREE.Vector3(0.7,1.0,0.4);
-        const bEnd = aEnd.clone().multiplyScalar(2.0);
-        const cStart = new THREE.Vector3(0,0.6,0);
-        const cEnd = aEnd.clone().add(cStart);
-        scene.add(t.createVectorLine(o,aEnd,0xffaa00));
-        scene.add(t.makeLabel('a','#ffaa00',aEnd.clone().add(new THREE.Vector3(0.1,0.1,0.08))));
-        scene.add(t.createVectorLine(o,bEnd,0xff66aa));
-        scene.add(t.makeLabel('b=2a','#ff66aa',bEnd.clone().add(new THREE.Vector3(0.1,0.08,0.08)),'0.65rem'));
-        scene.add(t.createVectorLine(cStart,cEnd,0xff88cc));
-        scene.add(t.makeLabel('c','#ff88cc',cEnd.clone().add(new THREE.Vector3(0.1,0.08,0.08)),'0.65rem'));
-    });
+    scene.add(t.createAxes());
+    scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.4)));
+    scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.4,0,0)));
+    scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.4,0)));
+    const o = new THREE.Vector3(0,0,0);
+
+    // a — базовый вектор
+    const aEnd = new THREE.Vector3(0.7, 1.0, 0.4);
+
+    // b = 2a — сонаправленный, длиннее (λ = 2 > 0)
+    const bEnd = aEnd.clone().multiplyScalar(2.0);
+
+    // c = -a — противоположно направленный (λ = -1 < 0)
+    // Смещаем начало c чуть в сторону, чтобы его было видно отдельно.
+    const cStart = new THREE.Vector3(0, 0.6, 0);
+    const cEnd = cStart.clone().add(aEnd.clone().multiplyScalar(-1));
+
+    // a — оранжевый
+    scene.add(t.createVectorLine(o, aEnd, 0xffaa00));
+    scene.add(t.makeLabel('a','#ffaa00',aEnd.clone().add(new THREE.Vector3(0.1,0.1,0.08))));
+
+    // b = 2a — розовый, сонаправленный
+    scene.add(t.createVectorLine(o, bEnd, 0xff66aa));
+    scene.add(t.makeLabel('b = 2a (↑↑)','#ff66aa',bEnd.clone().add(new THREE.Vector3(0.1,0.08,0.08)),'0.6rem'));
+
+    // c = -a — бирюзовый, противоположно направленный
+    scene.add(t.createVectorLine(cStart, cEnd, 0x00d4b8));
+    scene.add(t.makeLabel('c = -a (↑↓)','#00d4b8',cEnd.clone().add(new THREE.Vector3(-0.3,-0.1,0.08)),'0.6rem'));
+});
 
     initScene('container3','canvas3','fs3',(scene,t)=>{
         scene.add(t.createAxes());
@@ -862,6 +924,6 @@
     })();
 </script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+<script src="favorites.js"></script>
 </body>
 </html>

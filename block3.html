@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -37,7 +37,20 @@
         .section.collapsed .section-title::after { transform: rotate(-90deg); }
         .section-content { max-height: 8000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
+        .important {
+    background: var(--info-bg);
+    border-left: 4px solid #fbbf24;
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    color: var(--text);
+}
+.important strong {
+    color: #fbbf24;
+}
         .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-family: 'Times New Roman', monospace; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.0; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+ul li { color: var(--text); }
         p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
         .star { color: #facc15; font-weight: bold; margin-left: 4px; }
         .model-container {
@@ -67,10 +80,6 @@
             .model-container { min-height: 280px; }
             .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
         }
-
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
 
     .action-btns {
         display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
@@ -102,12 +111,29 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>Простейшие задачи в координатах</h1>
 
-    <!-- Задача 1: Координаты середины отрезка -->
+    <!-- ===== ВВЕДЕНИЕ ===== -->
     <div class="section">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 1. Координаты середины отрезка</div>
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Зачем эти задачи нужны</div>
+        <div class="section-content">
+            <p>У нас уже есть векторы и координаты. Что теперь? Пора научиться <strong>решать конкретные задачи</strong>, которые встречаются в реальной жизни.</p>
+            <p><strong>Например:</strong></p>
+            <ul>
+                <li>Где находится <strong>середина</strong> отрезка между двумя городами?</li>
+                <li>Как найти <strong>расстояние</strong> между двумя точками, если известны их координаты?</li>
+                <li>Где находится <strong>центр масс</strong> треугольника (важно в механике и строительстве)?</li>
+                <li>Как <strong>разделить отрезок</strong> в заданном отношении (например, 2:1)?</li>
+            </ul>
+            <div class="important">
+                <strong>💡 Все эти задачи решаются по простым формулам</strong> — и все они сводятся к одной идее: <strong>работа с координатами</strong>. Сейчас разберём каждую и покажем на 3D-моделях.
+            </div>
+        </div>
+    </div>
+    <!-- Задача 1: Координаты середины отрезка -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 1. Координаты середины отрезка (база)</div>
         <div class="section-content">
             <div class="model-container" id="container1">
                 <canvas id="canvas1" class="model-canvas"></canvas>
@@ -132,7 +158,7 @@
 
     <!-- Задача 2: Длина вектора -->
     <div class="section collapsed">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 2. Длина вектора по его координатам</div>
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 2. Длина вектора по его координатам (база)</div>
         <div class="section-content">
             <div class="model-container" id="container2">
                 <canvas id="canvas2" class="model-canvas"></canvas>
@@ -150,7 +176,7 @@
 
     <!-- Задача 3: Расстояние между двумя точками -->
     <div class="section collapsed">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 3. Расстояние между двумя точками</div>
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Задача 3. Расстояние между двумя точками (база)</div>
         <div class="section-content">
             <div class="model-container" id="container3">
                 <canvas id="canvas3" class="model-canvas"></canvas>
@@ -898,6 +924,6 @@
     })();
 </script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+<script src="favorites.js"></script>
 </body>
 </html>

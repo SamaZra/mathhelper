@@ -3,194 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Тригонометрия — Половинный аргумент</title>
+    <title>Половинный аргумент — 10-11 класс</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
-            --bg: #1a2d3c;
-            --card-bg: #1e3545;
-            --text: #ffffff;
-            --text-secondary: #8ba5b8;
-            --accent: #1abc9c;
-            --border: rgba(46, 204, 113, 0.1);
-            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
-            --formula-card-bg: #1e3545;
-            --example-bg: #1e3545;
-            --example-border: #1abc9c;
-            --info-bg: #1a4a5a;
-            --special-border: #2c7cb6;
-            --step-color: #a78bfa;
-            --result-color: #34d399;
-            --explain-color: #34d399;
-            --formula-used-text: #ffffff;
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #3b82f6; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
         }
-
         :root.light-mode {
-            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
-            --card-bg: white;
-            --text: #1a2a3f;
-            --text-secondary: #5a7a94;
-            --accent: #1abc9c;
-            --border: #eff3f8;
-            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
-            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
-            --example-bg: #f8fafc;
-            --example-border: #16a085;
-            --info-bg: #e8f0fe;
-            --special-border: #2c7cb6;
-            --step-color: #7c3aed;
-            --result-color: #059669;
-            --explain-color: #059669;
-            --formula-used-text: #1a5276;
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #3b82f6; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
         }
-
-        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; }
-        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; }
-
-        .theme-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.2s;z-index:100;color:var(--text);}
-        .theme-toggle:hover{transform:scale(1.1);}
-
-        .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-        .favorite-btn:hover { transform: scale(1.1); }
-        .favorite-btn.active { color: #facc15; }
-
-        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 12px auto; padding-bottom: 8px; border-bottom: 4px solid #2980b9; text-align: center; }
-        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin: 10px 0; }
-        .formula-card { background: var(--formula-card-bg); border-radius: 16px; padding: 16px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; word-wrap: break-word; }
-        .formula-card p { margin: 6px 0; font-family: 'Times New Roman', monospace; font-size: 1.2rem; font-weight: bold; color: var(--text); }
-        .example-block { background: var(--example-bg); border-radius: 16px; padding: 14px 16px; margin: 10px 0; border: 1px solid var(--border); }
-        .example-block p { margin: 6px 0; font-size: 1rem; line-height: 1.5; color: var(--text); }
-        .example-block .step { color: var(--step-color); font-weight: 600; }
-        .example-block .formula-used { background: var(--info-bg); display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.9rem; color: var(--formula-used-text); font-weight: 600; }
-        .example-block .result { background: #d1fae5; display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.9rem; color: #065f46; font-weight: 600; }
-        .example-block .explain { color: var(--explain-color); font-style: italic; margin: 4px 0 6px 12px; border-left: 2px solid var(--explain-color); padding-left: 10px; display: block; }
-        .info-block { background: var(--info-bg); border-radius: 16px; padding: 14px 16px; margin: 10px 0; border-left: 4px solid var(--special-border); }
-        .info-block p { margin: 6px 0; font-size: 0.95rem; line-height: 1.5; color: var(--text); }
-        .info-block strong { color: var(--text); }
-        .info-block ul { padding-left: 20px; margin: 6px 0; font-size: 0.95rem; line-height: 1.5; color: var(--text); }
-        .info-block ul li { margin: 2px 0; }
-        .section { margin-bottom: 14px; }
-        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .theme-toggle { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 100; color: var(--text); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
         .section-title:hover { opacity: 0.8; }
-        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.9rem; transition: transform 0.3s; color: var(--text-secondary); }
-        .section.collapsed .section-title::after { transform: rotate(-90deg); }
-        .section-content { max-height: 2000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section-content { max-height: 8000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #2563eb; }
         mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
-        .back-link { display: inline-block; margin: 20px 0 10px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; transition: background 0.2s; }
-        .back-link:hover { background: #1a6b8a; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 10px 0; }
+        .formula-card { background: var(--formula-bg); border-radius: 16px; padding: 14px 10px; text-align: center; border: 1px solid var(--border); border-left: 4px solid var(--accent); }
+        .formula-card p { margin: 6px 0; font-size: 1.1rem; font-weight: 600; color: var(--text); font-family: 'Times New Roman', monospace; }
 
-        :root.light-mode .example-block .step { color: #7c3aed; }
-        :root.light-mode .example-block .formula-used { background: #e8f0fe; }
-        :root.light-mode .example-block .result { background: #d1fae5; color: #065f46; }
-        :root.light-mode .back-link { background: #2c7cb6; }
-        :root.light-mode .back-link:hover { background: #1a6b8a; }
+        .nav-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; justify-content: center; }
+        .nav-links a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); font-size: 0.9rem; padding: 4px 0; }
+        .nav-links a:hover { opacity: 0.8; }
     </style>
-    <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true,macros:{tg:'\\mathop{\\mathrm{tg}}',ctg:'\\mathop{\\mathrm{ctg}}'}},chtml:{scale:0.95}};</script>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true,
+                   macros: { tg: '\\mathop{\\mathrm{tg}}', ctg: '\\mathop{\\mathrm{ctg}}' } },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
     <script src="mathjax/es5/tex-chtml.js" async></script>
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
-
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>Половинный аргумент</h1>
 
-    <!-- ===== ТЕОРИЯ ===== -->
+    <!-- 1. ВВЕДЕНИЕ -->
     <div class="section">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Теория: формулы половинного аргумента</div>
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Откуда берутся формулы половинного аргумента</span>
+        </div>
         <div class="section-content">
-            <div class="info-block" style="border-left-color: var(--special-border);">
-                <p><strong>Формулы половинного аргумента</strong> — это следствие из формул двойного аргумента. Они позволяют выразить тригонометрические функции половинного угла через функции целого угла.</p>
-                <p style="margin-top:8px;">Вывод из формул двойного аргумента:</p>
-                <ul>
-                    <li>Из \(\cos 2\alpha = 1 - 2\sin^2\alpha\) → \(\sin^2\dfrac{\alpha}{2} = \dfrac{1 - \cos\alpha}{2}\)</li>
-                    <li>Из \(\cos 2\alpha = 2\cos^2\alpha - 1\) → \(\cos^2\dfrac{\alpha}{2} = \dfrac{1 + \cos\alpha}{2}\)</li>
-                    <li>\(\tg\dfrac{\alpha}{2} = \dfrac{\sin\alpha}{1 + \cos\alpha} = \dfrac{1 - \cos\alpha}{\sin\alpha}\)</li>
-                </ul>
-                <p style="margin-top:8px;">Применяются для:</p>
-                <ul>
-                    <li>Вычисления значений функций для половинных углов (например, \(15^\circ\), \(22.5^\circ\))</li>
-                    <li>Преобразования тригонометрических выражений</li>
-                    <li>Решение тригонометрических уравнений</li>
-                </ul>
-            </div>
-
-            <div class="formula-grid">
-                <div class="formula-card"><p>\(\sin^2\dfrac{\alpha}{2} = \dfrac{1 - \cos\alpha}{2}\)</p></div>
-                <div class="formula-card"><p>\(\cos^2\dfrac{\alpha}{2} = \dfrac{1 + \cos\alpha}{2}\)</p></div>
-                <div class="formula-card"><p>\(\tg\dfrac{\alpha}{2} = \dfrac{\sin\alpha}{1 + \cos\alpha}\)</p></div>
-                <div class="formula-card"><p>\(\tg\dfrac{\alpha}{2} = \dfrac{1 - \cos\alpha}{\sin\alpha}\)</p></div>
-            </div>
-
-            <!-- ===== СВЯЗЬ С ДВОЙНЫМ АРГУМЕНТОМ ===== -->
-            <div class="info-block" style="border-left-color: #fbbf24;">
-                <p><strong>🔗 Связь с двойным аргументом:</strong></p>
-                <p>Формулы половинного аргумента являются обратными к формулам двойного аргумента.</p>
-                <p style="margin-top:4px;">Подробнее см. раздел <strong><a href="Двойной угол.html" style="color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent);">Двойной аргумент</a></strong>.</p>
+            <p>Формулы половинного аргумента — это <strong>обратная сторона</strong> формул двойного аргумента. Если мы знаем $\cos 2\alpha$, можем найти $\sin^2\alpha$ и $\cos^2\alpha$. Заменим $2\alpha \to \alpha$, получим формулы для половинного аргумента.</p>
+            <p>Например, из $\cos 2\alpha = 1 - 2\sin^2\alpha$ выражаем $\sin^2\alpha = \dfrac{1 - \cos 2\alpha}{2}$. Заменим $2\alpha$ на $\alpha$: $\sin^2\dfrac{\alpha}{2} = \dfrac{1 - \cos\alpha}{2}$.</p>
+            <div class="important">
+                <strong>💡 Главная идея:</strong> формулы половинного аргумента позволяют найти <strong>квадрат</strong> синуса или косинуса через <strong>косинус целого</strong> угла. Это удобно для вычисления значений углов вроде $15°$, $22{,}5°$ — когда известен целый угол $30°$ или $45°$.
             </div>
         </div>
     </div>
 
-    <!-- ===== ПРИМЕРЫ ===== -->
+    <!-- 2. ФОРМУЛЫ -->
     <div class="section collapsed">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📝 Примеры применения</div>
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Формулы половинного аргумента</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-grid">
+                <div class="formula-card"><p>$\sin^2\dfrac{\alpha}{2} = \dfrac{1 - \cos\alpha}{2}$</p></div>
+                <div class="formula-card"><p>$\cos^2\dfrac{\alpha}{2} = \dfrac{1 + \cos\alpha}{2}$</p></div>
+                <div class="formula-card"><p>$\tg\dfrac{\alpha}{2} = \dfrac{\sin\alpha}{1 + \cos\alpha}$</p></div>
+                <div class="formula-card"><p>$\tg\dfrac{\alpha}{2} = \dfrac{1 - \cos\alpha}{\sin\alpha}$</p></div>
+            </div>
+            <div class="important">
+                <strong>💡 Обрати внимание:</strong> первые две формулы дают <strong>квадрат</strong> функции, а не саму функцию. Знак (плюс или минус) выбирается по четверти, в которой находится угол $\alpha/2$.
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ПРИМЕРЫ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📝 Примеры применения</span>
+        </div>
         <div class="section-content">
 
-            <div class="example-block">
-                <p><strong>Пример 1.</strong> Найти \(\sin^2 15^\circ\).</p>
-                <p><span class="step">Решение:</span></p>
-                <p>Используем формулу <span class="formula-used">\(\sin^2\dfrac{\alpha}{2} = \dfrac{1 - \cos\alpha}{2}\)</span>, где \(\alpha = 30^\circ\):</p>
-                <p>\(\sin^2 15^\circ = \dfrac{1 - \cos 30^\circ}{2} = \dfrac{1 - \frac{\sqrt{3}}{2}}{2} = \dfrac{2 - \sqrt{3}}{4}\).</p>
-                <p><span class="result">Ответ: \(\dfrac{2 - \sqrt{3}}{4}\).</span></p>
+            <div class="example">
+                <strong>Пример 1.</strong> Найти $\sin^2 15°$.<br><br>
+                <span class="step">Решение.</span>
+                Заметим: $15° = 30°/2$. Значит, $\alpha = 30°$.<br>
+                $\sin^2 15° = \dfrac{1 - \cos 30°}{2} = \dfrac{1 - \frac{\sqrt{3}}{2}}{2} = \dfrac{2 - \sqrt{3}}{4}$.<br>
+                <div class="hint">💡 Нам дан «целый» угол $30°$, а нужен «половинный» $15°$.</div>
+                <span class="result">Ответ: $\dfrac{2 - \sqrt{3}}{4}$.</span>
             </div>
 
-            <div class="example-block">
-                <p><strong>Пример 2.</strong> Найти \(\tg 22,5^\circ\).</p>
-                <p><span class="step">Решение:</span></p>
-                <p>Используем формулу <span class="formula-used">\(\tg\dfrac{\alpha}{2} = \dfrac{1 - \cos\alpha}{\sin\alpha}\)</span>, где \(\alpha = 45^\circ\):</p>
-                <p>\(\tg 22,5^\circ = \dfrac{1 - \cos 45^\circ}{\sin 45^\circ} = \dfrac{1 - \frac{\sqrt{2}}{2}}{\frac{\sqrt{2}}{2}} = \sqrt{2} - 1\).</p>
-                <p><span class="result">Ответ: \(\sqrt{2} - 1\).</span></p>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2.</strong> Найти $\cos^2\dfrac{\pi}{8}$.<br><br>
+                <span class="step">Решение.</span>
+                $\dfrac{\pi}{8} = \dfrac{\pi/4}{2}$, значит $\alpha = \pi/4 = 45°$.<br>
+                $\cos^2\dfrac{\pi}{8} = \dfrac{1 + \cos\frac{\pi}{4}}{2} = \dfrac{1 + \frac{\sqrt{2}}{2}}{2} = \dfrac{2 + \sqrt{2}}{4}$.<br>
+                <span class="result">Ответ: $\dfrac{2 + \sqrt{2}}{4}$.</span>
             </div>
 
-            <div class="example-block">
-                <p><strong>Пример 3.</strong> Вычислить \(\cos^2\dfrac{\pi}{8}\).</p>
-                <p><span class="step">Решение:</span></p>
-                <p>Используем формулу <span class="formula-used">\(\cos^2\dfrac{\alpha}{2} = \dfrac{1 + \cos\alpha}{2}\)</span>, где \(\alpha = \dfrac{\pi}{4}\):</p>
-                <p>\(\cos^2\dfrac{\pi}{8} = \dfrac{1 + \cos\frac{\pi}{4}}{2} = \dfrac{1 + \frac{\sqrt{2}}{2}}{2} = \dfrac{2 + \sqrt{2}}{4}\).</p>
-                <p><span class="result">Ответ: \(\dfrac{2 + \sqrt{2}}{4}\).</span></p>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 3.</strong> Найти $\tg 22{,}5°$.<br><br>
+                <span class="step">Решение.</span>
+                $22{,}5° = 45°/2$, значит $\alpha = 45°$.<br>
+                $\tg 22{,}5° = \dfrac{1 - \cos 45°}{\sin 45°} = \dfrac{1 - \frac{\sqrt{2}}{2}}{\frac{\sqrt{2}}{2}} = \dfrac{2 - \sqrt{2}}{\sqrt{2}} = \sqrt{2} - 1$.<br>
+                <div class="hint">💡 Выбрали формулу через $\sin\alpha$ — так дроби удобнее упрощать.</div>
+                <span class="result">Ответ: $\sqrt{2} - 1$.</span>
             </div>
 
-            <!-- ===== ДОПОЛНИТЕЛЬНЫЙ ПРИМЕР 4 ===== -->
-            <div class="example-block">
-                <p><strong>Пример 4.</strong> Вычислить \(\sin 15^\circ\).</p>
-                <p><span class="step">Решение:</span></p>
-                <p>Из \(\sin^2 15^\circ = \dfrac{2 - \sqrt{3}}{4}\) (из примера 1) получаем:</p>
-                <p>\(\sin 15^\circ = \sqrt{\dfrac{2 - \sqrt{3}}{4}} = \dfrac{\sqrt{2 - \sqrt{3}}}{2}\).</p>
-                <p>Можно также представить в виде \(\dfrac{\sqrt{6} - \sqrt{2}}{4}\).</p>
-                <p><span class="result">Ответ: \(\sin 15^\circ = \dfrac{\sqrt{6} - \sqrt{2}}{4}\).</span></p>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 4 (выражение через целый угол).</strong> Найти $\cos 15°$, зная, что $\cos^2 15° = \dfrac{2+\sqrt{3}}{4}$.<br><br>
+                <span class="step">Решение.</span>
+                $15°$ — угол первой четверти, поэтому $\cos 15° > 0$.<br>
+                $\cos 15° = \sqrt{\dfrac{2+\sqrt{3}}{4}} = \dfrac{\sqrt{2+\sqrt{3}}}{2} = \dfrac{\sqrt{6}+\sqrt{2}}{4}$.<br>
+                <div class="hint">💡 Последнее равенство — стандартное преобразование «двойного радикала».</div>
+                <span class="result">Ответ: $\dfrac{\sqrt{6}+\sqrt{2}}{4}$.</span>
             </div>
-
-            <!-- ===== ДОПОЛНИТЕЛЬНЫЙ ПРИМЕР 5 ===== -->
-            <div class="example-block">
-                <p><strong>Пример 5.</strong> Вычислить \(\cos 15^\circ\).</p>
-                <p><span class="step">Решение:</span></p>
-                <p>Из \(\cos^2 15^\circ = \dfrac{2 + \sqrt{3}}{4}\) получаем:</p>
-                <p>\(\cos 15^\circ = \sqrt{\dfrac{2 + \sqrt{3}}{4}} = \dfrac{\sqrt{2 + \sqrt{3}}}{2} = \dfrac{\sqrt{6} + \sqrt{2}}{4}\).</p>
-                <p><span class="result">Ответ: \(\cos 15^\circ = \dfrac{\sqrt{6} + \sqrt{2}}{4}\).</span></p>
-            </div>
-
         </div>
+    </div>
+
+    <!-- 4. НА ЧТО ОБРАТИТЬ ВНИМАНИЕ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚠️ На что обратить внимание</span>
+        </div>
+        <div class="section-content">
+            <ul>
+                <li><strong>Квадрат, а не сама функция.</strong> Формулы дают $\sin^2\dfrac{\alpha}{2}$ и $\cos^2\dfrac{\alpha}{2}$, а не $\sin\dfrac{\alpha}{2}$. Чтобы найти саму функцию, нужно ещё извлечь корень и выбрать знак по четверти.</li>
+                <li><strong>Знак по четверти.</strong> Если угол $\alpha/2$ находится во II четверти, $\sin$ положителен, а $\cos$ — нет. Без этого шага ответ неверный.</li>
+                <li><strong>Две формы для $\tg\dfrac{\alpha}{2}$.</strong> Они эквивалентны, но в задачах выбирают ту, что удобнее по данным: если известен $\cos\alpha$ и $\sin\alpha$ — первая, если только $\cos\alpha$ — вторая.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="nav-links">
+        <a href="Двойной угол.html">📐 Двойной аргумент</a>
+        <a href="Произведение функций.html">✖ Произведение функций</a>
     </div>
 
     <a href="trigonometry.html" class="back-link">← Назад к тригонометрии</a>
 </div>
-<script>
-    function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
-    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
-    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
-</script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+<script>
+    function toggleTheme() {
+        var html = document.documentElement;
+        var btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeBtn').textContent = '☀️';
+        }
+    })();
+
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+<script src="favorites.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -37,6 +37,17 @@
         .section.collapsed .section-title::after { transform: rotate(-90deg); }
         .section-content { max-height: 8000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
+        .important {
+    background: var(--info-bg);
+    border-left: 4px solid #fbbf24;
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    color: var(--text);
+}
+.important strong {
+    color: #fbbf24;
+}
         .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-family: 'Times New Roman', monospace; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.0; color: var(--text); }
         .example { background: var(--example-bg); padding: 12px 16px; border-radius: 14px; margin-top: 8px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 1.9; color: var(--text); }
         .example .step { font-weight: 700; color: #60a5fa; margin-top: 8px; }
@@ -71,10 +82,6 @@
             .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
         }
 
-    .favorite-btn { position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; z-index: 1000; color: var(--text-secondary); transition: all 0.2s; backdrop-filter: blur(4px); }
-    .favorite-btn:hover { transform: scale(1.1); }
-    .favorite-btn.active { color: #facc15; }
-
     .action-btns {
         display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
         margin: 10px 0;
@@ -105,11 +112,32 @@
 </head>
 <body>
 <div class="container">
-    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()">☆</button>   <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>Скалярное произведение векторов</h1>
 
-    <!-- Скалярное произведение -->
+    <!-- ===== ВВЕДЕНИЕ ===== -->
     <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Что такое скалярное произведение и зачем оно нужно</div>
+        <div class="section-content">
+            <p>Мы умеем складывать векторы и умножать их на число. Но есть ещё одна операция — <strong>скалярное произведение</strong>. Она необычная: <strong>превращает два вектора в одно число</strong>.</p>
+            <p><strong>Зачем это нужно?</strong> Это число показывает <strong>угол</strong> между векторами:</p>
+            <ul>
+                <li><strong>Положительное</strong> — угол острый.</li>
+                <li><strong>Ноль</strong> — векторы перпендикулярны (угол $90°$).</li>
+                <li><strong>Отрицательное</strong> — угол тупой.</li>
+            </ul>
+            <div class="important">
+                <strong>💡 Где это применяется:</strong><br>
+                • <strong>3D-графика:</strong> проверка, освещена ли поверхность (угол между нормалью и светом).<br>
+                • <strong>Физика:</strong> работа силы $A = \vec{F} \cdot \vec{s}$.<br>
+                • <strong>Геометрия:</strong> поиск углов и проверка перпендикулярности.<br>
+                • <strong>Игры:</strong> определение, видит ли враг игрока.
+            </div>
+            <p>Формула простая: $\vec{a} \cdot \vec{b} = x_1 x_2 + y_1 y_2 + z_1 z_2$. Сейчас разберём, откуда она и как ею пользоваться.</p>
+        </div>
+    </div>
+    <!-- Скалярное произведение -->
+    <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">Скалярное произведение</div>
         <div class="section-content">
             <div class="model-container" id="container1">
@@ -786,6 +814,6 @@
     })();
 </script>
 
-<script>const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();</script>
+<script src="favorites.js"></script>
 </body>
 </html>
