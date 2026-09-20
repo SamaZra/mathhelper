@@ -145,6 +145,7 @@
 </head>
 <body>
 <div class="container">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>📐 Расположение прямых и плоскостей</h1>
 
     <!-- ==================== БЛОК 1: ПРЯМАЯ И ПЛОСКОСТЬ ==================== -->
@@ -239,11 +240,7 @@
     }
 
     const qualitySettings = {
-        low: {
-            segments: 24,
-            opacity: 0.85,
-            transparent: false
-        },
+        low:    { segments: 24, opacity: 1.0,  transparent: false },
         medium: {
             segments: 48,
             opacity: 0.65,
@@ -259,16 +256,12 @@
     const settings = qualitySettings[quality3D];
     // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
 
-     else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
-        }
-    }
-    (function() {
+     
+    (function initTheme() {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            document.getElementById('themeBtn').textContent = '☀️';
+            const btn = document.getElementById('themeBtn');
+            if (btn) btn.textContent = '☀️';
         }
     })();
 
@@ -278,18 +271,25 @@
         const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
 
         function makeLabel(text, color, position, fontSize = '0.75rem') {
+            const sizeNum = parseFloat(fontSize);
+            const biggerSize = (sizeNum * 2).toFixed(2) + 'rem';
+
             const div = document.createElement('div');
             div.textContent = text;
             div.style.color = color;
-            div.style.fontSize = fontSize;
-            div.style.fontWeight = 'bold';
+            div.style.fontSize = biggerSize;
+            div.style.fontWeight = '900';
+
             div.style.fontFamily = "'JetBrains Mono', monospace";
-            div.style.background = 'rgba(10, 15, 26, 0.8)';
-            div.style.padding = '2px 8px';
-            div.style.borderRadius = '20px';
-            div.style.border = `1px solid ${color}`;
-            div.style.backdropFilter = 'blur(6px)';
+
+            div.style.letterSpacing = '0.02em';
+            div.style.background = 'transparent';
+            div.style.padding = '0';
+            div.style.border = 'none';
+            div.style.borderRadius = '0';
             div.style.whiteSpace = 'nowrap';
+            div.style.pointerEvents = 'none';
+            div.style.textShadow = `0 0 1px #000, 0 0 2px #000, 0 0 8px ${color}, 0 0 16px ${color}`;
             const label = new CSS2DObject(div);
             label.position.copy(position);
             return label;
@@ -493,7 +493,7 @@
             scene.add(bLine);
 
             const pointAPos = new THREE.Vector3(0, 0, 0.3);
-            const pointA = new THREE.Mesh(new THREE.SphereGeometry(0.06, 32, 32), new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 }));
+            const pointA = new THREE.Mesh(new THREE.SphereGeometry(0.06, settings.segments, settings.segments), new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 }));
             pointA.position.copy(pointAPos);
             scene.add(pointA);
 

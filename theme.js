@@ -1,8 +1,7 @@
 // ===== Кнопка смены темы =====
 // Работает и в браузере, и в Android WebView.
 // Тема хранится в localStorage под ключом 'mathTheme'.
-// Если на странице определён window.__themeRefreshAll — вызывается после переключения
-// (нужно для 3D-моделей и графиков, которые не подхватывают CSS автоматически).
+// После переключения вызываются функции перерисовки, если они есть на странице.
 
 (function () {
     'use strict';
@@ -61,6 +60,28 @@
         }
     }
 
+    // ===== 3. Перерисовка всех возможных визуализаций =====
+    function refreshAllVisuals() {
+        // 3D-модели (Three.js) — если файл определяет эти функции
+        try { if (typeof window.__themeRefreshAll === 'function') window.__themeRefreshAll(); } catch (e) {}
+
+        // 2D canvas-графики — разные файлы называют по-разному
+        try { if (typeof window.drawAllGraphs === 'function') window.drawAllGraphs(); } catch (e) {}
+        try { if (typeof window.drawAllPlots === 'function') window.drawAllPlots(); } catch (e) {}
+        try { if (typeof window.drawAllIntervalPlots === 'function') window.drawAllIntervalPlots(); } catch (e) {}
+        try { if (typeof window.drawViz === 'function') window.drawViz(); } catch (e) {}
+        try { if (typeof window.drawAllIntervalPlots === 'function') window.drawAllIntervalPlots(); } catch (e) {}
+        try { if (typeof window.drawChart === 'function') window.drawChart(); } catch (e) {}
+        try { if (typeof window.drawAll === 'function') window.drawAll(); } catch (e) {}
+        try { if (typeof window.redraw === 'function') window.redraw(); } catch (e) {}
+
+        // MathJax — перерисовать формулы (цвета из CSS)
+        try {
+            if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+        } catch (e) {}
+    }
+
+    // ===== 4. Переключение темы =====
     function toggleTheme() {
         var html = document.documentElement;
         var isLight = html.classList.contains('light-mode');
@@ -72,15 +93,21 @@
             localStorage.setItem('mathTheme', newTheme);
         } catch (e) {}
 
-        // Перерисовка 3D-моделей и графиков, если функция есть на странице
-        if (typeof window.__themeRefreshAll === 'function') {
-            try { window.__themeRefreshAll(); } catch (e) {}
-        }
+        // Перерисовываем всё, что может зависеть от темы
+        refreshAllVisuals();
+
+        // Небольшая задержка — на случай, если CSS ещё применяется,
+        // и функция перерисовки должна увидеть уже новый фон
+        setTimeout(refreshAllVisuals, 60);
     }
 
-    // ===== 3. Вставка кнопки =====
+    // ===== 5. Вставка кнопки =====
     function insertButton() {
-        if (document.getElementById('themeBtn')) return;
+        // Если кнопка уже есть — не дублируем, но обновим её состояние
+        if (document.getElementById('themeBtn')) {
+            applyTheme(getSavedTheme());
+            return;
+        }
 
         var btn = document.createElement('button');
         btn.className = 'theme-toggle';
@@ -103,4 +130,9 @@
 
     // Экспортируем функции
     window.toggleTheme = toggleTheme;
+    window.applyTheme = applyTheme;
+
+    // Публичный API для страниц: они могут попросить перерисовать
+    // (например, при программной смене темы)
+    window.__themeRefreshAll = window.__themeRefreshAll || function () {};
 })();

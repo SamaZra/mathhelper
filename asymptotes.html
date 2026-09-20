@@ -13,25 +13,27 @@
             --text: #ffffff;
             --text-secondary: #8ba5b8;
             --accent: #1abc9c;
-            --border: rgba(46, 204, 113, 0.1);
+            --border: rgba(139, 92, 246, 0.1);
             --header-bg: linear-gradient(135deg, #1e3545, #162a38);
-            --info-border: #e67e22;
+            --special-border: #8b5cf6;
             --example-bg: #1e3545;
             --step-color: #a78bfa;
-            --result-color: #34d399;
+            --result-color: #4ade80;
             --explain-color: #34d399;
             --info-bg: #1e3545;
-            --special-border: #e67e22;
             --table-even: rgba(255, 255, 255, 0.03);
             --table-odd: rgba(255, 255, 255, 0.07);
-            --table-hover: rgba(230, 126, 34, 0.18);
+            --table-hover: rgba(139, 92, 246, 0.18);
             --canvas-bg: #162a38;
             --example-text: #ffffff;
             --formula-used-text: #ffffff;
-            --highlight-bg: rgba(251, 191, 36, 0.12);
-            --highlight-border: #fbbf24;
-            --highlight-text: #fbbf24;
+            --highlight-bg: rgba(139, 92, 246, 0.10);
+            --highlight-border: #8b5cf6;
+            --highlight-text: #a78bfa;
             --code-bg: rgba(255,255,255,0.06);
+            --warning-bg: rgba(139,92,246,0.12);
+            --warning-border: #8b5cf6;
+            --danger-color: #f87171;
         }
 
         :root.light-mode {
@@ -42,23 +44,25 @@
             --accent: #1abc9c;
             --border: #eff3f8;
             --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
-            --info-border: #e67e22;
+            --special-border: #8b5cf6;
             --example-bg: #f8fafc;
             --step-color: #7c3aed;
             --result-color: #059669;
             --explain-color: #059669;
-            --info-bg: #fef9e7;
-            --special-border: #e67e22;
+            --info-bg: #e8f0fe;
             --table-even: rgba(0, 0, 0, 0.02);
             --table-odd: rgba(0, 0, 0, 0.05);
-            --table-hover: rgba(230, 126, 34, 0.12);
+            --table-hover: rgba(139, 92, 246, 0.12);
             --canvas-bg: #f8fafc;
             --example-text: #1a2a3f;
             --formula-used-text: #1a5276;
-            --highlight-bg: rgba(217, 119, 6, 0.10);
-            --highlight-border: #d97706;
-            --highlight-text: #b45309;
+            --highlight-bg: rgba(139, 92, 246, 0.10);
+            --highlight-border: #8b5cf6;
+            --highlight-text: #6d28d9;
             --code-bg: rgba(0,0,0,0.04);
+            --warning-bg: #f5f3ff;
+            --warning-border: #8b5cf6;
+            --danger-color: #dc2626;
         }
 
         body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
@@ -70,6 +74,7 @@
 
         .content-card{background:transparent;padding:0;}
 
+        /* ===== СЕКЦИИ ===== */
         .section{margin-bottom:14px;}
         .section-title{
             font-size:1.1rem;
@@ -77,58 +82,29 @@
             color:var(--text);
             margin-bottom:4px;
             display:flex;
-            flex-wrap:wrap;
-            align-items:center;
-            justify-content:flex-start;  /* ← ПО ЛЕВОМУ КРАЮ */
-            gap:4px 10px;
-            border-left:4px solid var(--info-border);
+            flex-direction:column;
+            gap:4px;
+            border-left:4px solid var(--special-border);
             padding:8px 12px;
             cursor:pointer;
             user-select:none;
-            text-align:left;            /* ← ТЕКСТ СЛЕВА */
+            text-align:left;
             background:var(--info-bg);
             border-radius:10px;
             transition:background 0.2s;
             line-height:1.4;
+            position:relative;
         }
-        .section-title:hover{opacity:0.8;background:var(--example-bg);}
-        .section-title .title-icon{
-            font-size:1.1rem;
-            margin-right:2px;
-        }
-        .section-title .main-label{
-            display:inline-block;
+        .section-title:hover{opacity:0.9;background:var(--example-bg);}
+        .section-title .main-title{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            width:100%;
             font-size:1rem;
+            color:var(--text);
         }
-        /* ===== ФУНКЦИИ В ПРИМЕРАХ — 25px ===== */
-        .section-title .main-label .func-large mjx-container{
-            font-size:25px !important;
-            font-weight:700 !important;
-        }
-        .section-title .sub-tag{
-            font-size:0.85rem;
-            color:var(--text-secondary);
-            font-weight:400;
-            font-style:italic;
-            opacity:0.9;
-            display:block;
-            width:100%;
-            text-align:left;            /* ← ПОДПИСЬ СЛЕВА */
-            margin-top:2px;
-        }
-        /* ===== ПРИМЕР 9: ПОДЗАГОЛОВОК ПОСЛЕ ФУНКЦИИ ===== */
-        .section-title .param-label{
-            font-size:0.85rem;
-            color:var(--text-secondary);
-            font-weight:400;
-            font-style:italic;
-            opacity:0.9;
-            display:block;
-            width:100%;
-            text-align:left;            /* ← СЛЕВА */
-            margin-top:2px;
-        }
-        .section-title::after{
+        .section-title .main-title::after{
             content:"▼";
             margin-left:auto;
             font-size:0.85rem;
@@ -136,13 +112,26 @@
             color:var(--text-secondary);
             flex-shrink:0;
         }
-        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section.collapsed .section-title .main-title::after{transform:rotate(-90deg);}
+        .section-title .sub-title{
+            font-size:0.85rem;
+            color:var(--text-secondary);
+            font-weight:400;
+            font-style:italic;
+            opacity:0.9;
+            display:block;
+            text-align:left;
+        }
+        /* ===== ЕДИНЫЙ РАЗМЕР MathJax В ЗАГОЛОВКАХ ===== */
+        .section-title .main-title mjx-container{
+            font-size:1em !important;
+        }
         .section-content{max-height:10000px;overflow:hidden;transition:max-height 0.4s ease;}
         .section.collapsed .section-content{max-height:0;}
 
         .definition-block{
             background:var(--info-bg);
-            border-left:4px solid var(--info-border);
+            border-left:4px solid var(--special-border);
             padding:12px 14px;
             border-radius:14px;
             margin:8px 0;
@@ -220,19 +209,9 @@
             font-size:0.95rem;
         }
         .example .star{
-            color:#fbbf24;
-            font-size:1.2rem;
+            color:var(--highlight-text);
+            font-size:1.1rem;
             margin-right:4px;
-        }
-        .example .formula-used{
-            background:var(--info-bg);
-            display:inline-block;
-            padding:2px 8px;
-            border-radius:12px;
-            font-size:0.85rem;
-            color:var(--formula-used-text);
-            font-weight:600;
-            word-wrap:break-word;
         }
         .example mjx-container{
             font-size:0.95rem !important;
@@ -257,15 +236,16 @@
         }
 
         .important{
-            background:var(--info-bg);
-            border-left:4px solid #fbbf24;
+            background:var(--warning-bg);
+            border-left:4px solid var(--warning-border);
             border-radius:14px;
             padding:10px 14px;
             margin:8px 0;
             color:var(--text);
             font-size:0.95rem;
+            line-height:1.5;
         }
-        .important strong{color:#fbbf24;}
+        .important strong{color:var(--highlight-text);}
 
         p{
             margin:6px 0;
@@ -291,7 +271,7 @@
             display:inline-block;
             margin:16px 0 8px;
             padding:10px 24px;
-            background:linear-gradient(135deg,#1e3c72,#2a5298);
+            background:var(--special-border);
             color:white;
             text-decoration:none;
             font-weight:600;
@@ -311,7 +291,7 @@
 
         .asymptote-vertical{color:#f87171;font-weight:700;}
         .asymptote-horizontal{color:#34d399;font-weight:700;}
-        .asymptote-oblique{color:#fbbf24;font-weight:700;}
+        .asymptote-oblique{color:#a78bfa;font-weight:700;}
 
         .graph-container{
             text-align:center;
@@ -393,6 +373,14 @@
             font-size:0.85rem!important;
         }
 
+        .error-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.9rem;border-radius:12px;overflow:hidden;}
+        .error-table th{background:var(--special-border);color:#fff;padding:10px 12px;text-align:left;font-weight:700;}
+        .error-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;background:var(--card-bg);}
+        .error-table tr:nth-child(even) td{background:var(--example-bg);}
+        .error-table tr:last-child td{border-bottom:none;}
+        .error-table .wrong{color:var(--danger-color);font-weight:700;}
+        .error-table .right{color:var(--result-color);font-weight:700;}
+
         .general-form{
             background:var(--card-bg);
             padding:10px 14px;
@@ -403,7 +391,7 @@
             border:1px solid var(--border);
             color:var(--text);
         }
-        .general-form .num{color:#fbbf24;font-weight:600;}
+        .general-form .num{color:#a78bfa;font-weight:600;}
         .general-form .den{color:#34d399;font-weight:600;}
         .general-form .sub-hint{
             font-size:0.8rem;
@@ -414,18 +402,18 @@
 
         .link-to-theory{
             display:inline-block;
-            background:rgba(251,191,36,0.12);
-            border:1px solid #fbbf24;
+            background:rgba(139,92,246,0.12);
+            border:1px solid var(--special-border);
             border-radius:16px;
             padding:2px 12px;
             font-size:0.75rem;
-            color:#fbbf24;
+            color:var(--highlight-text);
             text-decoration:none;
             transition:all 0.2s;
             margin-left:6px;
         }
         .link-to-theory:hover{
-            background:rgba(251,191,36,0.25);
+            background:rgba(139,92,246,0.25);
             transform:scale(1.02);
         }
 
@@ -436,19 +424,18 @@
             h1{font-size:1.2rem;}
             .subtitle{font-size:0.7rem;}
             .section-title{font-size:1rem;padding:6px 10px;}
-            .section-title .main-label{font-size:0.95rem;}
-            .section-title .main-label .func-large mjx-container{font-size:20px !important;}
-            .section-title .sub-tag{font-size:0.75rem;}
+            .section-title .main-title{font-size:0.95rem;}
+            .section-title .sub-title{font-size:0.75rem;}
             .definition-block p,.formula-block,.example,.p,.highlight-box p,.important{font-size:0.9rem;}
             .example .step,.example .result,.example .formula-line{font-size:0.9rem;}
             .example .explain{font-size:0.85rem;}
             .cheat-table{min-width:520px;font-size:0.75rem;}
             .cheat-table thead th,.cheat-table tbody td{padding:8px 10px;font-size:0.75rem;}
-            .graph-container canvas{min-height:200px;}
+            .graph-container canvas{min-height:180px;}
             .graph-label{font-size:0.75rem;}
             mjx-container{font-size:0.85em !important;}
             .back-link{font-size:0.85rem;padding:8px 18px;}
-            }
+        }
 
         @media (max-width:400px){
             body{padding:12px 6px 30px;}
@@ -456,9 +443,8 @@
             .header{padding:12px 12px;margin-bottom:16px;}
             h1{font-size:1rem;}
             .section-title{font-size:0.9rem;padding:4px 8px;}
-            .section-title .main-label{font-size:0.85rem;}
-            .section-title .main-label .func-large mjx-container{font-size:18px !important;}
-            .section-title .sub-tag{font-size:0.65rem;}
+            .section-title .main-title{font-size:0.85rem;}
+            .section-title .sub-title{font-size:0.65rem;}
             .definition-block p,.formula-block,.example,.p,.highlight-box p,.important{font-size:0.8rem;}
             .example .step,.example .result,.example .formula-line{font-size:0.8rem;}
             .example .explain{font-size:0.75rem;}
@@ -466,7 +452,7 @@
             .cheat-table thead th,.cheat-table tbody td{padding:6px 8px;font-size:0.65rem;}
             mjx-container{font-size:0.75em !important;}
             .back-link{font-size:0.75rem;padding:6px 14px;}
-            }
+        }
 
         @keyframes fadeInUp{
             from{opacity:0;transform:translateY(15px);}
@@ -493,10 +479,26 @@
     <div class="header"><h1>Асимптоты</h1><div class="subtitle">Вертикальные · Горизонтальные · Наклонные · Примеры</div></div>
     <div class="content-card">
 
-        <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+        <!-- ===== ЖИВОЕ ВСТУПЛЕНИЕ ===== -->
         <div class="section">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">📖</span> <span class="main-label">Что такое асимптота?</span>
+                <span class="main-title">📖 Зачем нужны асимптоты</span>
+                <span class="sub-title">от горных дорог до графиков функций</span>
+            </div>
+            <div class="section-content">
+                <p>Представь, что ты едешь по горной дороге. Слева — обрыв, справа — скала. Ты можешь подъезжать к краю всё ближе и ближе, но <strong>никогда не пересечёшь его</strong>. Этот край — и есть <strong>асимптота</strong> (от греческого <em>asymptotos</em> — «не совпадающий»).</p>
+                <p>В математике асимптота — это прямая, к которой график функции <strong>бесконечно приближается</strong>, но не касается её (или касается в конечном числе точек). Асимптоты помогают понять <strong>поведение функции на бесконечности</strong> и рядом с точками разрыва.</p>
+                <div class="important">
+                    <strong>💡 Главная идея:</strong> асимптота — это «невидимая граница», к которой стремится график. Она бывает <span class="asymptote-vertical">вертикальной</span>, <span class="asymptote-horizontal">горизонтальной</span> и <span class="asymptote-oblique">наклонной</span>.
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📌 Что такое асимптота?</span>
+                <span class="sub-title">три вида асимптот</span>
             </div>
             <div class="section-content">
                 <p><strong>Асимптота</strong> — это прямая, к которой график функции <strong>бесконечно приближается</strong>, но никогда её не пересекает (или пересекает в конечном числе точек).</p>
@@ -532,17 +534,17 @@
                     </div>
                 </div>
 
-                <div class="formula-block" style="border-left-color: #fbbf24;">
+                <div class="formula-block" style="border-left-color: #a78bfa;">
                     <strong><span class="asymptote-oblique">Наклонная асимптота</span>:</strong><br>
                     Прямая \(y = kx + b\), к которой график приближается при \(x \to \pm\infty\).<br>
-                    📌 Находится <strong><a href="деление-многочленов-уголком.html" target="_blank" style="color: #fbbf24; text-decoration: underline;">делением многочленов (уголком)</a></strong>
+                    📌 Находится <strong><a href="деление-многочленов-уголком.html" target="_blank" style="color: var(--highlight-text); text-decoration: underline;">делением многочленов (уголком)</a></strong>
                     <a href="деление-многочленов-уголком.html" target="_blank" class="link-to-theory">📖 теория</a>
                 </div>
 
                 <div class="graph-container">
                     <canvas id="graphOblique" width="700" height="380"></canvas>
                     <div class="graph-label">
-                        🟡 Наклонная асимптота \(y = x\) функции \(f(x) = \frac{x^2+1}{x}\)
+                        🟣 Наклонная асимптота \(y = x\) функции \(f(x) = \frac{x^2+1}{x}\)
                     </div>
                 </div>
             </div>
@@ -551,17 +553,17 @@
         <!-- ===== ТАБЛИЦА-ШПАРГАЛКА ===== -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">📋</span> <span class="main-label">Таблица-шпаргалка</span>
-                <span class="sub-tag">как быстро определить асимптоту</span>
+                <span class="main-title">📋 Таблица-шпаргалка</span>
+                <span class="sub-title">как быстро определить асимптоту</span>
             </div>
             <div class="section-content">
-                <div class="formula-block" style="border-left-color: #fbbf24;">
+                <div class="formula-block">
                     <strong>Для дробно-рациональной функции \(f(x) = \dfrac{P(x)}{Q(x)}\):</strong>
 
                     <div class="general-form">
                         $$ f(x) = \frac{ \class{num}{a x^n + a_{n-1}x^{n-1} + \ldots + a_0} }{ \class{den}{b x^m + b_{m-1}x^{m-1} + \ldots + b_0} } $$
                         <div class="sub-hint">
-                            <span style="color:#fbbf24;">🟡 Числитель</span> степени \(n\) &nbsp;·&nbsp;
+                            <span style="color:#a78bfa;">🟣 Числитель</span> степени \(n\) &nbsp;·&nbsp;
                             <span style="color:#34d399;">🟢 Знаменатель</span> степени \(m\)
                         </div>
                     </div>
@@ -628,8 +630,8 @@
         <!-- ===== ПРАВИЛА НАХОЖДЕНИЯ ===== -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">📋</span> <span class="main-label">Правила нахождения асимптот</span>
-                <span class="sub-tag">без использования пределов</span>
+                <span class="main-title">📋 Правила нахождения асимптот</span>
+                <span class="sub-title">без использования пределов</span>
             </div>
             <div class="section-content">
                 <div class="example">
@@ -648,9 +650,9 @@
                         • Если степень числителя > степени знаменателя → <strong>горизонтальной асимптоты нет</strong> (ищем наклонную)
                     </div>
 
-                    <span class="step">🟡 <span class="asymptote-oblique">Наклонные асимптоты</span></span>
+                    <span class="step">🟣 <span class="asymptote-oblique">Наклонные асимптоты</span></span>
                     <div class="formula-line" style="padding-left:16px;">
-                        1️⃣ Разделить числитель на знаменатель <strong><a href="деление-многочленов-уголком.html" target="_blank" style="color: #fbbf24; text-decoration: underline;">уголком</a></strong>
+                        1️⃣ Разделить числитель на знаменатель <strong><a href="деление-многочленов-уголком.html" target="_blank" style="color: var(--highlight-text); text-decoration: underline;">уголком</a></strong>
                         <a href="деление-многочленов-уголком.html" target="_blank" class="link-to-theory" style="font-size:0.7rem;">📖 теория</a><br>
                         2️⃣ Целая часть — это уравнение наклонной асимптоты \(y = kx + b\).<br>
                         3️⃣ Остаток → 0 при \(x \to \infty\).
@@ -661,13 +663,13 @@
             </div>
         </div>
 
-        <!-- ===== ВСЕ ПРИМЕРЫ ===== -->
+        <!-- ===== ПРИМЕРЫ (единый стиль заголовков) ===== -->
+
         <!-- ПРИМЕР 1 -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">📐</span>
-                <span class="main-label">Пример 1. <span class="func-large">\(f(x) = \frac{1}{x-2}\)</span></span>
-                <span class="sub-tag">вертикальная асимптота</span>
+                <span class="main-title">📐 Пример 1. \(f(x) = \dfrac{1}{x-2}\)</span>
+                <span class="sub-title">вертикальная асимптота</span>
             </div>
             <div class="section-content">
                 <div class="example">
@@ -685,9 +687,8 @@
         <!-- ПРИМЕР 2 -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">📐</span>
-                <span class="main-label">Пример 2. <span class="func-large">\(f(x) = \frac{2x+1}{x-3}\)</span></span>
-                <span class="sub-tag">горизонтальная асимптота</span>
+                <span class="main-title">📐 Пример 2. \(f(x) = \dfrac{2x+1}{x-3}\)</span>
+                <span class="sub-title">горизонтальная асимптота</span>
             </div>
             <div class="section-content">
                 <div class="example">
@@ -705,9 +706,8 @@
         <!-- ПРИМЕР 3 -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">📐</span>
-                <span class="main-label">Пример 3. <span class="func-large">\(f(x) = \frac{x^2+1}{x}\)</span></span>
-                <span class="sub-tag">наклонная асимптота</span>
+                <span class="main-title">📐 Пример 3. \(f(x) = \dfrac{x^2+1}{x}\)</span>
+                <span class="sub-title">наклонная асимптота</span>
             </div>
             <div class="section-content">
                 <div class="example">
@@ -725,9 +725,8 @@
         <!-- ПРИМЕР 4 -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">📐</span>
-                <span class="main-label">Пример 4. <span class="func-large">\(f(x) = x^2\)</span></span>
-                <span class="sub-tag">нет асимптот</span>
+                <span class="main-title">📐 Пример 4. \(f(x) = x^2\)</span>
+                <span class="sub-title">нет асимптот</span>
             </div>
             <div class="section-content">
                 <div class="example">
@@ -745,9 +744,8 @@
         <!-- ПРИМЕР 5 -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">📐</span>
-                <span class="main-label">Пример 5. <span class="func-large">\(f(x) = \frac{x}{x^2-1}\)</span></span>
-                <span class="sub-tag">вертикальная и горизонтальная</span>
+                <span class="main-title">📐 Пример 5. \(f(x) = \dfrac{x}{x^2-1}\)</span>
+                <span class="sub-title">вертикальная и горизонтальная</span>
             </div>
             <div class="section-content">
                 <div class="example">
@@ -768,9 +766,8 @@
         <!-- ПРИМЕР 6 -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">📐</span>
-                <span class="main-label">Пример 6. <span class="func-large">\(f(x) = \frac{x^2+3x+2}{x+1}\)</span></span>
-                <span class="sub-tag">вертикальная + наклонная (с сокращением)</span>
+                <span class="main-title">📐 Пример 6. \(f(x) = \dfrac{x^2+3x+2}{x+1}\)</span>
+                <span class="sub-title">вертикальная + наклонная (с сокращением)</span>
             </div>
             <div class="section-content">
                 <div class="example">
@@ -790,9 +787,8 @@
         <!-- ПРИМЕР 7 -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">⭐</span>
-                <span class="main-label">Пример 7. <span class="func-large">\(f(x) = \sqrt{x^2 + 1}\)</span></span>
-                <span class="sub-tag">две наклонные асимптоты</span>
+                <span class="main-title">⭐ Пример 7. \(f(x) = \sqrt{x^2 + 1}\)</span>
+                <span class="sub-title">две наклонные асимптоты</span>
             </div>
             <div class="section-content">
                 <div class="example">
@@ -808,7 +804,7 @@
                 <div class="graph-container">
                     <canvas id="graphRoot" width="700" height="380"></canvas>
                     <div class="graph-label">
-                        🟡 График \(y = \sqrt{x^2+1}\) и две наклонные асимптоты: \(y = x\) и \(y = -x\)
+                        🟣 График \(y = \sqrt{x^2+1}\) и две наклонные асимптоты: \(y = x\) и \(y = -x\)
                     </div>
                 </div>
             </div>
@@ -817,9 +813,8 @@
         <!-- ПРИМЕР 8 -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">⭐</span>
-                <span class="main-label">Пример 8. <span class="func-large">\(f(x) = \frac{x^2 - 1}{x - 1}\)</span></span>
-                <span class="sub-tag">выколотая точка, а не асимптота</span>
+                <span class="main-title">⭐ Пример 8. \(f(x) = \dfrac{x^2 - 1}{x - 1}\)</span>
+                <span class="sub-title">выколотая точка, а не асимптота</span>
             </div>
             <div class="section-content">
                 <div class="example">
@@ -837,12 +832,11 @@
             </div>
         </div>
 
-        <!-- ===== ПРИМЕР 9 — ИСПРАВЛЕННЫЙ ===== -->
+        <!-- ПРИМЕР 9 -->
         <div class="section collapsed">
             <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="title-icon">⭐</span>
-                <span class="main-label">Пример 9. <span class="func-large">\(f(x) = \frac{x^2 + ax + 1}{x + 2}\)</span></span>
-                <span class="param-label">Задача с параметром</span>
+                <span class="main-title">⭐ Пример 9. \(f(x) = \dfrac{x^2 + ax + 1}{x + 2}\)</span>
+                <span class="sub-title">задача с параметром</span>
             </div>
             <div class="section-content">
                 <div class="example">
@@ -857,125 +851,142 @@
             </div>
         </div>
 
+        <!-- ===== ТИПИЧНЫЕ ОШИБКИ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">⚠️ Типичные ошибки</span>
+                <span class="sub-title">что чаще всего путают</span>
+            </div>
+            <div class="section-content">
+                <div class="table-scroll">
+                    <table class="error-table">
+                        <thead>
+                        <tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="wrong">Считают, что любая точка, где знаменатель = 0, — вертикальная асимптота</td>
+                            <td>Если после сокращения дробь «спокойная» в этой точке, там выколотая точка, а не асимптота.</td>
+                            <td class="right">Проверять, уходит ли функция в бесконечность</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">Путают горизонтальную и наклонную асимптоты</td>
+                            <td>Если степень числителя больше степени знаменателя, горизонтальной асимптоты нет.</td>
+                            <td class="right">Сравнивать степени многочленов</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">Ищут вертикальные асимптоты через деление уголком</td>
+                            <td>Вертикальные асимптоты — это точки разрыва, они находятся через ОДЗ.</td>
+                            <td class="right">Сначала ОДЗ, потом степени</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">Забывают, что у функции с корнем могут быть две наклонные асимптоты</td>
+                            <td>Поведение на \(+\infty\) и \(-\infty\) может отличаться.</td>
+                            <td class="right">Проверять оба направления</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== СВОДКА ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📊 Сводная таблица</span>
+            </div>
+            <div class="section-content">
+                <div class="formula-block">
+                    <strong>1.</strong> Вертикальная асимптота: \(x = a\), где знаменатель = 0 и функция → ∞.<br><br>
+                    <strong>2.</strong> Горизонтальная асимптота: \(y = b\), если степень числителя ≤ степени знаменателя.<br><br>
+                    <strong>3.</strong> Наклонная асимптота: \(y = kx + b\), если степень числителя ровно на 1 больше.<br><br>
+                    <strong>4.</strong> Алгоритм: ОДЗ → степени → деление уголком (если нужно).<br><br>
+                    <strong>5.</strong> В ответе указывать <strong>вид и уравнение</strong> асимптоты: \(x = 2\), \(y = 0\), \(y = x\).
+                </div>
+            </div>
+        </div>
+
     </div>
     <a href="derivative.html" class="back-link">← Назад к производным</a>
 </div>
 
 <script>
-    // ===== ИЗБРАННОЕ =====
-    const FAV_KEY = 'math_favorites';
-    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
-    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
-    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
-    function toggleFavorite() {
-        const u = window.location.pathname.split('/').pop();
-        let f = getFavorites();
-        const btn = document.getElementById('favoriteBtn');
-        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
-        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
-        saveFavorites(f);
-    }
-    function updateFavoriteBtn() {
-        const btn = document.getElementById('favoriteBtn');
-        if (btn) { btn.textContent = isFavorite() ? '★' : '☆'; if (isFavorite()) btn.classList.add('active'); else btn.classList.remove('active'); }
-    }
+    /* ============================================================
+       АДАПТИВНЫЕ КАНВАСЫ + ПЕРЕРИСОВКА ПРИ RESIZE/ТЕМЕ
+    ============================================================ */
 
-    // ===== ТЕМА =====
-     else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
-        }
-        setTimeout(drawAllGraphs, 300);
-    }
-
-    (function() {
-        if (localStorage.getItem('mathTheme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            document.getElementById('themeBtn').textContent = '☀️';
-        }
-        updateFavoriteBtn();
-    })();
-
-    // ===== РИСОВАНИЕ ГРАФИКОВ =====
     function drawVerticalAsymptote() {
         const canvas = document.getElementById('graphVertical');
         if (!canvas) return;
+        const container = canvas.parentElement;
+        const isLight = document.documentElement.classList.contains('light-mode');
+
+        const baseW = 700, baseH = 380;
+        const cssW = Math.max(280, container.clientWidth - 12);
+        const cssH = Math.round(cssW * baseH / baseW);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+
         const ctx = canvas.getContext('2d');
-        const w = canvas.width, h = canvas.height;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const w = cssW, h = cssH;
         const pad = 45;
         const pw = w - 2 * pad, ph = h - 2 * pad;
         const xMin = -5, xMax = 7, yMin = -7, yMax = 7;
 
-        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
-        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+        const toX = x => pad + (x - xMin) / (xMax - xMin) * pw;
+        const toY = y => h - pad - (y - yMin) / (yMax - yMin) * ph;
 
-        const isLight = document.documentElement.classList.contains('light-mode');
-        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
-        ctx.fillRect(0, 0, w, h);
+        const c = {
+            bg: isLight ? '#fefefe' : '#0f1a24',
+            grid: isLight ? '#dce3ec' : '#2a3a4a',
+            axis: isLight ? '#5b7c9c' : '#8899aa',
+            text: isLight ? '#334155' : '#cbd5e1',
+            curve: '#34d399',
+            asym: '#f87171'
+        };
 
-        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
-        ctx.lineWidth = 0.8;
+        ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = c.grid; ctx.lineWidth = 0.8;
         for (let x = -5; x <= 7; x++) {
             const sx = toX(x);
-            ctx.beginPath();
-            ctx.moveTo(sx, pad);
-            ctx.lineTo(sx, h - pad);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             if (x !== 0) ctx.fillText(x, sx, h - pad + 6);
         }
         for (let y = -7; y <= 7; y++) {
             const sy = toY(y);
-            ctx.beginPath();
-            ctx.moveTo(pad, sy);
-            ctx.lineTo(w - pad, sy);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
             if (y !== 0) ctx.fillText(y, pad - 10, sy);
         }
 
-        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
-        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = c.axis; ctx.lineWidth = 2.2;
         const ox = toY(0), oy = toX(0);
-        ctx.beginPath();
-        ctx.moveTo(pad, ox);
-        ctx.lineTo(w - pad, ox);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(oy, pad);
-        ctx.lineTo(oy, h - pad);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
 
-        ctx.strokeStyle = '#f87171';
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = c.asym; ctx.lineWidth = 2.5;
         ctx.setLineDash([8, 5]);
         const asymX = toX(2);
-        ctx.beginPath();
-        ctx.moveTo(asymX, pad);
-        ctx.lineTo(asymX, h - pad);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(asymX, pad); ctx.lineTo(asymX, h - pad); ctx.stroke();
         ctx.setLineDash([]);
-
-        ctx.fillStyle = '#f87171';
-        ctx.font = 'bold 14px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = c.asym; ctx.font = 'bold 14px Inter,sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
         ctx.fillText('x = 2', asymX, pad - 10);
 
-        ctx.strokeStyle = '#34d399';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = c.curve; ctx.lineWidth = 3;
         ctx.beginPath();
         let first = true;
-        const step = 0.015;
+        const step = (xMax - xMin) / 1200;
         for (let x = xMin + 0.02; x <= xMax; x += step) {
-            if (Math.abs(x - 2) < 0.01) { first = true; continue; }
+            if (Math.abs(x - 2) < 0.02) { first = true; continue; }
             const y = 1 / (x - 2);
             if (y < yMin - 3 || y > yMax + 3) { first = true; continue; }
             const sx = toX(x), sy = toY(y);
@@ -987,81 +998,75 @@
     function drawHorizontalAsymptote() {
         const canvas = document.getElementById('graphHorizontal');
         if (!canvas) return;
+        const container = canvas.parentElement;
+        const isLight = document.documentElement.classList.contains('light-mode');
+
+        const baseW = 700, baseH = 380;
+        const cssW = Math.max(280, container.clientWidth - 12);
+        const cssH = Math.round(cssW * baseH / baseW);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+
         const ctx = canvas.getContext('2d');
-        const w = canvas.width, h = canvas.height;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const w = cssW, h = cssH;
         const pad = 45;
         const pw = w - 2 * pad, ph = h - 2 * pad;
         const xMin = -7, xMax = 7, yMin = -5, yMax = 5;
 
-        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
-        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+        const toX = x => pad + (x - xMin) / (xMax - xMin) * pw;
+        const toY = y => h - pad - (y - yMin) / (yMax - yMin) * ph;
 
-        const isLight = document.documentElement.classList.contains('light-mode');
-        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
-        ctx.fillRect(0, 0, w, h);
+        const c = {
+            bg: isLight ? '#fefefe' : '#0f1a24',
+            grid: isLight ? '#dce3ec' : '#2a3a4a',
+            axis: isLight ? '#5b7c9c' : '#8899aa',
+            text: isLight ? '#334155' : '#cbd5e1',
+            curve: '#f87171',
+            asym: '#34d399'
+        };
 
-        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
-        ctx.lineWidth = 0.8;
+        ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = c.grid; ctx.lineWidth = 0.8;
         for (let x = -7; x <= 7; x++) {
             const sx = toX(x);
-            ctx.beginPath();
-            ctx.moveTo(sx, pad);
-            ctx.lineTo(sx, h - pad);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             if (x !== 0) ctx.fillText(x, sx, h - pad + 6);
         }
         for (let y = -5; y <= 5; y++) {
             const sy = toY(y);
-            ctx.beginPath();
-            ctx.moveTo(pad, sy);
-            ctx.lineTo(w - pad, sy);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
             if (y !== 0) ctx.fillText(y, pad - 10, sy);
         }
 
-        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
-        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = c.axis; ctx.lineWidth = 2.2;
         const ox = toY(0), oy = toX(0);
-        ctx.beginPath();
-        ctx.moveTo(pad, ox);
-        ctx.lineTo(w - pad, ox);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(oy, pad);
-        ctx.lineTo(oy, h - pad);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
 
-        ctx.strokeStyle = '#34d399';
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = c.asym; ctx.lineWidth = 2.5;
         ctx.setLineDash([8, 5]);
         const asymY = toY(0);
-        ctx.beginPath();
-        ctx.moveTo(pad, asymY);
-        ctx.lineTo(w - pad, asymY);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pad, asymY); ctx.lineTo(w - pad, asymY); ctx.stroke();
         ctx.setLineDash([]);
-
-        ctx.fillStyle = '#34d399';
-        ctx.font = 'bold 14px sans-serif';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = c.asym; ctx.font = 'bold 14px Inter,sans-serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
         ctx.fillText('y = 0', w - pad - 6, asymY - 6);
 
-        ctx.strokeStyle = '#f87171';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = c.curve; ctx.lineWidth = 3;
         ctx.beginPath();
         let first = true;
-        const step = 0.015;
+        const step = (xMax - xMin) / 1200;
         for (let x = xMin + 0.02; x <= xMax; x += step) {
-            if (Math.abs(x) < 0.01) { first = true; continue; }
+            if (Math.abs(x) < 0.02) { first = true; continue; }
             const y = 1 / x;
             if (y < yMin - 2 || y > yMax + 2) { first = true; continue; }
             const sx = toX(x), sy = toY(y);
@@ -1073,81 +1078,77 @@
     function drawObliqueAsymptote() {
         const canvas = document.getElementById('graphOblique');
         if (!canvas) return;
+        const container = canvas.parentElement;
+        const isLight = document.documentElement.classList.contains('light-mode');
+
+        const baseW = 700, baseH = 380;
+        const cssW = Math.max(280, container.clientWidth - 12);
+        const cssH = Math.round(cssW * baseH / baseW);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+
         const ctx = canvas.getContext('2d');
-        const w = canvas.width, h = canvas.height;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const w = cssW, h = cssH;
         const pad = 45;
         const pw = w - 2 * pad, ph = h - 2 * pad;
         const xMin = -7, xMax = 7, yMin = -9, yMax = 9;
 
-        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
-        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+        const toX = x => pad + (x - xMin) / (xMax - xMin) * pw;
+        const toY = y => h - pad - (y - yMin) / (yMax - yMin) * ph;
 
-        const isLight = document.documentElement.classList.contains('light-mode');
-        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
-        ctx.fillRect(0, 0, w, h);
+        const c = {
+            bg: isLight ? '#fefefe' : '#0f1a24',
+            grid: isLight ? '#dce3ec' : '#2a3a4a',
+            axis: isLight ? '#5b7c9c' : '#8899aa',
+            text: isLight ? '#334155' : '#cbd5e1',
+            curve: '#a78bfa',
+            asym: '#a78bfa'
+        };
 
-        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
-        ctx.lineWidth = 0.8;
+        ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = c.grid; ctx.lineWidth = 0.8;
         for (let x = -7; x <= 7; x++) {
             const sx = toX(x);
-            ctx.beginPath();
-            ctx.moveTo(sx, pad);
-            ctx.lineTo(sx, h - pad);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             if (x !== 0) ctx.fillText(x, sx, h - pad + 6);
         }
         for (let y = -9; y <= 9; y++) {
             const sy = toY(y);
-            ctx.beginPath();
-            ctx.moveTo(pad, sy);
-            ctx.lineTo(w - pad, sy);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
             if (y !== 0) ctx.fillText(y, pad - 10, sy);
         }
 
-        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
-        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = c.axis; ctx.lineWidth = 2.2;
         const ox = toY(0), oy = toX(0);
-        ctx.beginPath();
-        ctx.moveTo(pad, ox);
-        ctx.lineTo(w - pad, ox);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(oy, pad);
-        ctx.lineTo(oy, h - pad);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
 
-        ctx.strokeStyle = '#fbbf24';
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = c.asym; ctx.lineWidth = 2.5;
         ctx.setLineDash([8, 5]);
-        const asymStartX = -6, asymEndX = 6;
         ctx.beginPath();
-        ctx.moveTo(toX(asymStartX), toY(asymStartX));
-        ctx.lineTo(toX(asymEndX), toY(asymEndX));
+        ctx.moveTo(toX(-6), toY(-6));
+        ctx.lineTo(toX(6), toY(6));
         ctx.stroke();
         ctx.setLineDash([]);
-
-        ctx.fillStyle = '#fbbf24';
-        ctx.font = 'bold 14px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = c.asym; ctx.font = 'bold 14px Inter,sans-serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText('y = x', toX(3.5), toY(3.5) - 8);
 
-        ctx.strokeStyle = '#a78bfa';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = c.curve; ctx.lineWidth = 3;
         ctx.beginPath();
         let first = true;
-        const step = 0.015;
+        const step = (xMax - xMin) / 1200;
         for (let x = xMin + 0.02; x <= xMax; x += step) {
-            if (Math.abs(x) < 0.01) { first = true; continue; }
+            if (Math.abs(x) < 0.02) { first = true; continue; }
             const y = (x * x + 1) / x;
             if (y < yMin - 2 || y > yMax + 2) { first = true; continue; }
             const sx = toX(x), sy = toY(y);
@@ -1159,85 +1160,76 @@
     function drawRootAsymptote() {
         const canvas = document.getElementById('graphRoot');
         if (!canvas) return;
+        const container = canvas.parentElement;
+        const isLight = document.documentElement.classList.contains('light-mode');
+
+        const baseW = 700, baseH = 380;
+        const cssW = Math.max(280, container.clientWidth - 12);
+        const cssH = Math.round(cssW * baseH / baseW);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+
         const ctx = canvas.getContext('2d');
-        const w = canvas.width, h = canvas.height;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const w = cssW, h = cssH;
         const pad = 45;
         const pw = w - 2 * pad, ph = h - 2 * pad;
         const xMin = -7, xMax = 7, yMin = -7, yMax = 7;
 
-        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
-        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+        const toX = x => pad + (x - xMin) / (xMax - xMin) * pw;
+        const toY = y => h - pad - (y - yMin) / (yMax - yMin) * ph;
 
-        const isLight = document.documentElement.classList.contains('light-mode');
-        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
-        ctx.fillRect(0, 0, w, h);
+        const c = {
+            bg: isLight ? '#fefefe' : '#0f1a24',
+            grid: isLight ? '#dce3ec' : '#2a3a4a',
+            axis: isLight ? '#5b7c9c' : '#8899aa',
+            text: isLight ? '#334155' : '#cbd5e1',
+            curve: '#a78bfa',
+            asym: '#a78bfa'
+        };
 
-        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
-        ctx.lineWidth = 0.8;
+        ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = c.grid; ctx.lineWidth = 0.8;
         for (let x = -7; x <= 7; x++) {
             const sx = toX(x);
-            ctx.beginPath();
-            ctx.moveTo(sx, pad);
-            ctx.lineTo(sx, h - pad);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             if (x !== 0) ctx.fillText(x, sx, h - pad + 6);
         }
         for (let y = -7; y <= 7; y++) {
             const sy = toY(y);
-            ctx.beginPath();
-            ctx.moveTo(pad, sy);
-            ctx.lineTo(w - pad, sy);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
             if (y !== 0) ctx.fillText(y, pad - 10, sy);
         }
 
-        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
-        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = c.axis; ctx.lineWidth = 2.2;
         const ox = toY(0), oy = toX(0);
-        ctx.beginPath();
-        ctx.moveTo(pad, ox);
-        ctx.lineTo(w - pad, ox);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(oy, pad);
-        ctx.lineTo(oy, h - pad);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
 
-        ctx.strokeStyle = '#fbbf24';
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = c.asym; ctx.lineWidth = 2.5;
         ctx.setLineDash([8, 5]);
-        ctx.beginPath();
-        ctx.moveTo(toX(0), toY(0));
-        ctx.lineTo(toX(6), toY(6));
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(toX(0), toY(0));
-        ctx.lineTo(toX(-6), toY(6));
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(toX(0), toY(0)); ctx.lineTo(toX(6), toY(6)); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(toX(0), toY(0)); ctx.lineTo(toX(-6), toY(6)); ctx.stroke();
         ctx.setLineDash([]);
 
-        ctx.fillStyle = '#fbbf24';
-        ctx.font = 'bold 14px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('y = x', toX(4.5), toY(4.5) - 8);
+        ctx.fillStyle = c.asym; ctx.font = 'bold 14px Inter,sans-serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('y = x', toX(4.2), toY(4.2) - 8);
         ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('y = -x', toX(-4.5), toY(4.5) - 8);
+        ctx.fillText('y = -x', toX(-4.2), toY(4.2) - 8);
 
-        ctx.strokeStyle = '#a78bfa';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = c.curve; ctx.lineWidth = 3;
         ctx.beginPath();
         let first = true;
-        const step = 0.015;
+        const step = (xMax - xMin) / 1200;
         for (let x = xMin + 0.02; x <= xMax; x += step) {
             const y = Math.sqrt(x * x + 1);
             if (y < yMin - 1 || y > yMax + 1) { first = true; continue; }
@@ -1254,7 +1246,30 @@
         drawRootAsymptote();
     }
 
-    drawAllGraphs();
+    function initGraphs() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', drawAllGraphs);
+        } else {
+            drawAllGraphs();
+        }
+        window.addEventListener('load', drawAllGraphs);
+        setTimeout(drawAllGraphs, 1500);
+        setTimeout(drawAllGraphs, 3000);
+    }
+
+    initGraphs();
+
+    window.drawAllGraphs = drawAllGraphs;
+    window.addEventListener('resize', drawAllGraphs);
+
+    var observer = new MutationObserver(function () { drawAllGraphs(); });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
 </script>
 <script src="favorites.js"></script>
 <script src="theme.js"></script>

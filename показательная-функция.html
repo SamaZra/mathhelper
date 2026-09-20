@@ -87,13 +87,7 @@
     <script>
         MathJax = {
             tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
-            chtml: { scale: 1.0, displayAlign: 'center' },
-            startup: {
-                ready() {
-                    MathJax.startup.defaultReady();
-                    MathJax.startup.promise.then(() => setTimeout(drawAllGraphs, 300));
-                }
-            }
+            chtml: { scale: 1.0, displayAlign: 'center' }
         };
     </script>
     <script src="mathjax/es5/tex-chtml.js" async></script>
@@ -306,42 +300,42 @@
         </div>
         <div class="section-content">
             <div class="table-scroll">
-<table class="error-table">
-                <thead><tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr></thead>
-                <tbody>
-                <tr>
-                    <td class="wrong">$a^{x+y} = a^x + a^y$</td>
-                    <td>Это грубая ошибка. При умножении степеней с одинаковым основанием показатели складываются, а не значения.</td>
-                    <td class="right">$a^{x+y} = a^x \cdot a^y$</td>
-                </tr>
-                <tr>
-                    <td class="wrong">$(a^x)^y = a^{x+y}$</td>
-                    <td>При возведении степени в степень показатели перемножаются.</td>
-                    <td class="right">$(a^x)^y = a^{xy}$</td>
-                </tr>
-                <tr>
-                    <td class="wrong">Считают, что $a^x$ может быть отрицательной</td>
-                    <td>При $a > 0$ степень $a^x$ всегда положительна для любого $x$.</td>
-                    <td class="right">Область значений: $(0; +\infty)$</td>
-                </tr>
-                <tr>
-                    <td class="wrong">Забывают поменять знак при $0 < a < 1$</td>
-                    <td>Функция убывает, поэтому в неравенствах знак переворачивается.</td>
-                    <td class="right">$0 < a < 1$: $a^{f} > a^{g} \Rightarrow f < g$</td>
-                </tr>
-                <tr>
-                    <td class="wrong">$(-2)^x$ считают показательной функцией</td>
-                    <td>Отрицательное основание недопустимо: при дробных $x$ выражение становится комплексным.</td>
-                    <td class="right">Требование: $a > 0$, $a \neq 1$</td>
-                </tr>
-                <tr>
-                    <td class="wrong">Сравнивают $2^x$ и $x^2$ как «похожие»</td>
-                    <td>Это разные функции. Показательная растёт быстрее любой степени при больших $x$.</td>
-                    <td class="right">Различать типы роста</td>
-                </tr>
-                </tbody>
-            </table>
-</div>
+                <table class="error-table">
+                    <thead><tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr></thead>
+                    <tbody>
+                    <tr>
+                        <td class="wrong">$a^{x+y} = a^x + a^y$</td>
+                        <td>Это грубая ошибка. При умножении степеней с одинаковым основанием показатели складываются, а не значения.</td>
+                        <td class="right">$a^{x+y} = a^x \cdot a^y$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">$(a^x)^y = a^{x+y}$</td>
+                        <td>При возведении степени в степень показатели перемножаются.</td>
+                        <td class="right">$(a^x)^y = a^{xy}$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Считают, что $a^x$ может быть отрицательной</td>
+                        <td>При $a > 0$ степень $a^x$ всегда положительна для любого $x$.</td>
+                        <td class="right">Область значений: $(0; +\infty)$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Забывают поменять знак при $0 < a < 1$</td>
+                        <td>Функция убывает, поэтому в неравенствах знак переворачивается.</td>
+                        <td class="right">$0 < a < 1$: $a^{f} > a^{g} \Rightarrow f < g$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">$(-2)^x$ считают показательной функцией</td>
+                        <td>Отрицательное основание недопустимо: при дробных $x$ выражение становится комплексным.</td>
+                        <td class="right">Требование: $a > 0$, $a \neq 1$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Сравнивают $2^x$ и $x^2$ как «похожие»</td>
+                        <td>Это разные функции. Показательная растёт быстрее любой степени при больших $x$.</td>
+                        <td class="right">Различать типы роста</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -376,18 +370,9 @@
 </div>
 
 <script>
-     else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
-        }
-        drawAllGraphs();
-        if (window.MathJax) MathJax.typesetPromise();
-    }
     (function () {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            document.getElementById('themeBtn').textContent = '☀️';
         }
     })();
 
@@ -488,40 +473,27 @@
         ], -3, 5, -3, 5);
     }
 
-    window.addEventListener('load', () => {
-        if (window.MathJax && MathJax.startup) {
-            MathJax.startup.promise.then(() => setTimeout(drawAllGraphs, 300));
+    function initGraphs() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', drawAllGraphs);
         } else {
-            setTimeout(drawAllGraphs, 1500);
+            drawAllGraphs();
         }
-    });
+        window.addEventListener('load', drawAllGraphs);
+        setTimeout(drawAllGraphs, 1500);
+        setTimeout(drawAllGraphs, 3000);
+    }
+
+    initGraphs();
+
+    // Экспорт для theme.js
+    window.drawAllGraphs = drawAllGraphs;
 
     let resizeTimer;
     window.addEventListener('resize', function() {
         if (resizeTimer) clearTimeout(resizeTimer);
         resizeTimer = setTimeout(drawAllGraphs, 200);
     });
-
-    const FAV_KEY = 'math_favorites';
-    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
-    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
-    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
-    function toggleFavorite() {
-        const u = window.location.pathname.split('/').pop();
-        let f = getFavorites();
-        const btn = document.getElementById('favoriteBtn');
-        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
-        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
-        saveFavorites(f);
-    }
-    function updateFavoriteBtn() {
-        const btn = document.getElementById('favoriteBtn');
-        if (btn) {
-            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
-            else { btn.textContent = '☆'; btn.classList.remove('active'); }
-        }
-    }
-    updateFavoriteBtn();
 </script>
 <script src="favorites.js"></script>
 <script src="theme.js"></script>

@@ -133,6 +133,7 @@
 </head>
 <body>
 <div class="container">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>📏 Перпендикулярные прямые в пространстве</h1>
 
     <!-- Лемма о перпендикулярности -->
@@ -188,11 +189,7 @@
     }
 
     const qualitySettings = {
-        low: {
-            segments: 24,
-            opacity: 0.85,
-            transparent: false
-        },
+        low:    { segments: 24, opacity: 1.0,  transparent: false },
         medium: {
             segments: 48,
             opacity: 0.65,
@@ -208,16 +205,12 @@
     const settings = qualitySettings[quality3D];
     // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
 
-     else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
-        }
-    }
-    (function() {
+     
+    (function initTheme() {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            document.getElementById('themeBtn').textContent = '☀️';
+            const btn = document.getElementById('themeBtn');
+            if (btn) btn.textContent = '☀️';
         }
     })();
 
@@ -231,7 +224,7 @@
             div.textContent = text;
             div.style.color = color;
             div.style.fontSize = fontSize;
-            div.style.fontWeight = 'bold';
+
             div.style.fontFamily = "'JetBrains Mono', monospace";
             div.style.background = 'rgba(10, 15, 26, 0.8)';
             div.style.padding = '2px 8px';
@@ -417,7 +410,7 @@
             scene.add(cLine);
 
             const pointA = new THREE.Mesh(
-                new THREE.SphereGeometry(0.07, 32, 32),
+                new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
                 new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 })
             );
             pointA.position.copy(pointA_pos);
@@ -482,7 +475,7 @@
             scene.add(cLine);
 
             const pointA = new THREE.Mesh(
-                new THREE.SphereGeometry(0.07, 32, 32),
+                new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
                 new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 })
             );
             pointA.position.copy(pointA_pos);
@@ -546,7 +539,7 @@
             scene.add(b2Line);
 
             const pointA = new THREE.Mesh(
-                new THREE.SphereGeometry(0.07, 32, 32),
+                new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
                 new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 })
             );
             pointA.position.copy(pointA_pos);

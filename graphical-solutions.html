@@ -112,7 +112,6 @@
         }
     </style>
 
-    <!-- MathJax — локальное подключение -->
     <script>
         MathJax = {
             tex: {
@@ -127,13 +126,6 @@
             chtml: {
                 scale: 1.1,
                 displayAlign: 'center'
-            },
-            startup: {
-                pageReady: () => {
-                    return MathJax.startup.defaultPageReady().then(() => {
-                        setTimeout(drawAllGraphs, 400);
-                    });
-                }
             }
         };
     </script>
@@ -568,8 +560,8 @@
         const xMin = data.xMin, xMax = data.xMax;
         const yMin = data.yMin, yMax = data.yMax;
         const tablePoints = data.tablePoints || [];
-        const totalDuration = 10; // 10 секунд всего
-        const stageDuration = totalDuration / 5; // 2 секунды на этап
+        const totalDuration = 10;
+        const stageDuration = totalDuration / 5;
 
         function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
         function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
@@ -787,7 +779,7 @@
     // ===== АНИМАЦИЯ =====
     function animateGraph(canvasId, dataIndex) {
         let progress = 0;
-        const duration = 10000; // 10 секунд
+        const duration = 10000;
         const startTime = Date.now();
 
         if (animationId) {
@@ -824,54 +816,35 @@
         }
     }
 
-    // ===== ТЕМА =====
-     else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    function initAll() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                drawAllGraphs();
+            });
+        } else {
+            drawAllGraphs();
         }
-        drawAllGraphs();
-        updateLegendColors();
+        window.addEventListener('load', drawAllGraphs);
+        setTimeout(drawAllGraphs, 1500);
+        setTimeout(drawAllGraphs, 3000);
     }
 
-    function updateLegendColors() {
-        const isLight = document.documentElement.classList.contains('light-mode');
-        const legend = document.querySelector('.legend');
-        if (legend) legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
-    }
+    initAll();
 
-    (function() {
+    // ===== ЭКСПОРТ ДЛЯ theme.js =====
+    window.drawAllGraphs = drawAllGraphs;
+
+    // ===== ТЕМА =====
+    (function () {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            document.getElementById('themeBtn').textContent = '☀️';
         }
-        setTimeout(updateLegendColors, 100);
-        setTimeout(drawAllGraphs, 500);
     })();
 
-    // ===== ИЗБРАННОЕ =====
-    const FAV_KEY = 'math_favorites';
-    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
-    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
-    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
-    function toggleFavorite() {
-        const u = window.location.pathname.split('/').pop();
-        let f = getFavorites();
-        const btn = document.getElementById('favoriteBtn');
-        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
-        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
-        saveFavorites(f);
-    }
-    function updateFavoriteBtn() {
-        const btn = document.getElementById('favoriteBtn');
-        if (btn) {
-            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
-            else { btn.textContent = '☆'; btn.classList.remove('active'); }
-        }
-    }
-    updateFavoriteBtn();
-
-    window.addEventListener('resize', () => { drawAllGraphs(); });
+    window.addEventListener('resize', function() {
+        drawAllGraphs();
+    });
 </script>
 <script src="favorites.js"></script>
 <script src="theme.js"></script>

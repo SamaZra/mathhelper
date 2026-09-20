@@ -393,7 +393,7 @@
         </div>
     </div>
 
-    <a href="index.html" class="back-link">← Назад к главному меню</a>
+    <a href="methods-equations-inequalities.html" class="back-link">← Назад </a>
 </div>
 
 <script>
@@ -549,11 +549,6 @@
     }
 
     // ===== ТЕМА =====
-     else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
-        }
         updateLegendColors();
         const a = parseFloat(slider.value);
         drawViz(a);
@@ -568,35 +563,12 @@
     (function() {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            document.getElementById('themeBtn').textContent = '☀️';
+            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
         }
         setTimeout(updateLegendColors, 100);
         setTimeout(() => drawViz(1), 400);
     })();
-
-    // ===== ИЗБРАННОЕ =====
-    const FAV_KEY = 'math_favorites';
-    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
-    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
-    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
-    function toggleFavorite() {
-        const u = window.location.pathname.split('/').pop();
-        let f = getFavorites();
-        const btn = document.getElementById('favoriteBtn');
-        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
-        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
-        saveFavorites(f);
-    }
-    function updateFavoriteBtn() {
-        const btn = document.getElementById('favoriteBtn');
-        if (btn) {
-            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
-            else { btn.textContent = '☆'; btn.classList.remove('active'); }
-        }
-    }
-    updateFavoriteBtn();
-
-    window.addEventListener('resize', () => {
+window.addEventListener('resize', () => {
         const a = parseFloat(slider.value);
         drawViz(a);
     });

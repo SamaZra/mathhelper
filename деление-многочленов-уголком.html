@@ -57,11 +57,11 @@
         .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
         .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
         .section{margin-bottom:14px;}
-        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--info-border);padding-left:12px;text-align:center;cursor:pointer;user-select:none;}
+        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--info-border);padding-left:12px;text-align:center;cursor:pointer;user-select:none;position:relative;}
         .section-title:hover{opacity:0.8;}
         .section-title .main-title{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;color:var(--text);}
         .section-title .sub-title{font-size:0.85rem;color:var(--text-secondary);font-weight:400;font-style:italic;margin-top:2px;}
-        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);position:absolute;right:12px;}
         .section.collapsed .section-title::after{transform:rotate(-90deg);}
         .section-content{max-height:10000px;overflow:hidden;transition:max-height 0.4s ease;}
         .section.collapsed .section-content{max-height:0;}
@@ -94,7 +94,7 @@
         .calc-input label{display:block;color:var(--text-secondary);font-size:0.75rem;margin-bottom:4px;text-align:center;}
         .calc-input input{width:100%;padding:10px 12px;background:var(--calc-input-bg);border:1px solid var(--border);border-radius:12px;font-size:0.95rem;color:var(--text);text-align:center;outline:none;}
         .calc-input input:focus{border-color:var(--accent);}
-        .calc-btn{display:block;width:100%;max-width:300px;margin:0 auto 16px;background:var(--accent);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:1rem;font-weight:600;cursor:pointer;}
+        .calc-btn{display:block;width:100%;max-width:300px;margin:0 auto 16px;background:var(--accent);color:white;border:none;padding:12px 24px;border-radius:40px;font-size:1rem;font-weight:600;cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;}
         .calc-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(26,188,156,0.3);}
         .calc-btn:active{transform:scale(0.97);}
         .calc-result{background:var(--bg);border-radius:16px;padding:12px 16px;text-align:center;border:1px solid var(--border);}
@@ -143,7 +143,8 @@
         }
 
         @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
-        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+        .header{animation:fadeInUp 0.4s ease-out;}
+        .content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
     </style>
     <script>
         MathJax = {
@@ -319,7 +320,7 @@
             </div>
         </div>
 
-        <!-- ===== КАЛЬКУЛЯТОР (только ответ) ===== -->
+        <!-- ===== КАЛЬКУЛЯТОР ===== -->
         <div class="calc-card">
             <div class="calc-title">🧮 Калькулятор</div>
             <div style="color:var(--text-secondary);font-size:0.85rem;text-align:center;margin-bottom:12px;">
@@ -352,317 +353,349 @@
 </div>
 
 <script>
-    // ===== ИЗБРАННОЕ =====
-    const FAV_KEY = 'math_favorites';
-    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
-    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
-    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
-    function toggleFavorite() {
-        const u = window.location.pathname.split('/').pop();
-        let f = getFavorites();
-        const btn = document.getElementById('favoriteBtn');
-        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
-        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
-        saveFavorites(f);
-    }
-    function updateFavoriteBtn() {
-        const btn = document.getElementById('favoriteBtn');
-        if (btn) { btn.textContent = isFavorite() ? '★' : '☆'; if (isFavorite()) btn.classList.add('active'); else btn.classList.remove('active'); }
-    }
+    (function () {
+        'use strict';
 
-    // ===== ТЕМА =====
-     else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
-        }
-        setTimeout(function() { drawAll(); }, 300);
-    }
+        /* ============================================================
+           КАНВАС: адаптивный + DPR + перерисовка при resize/теме
+           Логическая система координат остаётся 1200×600 / 1200×540,
+           поэтому координаты в drawDivisionCanvas не меняются.
+        ============================================================ */
 
-    (function() {
-        if (localStorage.getItem('mathTheme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            document.getElementById('themeBtn').textContent = '☀️';
-        }
-        updateFavoriteBtn();
-    })();
+        function drawDivisionCanvas(canvasId, dividend, divisor, quotient, steps, logicalHeight) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
 
-    // ===== РИСОВАНИЕ (УВЕЛИЧЕНО) =====
-    function drawDivisionCanvas(canvasId, dividend, divisor, quotient, steps, height) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width, h = height || 540;
+            const wrapper = canvas.parentElement;
+            const logicalW = 1200;
+            const logicalH = logicalHeight || 540;
 
-        const isLight = document.documentElement.classList.contains('light-mode');
-        const bgColor = isLight ? '#f8fafc' : '#162a38';
-        const textColor = isLight ? '#1a2a3f' : '#ffffff';
-        const textSecondary = isLight ? '#5a7a94' : '#8ba5b8';
-        const quotientColor = '#34d399';
-        const divisorColor = '#60a5fa';
-        const subColor = '#fbbf24';
-        const remainderColor = '#f87171';
+            // ширина, которую занимает canvas в CSS
+            const cssW = Math.max(280, wrapper.clientWidth - 24); // минус padding wrapper
+            const cssH = Math.round(cssW * logicalH / logicalW);
+            const dpr = window.devicePixelRatio || 1;
 
-        ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = bgColor;
-        ctx.fillRect(0, 0, w, h);
+            canvas.width = Math.round(cssW * dpr);
+            canvas.height = Math.round(cssH * dpr);
+            canvas.style.width = cssW + 'px';
+            canvas.style.height = cssH + 'px';
 
-        // Увеличенные параметры
-        const leftX = 60;
-        const vertX = 480;
-        const topY = 25;
-        const lineHeight = 50;
-        const fontSize = 36;
+            const ctx = canvas.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-        ctx.textBaseline = 'top';
-        ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
+            // дальше рисуем в логических координатах logicalW × logicalH
+            const w = logicalW, h = logicalH;
 
-        ctx.fillStyle = textColor;
-        ctx.textAlign = 'left';
-        ctx.fillText(dividend, leftX, topY);
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const bgColor = isLight ? '#f8fafc' : '#162a38';
+            const textColor = isLight ? '#1a2a3f' : '#ffffff';
+            const textSecondary = isLight ? '#5a7a94' : '#8ba5b8';
+            const quotientColor = '#34d399';
+            const divisorColor = '#60a5fa';
+            const subColor = '#fbbf24';
+            const remainderColor = '#f87171';
 
-        ctx.strokeStyle = textColor;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(vertX, topY - 4);
-        ctx.lineTo(vertX, topY + lineHeight * 2 + 24);
-        ctx.stroke();
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, w, h);
 
-        ctx.fillStyle = divisorColor;
-        ctx.textAlign = 'left';
-        ctx.fillText(divisor, vertX + 14, topY);
+            const leftX = 60;
+            const vertX = 480;
+            const topY = 25;
+            const lineHeight = 50;
+            const fontSize = 36;
 
-        const divisorWidth = ctx.measureText(divisor).width;
-        ctx.strokeStyle = textColor;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(vertX + 10, topY + lineHeight + 4);
-        ctx.lineTo(vertX + 14 + divisorWidth + 34, topY + lineHeight + 4);
-        ctx.stroke();
+            ctx.textBaseline = 'top';
+            ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
 
-        ctx.fillStyle = quotientColor;
-        ctx.textAlign = 'left';
-        ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
-        ctx.fillText(quotient, vertX + 14, topY + lineHeight + 16);
-
-        let currentY = topY + lineHeight + 16;
-
-        for (let i = 0; i < steps.length; i++) {
-            const step = steps[i];
-            const isSub = step.type === 'sub';
-            const isLine = step.type === 'line';
-            const isRemainder = step.type === 'remainder';
-            const offset = step.offset || 0;
-
+            ctx.fillStyle = textColor;
             ctx.textAlign = 'left';
+            ctx.fillText(dividend, leftX, topY);
 
-            if (isLine) {
-                ctx.fillStyle = textSecondary;
-                ctx.font = fontSize + 'px Courier New, monospace';
+            ctx.strokeStyle = textColor;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(vertX, topY - 4);
+            ctx.lineTo(vertX, topY + lineHeight * 2 + 24);
+            ctx.stroke();
+
+            ctx.fillStyle = divisorColor;
+            ctx.textAlign = 'left';
+            ctx.fillText(divisor, vertX + 14, topY);
+
+            const divisorWidth = ctx.measureText(divisor).width;
+            ctx.strokeStyle = textColor;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(vertX + 10, topY + lineHeight + 4);
+            ctx.lineTo(vertX + 14 + divisorWidth + 34, topY + lineHeight + 4);
+            ctx.stroke();
+
+            ctx.fillStyle = quotientColor;
+            ctx.textAlign = 'left';
+            ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
+            ctx.fillText(quotient, vertX + 14, topY + lineHeight + 16);
+
+            let currentY = topY + lineHeight + 16;
+
+            for (let i = 0; i < steps.length; i++) {
+                const step = steps[i];
+                const isSub = step.type === 'sub';
+                const isLine = step.type === 'line';
+                const isRemainder = step.type === 'remainder';
+                const offset = step.offset || 0;
+
+                ctx.textAlign = 'left';
+
+                if (isLine) {
+                    ctx.fillStyle = textSecondary;
+                    ctx.font = fontSize + 'px Courier New, monospace';
+                    ctx.fillText(step.text, leftX + offset, currentY);
+                    currentY += lineHeight;
+                    continue;
+                }
+
+                if (isRemainder) {
+                    ctx.fillStyle = remainderColor;
+                    ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
+                } else if (isSub) {
+                    ctx.fillStyle = subColor;
+                    ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
+                } else {
+                    ctx.fillStyle = textColor;
+                    ctx.font = fontSize + 'px Courier New, monospace';
+                }
+
                 ctx.fillText(step.text, leftX + offset, currentY);
                 currentY += lineHeight;
-                continue;
+            }
+        }
+
+        function drawExample1() {
+            drawDivisionCanvas('divisionCanvas1',
+                '2x³ + 3x² − 5x + 1',
+                'x − 2',
+                '2x² + 7x + 9',
+                [
+                    { text: '2x³ − 4x²',   type: 'sub', offset: 0 },
+                    { text: '────────────', type: 'line', offset: 0 },
+                    { text: '    7x² − 5x', type: 'normal', offset: 28 },
+                    { text: '    7x² − 14x', type: 'sub', offset: 28 },
+                    { text: '    ────────────', type: 'line', offset: 24 },
+                    { text: '         9x + 1', type: 'normal', offset: 60 },
+                    { text: '         9x − 18', type: 'sub', offset: 60 },
+                    { text: '         ──────', type: 'line', offset: 60 },
+                    { text: '              19', type: 'remainder', offset: 60 }
+                ],
+                600
+            );
+        }
+
+        function drawExample2() {
+            drawDivisionCanvas('divisionCanvas2',
+                'x³ − 2x² − 5x + 6',
+                'x − 3',
+                'x² + x − 2',
+                [
+                    { text: 'x³ − 3x²',   type: 'sub', offset: 0 },
+                    { text: '────────────', type: 'line', offset: 0 },
+                    { text: '    x² − 5x', type: 'normal', offset: 24 },
+                    { text: '    x² − 3x', type: 'sub', offset: 24 },
+                    { text: '   ────────────', type: 'line', offset: 20 },
+                    { text: '        -2x + 6', type: 'normal', offset: 52 },
+                    { text: '        -2x + 6', type: 'sub', offset: 52 },
+                    { text: '       ──────', type: 'line', offset: 52 },
+                    { text: '            0', type: 'remainder', offset: 52 }
+                ],
+                540
+            );
+        }
+
+        function drawAll() {
+            drawExample1();
+            drawExample2();
+        }
+
+        // ===== КАЛЬКУЛЯТОР — ТОЛЬКО ОТВЕТ =====
+        function polynomialDivision() {
+            const dividendInput = document.getElementById('dividendCoeffs').value.trim();
+            const divisorInput = document.getElementById('divisorCoeffs').value.trim();
+            const resultDiv = document.getElementById('calcResultData');
+
+            if (!dividendInput || !divisorInput) {
+                resultDiv.innerHTML = '❌ Введите коэффициенты обоих многочленов!';
+                return;
             }
 
-            if (isRemainder) {
-                ctx.fillStyle = remainderColor;
-                ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
-            } else if (isSub) {
-                ctx.fillStyle = subColor;
-                ctx.font = 'bold ' + fontSize + 'px Courier New, monospace';
-            } else {
-                ctx.fillStyle = textColor;
-                ctx.font = fontSize + 'px Courier New, monospace';
+            const dividend = dividendInput.split(',').map(s => { const v = parseFloat(s.trim()); return isNaN(v) ? 0 : v; });
+            const divisor = divisorInput.split(',').map(s => { const v = parseFloat(s.trim()); return isNaN(v) ? 0 : v; });
+
+            if (dividend.length === 0 || divisor.length === 0 || dividend.every(c => c === 0) || divisor.every(c => c === 0)) {
+                resultDiv.innerHTML = '❌ Введите корректные коэффициенты (числа через запятую)';
+                return;
             }
 
-            ctx.fillText(step.text, leftX + offset, currentY);
-            currentY += lineHeight;
-        }
-    }
+            while (dividend.length > 1 && Math.abs(dividend[0]) < 1e-10) dividend.shift();
+            while (divisor.length > 1 && Math.abs(divisor[0]) < 1e-10) divisor.shift();
 
-    function drawExample1() {
-        drawDivisionCanvas('divisionCanvas1',
-            '2x³ + 3x² − 5x + 1',
-            'x − 2',
-            '2x² + 7x + 9',
-            [
-                { text: '2x³ − 4x²',   type: 'sub', offset: 0 },
-                { text: '────────────', type: 'line', offset: 0 },
-                { text: '    7x² − 5x', type: 'normal', offset: 28 },
-                { text: '    7x² − 14x', type: 'sub', offset: 28 },
-                { text: '    ────────────', type: 'line', offset: 24 },
-                { text: '         9x + 1', type: 'normal', offset: 60 },
-                { text: '         9x − 18', type: 'sub', offset: 60 },
-                { text: '         ──────', type: 'line', offset: 60 },
-                { text: '              19', type: 'remainder', offset: 60 }
-            ],
-            600
-        );
-    }
+            if (divisor.length === 0 || divisor.every(c => c === 0)) {
+                resultDiv.innerHTML = '❌ Делитель не может быть нулевым!';
+                return;
+            }
 
-    function drawExample2() {
-        drawDivisionCanvas('divisionCanvas2',
-            'x³ − 2x² − 5x + 6',
-            'x − 3',
-            'x² + x − 2',
-            [
-                { text: 'x³ − 3x²',   type: 'sub', offset: 0 },
-                { text: '────────────', type: 'line', offset: 0 },
-                { text: '    x² − 5x', type: 'normal', offset: 24 },
-                { text: '    x² − 3x', type: 'sub', offset: 24 },
-                { text: '   ────────────', type: 'line', offset: 20 },
-                { text: '        -2x + 6', type: 'normal', offset: 52 },
-                { text: '        -2x + 6', type: 'sub', offset: 52 },
-                { text: '       ──────', type: 'line', offset: 52 },
-                { text: '            0', type: 'remainder', offset: 52 }
-            ],
-            540
-        );
-    }
+            let remainder = [...dividend];
+            const quotient = [];
+            const divisorDegree = divisor.length - 1;
+            const divisorLeading = divisor[0];
 
-    function drawAll() {
-        drawExample1();
-        drawExample2();
-    }
+            while (remainder.length - 1 >= divisorDegree && remainder.length > 0 && Math.abs(remainder[0]) > 1e-10) {
+                const coeff = remainder[0] / divisorLeading;
+                quotient.push(coeff);
 
-    // ===== КАЛЬКУЛЯТОР — ТОЛЬКО ОТВЕТ =====
-    function polynomialDivision() {
-        const dividendInput = document.getElementById('dividendCoeffs').value.trim();
-        const divisorInput = document.getElementById('divisorCoeffs').value.trim();
-        const resultDiv = document.getElementById('calcResultData');
+                for (let i = 0; i < divisor.length; i++) {
+                    if (i < remainder.length) {
+                        remainder[i] -= coeff * divisor[i];
+                    }
+                }
 
-        if (!dividendInput || !divisorInput) {
-            resultDiv.innerHTML = '❌ Введите коэффициенты обоих многочленов!';
-            return;
-        }
-
-        const dividend = dividendInput.split(',').map(s => { const v = parseFloat(s.trim()); return isNaN(v) ? 0 : v; });
-        const divisor = divisorInput.split(',').map(s => { const v = parseFloat(s.trim()); return isNaN(v) ? 0 : v; });
-
-        if (dividend.length === 0 || divisor.length === 0 || dividend.every(c => c === 0) || divisor.every(c => c === 0)) {
-            resultDiv.innerHTML = '❌ Введите корректные коэффициенты (числа через запятую)';
-            return;
-        }
-
-        while (dividend.length > 1 && Math.abs(dividend[0]) < 1e-10) dividend.shift();
-        while (divisor.length > 1 && Math.abs(divisor[0]) < 1e-10) divisor.shift();
-
-        if (divisor.length === 0 || divisor.every(c => c === 0)) {
-            resultDiv.innerHTML = '❌ Делитель не может быть нулевым!';
-            return;
-        }
-
-        let remainder = [...dividend];
-        const quotient = [];
-        const divisorDegree = divisor.length - 1;
-        const divisorLeading = divisor[0];
-
-        while (remainder.length - 1 >= divisorDegree && remainder.length > 0 && Math.abs(remainder[0]) > 1e-10) {
-            const coeff = remainder[0] / divisorLeading;
-            quotient.push(coeff);
-
-            for (let i = 0; i < divisor.length; i++) {
-                if (i < remainder.length) {
-                    remainder[i] -= coeff * divisor[i];
+                while (remainder.length > 1 && Math.abs(remainder[0]) < 1e-10) {
+                    remainder.shift();
                 }
             }
 
-            while (remainder.length > 1 && Math.abs(remainder[0]) < 1e-10) {
-                remainder.shift();
+            if (quotient.length === 0) {
+                resultDiv.innerHTML = 'Частное: 0<br>Остаток: ' + formatPoly(dividend);
+                typesetSafe();
+                return;
             }
-        }
 
-        if (quotient.length === 0) {
-            resultDiv.innerHTML = 'Частное: 0<br>Остаток: ' + formatPoly(dividend);
-            if (window.MathJax) MathJax.typesetPromise();
-            return;
-        }
+            const roundedQuotient = quotient.map(c => Math.round(c * 10000) / 10000);
+            const roundedRemainder = remainder.map(c => Math.round(c * 10000) / 10000);
 
-        const roundedQuotient = quotient.map(c => Math.round(c * 10000) / 10000);
-        const roundedRemainder = remainder.map(c => Math.round(c * 10000) / 10000);
+            const quotientStr = formatPoly(roundedQuotient);
+            const remainderStr = (roundedRemainder.length === 1 && Math.abs(roundedRemainder[0]) < 1e-10) ? '0' : formatPoly(roundedRemainder);
+            const dividendStr = formatPoly(dividend);
+            const divisorStr = formatPoly(divisor);
 
-        const quotientStr = formatPoly(roundedQuotient);
-        const remainderStr = (roundedRemainder.length === 1 && Math.abs(roundedRemainder[0]) < 1e-10) ? '0' : formatPoly(roundedRemainder);
-        const dividendStr = formatPoly(dividend);
-        const divisorStr = formatPoly(divisor);
+            let html = '';
 
-        let html = '';
+            html += '<div>';
+            html += '<span style="color:var(--text-secondary);font-weight:400;">Частное: </span>';
+            html += '<span class="quotient">' + quotientStr + '</span>';
+            html += '</div>';
 
-        html += '<div>';
-        html += '<span style="color:var(--text-secondary);font-weight:400;">Частное: </span>';
-        html += '<span class="quotient">' + quotientStr + '</span>';
-        html += '</div>';
-
-        html += '<div>';
-        html += '<span style="color:var(--text-secondary);font-weight:400;">Остаток: </span>';
-        if (remainderStr === '0') {
-            html += '<span class="remainder">0</span>';
-        } else {
-            html += '<span class="remainder">' + remainderStr + '</span>';
-        }
-        html += '</div>';
-
-        if (remainderStr === '0') {
-            html += '<div style="color:var(--result-color);font-size:0.9rem;margin-top:4px;">✅ Деление без остатка</div>';
-        }
-
-        html += '<div style="color:var(--text-secondary);font-size:0.85rem;margin-top:6px;">';
-        html += dividendStr + ' = (' + divisorStr + ')(' + quotientStr + ')';
-        if (remainderStr !== '0') {
-            html += ' + ' + remainderStr;
-        }
-        html += '</div>';
-
-        resultDiv.innerHTML = html;
-
-        if (window.MathJax) {
-            MathJax.typesetPromise();
-        }
-    }
-
-    function formatPoly(coeffs) {
-        if (!coeffs || coeffs.length === 0 || coeffs.every(c => Math.abs(c) < 1e-10)) return '0';
-        const n = coeffs.length;
-        let parts = [];
-        for (let i = 0; i < n; i++) {
-            const coeff = coeffs[i];
-            if (Math.abs(coeff) < 1e-10) continue;
-            const degree = n - i - 1;
-            let term = '';
-            if (degree === 0) {
-                term = String(coeff);
-            } else if (Math.abs(coeff) === 1) {
-                term = (coeff < 0 ? '-' : '') + 'x';
+            html += '<div>';
+            html += '<span style="color:var(--text-secondary);font-weight:400;">Остаток: </span>';
+            if (remainderStr === '0') {
+                html += '<span class="remainder">0</span>';
             } else {
-                term = coeff + 'x';
+                html += '<span class="remainder">' + remainderStr + '</span>';
             }
-            if (degree > 1) term += '^' + degree;
-            parts.push(term);
-        }
-        if (parts.length === 0) return '0';
-        let result = '';
-        for (let i = 0; i < parts.length; i++) {
-            let term = parts[i];
-            if (i === 0) {
-                result = term;
-            } else {
-                if (term.startsWith('-')) result += ' − ' + term.substring(1);
-                else result += ' + ' + term;
-            }
-        }
-        result = result.replace(/(?<!\d)1x/g, 'x').replace(/-1x/g, '-x');
-        result = result.replace(/\+ −/g, '− ');
-        return result;
-    }
+            html += '</div>';
 
-    // ===== ЗАПУСК =====
-    window.addEventListener('load', function() {
-        updateFavoriteBtn();
-        setTimeout(function() {
+            if (remainderStr === '0') {
+                html += '<div style="color:var(--result-color);font-size:0.9rem;margin-top:4px;">✅ Деление без остатка</div>';
+            }
+
+            html += '<div style="color:var(--text-secondary);font-size:0.85rem;margin-top:6px;">';
+            html += dividendStr + ' = (' + divisorStr + ')(' + quotientStr + ')';
+            if (remainderStr !== '0') {
+                html += ' + ' + remainderStr;
+            }
+            html += '</div>';
+
+            resultDiv.innerHTML = html;
+
+            typesetSafe();
+        }
+
+        function typesetSafe() {
+            if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                window.MathJax.typesetPromise().catch(function(){});
+            }
+        }
+
+        function formatPoly(coeffs) {
+            if (!coeffs || coeffs.length === 0 || coeffs.every(c => Math.abs(c) < 1e-10)) return '0';
+            const n = coeffs.length;
+            let parts = [];
+            for (let i = 0; i < n; i++) {
+                const coeff = coeffs[i];
+                if (Math.abs(coeff) < 1e-10) continue;
+                const degree = n - i - 1;
+                let term = '';
+                if (degree === 0) {
+                    term = String(coeff);
+                } else if (Math.abs(coeff) === 1) {
+                    term = (coeff < 0 ? '-' : '') + 'x';
+                } else {
+                    term = coeff + 'x';
+                }
+                if (degree > 1) term += '^' + degree;
+                parts.push(term);
+            }
+            if (parts.length === 0) return '0';
+            let result = '';
+            for (let i = 0; i < parts.length; i++) {
+                let term = parts[i];
+                if (i === 0) {
+                    result = term;
+                } else {
+                    if (term.startsWith('-')) result += ' − ' + term.substring(1);
+                    else result += ' + ' + term;
+                }
+            }
+            // упростим "1x" → "x" и "-1x" → "-x" без lookbehind для совместимости
+            result = result.replace(/(^|[^\d])1x/g, '$1x');
+            result = result.replace(/(^|[^\d])-1x/g, '$1-x');
+            result = result.replace(/\+ −/g, '− ');
+            return result;
+        }
+
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        function initPage() {
             drawAll();
-            setTimeout(polynomialDivision, 300);
-        }, 400);
-    });
+
+            // если favorites.js загружен — обновим кнопку; иначе молча пропустим
+            if (typeof updateFavoriteBtn === 'function') {
+                try { updateFavoriteBtn(); } catch (e) {}
+            }
+
+            // калькулятор — первичный расчёт
+            try { polynomialDivision(); } catch (e) {}
+
+            // перерисовка после загрузки MathJax (чтобы канвас не «прыгал»)
+            setTimeout(drawAll, 400);
+            setTimeout(drawAll, 1500);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPage);
+        } else {
+            initPage();
+        }
+
+        window.addEventListener('load', function () {
+            drawAll();
+            if (typeof updateFavoriteBtn === 'function') {
+                try { updateFavoriteBtn(); } catch (e) {}
+            }
+        });
+
+        window.addEventListener('resize', drawAll);
+
+        // перерисовка при смене темы (light-mode на <html>)
+        var observer = new MutationObserver(function () { drawAll(); });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+        // локальная тема — на случай, если theme.js не сработал
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+
+        // экспорт для inline-обработчика кнопки
+        window.polynomialDivision = polynomialDivision;
+    })();
 </script>
 <script src="favorites.js"></script>
 <script src="theme.js"></script>

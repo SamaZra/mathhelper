@@ -394,42 +394,42 @@
         </div>
         <div class="section-content">
             <div class="table-scroll">
-<table class="error-table">
-                <thead><tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr></thead>
-                <tbody>
-                <tr>
-                    <td class="wrong">Забыли поменять знак при $0 < a < 1$</td>
-                    <td>Функция убывает, поэтому знак неравенства переворачивается.</td>
-                    <td class="right">$0 < a < 1$: $a^f > a^g \Rightarrow f < g$</td>
-                </tr>
-                <tr>
-                    <td class="wrong">$a^{f+g} = a^f + a^g$</td>
-                    <td>Степень суммы не равна сумме степеней.</td>
-                    <td class="right">$a^{f+g} = a^f \cdot a^g$</td>
-                </tr>
-                <tr>
-                    <td class="wrong">Считают $2^{-x}$ невозможным</td>
-                    <td>Отрицательный показатель — это просто дробь: $2^{-x} = \dfrac{1}{2^x}$.</td>
-                    <td class="right">Свойство степени: $a^{-x} = \dfrac{1}{a^x}$</td>
-                </tr>
-                <tr>
-                    <td class="wrong">При замене $t = 2^x$ не пишут $t > 0$</td>
-                    <td>Могут остаться отрицательные корни квадратного неравенства, которые не подходят.</td>
-                    <td class="right">Всегда: $t > 0$</td>
-                </tr>
-                <tr>
-                    <td class="wrong">При делении на $b^x$ забывают, что $b^x > 0$</td>
-                    <td>Деление на положительное число безопасно — знак не меняется.</td>
-                    <td class="right">Отметить: $b^x > 0$, делим смело</td>
-                </tr>
-                <tr>
-                    <td class="wrong">Путают $a^{2x}$ и $(a^x)^2$</td>
-                    <td>Это одно и то же: $a^{2x} = (a^x)^2$. Оба варианта верны.</td>
-                    <td class="right">$a^{2x} = (a^x)^2$</td>
-                </tr>
-                </tbody>
-            </table>
-</div>
+                <table class="error-table">
+                    <thead><tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr></thead>
+                    <tbody>
+                    <tr>
+                        <td class="wrong">Забыли поменять знак при $0 < a < 1$</td>
+                        <td>Функция убывает, поэтому знак неравенства переворачивается.</td>
+                        <td class="right">$0 < a < 1$: $a^f > a^g \Rightarrow f < g$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">$a^{f+g} = a^f + a^g$</td>
+                        <td>Степень суммы не равна сумме степеней.</td>
+                        <td class="right">$a^{f+g} = a^f \cdot a^g$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Считают $2^{-x}$ невозможным</td>
+                        <td>Отрицательный показатель — это просто дробь: $2^{-x} = \dfrac{1}{2^x}$.</td>
+                        <td class="right">Свойство степени: $a^{-x} = \dfrac{1}{a^x}$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">При замене $t = 2^x$ не пишут $t > 0$</td>
+                        <td>Могут остаться отрицательные корни квадратного неравенства, которые не подходят.</td>
+                        <td class="right">Всегда: $t > 0$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">При делении на $b^x$ забывают, что $b^x > 0$</td>
+                        <td>Деление на положительное число безопасно — знак не меняется.</td>
+                        <td class="right">Отметить: $b^x > 0$, делим смело</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Путают $a^{2x}$ и $(a^x)^2$</td>
+                        <td>Это одно и то же: $a^{2x} = (a^x)^2$. Оба варианта верны.</td>
+                        <td class="right">$a^{2x} = (a^x)^2$</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -453,18 +453,9 @@
 </div>
 
 <script>
-     else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
-        }
-        if (window.MathJax) MathJax.typesetPromise();
-        setTimeout(drawAllPlots, 400);
-    }
     (function () {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            document.getElementById('themeBtn').textContent = '☀️';
         }
     })();
 
@@ -585,33 +576,23 @@
         drawParabola('parabola8', [1, 9], 1, 0, 11, -5, 15);
     }
 
-    setTimeout(function () {
-        drawAllPlots();
-        if (window.MathJax) MathJax.typesetPromise();
-    }, 600);
+    function initPlots() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', drawAllPlots);
+        } else {
+            drawAllPlots();
+        }
+        window.addEventListener('load', drawAllPlots);
+        setTimeout(drawAllPlots, 1500);
+        setTimeout(drawAllPlots, 3000);
+    }
+
+    initPlots();
+
+    // Экспорт для theme.js
+    window.drawAllPlots = drawAllPlots;
 
     window.addEventListener('resize', drawAllPlots);
-
-    const FAV_KEY = 'math_favorites';
-    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
-    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
-    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
-    function toggleFavorite() {
-        const u = window.location.pathname.split('/').pop();
-        let f = getFavorites();
-        const btn = document.getElementById('favoriteBtn');
-        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
-        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
-        saveFavorites(f);
-    }
-    function updateFavoriteBtn() {
-        const btn = document.getElementById('favoriteBtn');
-        if (btn) {
-            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
-            else { btn.textContent = '☆'; btn.classList.remove('active'); }
-        }
-    }
-    updateFavoriteBtn();
 </script>
 <script src="favorites.js"></script>
 <script src="theme.js"></script>

@@ -85,19 +85,13 @@
         .light-mode .case-indicator.intersect{background:rgba(20,184,166,0.15);color:#0d9488;}
         .light-mode .case-indicator.tangent{background:rgba(245,158,11,0.12);color:#d97706;}
         .light-mode .case-indicator.none{background:rgba(236,72,154,0.12);color:#db2777;}
-    
     </style>
     <script>
         MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.2},startup:{ready:()=>{MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>{const f=()=>{const l=document.documentElement.classList.contains('light-mode');document.querySelectorAll('mjx-container').forEach(e=>e.style.color=l?'#1a2a3f':'#ffffff');};f();new MutationObserver(f).observe(document.documentElement,{attributes:true,attributeFilter:['class']});});}}};
     </script>
     <script src="mathjax/es5/tex-chtml.js" async></script>
     <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
-            }
-        }
+        {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"}}
     </script>
 </head>
 <body>
@@ -130,7 +124,6 @@
         <div class="section-content"><div class="def-card"><ul class="comp-list"><li>Центр O, радиус \(R = OA\), диаметр \(D = AB = 2R\)</li><li>Поверхность — сфера, объём — шар</li></ul></div></div>
     </div>
 
-    <!-- Взаимное расположение сферы и плоскости с 3D-моделью и рамкой плоскости -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Взаимное расположение сферы и плоскости</div>
         <div class="section-content">
@@ -218,7 +211,7 @@
 </div>
 
 <script>
-    // ========== ОПРЕДЕЛЕНИЕ КАЧЕСТВА 3D (ДЛЯ ОБЕИХ МОДЕЛЕЙ) ==========
+    // ========== ОПРЕДЕЛЕНИЕ КАЧЕСТВА 3D ==========
     let quality3D = 'high';
     if (window.Android && window.Android.getQuality3D) {
         quality3D = window.Android.getQuality3D();
@@ -228,236 +221,231 @@
     }
 
     const qualitySettings = {
-        low: {
-            segments: 6,
-            opacity: 1.0,
-            transparent: false
-        },
-        medium: {
-            segments: 16,
-            opacity: 0.8,
-            transparent: true
-        },
-        high: {
-            segments: 64,
-            opacity: 0.55,
-            transparent: true
-        }
+        low:    { segments: 6,  opacity: 1.0,  transparent: false },
+        medium: { segments: 16, opacity: 0.8,  transparent: true },
+        high:   { segments: 64, opacity: 0.55, transparent: true }
     };
 
-    const settings = qualitySettings[quality3D];
+    const settings = qualitySettings[quality3D] || qualitySettings.high;
     // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
 
-    (function(){
-        var t=localStorage.getItem('mathTheme');
-        if(t==='light'){
+    // ===== ПРИМЕНЕНИЕ СОХРАНЁННОЙ ТЕМЫ =====
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            var b=document.getElementById('themeBtn');
-            if(b)b.textContent='☀️';
         }
     })();
 
-    let sphereScene = null;
-    let cutScene = null, cutCamera = null, cutRenderer = null, cutControls = null;
-    let cutPlaneMesh = null, cutPlaneBorder = null;
-    let cutCircleLine = null;
-    let cutLineR = null, cutLineD = null, cutLineRadius = null;
     const R_SPHERE = 1.2;
-    let currentDNorm = 0.70;
 
-    else{
-            h.classList.add('light-mode');
-            localStorage.setItem('mathTheme','light');
-            if(b)b.textContent='☀️';
+    // ========== ОСНОВНАЯ СФЕРА ==========
+    (async function () {
+        const THREE = await import('three');
+        const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
+        const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
+
+        const canvasElem = document.getElementById('sphere-canvas');
+        const containerElem = document.getElementById('canvas-container');
+        if (!canvasElem || !containerElem) return;
+
+        const radius = 1.4;
+        const scene = new THREE.Scene();
+        const isLight = document.documentElement.classList.contains('light-mode');
+        scene.background = new THREE.Color(isLight ? '#eef2f8' : '#1a2d3c');
+
+        // ===== ЭКСПОРТ ФУНКЦИИ ОБНОВЛЕНИЯ ФОНА ДЛЯ theme.js =====
+        window.__themeRefreshAll = window.__themeRefreshAll || function () {};
+        const oldRefresh = window.__themeRefreshAll;
+        window.__themeRefreshAll = function () {
+            oldRefresh();
+            const light = document.documentElement.classList.contains('light-mode');
+            scene.background = new THREE.Color(light ? '#eef2f8' : '#1a2d3c');
+        };
+
+        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        camera.position.set(4, 3, 4.5); camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvasElem, alpha: true, antialias: true });
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        containerElem.style.position = 'relative';
+        containerElem.appendChild(labelRenderer.domElement);
+
+        function updateSize() {
+            const rect = containerElem.getBoundingClientRect();
+            let w = rect.width, h = rect.height;
+            if (document.fullscreenElement === containerElem || document.webkitFullscreenElement === containerElem) {
+                w = window.innerWidth; h = window.innerHeight;
+            }
+            if (w < 10) w = 800;
+            if (h < 10) h = 450;
+            renderer.setSize(w, h);
+            labelRenderer.setSize(w, h);
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
         }
-        updateCanvasBg();
-        updateCutSceneTheme();
-    }
+        function forceResize() { setTimeout(() => { updateSize(); requestAnimationFrame(() => updateSize()); }, 50); }
+        new ResizeObserver(() => updateSize()).observe(containerElem);
+        setTimeout(() => updateSize(), 100);
 
-    function updateCanvasBg(){
-        if(sphereScene){
-            const isLight=document.documentElement.classList.contains('light-mode');
-            sphereScene.background=new THREE.Color(isLight?'#eef2f8':'#1a2d3c');
-        }
-    }
+        scene.add(new THREE.AmbientLight(0x40486c, 0.6));
+        const kl = new THREE.DirectionalLight(0xfff5e0, 1.2); kl.position.set(2, 3, 2); scene.add(kl);
+        scene.add(new THREE.PointLight(0xccaa77, 0.5).position.copy(new THREE.Vector3(-1.5, 1, 2)));
+        scene.add(new THREE.PointLight(0x88aaff, 0.5).position.copy(new THREE.Vector3(1, 1.5, -3)));
+        scene.add(new THREE.PointLight(0xffaa88, 0.4).position.copy(new THREE.Vector3(-1, -1, -2.5)));
 
-    function updateCutSceneTheme(){
-        if(!cutScene) return;
-        const isLight=document.documentElement.classList.contains('light-mode');
-        cutScene.background=new THREE.Color(isLight?'#eef2f8':'#1a2d3c');
-        if(cutRenderer) cutRenderer.render(cutScene, cutCamera);
-    }
+        const gridHelper = new THREE.GridHelper(5, 16, 0x5f7f9e, 0x2c4258);
+        gridHelper.position.y = -1.5;
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.2;
+        scene.add(gridHelper);
 
-    // ========== ОСНОВНАЯ СФЕРА (С УЧЁТОМ КАЧЕСТВА) ==========
-    (async function(){
-        const THREE=await import('three');
-        const{OrbitControls}=await import('three/addons/controls/OrbitControls.js');
-        const{CSS2DRenderer,CSS2DObject}=await import('three/addons/renderers/CSS2DRenderer.js');
-
-        window.THREE = THREE;
-
-        const canvasElem=document.getElementById('sphere-canvas');
-        const containerElem=document.getElementById('canvas-container');
-        if(!canvasElem||!containerElem)return;
-
-        const radius=1.4;
-        const scene=new THREE.Scene();
-        const isLight=document.documentElement.classList.contains('light-mode');
-        scene.background=new THREE.Color(isLight?'#eef2f8':'#1a2d3c');
-        sphereScene=scene;
-        window._sphereScene=scene;
-
-        const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
-        camera.position.set(4,3,4.5);camera.lookAt(0,0,0);
-
-        const renderer=new THREE.WebGLRenderer({canvas:canvasElem,alpha:true,antialias:true});
-        const labelRenderer=new CSS2DRenderer();
-        labelRenderer.domElement.style.position='absolute';labelRenderer.domElement.style.top='0px';labelRenderer.domElement.style.left='0px';labelRenderer.domElement.style.pointerEvents='none';
-        containerElem.style.position='relative';containerElem.appendChild(labelRenderer.domElement);
-
-        function updateSize(){
-            const rect=containerElem.getBoundingClientRect();
-            let w=rect.width,h=rect.height;
-            if(document.fullscreenElement===containerElem||document.webkitFullscreenElement===containerElem){w=window.innerWidth;h=window.innerHeight;}
-            if(w<10)w=800;if(h<10)h=450;
-            renderer.setSize(w,h);labelRenderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();
-        }
-        function forceResize(){setTimeout(()=>{updateSize();requestAnimationFrame(()=>updateSize());},50);}
-        new ResizeObserver(()=>updateSize()).observe(containerElem);
-        setTimeout(()=>updateSize(),100);
-
-        scene.add(new THREE.AmbientLight(0x40486c,0.6));
-        const kl=new THREE.DirectionalLight(0xfff5e0,1.2);kl.position.set(2,3,2);scene.add(kl);
-        scene.add(new THREE.PointLight(0xccaa77,0.5).position.copy(new THREE.Vector3(-1.5,1,2)));
-        scene.add(new THREE.PointLight(0x88aaff,0.5).position.copy(new THREE.Vector3(1,1.5,-3)));
-        scene.add(new THREE.PointLight(0xffaa88,0.4).position.copy(new THREE.Vector3(-1,-1,-2.5)));
-
-        const gridHelper=new THREE.GridHelper(5,16,0x5f7f9e,0x2c4258);
-        gridHelper.position.y=-1.5;gridHelper.material.transparent=true;gridHelper.material.opacity=0.2;scene.add(gridHelper);
-
-        // СОЗДАНИЕ СФЕРЫ С УЧЁТОМ КАЧЕСТВА
-        const sphereGeo=new THREE.SphereGeometry(radius, settings.segments, settings.segments);
-        const sphereMaterial=new THREE.MeshPhysicalMaterial({
-            color:0x60a5fa,metalness:0.1,roughness:0.2,
-            transparent:settings.transparent,opacity:settings.opacity,
-            emissive:0x2a4a7a,clearcoat:0.9,side:THREE.DoubleSide
+        const sphereGeo = new THREE.SphereGeometry(radius, settings.segments, settings.segments);
+        const sphereMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x60a5fa, metalness: 0.1, roughness: 0.2,
+            transparent: settings.transparent, opacity: settings.opacity,
+            emissive: 0x2a4a7a, clearcoat: 0.9, side: THREE.DoubleSide
         });
-        const sphereMesh=new THREE.Mesh(sphereGeo,sphereMaterial);sphereMesh.renderOrder=1;scene.add(sphereMesh);
+        const sphereMesh = new THREE.Mesh(sphereGeo, sphereMaterial);
+        sphereMesh.renderOrder = 1;
+        scene.add(sphereMesh);
 
-        const wireframeGeo=new THREE.SphereGeometry(radius, settings.segments, settings.segments);
-        const wireframeMat=new THREE.MeshBasicMaterial({color:0x93c5fd,wireframe:true,transparent:true,opacity:0.15});
-        const wireframeSphere=new THREE.Mesh(wireframeGeo,wireframeMat);wireframeSphere.renderOrder=2;scene.add(wireframeSphere);
+        const wireframeGeo = new THREE.SphereGeometry(radius, settings.segments, settings.segments);
+        const wireframeMat = new THREE.MeshBasicMaterial({ color: 0x93c5fd, wireframe: true, transparent: true, opacity: 0.15 });
+        const wireframeSphere = new THREE.Mesh(wireframeGeo, wireframeMat);
+        wireframeSphere.renderOrder = 2;
+        scene.add(wireframeSphere);
 
-        const seg=150;
-        const frontMat=new THREE.LineBasicMaterial({color:0x60a5fa,linewidth:2,transparent:true,opacity:0.9,depthTest:true,depthWrite:true});
-        const backMat=new THREE.LineBasicMaterial({color:0x60a5fa,linewidth:2,transparent:true,opacity:0.25,depthTest:false,depthWrite:false});
+        const seg = 150;
+        const frontMat = new THREE.LineBasicMaterial({ color: 0x60a5fa, linewidth: 2, transparent: true, opacity: 0.9, depthTest: true, depthWrite: true });
+        const backMat = new THREE.LineBasicMaterial({ color: 0x60a5fa, linewidth: 2, transparent: true, opacity: 0.25, depthTest: false, depthWrite: false });
 
-        function makeCircle(getPoint){
-            const pts=[];
-            for(let i=0;i<=seg;i++)pts.push(getPoint(i/seg));
-            const geo=new THREE.BufferGeometry().setFromPoints(pts);
-            const front=new THREE.LineLoop(geo,frontMat);front.renderOrder=5;scene.add(front);
-            const back=new THREE.LineLoop(geo,backMat);back.renderOrder=0;scene.add(back);
+        function makeCircle(getPoint) {
+            const pts = [];
+            for (let i = 0; i <= seg; i++) pts.push(getPoint(i / seg));
+            const geo = new THREE.BufferGeometry().setFromPoints(pts);
+            const front = new THREE.LineLoop(geo, frontMat); front.renderOrder = 5; scene.add(front);
+            const back = new THREE.LineLoop(geo, backMat); back.renderOrder = 0; scene.add(back);
         }
-        makeCircle(t=>new THREE.Vector3(radius*Math.cos(t*Math.PI*2),0,radius*Math.sin(t*Math.PI*2)));
-        makeCircle(t=>new THREE.Vector3(radius*Math.cos(t*Math.PI*2),radius*Math.sin(t*Math.PI*2),0));
+        makeCircle(t => new THREE.Vector3(radius * Math.cos(t * Math.PI * 2), 0, radius * Math.sin(t * Math.PI * 2)));
+        makeCircle(t => new THREE.Vector3(radius * Math.cos(t * Math.PI * 2), radius * Math.sin(t * Math.PI * 2), 0));
 
-        const O=new THREE.Vector3(0,0,0);
-        const A=new THREE.Vector3(radius,0,0);
-        const B=new THREE.Vector3(-radius,0,0);
+        const O = new THREE.Vector3(0, 0, 0);
+        const A = new THREE.Vector3(radius, 0, 0);
+        const B = new THREE.Vector3(-radius, 0, 0);
 
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([B,A]),new THREE.LineBasicMaterial({color:0x60a5fa,linewidth:2})));
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([O,A]),new THREE.LineBasicMaterial({color:0xf59e0b,linewidth:3})));
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([B, A]), new THREE.LineBasicMaterial({ color: 0x60a5fa, linewidth: 2 })));
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([O, A]), new THREE.LineBasicMaterial({ color: 0xf59e0b, linewidth: 3 })));
 
-        const dotMatO=new THREE.MeshStandardMaterial({color:0xfacc15,emissive:0x442200});
-        const dotO=new THREE.Mesh(new THREE.SphereGeometry(0.05,16,16),dotMatO);dotO.position.copy(O);scene.add(dotO);
-        const dotMatA=new THREE.MeshStandardMaterial({color:0xf59e0b,emissive:0x442200});
-        const dotA=new THREE.Mesh(new THREE.SphereGeometry(0.05,16,16),dotMatA);dotA.position.copy(A);scene.add(dotA);
-        const dotMatB=new THREE.MeshStandardMaterial({color:0x60a5fa,emissive:0x112244});
-        const dotB=new THREE.Mesh(new THREE.SphereGeometry(0.05,16,16),dotMatB);dotB.position.copy(B);scene.add(dotB);
+        const dotMatO = new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 });
+        const dotO = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 16), dotMatO); dotO.position.copy(O); scene.add(dotO);
+        const dotMatA = new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0x442200 });
+        const dotA = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 16), dotMatA); dotA.position.copy(A); scene.add(dotA);
+        const dotMatB = new THREE.MeshStandardMaterial({ color: 0x60a5fa, emissive: 0x112244 });
+        const dotB = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 16), dotMatB); dotB.position.copy(B); scene.add(dotB);
 
-        function makeLabel(text,color,position,fontSize='0.7rem'){
-            const div=document.createElement('div');
-            div.textContent=text;div.style.color=color;div.style.fontSize=fontSize;div.style.fontWeight='bold';
-            div.style.fontFamily="'JetBrains Mono',monospace";div.style.background='rgba(10,15,26,0.8)';div.style.padding='2px 8px';
-            div.style.borderRadius='20px';div.style.border=`1px solid ${color}`;div.style.backdropFilter='blur(6px)';div.style.whiteSpace='nowrap';
-            const label=new CSS2DObject(div);label.position.copy(position);scene.add(label);return label;
+        function makeLabel(text, color, position, fontSize = '0.7rem') {
+            const div = document.createElement('div');
+            div.textContent = text; div.style.color = color; div.style.fontSize = fontSize; div.style.fontWeight = 'bold';
+            div.style.fontFamily = "'JetBrains Mono', monospace"; div.style.background = 'rgba(10,15,26,0.8)';
+            div.style.padding = '2px 8px'; div.style.borderRadius = '20px';
+            div.style.border = `1px solid ${color}`; div.style.backdropFilter = 'blur(6px)'; div.style.whiteSpace = 'nowrap';
+            const label = new CSS2DObject(div); label.position.copy(position); scene.add(label); return label;
         }
-        makeLabel('O','#facc15',new THREE.Vector3(-0.15,-0.15,0.15),'0.7rem');
-        makeLabel('A','#f59e0b',A.clone().add(new THREE.Vector3(0.12,0.12,0.1)),'0.7rem');
-        makeLabel('B','#60a5fa',B.clone().add(new THREE.Vector3(-0.12,0.12,0.1)),'0.7rem');
-        makeLabel('R = OA','#f59e0b',new THREE.Vector3(radius/2,0.15,0.45),'0.7rem');
-        makeLabel('D = AB','#60a5fa',new THREE.Vector3(0,-0.35,0.5),'0.65rem');
+        makeLabel('O', '#facc15', new THREE.Vector3(-0.15, -0.15, 0.15), '0.7rem');
+        makeLabel('A', '#f59e0b', A.clone().add(new THREE.Vector3(0.12, 0.12, 0.1)), '0.7rem');
+        makeLabel('B', '#60a5fa', B.clone().add(new THREE.Vector3(-0.12, 0.12, 0.1)), '0.7rem');
+        makeLabel('R = OA', '#f59e0b', new THREE.Vector3(radius / 2, 0.15, 0.45), '0.7rem');
+        makeLabel('D = AB', '#60a5fa', new THREE.Vector3(0, -0.35, 0.5), '0.65rem');
 
-        const controls=new OrbitControls(camera,renderer.domElement);
-        controls.enableDamping=true;controls.dampingFactor=0.06;controls.target.set(0,0,0);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; controls.dampingFactor = 0.06; controls.target.set(0, 0, 0);
 
-        const fullscreenBtn=document.getElementById('fullscreenBtn');
-        async function toggleFullscreen(){
-            if(!document.fullscreenElement&&!document.webkitFullscreenElement){
-                try{await containerElem.requestFullscreen();fullscreenBtn.textContent='✖';}catch(err){}
-            }else{
-                if(document.exitFullscreen)await document.exitFullscreen();
-                else if(document.webkitExitFullscreen)await document.webkitExitFullscreen();
-                fullscreenBtn.textContent='⛶';forceResize();
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        async function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                try { await containerElem.requestFullscreen(); fullscreenBtn.textContent = '✖'; } catch (err) {}
+            } else {
+                if (document.exitFullscreen) await document.exitFullscreen();
+                else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                fullscreenBtn.textContent = '⛶'; forceResize();
             }
         }
-        fullscreenBtn.addEventListener('click',toggleFullscreen);
-        document.addEventListener('fullscreenchange',()=>{
-            if(document.fullscreenElement===containerElem||document.webkitFullscreenElement===containerElem){fullscreenBtn.textContent='✖';updateSize();}
-            else{fullscreenBtn.textContent='⛶';forceResize();}
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement === containerElem || document.webkitFullscreenElement === containerElem) {
+                fullscreenBtn.textContent = '✖'; updateSize();
+            } else {
+                fullscreenBtn.textContent = '⛶'; forceResize();
+            }
         });
 
-        function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);labelRenderer.render(scene,camera);}
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
         animate();
-        window.addEventListener('resize',()=>forceResize());
+        window.addEventListener('resize', () => forceResize());
     })();
 
-    // ========== МОДЕЛЬ СЕЧЕНИЯ (С УЧЁТОМ КАЧЕСТВА) ==========
-    (async function(){
-        const THREE=await import('three');
-        const{OrbitControls}=await import('three/addons/controls/OrbitControls.js');
-        const{CSS2DRenderer,CSS2DObject}=await import('three/addons/renderers/CSS2DRenderer.js');
+    // ========== МОДЕЛЬ СЕЧЕНИЯ ==========
+    (async function () {
+        const THREE = await import('three');
+        const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
+        const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
 
-        const canvas=document.getElementById('cut-canvas');
-        const container=document.getElementById('cut-container');
-        if(!canvas) return;
+        const canvas = document.getElementById('cut-canvas');
+        const container = document.getElementById('cut-container');
+        if (!canvas) return;
 
-        const scene=new THREE.Scene();
-        const isLight=document.documentElement.classList.contains('light-mode');
-        scene.background=new THREE.Color(isLight?'#eef2f8':'#1a2d3c');
-        cutScene=scene;
+        const scene = new THREE.Scene();
+        const isLight = document.documentElement.classList.contains('light-mode');
+        scene.background = new THREE.Color(isLight ? '#eef2f8' : '#1a2d3c');
 
-        const camera=new THREE.PerspectiveCamera(45,1,0.1,10);
-        camera.position.set(2.5,2.2,3.0);
-        camera.lookAt(0,0,0);
-        cutCamera=camera;
+        // ===== ЭКСПОРТ ФУНКЦИИ ОБНОВЛЕНИЯ ФОНА ДЛЯ theme.js =====
+        const oldRefresh2 = window.__themeRefreshAll || function () {};
+        window.__themeRefreshAll = function () {
+            oldRefresh2();
+            const light = document.documentElement.classList.contains('light-mode');
+            scene.background = new THREE.Color(light ? '#eef2f8' : '#1a2d3c');
+        };
 
-        const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
-        cutRenderer=renderer;
-        const labelRenderer=new CSS2DRenderer();
-        labelRenderer.domElement.style.position='absolute';
-        labelRenderer.domElement.style.top='0px';
-        labelRenderer.domElement.style.left='0px';
-        labelRenderer.domElement.style.pointerEvents='none';
-        container.style.position='relative';
+        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
+        camera.position.set(2.5, 2.2, 3.0);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        container.style.position = 'relative';
         container.appendChild(labelRenderer.domElement);
 
-        function updateSize(){
-            const rect=container.getBoundingClientRect();
-            let w=rect.width,h=rect.height;
-            if(document.fullscreenElement===container){w=window.innerWidth;h=window.innerHeight;}
-            if(w<10)w=800;if(h<10)h=450;
-            renderer.setSize(w,h);labelRenderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();
+        function updateSize() {
+            const rect = container.getBoundingClientRect();
+            let w = rect.width, h = rect.height;
+            if (document.fullscreenElement === container) { w = window.innerWidth; h = window.innerHeight; }
+            if (w < 10) w = 800;
+            if (h < 10) h = 450;
+            renderer.setSize(w, h);
+            labelRenderer.setSize(w, h);
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
         }
-        new ResizeObserver(()=>updateSize()).observe(container);
+        new ResizeObserver(() => updateSize()).observe(container);
         updateSize();
 
-        scene.add(new THREE.AmbientLight(0x40486c,0.65));
-        const dirLight=new THREE.DirectionalLight(0xfff5e0,1);dirLight.position.set(2,3,1.5);scene.add(dirLight);
-        scene.add(new THREE.PointLight(0x88aaff,0.4).position.set(-1,1,1.5));
+        scene.add(new THREE.AmbientLight(0x40486c, 0.65));
+        const dirLight = new THREE.DirectionalLight(0xfff5e0, 1); dirLight.position.set(2, 3, 1.5); scene.add(dirLight);
+        scene.add(new THREE.PointLight(0x88aaff, 0.4).position.set(-1, 1, 1.5));
 
-        // СОЗДАНИЕ СФЕРЫ ДЛЯ СЕЧЕНИЯ С УЧЁТОМ КАЧЕСТВА
         const sphereMat = new THREE.MeshPhongMaterial({
             color: 0x60a5fa,
             transparent: settings.transparent,
@@ -467,150 +455,183 @@
         const sphere = new THREE.Mesh(new THREE.SphereGeometry(R_SPHERE, settings.segments, settings.segments), sphereMat);
         scene.add(sphere);
 
-        const wireMat=new THREE.MeshBasicMaterial({color:0x93c5fd,wireframe:true,transparent:true,opacity:0.2});
-        const wireframe=new THREE.Mesh(new THREE.SphereGeometry(R_SPHERE, settings.segments, settings.segments), wireMat);
+        const wireMat = new THREE.MeshBasicMaterial({ color: 0x93c5fd, wireframe: true, transparent: true, opacity: 0.2 });
+        const wireframe = new THREE.Mesh(new THREE.SphereGeometry(R_SPHERE, settings.segments, settings.segments), wireMat);
         scene.add(wireframe);
 
-        const planeGeo=new THREE.PlaneGeometry(2.6,2.6);
-        const planeMat=new THREE.MeshPhongMaterial({color:0x14b8a6,side:THREE.DoubleSide,transparent:true,opacity:0.45});
-        const plane=new THREE.Mesh(planeGeo,planeMat);
-        plane.rotation.x=-Math.PI/2;
+        const planeGeo = new THREE.PlaneGeometry(2.6, 2.6);
+        const planeMat = new THREE.MeshPhongMaterial({ color: 0x14b8a6, side: THREE.DoubleSide, transparent: true, opacity: 0.45 });
+        const plane = new THREE.Mesh(planeGeo, planeMat);
+        plane.rotation.x = -Math.PI / 2;
         scene.add(plane);
-        cutPlaneMesh=plane;
 
         const borderPoints = [
-            new THREE.Vector3(-1.3, 0, -1.3),
-            new THREE.Vector3( 1.3, 0, -1.3),
-            new THREE.Vector3( 1.3, 0,  1.3),
-            new THREE.Vector3(-1.3, 0,  1.3),
+            new THREE.Vector3(-1.3, 0, -1.3), new THREE.Vector3( 1.3, 0, -1.3),
+            new THREE.Vector3( 1.3, 0,  1.3), new THREE.Vector3(-1.3, 0,  1.3),
             new THREE.Vector3(-1.3, 0, -1.3)
         ];
         const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
-        const borderMatLine = new THREE.LineBasicMaterial({ color: 0xf59e0b, linewidth: 2 });
-        const borderLine = new THREE.Line(borderGeo, borderMatLine);
+        const borderLine = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0xf59e0b, linewidth: 2 }));
         scene.add(borderLine);
-        cutPlaneBorder = borderLine;
 
-        function makeLabel(text,color,position,fontSize='0.7rem'){
-            const div=document.createElement('div');
-            div.textContent=text;div.style.color=color;div.style.fontSize=fontSize;div.style.fontWeight='bold';
-            div.style.fontFamily="'JetBrains Mono',monospace";div.style.background='rgba(10,15,26,0.8)';
-            div.style.padding='2px 8px';div.style.borderRadius='20px';div.style.border=`1px solid ${color}`;
-            div.style.backdropFilter='blur(6px)';div.style.whiteSpace='nowrap';
-            const label=new CSS2DObject(div);label.position.copy(position);scene.add(label);return label;
+        function makeLabel(text, color, position, fontSize = '0.7rem') {
+            const div = document.createElement('div');
+            div.textContent = text; div.style.color = color; div.style.fontSize = fontSize; div.style.fontWeight = 'bold';
+            div.style.fontFamily = "'JetBrains Mono', monospace"; div.style.background = 'rgba(10,15,26,0.8)';
+            div.style.padding = '2px 8px'; div.style.borderRadius = '20px';
+            div.style.border = `1px solid ${color}`; div.style.backdropFilter = 'blur(6px)'; div.style.whiteSpace = 'nowrap';
+            const label = new CSS2DObject(div); label.position.copy(position); scene.add(label); return label;
         }
 
-        makeLabel('Плоскость α','#f59e0b',new THREE.Vector3(1.8,0.15,1.5),'0.7rem');
-        makeLabel('O (центр)','#facc15',new THREE.Vector3(-0.25,-0.2,0.2),'0.65rem');
+        makeLabel('Плоскость α', '#f59e0b', new THREE.Vector3(1.8, 0.15, 1.5), '0.7rem');
+        makeLabel('O (центр)', '#facc15', new THREE.Vector3(-0.25, -0.2, 0.2), '0.65rem');
 
-        function updateGeometry(dNorm){
-            const dAbs=dNorm*R_SPHERE;
-            plane.position.y=dAbs;
-            borderLine.position.y=dAbs;
+        let cutCircleLine = null, cutLineR = null, cutLineD = null, cutLineRadius = null;
+        let dynLabelR = null, dynLabelD = null, dynLabelRsmall = null;
 
-            if(cutCircleLine) scene.remove(cutCircleLine);
-            if(cutLineR) scene.remove(cutLineR);
-            if(cutLineD) scene.remove(cutLineD);
-            if(cutLineRadius) scene.remove(cutLineRadius);
-            if(window.dynLabelR) scene.remove(window.dynLabelR);
-            if(window.dynLabelD) scene.remove(window.dynLabelD);
-            if(window.dynLabelRsmall) scene.remove(window.dynLabelRsmall);
+        function updateGeometry(dNorm) {
+            const dAbs = dNorm * R_SPHERE;
+            plane.position.y = dAbs;
+            borderLine.position.y = dAbs;
 
-            const caseDiv=document.getElementById('caseDisplay');
-            const dSpan=document.getElementById('dValue');
-            const rSpan=document.getElementById('rValue');
+            if (cutCircleLine) scene.remove(cutCircleLine);
+            if (cutLineR) scene.remove(cutLineR);
+            if (cutLineD) scene.remove(cutLineD);
+            if (cutLineRadius) scene.remove(cutLineRadius);
+            if (dynLabelR) scene.remove(dynLabelR);
+            if (dynLabelD) scene.remove(dynLabelD);
+            if (dynLabelRsmall) scene.remove(dynLabelRsmall);
 
-            dSpan.innerText=dNorm.toFixed(2)+'·R';
+            const caseDiv = document.getElementById('caseDisplay');
+            const dSpan = document.getElementById('dValue');
+            const rSpan = document.getElementById('rValue');
+            dSpan.innerText = dNorm.toFixed(2) + '·R';
 
-            if(dNorm<0.99){
-                const rVal=Math.sqrt(R_SPHERE*R_SPHERE-dAbs*dAbs);
-                rSpan.innerText=rVal.toFixed(3)+'·R';
-                caseDiv.innerHTML='📗 d &lt; R — плоскость ПЕРЕСЕКАЕТ сферу, сечение — окружность радиуса r = √(R²−d²)';
-                caseDiv.className='case-indicator intersect';
+            if (dNorm < 0.99) {
+                const rVal = Math.sqrt(R_SPHERE * R_SPHERE - dAbs * dAbs);
+                rSpan.innerText = rVal.toFixed(3) + '·R';
+                caseDiv.innerHTML = '📗 d &lt; R — плоскость ПЕРЕСЕКАЕТ сферу, сечение — окружность радиуса r = √(R²−d²)';
+                caseDiv.className = 'case-indicator intersect';
 
-                const pts=[];
-                for(let i=0;i<=100;i++){
-                    const ang=(i/100)*Math.PI*2;
-                    const x=rVal*Math.cos(ang);
-                    const z=rVal*Math.sin(ang);
-                    pts.push(new THREE.Vector3(x,dAbs,z));
+                const pts = [];
+                for (let i = 0; i <= 100; i++) {
+                    const ang = (i / 100) * Math.PI * 2;
+                    pts.push(new THREE.Vector3(rVal * Math.cos(ang), dAbs, rVal * Math.sin(ang)));
                 }
-                const circleGeo=new THREE.BufferGeometry().setFromPoints(pts);
-                cutCircleLine=new THREE.LineLoop(circleGeo,new THREE.LineBasicMaterial({color:0x3b82f6,linewidth:2}));
+                cutCircleLine = new THREE.LineLoop(
+                    new THREE.BufferGeometry().setFromPoints(pts),
+                    new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 })
+                );
                 scene.add(cutCircleLine);
 
-                const center=new THREE.Vector3(0,0,0);
-                const planePoint=new THREE.Vector3(0,dAbs,0);
-                const edgePoint=new THREE.Vector3(rVal,dAbs,0);
+                const center = new THREE.Vector3(0, 0, 0);
+                const planePoint = new THREE.Vector3(0, dAbs, 0);
+                const edgePoint = new THREE.Vector3(rVal, dAbs, 0);
 
-                cutLineRadius=new THREE.Line(new THREE.BufferGeometry().setFromPoints([center,edgePoint]),new THREE.LineBasicMaterial({color:0xf59e0b,linewidth:3}));
+                cutLineRadius = new THREE.Line(
+                    new THREE.BufferGeometry().setFromPoints([center, edgePoint]),
+                    new THREE.LineBasicMaterial({ color: 0xf59e0b, linewidth: 3 })
+                );
                 scene.add(cutLineRadius);
-                cutLineD=new THREE.Line(new THREE.BufferGeometry().setFromPoints([center,planePoint]),new THREE.LineBasicMaterial({color:0xec489a,linewidth:2}));
+                cutLineD = new THREE.Line(
+                    new THREE.BufferGeometry().setFromPoints([center, planePoint]),
+                    new THREE.LineBasicMaterial({ color: 0xec489a, linewidth: 2 })
+                );
                 scene.add(cutLineD);
-                cutLineR=new THREE.Line(new THREE.BufferGeometry().setFromPoints([planePoint,edgePoint]),new THREE.LineBasicMaterial({color:0x3b82f6,linewidth:2}));
+                cutLineR = new THREE.Line(
+                    new THREE.BufferGeometry().setFromPoints([planePoint, edgePoint]),
+                    new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 })
+                );
                 scene.add(cutLineR);
 
-                const divR=document.createElement('div');divR.textContent=`R = ${R_SPHERE.toFixed(2)}`;divR.style.cssText='color:#f59e0b;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
-                const divD=document.createElement('div');divD.textContent=`d = ${dAbs.toFixed(2)}`;divD.style.cssText='color:#ec489a;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
-                const divr=document.createElement('div');divr.textContent=`r = ${rVal.toFixed(2)}`;divr.style.cssText='color:#3b82f6;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
-                window.dynLabelR=new CSS2DObject(divR);window.dynLabelR.position.copy(new THREE.Vector3((0+rVal)/2,dAbs/2,0));scene.add(window.dynLabelR);
-                window.dynLabelD=new CSS2DObject(divD);window.dynLabelD.position.copy(new THREE.Vector3(0,dAbs/2,0.3));scene.add(window.dynLabelD);
-                window.dynLabelRsmall=new CSS2DObject(divr);window.dynLabelRsmall.position.copy(new THREE.Vector3(rVal/2,dAbs,0.2));scene.add(window.dynLabelRsmall);
-            }
-            else if(Math.abs(dNorm-1.0)<0.01){
-                rSpan.innerText='0 (касание)';
-                caseDiv.innerHTML='📙 d = R — плоскость КАСАЕТСЯ сферы в одной точке';
-                caseDiv.className='case-indicator tangent';
-                const center=new THREE.Vector3(0,0,0);
-                const planePoint=new THREE.Vector3(0,dAbs,0);
-                cutLineD=new THREE.Line(new THREE.BufferGeometry().setFromPoints([center,planePoint]),new THREE.LineBasicMaterial({color:0xec489a,linewidth:2}));
+                const divR = document.createElement('div');
+                divR.textContent = 'R = ' + R_SPHERE.toFixed(2);
+                divR.style.cssText = 'color:#f59e0b;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
+                const divD = document.createElement('div');
+                divD.textContent = 'd = ' + dAbs.toFixed(2);
+                divD.style.cssText = 'color:#ec489a;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
+                const divr = document.createElement('div');
+                divr.textContent = 'r = ' + rVal.toFixed(2);
+                divr.style.cssText = 'color:#3b82f6;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
+
+                dynLabelR = new CSS2DObject(divR);
+                dynLabelR.position.copy(new THREE.Vector3((0 + rVal) / 2, dAbs / 2, 0));
+                scene.add(dynLabelR);
+
+                dynLabelD = new CSS2DObject(divD);
+                dynLabelD.position.copy(new THREE.Vector3(0, dAbs / 2, 0.3));
+                scene.add(dynLabelD);
+
+                dynLabelRsmall = new CSS2DObject(divr);
+                dynLabelRsmall.position.copy(new THREE.Vector3(rVal / 2, dAbs, 0.2));
+                scene.add(dynLabelRsmall);
+            } else if (Math.abs(dNorm - 1.0) < 0.01) {
+                rSpan.innerText = '0 (касание)';
+                caseDiv.innerHTML = '📙 d = R — плоскость КАСАЕТСЯ сферы в одной точке';
+                caseDiv.className = 'case-indicator tangent';
+
+                const center = new THREE.Vector3(0, 0, 0);
+                const planePoint = new THREE.Vector3(0, dAbs, 0);
+                cutLineD = new THREE.Line(
+                    new THREE.BufferGeometry().setFromPoints([center, planePoint]),
+                    new THREE.LineBasicMaterial({ color: 0xec489a, linewidth: 2 })
+                );
                 scene.add(cutLineD);
-                const divD=document.createElement('div');divD.textContent=`d = ${dAbs.toFixed(2)} (касание)`;divD.style.cssText='color:#f59e0b;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
-                window.dynLabelD=new CSS2DObject(divD);window.dynLabelD.position.copy(new THREE.Vector3(0,dAbs/2,0.3));scene.add(window.dynLabelD);
-            }
-            else{
-                rSpan.innerText='— (нет пересечения)';
-                caseDiv.innerHTML='📕 d > R — плоскость НЕ ПЕРЕСЕКАЕТ сферу, общих точек нет';
-                caseDiv.className='case-indicator none';
-                const center=new THREE.Vector3(0,0,0);
-                const planePoint=new THREE.Vector3(0,dAbs,0);
-                cutLineD=new THREE.Line(new THREE.BufferGeometry().setFromPoints([center,planePoint]),new THREE.LineBasicMaterial({color:0xec489a,linewidth:2,transparent:true,opacity:0.7}));
+
+                const divD = document.createElement('div');
+                divD.textContent = 'd = ' + dAbs.toFixed(2) + ' (касание)';
+                divD.style.cssText = 'color:#f59e0b;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
+                dynLabelD = new CSS2DObject(divD);
+                dynLabelD.position.copy(new THREE.Vector3(0, dAbs / 2, 0.3));
+                scene.add(dynLabelD);
+            } else {
+                rSpan.innerText = '— (нет пересечения)';
+                caseDiv.innerHTML = '📕 d > R — плоскость НЕ ПЕРЕСЕКАЕТ сферу, общих точек нет';
+                caseDiv.className = 'case-indicator none';
+
+                const center = new THREE.Vector3(0, 0, 0);
+                const planePoint = new THREE.Vector3(0, dAbs, 0);
+                cutLineD = new THREE.Line(
+                    new THREE.BufferGeometry().setFromPoints([center, planePoint]),
+                    new THREE.LineBasicMaterial({ color: 0xec489a, linewidth: 2, transparent: true, opacity: 0.7 })
+                );
                 scene.add(cutLineD);
-                const divD=document.createElement('div');divD.textContent=`d = ${dAbs.toFixed(2)} (нет пересеч.)`;divD.style.cssText='color:#ec489a;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
-                window.dynLabelD=new CSS2DObject(divD);window.dynLabelD.position.copy(new THREE.Vector3(0,dAbs/2,0.3));scene.add(window.dynLabelD);
+
+                const divD = document.createElement('div');
+                divD.textContent = 'd = ' + dAbs.toFixed(2) + ' (нет пересеч.)';
+                divD.style.cssText = 'color:#ec489a;font-size:0.6rem;background:rgba(0,0,0,0.6);padding:1px 6px;border-radius:12px;';
+                dynLabelD = new CSS2DObject(divD);
+                dynLabelD.position.copy(new THREE.Vector3(0, dAbs / 2, 0.3));
+                scene.add(dynLabelD);
             }
         }
 
-        const slider=document.getElementById('distSlider');
-        slider.addEventListener('input',(e)=>{
-            currentDNorm=parseFloat(e.target.value);
-            updateGeometry(currentDNorm);
+        const slider = document.getElementById('distSlider');
+        slider.addEventListener('input', (e) => {
+            updateGeometry(parseFloat(e.target.value));
         });
         updateGeometry(0.70);
 
-        const controls=new OrbitControls(camera,renderer.domElement);
-        controls.enableDamping=true;
-        controls.dampingFactor=0.06;
-        controls.target.set(0,0,0);
-        cutControls=controls;
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.target.set(0, 0, 0);
 
-        const fullBtn=document.getElementById('cutFullscreenBtn');
-        fullBtn.addEventListener('click',async()=>{
-            if(!document.fullscreenElement) await container.requestFullscreen();
+        const fullBtn = document.getElementById('cutFullscreenBtn');
+        fullBtn.addEventListener('click', async () => {
+            if (!document.fullscreenElement) await container.requestFullscreen();
             else await document.exitFullscreen();
         });
-        document.addEventListener('fullscreenchange',()=>updateSize());
+        document.addEventListener('fullscreenchange', () => updateSize());
 
-        function animate(){
+        function animate() {
             requestAnimationFrame(animate);
-            if(cutControls) cutControls.update();
-            if(cutRenderer && cutScene && cutCamera){
-                cutRenderer.render(cutScene,cutCamera);
-                labelRenderer.render(cutScene,cutCamera);
-            }
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
         }
         animate();
-        window.addEventListener('resize',()=>updateSize());
+        window.addEventListener('resize', () => updateSize());
     })();
 </script>
 

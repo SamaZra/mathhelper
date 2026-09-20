@@ -5,93 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Выпуклость и точки перегиба</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;}
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg: #1a2d3c;
-            --card-bg: #1e3545;
-            --text: #ffffff;
-            --text-secondary: #8ba5b8;
-            --accent: #1abc9c;
-            --border: rgba(46, 204, 113, 0.1);
-            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
-            --info-border: #2c7cb6;
-            --example-bg: #162a38;
-            --step-color: #a78bfa;
-            --result-color: #34d399;
-            --explain-color: #34d399;
-            --info-bg: #1a4a5a;
-            --special-border: #2c7cb6;
-            --canvas-bg: #1a2d3c;
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(139,92,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #8b5cf6; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --graph-bg: #243848;
         }
-
         :root.light-mode {
-            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
-            --card-bg: white;
-            --text: #1a2a3f;
-            --text-secondary: #5a7a94;
-            --accent: #1abc9c;
-            --border: #eff3f8;
-            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
-            --info-border: #2c7cb6;
-            --example-bg: #f8fafc;
-            --step-color: #7c3aed;
-            --result-color: #059669;
-            --explain-color: #059669;
-            --info-bg: #e8f0fe;
-            --special-border: #2c7cb6;
-            --canvas-bg: #eef2f8;
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #8b5cf6; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --graph-bg: #f8fafc;
         }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 12000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
 
-        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
-        .container{max-width:1000px;margin:0 auto;position:relative;}
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .keep-sign { background: #065f46; color: #6ee7b7; padding: 2px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap; }
+        .flip-sign { background: #991b1b; color: #fca5a5; padding: 2px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap; }
+        .convex-up { color: #34d399; font-weight: 700; }
+        .convex-down { color: #f87171; font-weight: 700; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
 
-        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
-        h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
-        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
-        .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
-        .section{margin-bottom:14px;}
-        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--info-border);padding-left:12px;text-align:center;cursor:pointer;user-select:none;}
-        .section-title:hover{opacity:0.8;}
-        .section-title .main-title{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;color:var(--text);}
-        .section-title .sub-title{font-size:0.85rem;color:var(--text-secondary);font-weight:400;font-style:italic;margin-top:2px;}
-        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
-        .section.collapsed .section-title::after{transform:rotate(-90deg);}
-        .section-content{max-height:10000px;overflow:hidden;transition:max-height 0.4s ease;}
-        .section.collapsed .section-content{max-height:0;}
+        .graph-container { text-align: center; margin: 12px 0; background: var(--graph-bg); border-radius: 16px; padding: 8px; border: 1px solid var(--border); }
+        .graph-container canvas { display: block; width: 100%; height: auto; border-radius: 12px; background: var(--graph-bg); }
+        .graph-container canvas.parabola-plot { aspect-ratio: 650 / 220; min-height: 170px; }
+        .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; }
 
-        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:16px 20px;border-radius:16px;margin:12px 0;}
-        .definition-block p{font-size:1rem;line-height:1.5;color:var(--text);}
-        .definition-block p strong{color:var(--text);}
-        .definition-block ul{padding-left:20px;margin:6px 0;font-size:0.95rem;line-height:1.5;color:var(--text);}
-        .definition-block ul li{margin:2px 0;}
+        .interval-method { color: #fbbf24; font-weight: 700; background: rgba(251,191,36,0.12); padding: 2px 10px; border-radius: 6px; display: inline-block; border-left: 3px solid #fbbf24; }
 
-        .formula-block{background:var(--bg);padding:14px 18px;border-radius:16px;font-size:0.95rem;margin:10px 0;border-left:5px solid var(--special-border);word-break:break-word;overflow-x:visible;line-height:2.2;color:var(--text);}
-        .example{background:var(--example-bg);padding:16px 20px;border-radius:14px;margin-top:10px;border-left:5px solid var(--special-border);font-size:0.95rem;line-height:2.0;color:var(--text);word-break:break-word;overflow-x:visible;}
-        .example .step{font-weight:700;color:var(--step-color);margin-top:10px;margin-bottom:2px;display:block;}
-        .example .result{margin-top:10px;font-weight:600;color:var(--result-color);display:block;}
-        .example .explain{color:var(--explain-color);font-style:italic;margin:4px 0 8px 16px;border-left:2px solid var(--explain-color);padding-left:12px;display:block;}
-        .example .formula-line{display:block;margin:4px 0;word-break:break-word;}
-        .example .interval-method{color:#fbbf24;font-weight:700;background:rgba(251,191,36,0.12);padding:2px 10px;border-radius:6px;display:inline-block;border-left:3px solid #fbbf24;}
-        .example .star{color:#fbbf24;font-size:1.2rem;margin-right:4px;}
-        p{margin:8px 0;font-size:0.95rem;line-height:1.6;color:var(--text);}
-        .important{background:var(--info-bg);border-left:4px solid #fbbf24;border-radius:14px;padding:12px 16px;margin:12px 0;color:var(--text);}
-        .important strong{color:#fbbf24;}
+        .error-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9rem; border-radius: 12px; overflow: hidden; }
+        .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 10px 0; border-radius: 12px; }
+        .table-scroll .error-table { min-width: 600px; margin: 0; }
+        .error-table th { background: var(--special-border); color: white; padding: 10px 12px; text-align: left; font-weight: 700; }
+        .error-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; background: var(--card-bg); }
+        .error-table tr:nth-child(even) td { background: var(--formula-bg); }
+        .error-table tr:last-child td { border-bottom: none; }
+        .error-table .wrong { color: var(--danger-color); font-weight: 700; }
+        .error-table .right { color: var(--result-color); font-weight: 700; }
 
-        .back-link{display:inline-block;margin:16px 0 8px;padding:10px 20px;background:var(--special-border);color:white;text-decoration:none;font-weight:bold;border-radius:20px;font-size:0.95rem;transition:background 0.2s;}
-        .back-link:hover{background:#1a6b8a;}
-        mjx-container{font-size:1em !important;overflow-x:visible !important;max-width:100% !important;}
-
-        .convex-up{color:#34d399;font-weight:700;}
-        .convex-down{color:#f87171;font-weight:700;}
-
-        .graph-container{text-align:center;margin:12px 0;background:var(--canvas-bg);border-radius:16px;padding:8px;display:block;transition:background 0.2s;}
-        .graph-container canvas{max-width:100%;height:auto;border-radius:12px;display:inline-block;background:var(--canvas-bg);transition:background 0.2s;}
-        .graph-label{font-size:0.85rem;color:var(--text-secondary);text-align:center;margin-top:4px;font-style:italic;}
-
-        @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.definition-block p{font-size:0.95rem;}.example{padding:12px 14px;font-size:0.9rem;}.formula-block{padding:12px 14px;font-size:0.9rem;}mjx-container{font-size:0.9em !important;}}
-        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
-        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
     </style>
     <script>
         MathJax = {
@@ -101,381 +84,342 @@
                 processEscapes: true
             },
             options: { skipHtmlTypes: 'script', ignoreHtmlClass: 'no-mathjax' },
-            chtml: { scale: 1.0, displayAlign: 'center' },
-            startup: {
-                pageReady: () => {
-                    return MathJax.startup.defaultPageReady().then(() => {
-                        setTimeout(drawAllGraphs, 400);
-                    });
-                }
-            }
+            chtml: { scale: 1.0, displayAlign: 'center' }
         };
     </script>
     <script src="mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
 </head>
 <body>
 <div class="container">
-    <div class="header"><h1>Выпуклость и точки перегиба</h1><div class="subtitle">Определение · Алгоритм · Примеры · Связь с экстремумами</div></div>
-    <div class="content-card">
+    <h1>📐 Выпуклость и точки перегиба</h1>
 
-        <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
-        <div class="section">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="main-title">📖 Что это такое?</span>
-            </div>
-            <div class="section-content">
-                <div class="important">
-                    <strong>📌 Выпуклость функции</strong> — это направление «изгиба» графика.
-                </div>
-
-                <div class="formula-block" style="border-left-color: #34d399;">
-                    <strong><span class="convex-up">Выпуклая вниз</span> (∪):</strong><br>
-                    График лежит <strong>выше</strong> касательной.<br>
-                    📌 Вторая производная: <strong>\(f''(x) > 0\)</strong><br>
-                    📌 Пример: \(y = x^2\) (парабола ветвями вверх)
-                </div>
-                <div class="graph-container">
-                    <canvas id="graphConvexDown" width="500" height="280"></canvas>
-                    <div class="graph-label">
-                        🟢 График \(y = x^2\) <span style="color:#34d399;">выше</span> касательной (выпуклый вниз)
-                    </div>
-                </div>
-
-                <div class="formula-block" style="border-left-color: #f87171;">
-                    <strong><span class="convex-down">Выпуклая вверх</span> (∩):</strong><br>
-                    График лежит <strong>ниже</strong> касательной.<br>
-                    📌 Вторая производная: <strong>\(f''(x) < 0\)</strong><br>
-                    📌 Пример: \(y = -x^2\) (парабола ветвями вниз)
-                </div>
-                <div class="graph-container">
-                    <canvas id="graphConvexUp" width="500" height="280"></canvas>
-                    <div class="graph-label">
-                        🔴 График \(y = -x^2\) <span style="color:#f87171;">ниже</span> касательной (выпуклый вверх)
-                    </div>
-                </div>
-
-                <div class="formula-block" style="border-left-color: #fbbf24;">
-                    <strong>Точка перегиба</strong> — это точка, где функция <strong>меняет</strong> направление выпуклости.<br>
-                    📌 В точке перегиба: <strong>\(f''(x) = 0\)</strong> (или не существует) и <strong>меняется знак</strong> \(f''(x)\).<br>
-                    📌 Пример: \(y = x^3\) в точке \(x = 0\).
-                </div>
-                <div class="graph-container">
-                    <canvas id="graphInflection" width="500" height="280"></canvas>
-                    <div class="graph-label">
-                        🟡 График \(y = x^3\) меняет выпуклость в точке \((0; 0)\)
-                    </div>
-                </div>
+    <!-- ===== 1. ВВЕДЕНИЕ ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Зачем нужна выпуклость</span>
+            <span class="sub-title">от дорожных знаков до экономики</span>
+        </div>
+        <div class="section-content">
+            <p>Знак «Осторожно, неровная дорога» изображает волну — сначала <strong>горка</strong> (выпуклость вверх), потом <strong>впадина</strong> (выпуклость вниз), потом снова горка. Точка, где горка переходит во впадину, называется <strong>точкой перегиба</strong>. Именно так <strong>выпуклость функции</strong> и <strong>точки перегиба</strong> описывают форму графика.</p>
+            <p>Выпуклость важна везде: в экономике (рост прибыли ускоряется или замедляется), в физике (ускорение), в дизайне (плавные линии), в строительстве (арки мостов).</p>
+            <div class="important">
+                <strong>💡 Главная идея:</strong> <strong>вторая производная $f''(x)$</strong> отвечает за <strong>направление изгиба</strong>. Если $f''(x) > 0$ — график «улыбается» (∪), если $f''(x) < 0$ — «грустит» (∩). В точке перегиба знак $f''$ меняется.
             </div>
         </div>
-
-        <!-- ===== АЛГОРИТМ С МЕТОДОМ ИНТЕРВАЛОВ ===== -->
-        <div class="section collapsed">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="main-title">📋 Алгоритм исследования</span>
-                <span class="sub-title">с методом интервалов</span>
-            </div>
-            <div class="section-content">
-                <div class="example">
-                    <strong>Как найти промежутки выпуклости и точки перегиба:</strong><br><br>
-
-                    <span class="step">1️⃣ Найти вторую производную \(f''(x)\).</span>
-
-                    <span class="step">2️⃣ Найти точки, где \(f''(x) = 0\) или не существует.</span>
-
-                    <span class="step">3️⃣ Нанести эти точки на числовую прямую.</span>
-
-                    <span class="step">4️⃣ <span class="interval-method">Метод интервалов:</span> определить знак \(f''(x)\) на каждом промежутке, подставляя любое число из промежутка.</span>
-
-                    <div class="formula-line" style="padding-left:20px;">
-                        • если \(f''(x) > 0\) → функция <span class="convex-up">выпукла вниз</span> (∪)<br>
-                        • если \(f''(x) < 0\) → функция <span class="convex-down">выпукла вверх</span> (∩)
-                    </div>
-
-                    <span class="step">5️⃣ Если в точке \(x_0\) знак \(f''(x)\) меняется, то \(x_0\) — <strong>точка перегиба</strong>.</span>
-
-                    <div class="explain">💡 <span class="interval-method">Метод интервалов</span> — это способ определить знак функции на промежутке: берём любое число из промежутка, подставляем в функцию и смотрим, какой знак получился.</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== ПРИМЕР 1: y = x³ ===== -->
-        <div class="section collapsed">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="main-title">📐 Пример 1. \(f(x) = x^3\)</span>
-                <span class="sub-title">классическая точка перегиба</span>
-            </div>
-            <div class="section-content">
-                <div class="example">
-                    <span class="step">Шаг 1. Находим производные:</span>
-                    <span class="formula-line">$$ f(x) = x^3 $$</span>
-                    <span class="formula-line">$$ f'(x) = 3x^2 $$</span>
-                    <span class="formula-line">$$ f''(x) = 6x $$</span>
-
-                    <span class="step">Шаг 2. Находим \(f''(x) = 0\):</span>
-                    <span class="formula-line">$$ 6x = 0 \Rightarrow x = 0 $$</span>
-
-                    <span class="step">Шаг 3. <span class="interval-method">Метод интервалов.</span> Наносим \(x = 0\) на числовую прямую и определяем знаки:</span>
-                    <span class="formula-line">$$ (-\infty; 0) \quad \text{— берём } x = -1, \quad f''(-1) = -6 < 0 $$</span>
-                    <span class="formula-line">$$ (0; +\infty) \quad \text{— берём } x = 1, \quad f''(1) = 6 > 0 $$</span>
-
-                    <span class="step">Шаг 4. Анализируем знаки:</span>
-                    <span class="formula-line">$$ x < 0: \quad f''(x) < 0 \Rightarrow \text{выпукла вверх (∩)} $$</span>
-                    <span class="formula-line">$$ x > 0: \quad f''(x) > 0 \Rightarrow \text{выпукла вниз (∪)} $$</span>
-                    <div class="explain">💡 В точке \(x = 0\) знак меняется с \(-\) на \(+\).</div>
-
-                    <span class="result">Ответ:</span>
-                    <span class="formula-line">• Функция <span class="convex-down">выпукла вверх</span> на \((-\infty; 0)\)</span>
-                    <span class="formula-line">• Функция <span class="convex-up">выпукла вниз</span> на \((0; +\infty)\)</span>
-                    <span class="formula-line">• \(x = 0\) — <strong>точка перегиба</strong>, \(f(0) = 0\)</span>
-                    <div class="explain">✅ График \(y = x^3\) перегибается в точке \((0; 0)\).</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== ПРИМЕР 2: y = x⁴ - 6x² ===== -->
-        <div class="section collapsed">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="main-title">📐 Пример 2. \(f(x) = x^4 - 6x^2\)</span>
-                <span class="sub-title">две точки перегиба</span>
-            </div>
-            <div class="section-content">
-                <div class="example">
-                    <span class="step">Шаг 1. Находим производные:</span>
-                    <span class="formula-line">$$ f(x) = x^4 - 6x^2 $$</span>
-                    <span class="formula-line">$$ f'(x) = 4x^3 - 12x $$</span>
-                    <span class="formula-line">$$ f''(x) = 12x^2 - 12 = 12(x^2 - 1) $$</span>
-
-                    <span class="step">Шаг 2. Находим \(f''(x) = 0\):</span>
-                    <span class="formula-line">$$ 12(x^2 - 1) = 0 \Rightarrow x = \pm 1 $$</span>
-
-                    <span class="step">Шаг 3. <span class="interval-method">Метод интервалов.</span> Наносим \(x = -1\) и \(x = 1\) на числовую прямую:</span>
-                    <span class="formula-line">$$ (-\infty; -1) \quad \text{— берём } x = -2, \quad f''(-2) = 12(4-1) = 36 > 0 $$</span>
-                    <span class="formula-line">$$ (-1; 1) \quad \text{— берём } x = 0, \quad f''(0) = 12(0-1) = -12 < 0 $$</span>
-                    <span class="formula-line">$$ (1; +\infty) \quad \text{— берём } x = 2, \quad f''(2) = 12(4-1) = 36 > 0 $$</span>
-
-                    <span class="step">Шаг 4. Анализируем знаки:</span>
-                    <span class="formula-line">$$ x < -1: \quad f''(x) > 0 \Rightarrow \text{выпукла вниз (∪)} $$</span>
-                    <span class="formula-line">$$ -1 < x < 1: \quad f''(x) < 0 \Rightarrow \text{выпукла вверх (∩)} $$</span>
-                    <span class="formula-line">$$ x > 1: \quad f''(x) > 0 \Rightarrow \text{выпукла вниз (∪)} $$</span>
-
-                    <span class="result">Ответ:</span>
-                    <span class="formula-line">• <span class="convex-up">Выпукла вниз</span> на \((-\infty; -1)\) и \((1; +\infty)\)</span>
-                    <span class="formula-line">• <span class="convex-down">Выпукла вверх</span> на \((-1; 1)\)</span>
-                    <span class="formula-line">• Точки перегиба: \(x = -1\) и \(x = 1\)</span>
-                    <span class="formula-line">$$ f(-1) = 1 - 6 = -5, \quad f(1) = 1 - 6 = -5 $$</span>
-                    <span class="formula-line">• Координаты точек перегиба: \((-1; -5)\) и \((1; -5)\)</span>
-                    <div class="explain">✅ В точках \(x = \pm 1\) знак \(f''(x)\) меняется, значит это точки перегиба.</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== ПРИМЕР 3: y = sin x ===== -->
-        <div class="section collapsed">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="main-title">📐 Пример 3. \(f(x) = \sin x\)</span>
-                <span class="sub-title">периодические точки перегиба</span>
-            </div>
-            <div class="section-content">
-                <div class="example">
-                    <span class="step">Шаг 1. Находим производные:</span>
-                    <span class="formula-line">$$ f(x) = \sin x $$</span>
-                    <span class="formula-line">$$ f'(x) = \cos x $$</span>
-                    <span class="formula-line">$$ f''(x) = -\sin x $$</span>
-
-                    <span class="step">Шаг 2. Находим \(f''(x) = 0\):</span>
-                    <span class="formula-line">$$ -\sin x = 0 \Rightarrow x = \pi k, \quad k \in \mathbb{Z} $$</span>
-
-                    <span class="step">Шаг 3. <span class="interval-method">Метод интервалов.</span> Рассмотрим промежутки:</span>
-                    <span class="formula-line">$$ (0; \pi) \quad \text{— берём } x = \frac{\pi}{2}, \quad f''\left(\frac{\pi}{2}\right) = -1 < 0 $$</span>
-                    <span class="formula-line">$$ (\pi; 2\pi) \quad \text{— берём } x = \frac{3\pi}{2}, \quad f''\left(\frac{3\pi}{2}\right) = 1 > 0 $$</span>
-
-                    <span class="step">Шаг 4. Анализируем знаки:</span>
-                    <span class="formula-line">$$ x \in (0; \pi): \quad f''(x) < 0 \Rightarrow \text{выпукла вверх (∩)} $$</span>
-                    <span class="formula-line">$$ x \in (\pi; 2\pi): \quad f''(x) > 0 \Rightarrow \text{выпукла вниз (∪)} $$</span>
-
-                    <span class="result">Ответ:</span>
-                    <span class="formula-line">• <span class="convex-down">Выпукла вверх</span> на \((2\pi k; \pi + 2\pi k)\)</span>
-                    <span class="formula-line">• <span class="convex-up">Выпукла вниз</span> на \((\pi + 2\pi k; 2\pi + 2\pi k)\)</span>
-                    <span class="formula-line">• Точки перегиба: \(x = \pi k\), \(f(\pi k) = 0\)</span>
-                    <span class="formula-line">• Координаты точек перегиба: \((\pi k; 0)\), где \(k \in \mathbb{Z}\)</span>
-                    <div class="explain">✅ Точки перегиба синуса: \((\pi k; 0)\).</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== ПРИМЕР 4: y = x⁴ ===== -->
-        <div class="section collapsed">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="main-title">📐 Пример 4. \(f(x) = x^4\)</span>
-                <span class="sub-title">нет точек перегиба</span>
-            </div>
-            <div class="section-content">
-                <div class="example">
-                    <span class="step">Шаг 1. Находим производные:</span>
-                    <span class="formula-line">$$ f(x) = x^4 $$</span>
-                    <span class="formula-line">$$ f'(x) = 4x^3 $$</span>
-                    <span class="formula-line">$$ f''(x) = 12x^2 $$</span>
-
-                    <span class="step">Шаг 2. Находим \(f''(x) = 0\):</span>
-                    <span class="formula-line">$$ 12x^2 = 0 \Rightarrow x = 0 $$</span>
-
-                    <span class="step">Шаг 3. <span class="interval-method">Метод интервалов.</span> Наносим \(x = 0\) на числовую прямую:</span>
-                    <span class="formula-line">$$ (-\infty; 0) \quad \text{— берём } x = -1, \quad f''(-1) = 12 > 0 $$</span>
-                    <span class="formula-line">$$ (0; +\infty) \quad \text{— берём } x = 1, \quad f''(1) = 12 > 0 $$</span>
-
-                    <span class="step">Шаг 4. Анализируем знаки:</span>
-                    <span class="formula-line">$$ x < 0: \quad f''(x) > 0 \Rightarrow \text{выпукла вниз (∪)} $$</span>
-                    <span class="formula-line">$$ x > 0: \quad f''(x) > 0 \Rightarrow \text{выпукла вниз (∪)} $$</span>
-
-                    <span class="result">Ответ:</span>
-                    <span class="formula-line">• Функция <span class="convex-up">выпукла вниз</span> на всей области определения \((-\infty; +\infty)\)</span>
-                    <span class="formula-line">• <strong>Точек перегиба нет</strong>, так как знак \(f''(x)\) не меняется</span>
-                    <div class="explain">✅ В точке \(x = 0\) вторая производная равна нулю, но знак не меняется → это не точка перегиба.</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== ПРИМЕР 5: y = x⁵ ===== -->
-        <div class="section collapsed">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="main-title">📐 Пример 5. \(f(x) = x^5\)</span>
-                <span class="sub-title">точка перегиба с плоским участком</span>
-            </div>
-            <div class="section-content">
-                <div class="example">
-                    <span class="step">Шаг 1. Находим производные:</span>
-                    <span class="formula-line">$$ f(x) = x^5 $$</span>
-                    <span class="formula-line">$$ f'(x) = 5x^4 $$</span>
-                    <span class="formula-line">$$ f''(x) = 20x^3 $$</span>
-
-                    <span class="step">Шаг 2. Находим \(f''(x) = 0\):</span>
-                    <span class="formula-line">$$ 20x^3 = 0 \Rightarrow x = 0 $$</span>
-
-                    <span class="step">Шаг 3. <span class="interval-method">Метод интервалов.</span> Наносим \(x = 0\) на числовую прямую:</span>
-                    <span class="formula-line">$$ (-\infty; 0) \quad \text{— берём } x = -1, \quad f''(-1) = -20 < 0 $$</span>
-                    <span class="formula-line">$$ (0; +\infty) \quad \text{— берём } x = 1, \quad f''(1) = 20 > 0 $$</span>
-
-                    <span class="step">Шаг 4. Анализируем знаки:</span>
-                    <span class="formula-line">$$ x < 0: \quad f''(x) < 0 \Rightarrow \text{выпукла вверх (∩)} $$</span>
-                    <span class="formula-line">$$ x > 0: \quad f''(x) > 0 \Rightarrow \text{выпукла вниз (∪)} $$</span>
-                    <div class="explain">💡 В точке \(x = 0\) знак меняется с \(-\) на \(+\).</div>
-
-                    <span class="result">Ответ:</span>
-                    <span class="formula-line">• Функция <span class="convex-down">выпукла вверх</span> на \((-\infty; 0)\)</span>
-                    <span class="formula-line">• Функция <span class="convex-up">выпукла вниз</span> на \((0; +\infty)\)</span>
-                    <span class="formula-line">• \(x = 0\) — <strong>точка перегиба</strong>, \(f(0) = 0\)</span>
-                    <div class="explain">✅ График \(y = x^5\) перегибается в точке \((0; 0)\), но переход более плавный, чем у \(x^3\).</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== ПРИМЕР 6: ДРОБНО-РАЦИОНАЛЬНАЯ ===== -->
-        <div class="section collapsed">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="main-title">📐 Пример 6. \(f(x) = \frac{1}{x}\)</span>
-                <span class="sub-title">вторая производная не существует в точке \(x = 0\)</span>
-            </div>
-            <div class="section-content">
-                <div class="example">
-                    <span class="step">Шаг 1. Находим производные:</span>
-                    <span class="formula-line">$$ f(x) = \frac{1}{x} = x^{-1} $$</span>
-                    <span class="formula-line">$$ f'(x) = -x^{-2} = -\frac{1}{x^2} $$</span>
-                    <span class="formula-line">$$ f''(x) = 2x^{-3} = \frac{2}{x^3} $$</span>
-
-                    <span class="step">Шаг 2. Находим, где \(f''(x) = 0\) или не существует:</span>
-                    <span class="formula-line">$$ f''(x) = 0 \text{ — решений нет} $$</span>
-                    <span class="formula-line">$$ f''(x) \text{ не существует при } x = 0 $$</span>
-                    <div class="explain">💡 В точке \(x = 0\) функция \(f(x) = \frac{1}{x}\) не определена (разрыв).</div>
-
-                    <span class="step">Шаг 3. <span class="interval-method">Метод интервалов.</span> Наносим \(x = 0\) на числовую прямую:</span>
-                    <span class="formula-line">$$ (-\infty; 0) \quad \text{— берём } x = -1, \quad f''(-1) = -2 < 0 $$</span>
-                    <span class="formula-line">$$ (0; +\infty) \quad \text{— берём } x = 1, \quad f''(1) = 2 > 0 $$</span>
-
-                    <span class="step">Шаг 4. Анализируем знаки:</span>
-                    <span class="formula-line">$$ x < 0: \quad f''(x) < 0 \Rightarrow \text{выпукла вверх (∩)} $$</span>
-                    <span class="formula-line">$$ x > 0: \quad f''(x) > 0 \Rightarrow \text{выпукла вниз (∪)} $$</span>
-
-                    <span class="result">Ответ:</span>
-                    <span class="formula-line">• Функция <span class="convex-down">выпукла вверх</span> на \((-\infty; 0)\)</span>
-                    <span class="formula-line">• Функция <span class="convex-up">выпукла вниз</span> на \((0; +\infty)\)</span>
-                    <span class="formula-line">• В точке \(x = 0\) <strong>разрыв</strong>, поэтому это <strong>не точка перегиба</strong></span>
-                    <div class="explain">✅ Важно: точка перегиба должна принадлежать области определения функции!</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== ПРИМЕР 7: ЗАДАЧА С ПАРАМЕТРОМ ===== -->
-        <div class="section collapsed">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="main-title">⭐ Пример 7. \(f(x) = x^3 + ax^2 + 3x\)</span>
-                <span class="sub-title">найти \(a\), при которых есть точка перегиба</span>
-            </div>
-            <div class="section-content">
-                <div class="example">
-                    <span class="star">⭐</span> <strong>Задача повышенной сложности (с параметром).</strong><br><br>
-
-                    <strong>Условие:</strong> При каких значениях параметра \(a\) функция \(f(x) = x^3 + ax^2 + 3x\) имеет точку перегиба?<br><br>
-
-                    <span class="step">Шаг 1. Находим вторую производную:</span>
-                    <span class="formula-line">$$ f(x) = x^3 + ax^2 + 3x $$</span>
-                    <span class="formula-line">$$ f'(x) = 3x^2 + 2ax + 3 $$</span>
-                    <span class="formula-line">$$ f''(x) = 6x + 2a $$</span>
-
-                    <span class="step">Шаг 2. Находим \(f''(x) = 0\):</span>
-                    <span class="formula-line">$$ 6x + 2a = 0 \Rightarrow x = -\frac{a}{3} $$</span>
-
-                    <span class="step">Шаг 3. <span class="interval-method">Метод интервалов.</span> Проверяем, меняется ли знак \(f''(x)\) в этой точке:</span>
-                    <span class="formula-line">$$ f''(x) = 6x + 2a \text{ — линейная функция} $$</span>
-                    <span class="formula-line">$$ \text{При } x < -\frac{a}{3}: \quad f''(x) < 0 $$</span>
-                    <span class="formula-line">$$ \text{При } x > -\frac{a}{3}: \quad f''(x) > 0 $$</span>
-                    <div class="explain">💡 Линейная функция всегда меняет знак в точке \(x = -a/3\).</div>
-
-                    <span class="result">Ответ:</span>
-                    <span class="formula-line">• При <strong>любом</strong> значении \(a\) функция имеет точку перегиба</span>
-                    <span class="formula-line">• Точка перегиба: \(x = -\frac{a}{3}\)</span>
-                    <span class="formula-line">• Координата точки перегиба: \(\left(-\frac{a}{3};\; f\left(-\frac{a}{3}\right)\right)\)</span>
-                    <div class="explain">✅ Для кубического многочлена \(x^3 + ax^2 + bx + c\) точка перегиба всегда существует.</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== СВЯЗЬ С ЭКСТРЕМУМАМИ ===== -->
-        <div class="section collapsed">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
-                <span class="main-title">🔗 Связь с экстремумами</span>
-                <span class="sub-title">вторая производная и точки экстремума</span>
-            </div>
-            <div class="section-content">
-                <div class="example">
-                    <strong>Вторая производная помогает определять тип экстремума:</strong><br><br>
-
-                    Если \(f'(x_0) = 0\) и \(f''(x_0) \neq 0\), то:<br><br>
-
-                    <div class="formula-line">• \(f''(x_0) < 0\) → \(x_0\) — точка <span style="color:#f87171;font-weight:700;">максимума</span></div>
-                    <div class="explain">💡 Функция выпукла вверх → вершина — максимум.</div>
-
-                    <div class="formula-line">• \(f''(x_0) > 0\) → \(x_0\) — точка <span style="color:#34d399;font-weight:700;">минимума</span></div>
-                    <div class="explain">💡 Функция выпукла вниз → вершина — минимум.</div>
-
-                    <div class="formula-line">• \(f''(x_0) = 0\) → требуется дополнительное исследование.</div>
-                    <div class="explain">💡 Может быть экстремум, а может быть точка перегиба.</div>
-
-                    <span class="result">Пример: \(f(x) = x^2\)</span>
-                    <span class="formula-line">$$ f'(x) = 2x = 0 \Rightarrow x = 0 $$</span>
-                    <span class="formula-line">$$ f''(x) = 2 > 0 \Rightarrow x = 0 \text{ — точка минимума} $$</span>
-                    <div class="explain">✅ Вторая производная положительна → минимум.</div>
-                </div>
-            </div>
-        </div>
-
     </div>
+
+    <!-- ===== 2. ОПРЕДЕЛЕНИЕ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Определение выпуклости</span>
+            <span class="sub-title">выпуклая вниз и вверх</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block" style="border-left-color:#34d399;">
+                <strong><span class="convex-up">Выпуклая вниз</span> (∪):</strong><br>
+                График лежит <strong>выше</strong> касательной.<br>
+                Вторая производная: <strong>$f''(x) > 0$</strong>.<br>
+                Пример: $y = x^2$.
+            </div>
+            <div class="graph-container">
+                <canvas id="graphConvexDown" class="parabola-plot" width="650" height="220"></canvas>
+                <div class="graph-label">🟢 График $y = x^2$ <span style="color:#34d399;">выше</span> касательной (выпуклый вниз)</div>
+            </div>
+            <div class="formula-block" style="border-left-color:#f87171;">
+                <strong><span class="convex-down">Выпуклая вверх</span> (∩):</strong><br>
+                График лежит <strong>ниже</strong> касательной.<br>
+                Вторая производная: <strong>$f''(x) < 0$</strong>.<br>
+                Пример: $y = -x^2$.
+            </div>
+            <div class="graph-container">
+                <canvas id="graphConvexUp" class="parabola-plot" width="650" height="220"></canvas>
+                <div class="graph-label">🔴 График $y = -x^2$ <span style="color:#f87171;">ниже</span> касательной (выпуклый вверх)</div>
+            </div>
+            <div class="formula-block" style="border-left-color:#fbbf24;">
+                <strong>Точка перегиба</strong> — точка, где функция <strong>меняет направление выпуклости</strong>.<br>
+                В точке перегиба: <strong>$f''(x) = 0$</strong> (или не существует) и <strong>меняется знак</strong> $f''(x)$.<br>
+                Пример: $y = x^3$ в точке $x = 0$.
+            </div>
+            <div class="graph-container">
+                <canvas id="graphInflection" class="parabola-plot" width="650" height="220"></canvas>
+                <div class="graph-label">🟡 График $y = x^3$ меняет выпуклость в точке $(0; 0)$</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 3. АЛГОРИТМ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📋 Алгоритм исследования</span>
+            <span class="sub-title">с методом интервалов</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Как найти промежутки выпуклости и точки перегиба:</strong><br><br>
+                <span class="step">1️⃣ Найти вторую производную $f''(x)$.</span><br>
+                <span class="step">2️⃣ Найти точки, где $f''(x) = 0$ или не существует.</span><br>
+                <span class="step">3️⃣ Нанести эти точки на числовую прямую.</span><br>
+                <span class="step">4️⃣ <span class="interval-method">Метод интервалов:</span> определить знак $f''(x)$ на каждом промежутке, подставляя любое число из промежутка.</span><br>
+                <div class="hint">• если $f''(x) > 0$ → функция <span class="convex-up">выпукла вниз</span> (∪)<br>• если $f''(x) < 0$ → функция <span class="convex-down">выпукла вверх</span> (∩)</div>
+                <span class="step">5️⃣ Если в точке $x_0$ знак $f''(x)$ меняется, то $x_0$ — <strong>точка перегиба</strong>.</span>
+                <div class="hint">💡 <span class="interval-method">Метод интервалов</span> — берём любое число из промежутка, подставляем в $f''(x)$, смотрим знак.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 4. ПРИМЕР 1 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. $f(x) = x^3$</span>
+            <span class="sub-title">классическая точка перегиба</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1. Производные:</span><br>
+                $f(x) = x^3$<br>
+                $f'(x) = 3x^2$<br>
+                $f''(x) = 6x$.<br><br>
+
+                <span class="step">Шаг 2. Находим $f''(x) = 0$:</span><br>
+                $6x = 0 \Rightarrow x = 0$.<br><br>
+
+                <span class="step">Шаг 3. Метод интервалов.</span><br>
+                Наносим $x = 0$ на числовую прямую:
+            </div>
+
+            <!-- ===== CANVAS: метод интервалов ===== -->
+            <div class="graph-container">
+                <canvas id="intervalExample1" class="parabola-plot" width="650" height="220"></canvas>
+                <div class="graph-label">Знаки $f''(x) = 6x$ на интервалах $(-\infty; 0)$ и $(0; +\infty)$</div>
+            </div>
+
+            <div class="example">
+                <span class="step">Шаг 4. Проверяем знаки:</span><br>
+                $(-\infty; 0)$ — берём $x = -1$: $f''(-1) = -6 < 0$ → знак «−», функция <span class="convex-down">выпукла вверх (∩)</span>.<br>
+                $(0; +\infty)$ — берём $x = 1$: $f''(1) = 6 > 0$ → знак «+», функция <span class="convex-up">выпукла вниз (∪)</span>.<br><br>
+
+                <strong>Шаг 5. Вывод.</strong><br>
+                В точке $x = 0$ знак меняется с «−» на «+» ⇒ <strong>точка перегиба</strong>.<br><br>
+
+                <span class="result">Ответ:</span><br>
+                • Функция <span class="convex-down">выпукла вверх</span> на $(-\infty; 0)$.<br>
+                • Функция <span class="convex-up">выпукла вниз</span> на $(0; +\infty)$.<br>
+                • $x = 0$ — точка перегиба, $f(0) = 0$, координата $(0; 0)$.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 5. ПРИМЕР 2 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. $f(x) = x^4 - 6x^2$</span>
+            <span class="sub-title">две точки перегиба</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1. Производные:</span><br>
+                $f(x) = x^4 - 6x^2$<br>
+                $f'(x) = 4x^3 - 12x$<br>
+                $f''(x) = 12x^2 - 12 = 12(x^2 - 1)$.<br><br>
+
+                <span class="step">Шаг 2. Находим $f''(x) = 0$:</span><br>
+                $12(x^2 - 1) = 0 \Rightarrow x = \pm 1$.<br><br>
+
+                <span class="step">Шаг 3. Метод интервалов.</span><br>
+                Точки $-1$ и $1$ разбивают прямую на три промежутка.
+            </div>
+
+            <!-- ===== CANVAS: метод интервалов для примера 2 ===== -->
+            <div class="graph-container">
+                <canvas id="intervalExample2" class="parabola-plot" width="650" height="220"></canvas>
+                <div class="graph-label">Знаки $f''(x) = 12(x^2 - 1)$ на интервалах</div>
+            </div>
+
+            <div class="example">
+                <span class="step">Шаг 4. Проверяем знаки:</span><br>
+                $(-\infty; -1)$ — берём $x = -2$: $f''(-2) = 36 > 0$ → «+», <span class="convex-up">выпукла вниз (∪)</span>.<br>
+                $(-1; 1)$ — берём $x = 0$: $f''(0) = -12 < 0$ → «−», <span class="convex-down">выпукла вверх (∩)</span>.<br>
+                $(1; +\infty)$ — берём $x = 2$: $f''(2) = 36 > 0$ → «+», <span class="convex-up">выпукла вниз (∪)</span>.<br><br>
+
+                <strong>Шаг 5. Вывод.</strong><br>
+                $x = -1$: «+» → «−» ⇒ точка перегиба, $f(-1) = -5$.<br>
+                $x = 1$: «−» → «+» ⇒ точка перегиба, $f(1) = -5$.<br><br>
+
+                <span class="result">Ответ: <span class="convex-up">выпукла вниз</span> на $(-\infty; -1) \cup (1; +\infty)$; <span class="convex-down">выпукла вверх</span> на $(-1; 1)$; точки перегиба $(-1; -5)$ и $(1; -5)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 6. ПРИМЕР 3 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. $f(x) = \sin x$</span>
+            <span class="sub-title">периодические точки перегиба</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1. Производные:</span><br>
+                $f(x) = \sin x$<br>
+                $f'(x) = \cos x$<br>
+                $f''(x) = -\sin x$.<br><br>
+
+                <span class="step">Шаг 2. Находим $f''(x) = 0$:</span><br>
+                $-\sin x = 0 \Rightarrow x = \pi k,\; k \in \mathbb{Z}$.<br><br>
+
+                <span class="step">Шаг 3. Метод интервалов:</span><br>
+                $(0; \pi)$ — берём $x = \pi/2$: $f''(\pi/2) = -1 < 0$ → «−», <span class="convex-down">выпукла вверх (∩)</span>.<br>
+                $(\pi; 2\pi)$ — берём $x = 3\pi/2$: $f''(3\pi/2) = 1 > 0$ → «+», <span class="convex-up">выпукла вниз (∪)</span>.<br><br>
+
+                <span class="result">Ответ: точки перегиба $(\pi k; 0)$; выпукла вверх на $(2\pi k; \pi + 2\pi k)$; выпукла вниз на $(\pi + 2\pi k; 2\pi + 2\pi k)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 7. ПРИМЕР 4 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. $f(x) = x^4$</span>
+            <span class="sub-title">нет точек перегиба</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1. Производные:</span><br>
+                $f''(x) = 12x^2$.<br><br>
+                <span class="step">Шаг 2. $f''(x) = 0 \Rightarrow x = 0$.</span><br><br>
+                <span class="step">Шаг 3. Метод интервалов:</span><br>
+                $(-\infty; 0)$ — берём $x = -1$: $f''(-1) = 12 > 0$ → «+».<br>
+                $(0; +\infty)$ — берём $x = 1$: $f''(1) = 12 > 0$ → «+».<br><br>
+
+                <span class="result">Ответ: <span class="convex-up">выпукла вниз</span> на $\mathbb{R}$; <strong>точек перегиба нет</strong> — знак $f''$ не меняется.</span>
+                <div class="hint">💡 $f''(0) = 0$, но знак не меняется — значит, это не точка перегиба.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 8. ПРИМЕР 5 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5. $f(x) = x^5$</span>
+            <span class="sub-title">точка перегиба с плоским участком</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1.</span> $f''(x) = 20x^3$.<br>
+                <span class="step">Шаг 2.</span> $f''(x) = 0 \Rightarrow x = 0$.<br>
+                <span class="step">Шаг 3. Метод интервалов:</span><br>
+                $(-\infty; 0)$: $f''(-1) = -20 < 0$ → «−», <span class="convex-down">выпукла вверх</span>.<br>
+                $(0; +\infty)$: $f''(1) = 20 > 0$ → «+», <span class="convex-up">выпукла вниз</span>.<br><br>
+                <span class="result">Ответ: $x = 0$ — точка перегиба, $(0; 0)$; выпукла вверх на $(-\infty; 0)$, вниз на $(0; +\infty)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 9. ПРИМЕР 6 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 6. $f(x) = \frac{1}{x}$</span>
+            <span class="sub-title">$f''$ не существует в точке $x = 0$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1.</span> $f''(x) = \dfrac{2}{x^3}$.<br>
+                <span class="step">Шаг 2.</span> $f''(x) = 0$ — решений нет; $f''$ не существует в $x = 0$.<br>
+                <span class="step">Шаг 3. Метод интервалов:</span><br>
+                $(-\infty; 0)$: $f''(-1) = -2 < 0$ → «−», <span class="convex-down">выпукла вверх</span>.<br>
+                $(0; +\infty)$: $f''(1) = 2 > 0$ → «+», <span class="convex-up">выпукла вниз</span>.<br><br>
+                <span class="result">Ответ: $x = 0$ — разрыв, <strong>не точка перегиба</strong>; выпукла вверх на $(-\infty; 0)$, вниз на $(0; +\infty)$.</span>
+                <div class="hint">💡 Точка перегиба должна принадлежать области определения функции.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 10. СВЯЗЬ С ЭКСТРЕМУМАМИ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔗 Связь с экстремумами</span>
+            <span class="sub-title">вторая производная и тип экстремума</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                Если $f'(x_0) = 0$ и $f''(x_0) \neq 0$, то:<br>
+                • $f''(x_0) < 0$ → $x_0$ — точка <strong>максимума</strong> (функция выпукла вверх).<br>
+                • $f''(x_0) > 0$ → $x_0$ — точка <strong>минимума</strong> (функция выпукла вниз).<br>
+                • $f''(x_0) = 0$ → требуется дополнительное исследование.
+            </div>
+            <div class="example">
+                <strong>Пример.</strong> $f(x) = x^2$:<br><br>
+                $f'(x) = 2x = 0 \Rightarrow x = 0$<br>
+                $f''(x) = 2 > 0 \Rightarrow x = 0$ — точка <strong>минимума</strong>.<br>
+                <span class="result">Минимум в $(0; 0)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 11. ТИПИЧНЫЕ ОШИБКИ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚠️ Типичные ошибки</span>
+        </div>
+        <div class="section-content">
+            <div class="table-scroll">
+                <table class="error-table">
+                    <thead><tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr></thead>
+                    <tbody>
+                    <tr>
+                        <td class="wrong">Считают, что $f''(x_0) = 0$ — это точка перегиба</td>
+                        <td>Если знак $f''$ не меняется, перегиба нет (например, $y = x^4$ при $x = 0$).</td>
+                        <td class="right">Проверять смену знака $f''$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Путают выпуклость вверх и вниз</td>
+                        <td>Знак $f''$ определяет: $> 0$ — вниз (∪), $< 0$ — вверх (∩).</td>
+                        <td class="right">Запомнить: $f'' > 0$ → «улыбка»</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Считают точку разрыва точкой перегиба</td>
+                        <td>Точка перегиба должна принадлежать области определения.</td>
+                        <td class="right">Проверять $D(f)$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Не проверяют знаки на всех интервалах</td>
+                        <td>Можно пропустить смену знака или принять за неё там, где её нет.</td>
+                        <td class="right">Метод интервалов — на каждом промежутке</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 12. СВОДНАЯ ТАБЛИЦА ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📊 Сводная таблица</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>1.</strong> $f''(x) > 0$ → <span class="convex-up">выпукла вниз</span> (∪).<br><br>
+                <strong>2.</strong> $f''(x) < 0$ → <span class="convex-down">выпукла вверх</span> (∩).<br><br>
+                <strong>3.</strong> Точка перегиба = смена знака $f''$ + принадлежит $D(f)$.<br><br>
+                <strong>4.</strong> Алгоритм: $f''$ → нули → знаки → вывод.<br><br>
+                <strong>5.</strong> При $f'(x_0) = 0$: $f''(x_0) > 0$ → минимум, $f''(x_0) < 0$ → максимум.
+            </div>
+        </div>
+    </div>
+
     <a href="derivative.html" class="back-link">← Назад к производным</a>
 </div>
 
 <script>
-    // ===== РИСОВАНИЕ ГРАФИКОВ НА CANVAS =====
+    // ========== ИНИЦИАЛИЗАЦИЯ ТЕМЫ ==========
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
 
-    function drawGraphWithTangent(canvasId, func, xMin, xMax, yMin, yMax, tangentX, color, label) {
+    // ========== РИСОВАНИЕ ГРАФИКОВ С КАСАТЕЛЬНОЙ ==========
+    function drawGraphWithTangent(canvasId, func, xMin, xMax, yMin, yMax, tangentX, color) {
         const canvas = document.getElementById(canvasId);
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -490,9 +434,11 @@
         ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
         ctx.fillRect(0, 0, w, h);
 
+        // Сетка
         ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
         ctx.lineWidth = 0.6;
         for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x += 1) {
+            if (Math.abs(x) < 0.01) continue;
             const sx = toX(x);
             ctx.beginPath();
             ctx.moveTo(sx, pad);
@@ -505,6 +451,7 @@
             ctx.fillText(x, sx, h - pad + 4);
         }
         for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y += 1) {
+            if (Math.abs(y) < 0.01) continue;
             const sy = toY(y);
             ctx.beginPath();
             ctx.moveTo(pad, sy);
@@ -517,6 +464,7 @@
             ctx.fillText(y, pad - 8, sy);
         }
 
+        // Оси
         ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
         ctx.lineWidth = 1.8;
         const ox = toY(0), oy = toX(0);
@@ -533,11 +481,12 @@
             ctx.stroke();
         }
 
+        // График
         ctx.strokeStyle = color;
         ctx.lineWidth = 2.5;
         ctx.beginPath();
         let first = true;
-        const step = (xMax - xMin) / 400;
+        const step = (xMax - xMin) / 500;
         for (let x = xMin; x <= xMax; x += step) {
             let y;
             try { y = func(x); } catch (e) { first = true; continue; }
@@ -550,24 +499,23 @@
         }
         ctx.stroke();
 
+        // Касательная
         if (tangentX !== undefined && tangentX >= xMin && tangentX <= xMax) {
             const fAt = func(tangentX);
             const hStep = 0.001;
-            const fAtPlus = func(tangentX + hStep);
-            const fAtMinus = func(tangentX - hStep);
-            const slope = (fAtPlus - fAtMinus) / (2 * hStep);
+            const slope = (func(tangentX + hStep) - func(tangentX - hStep)) / (2 * hStep);
 
-            const tangentStartX = tangentX - 1.5;
-            const tangentEndX = tangentX + 1.5;
-            const tangentStartY = fAt + slope * (tangentStartX - tangentX);
-            const tangentEndY = fAt + slope * (tangentEndX - tangentX);
+            const tStartX = tangentX - 1.5;
+            const tEndX = tangentX + 1.5;
+            const tStartY = fAt + slope * (tStartX - tangentX);
+            const tEndY = fAt + slope * (tEndX - tangentX);
 
             ctx.strokeStyle = '#fbbf24';
             ctx.lineWidth = 2;
             ctx.setLineDash([6, 4]);
             ctx.beginPath();
-            ctx.moveTo(toX(tangentStartX), toY(tangentStartY));
-            ctx.lineTo(toX(tangentEndX), toY(tangentEndY));
+            ctx.moveTo(toX(tStartX), toY(tStartY));
+            ctx.lineTo(toX(tEndX), toY(tEndY));
             ctx.stroke();
             ctx.setLineDash([]);
 
@@ -580,88 +528,192 @@
             ctx.beginPath();
             ctx.arc(toX(tangentX), toY(fAt), 6, 0, 2 * Math.PI);
             ctx.stroke();
+        }
+    }
 
-            ctx.fillStyle = '#fbbf24';
-            ctx.font = 'bold 11px sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText('касательная', toX(tangentX) + 10, toY(fAt) - 6);
+    // ========== МЕТОД ИНТЕРВАЛОВ (ДЛЯ ОДНОЙ ИЛИ НЕСКОЛЬКИХ ТОЧЕК) ==========
+    function drawIntervalPlotMulti(canvasId, zeros, signs, labels, xMin, xMax) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 40;
+        const pw = w - 2 * pad;
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        const yAxis = h - 80;
+
+        // Ось X
+        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(pad - 10, yAxis);
+        ctx.lineTo(w - pad + 10, yAxis);
+        ctx.stroke();
+
+        // Стрелка
+        ctx.beginPath();
+        ctx.moveTo(w - pad + 10, yAxis);
+        ctx.lineTo(w - pad, yAxis - 5);
+        ctx.lineTo(w - pad, yAxis + 5);
+        ctx.closePath();
+        ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.fill();
+
+        // Подпись x
+        ctx.fillStyle = isLight ? '#1a2a3f' : '#ffffff';
+        ctx.font = '14px Inter,sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('x', w - pad, yAxis - 8);
+
+        // Точки (засечки + подписи)
+        const xPos = [];
+        for (let i = 0; i < zeros.length; i++) {
+            const zx = toX(zeros[i]);
+            xPos.push(zx);
+
+            // Засечка
+            ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(zx, yAxis - 6);
+            ctx.lineTo(zx, yAxis + 6);
+            ctx.stroke();
+
+            // Точка (выколотая)
+            ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+            ctx.beginPath();
+            ctx.arc(zx, yAxis, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Подпись точки
+            ctx.fillStyle = isLight ? '#1a2a3f' : '#ffffff';
+            ctx.font = 'bold 14px Inter,sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(zeros[i].toString(), zx, yAxis + 10);
+        }
+
+        // Дуги со знаками
+        const amp = 40;
+        const colors = {
+            plus: isLight ? '#059669' : '#34d399',
+            minus: isLight ? '#dc2626' : '#f87171',
+            plusFill: isLight ? 'rgba(5,150,105,0.15)' : 'rgba(52,211,153,0.15)',
+            minusFill: isLight ? 'rgba(220,38,38,0.15)' : 'rgba(248,113,113,0.15)'
+        };
+
+        for (let si = 0; si < signs.length; si++) {
+            const xStart = (si === 0) ? pad - 10 : xPos[si - 1];
+            const xEnd = (si === signs.length - 1) ? w - pad + 10 : xPos[si];
+            const isPlus = (signs[si] === '+');
+
+            ctx.beginPath();
+            ctx.strokeStyle = isPlus ? colors.plus : colors.minus;
+            ctx.lineWidth = 3;
+            ctx.fillStyle = isPlus ? colors.plusFill : colors.minusFill;
+            for (let t = 0; t <= 1; t += 0.01) {
+                const xx = xStart + t * (xEnd - xStart);
+                const yy = yAxis - amp * Math.sin(t * Math.PI);
+                if (t === 0) ctx.moveTo(xx, yy);
+                else ctx.lineTo(xx, yy);
+            }
+            ctx.lineTo(xEnd, yAxis);
+            ctx.lineTo(xStart, yAxis);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Знак
+            const mid = (xStart + xEnd) / 2;
+            ctx.fillStyle = isPlus ? colors.plus : colors.minus;
+            ctx.font = 'bold 30px Inter,sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(signs[si], mid, yAxis - amp / 2 + 2);
+
+            // Подпись интервала
+            if (labels && labels[si]) {
+                ctx.fillStyle = isLight ? '#334155' : '#cbd5e1';
+                ctx.font = '12px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(labels[si], mid, yAxis + 30);
+            }
         }
     }
 
     function drawAllGraphs() {
+        // Выпуклая вниз: y = x²
         drawGraphWithTangent('graphConvexDown',
             x => x * x,
-            -2.5, 2.5, -0.5, 6,
-            1,
-            '#34d399',
-            'y = x²'
+            -2.5, 2.5, -1.5, 6,
+            1, '#34d399'
         );
 
+        // Выпуклая вверх: y = -x²
         drawGraphWithTangent('graphConvexUp',
             x => -(x * x),
-            -2.5, 2.5, -6.5, 0.5,
-            1,
-            '#f87171',
-            'y = -x²'
+            -2.5, 2.5, -6, 1.5,
+            1, '#f87171'
         );
 
+        // Точка перегиба: y = x³
         drawGraphWithTangent('graphInflection',
             x => x * x * x,
-            -2.5, 2.5, -6.5, 6.5,
-            0,
-            '#fbbf24',
-            'y = x³'
+            -2.5, 2.5, -7, 7,
+            0, '#fbbf24'
+        );
+
+        // Метод интервалов для примера 1: f''(x) = 6x, ноль в x = 0
+        drawIntervalPlotMulti(
+            'intervalExample1',
+            [0],
+            ['-', '+'],
+            ['(−∞; 0)', '(0; +∞)'],
+            -2, 2
+        );
+
+        // Метод интервалов для примера 2: f''(x) = 12(x²-1), нули в -1 и 1
+        drawIntervalPlotMulti(
+            'intervalExample2',
+            [-1, 1],
+            ['+', '-', '+'],
+            ['(−∞; −1)', '(−1; 1)', '(1; +∞)'],
+            -2.5, 2.5
         );
     }
 
-     else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
+    function initGraphs() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', drawAllGraphs);
+        } else {
+            drawAllGraphs();
         }
-        drawAllGraphs();
-        updateLegendColors();
+        window.addEventListener('load', drawAllGraphs);
+        setTimeout(drawAllGraphs, 1500);
+        setTimeout(drawAllGraphs, 3000);
     }
 
-    function updateLegendColors() {
-        const isLight = document.documentElement.classList.contains('light-mode');
-        const legend = document.querySelector('.legend');
-        if (legend) {
-            legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
-        }
-    }
+    initGraphs();
 
-    (function() {
-        if (localStorage.getItem('mathTheme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            document.getElementById('themeBtn').textContent = '☀️';
-        }
-        setTimeout(updateLegendColors, 100);
-        setTimeout(drawAllGraphs, 500);
-    })();
+    // Экспорт для theme.js
+    window.drawAllGraphs = drawAllGraphs;
 
-    const FAV_KEY = 'math_favorites';
-    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
-    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
-    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
-    function toggleFavorite() {
-        const u = window.location.pathname.split('/').pop();
-        let f = getFavorites();
-        const btn = document.getElementById('favoriteBtn');
-        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
-        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
-        saveFavorites(f);
-    }
-    function updateFavoriteBtn() {
-        const btn = document.getElementById('favoriteBtn');
-        if (btn) {
-            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
-            else { btn.textContent = '☆'; btn.classList.remove('active'); }
-        }
-    }
-    updateFavoriteBtn();
+    window.addEventListener('resize', drawAllGraphs);
+    var observer = new MutationObserver(function () { drawAllGraphs(); });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
+
 <script src="favorites.js"></script>
 <script src="theme.js"></script>
 </body>

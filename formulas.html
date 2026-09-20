@@ -71,6 +71,58 @@
             transition: background 0.3s;
         }
 
+        .theme-toggle {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s;
+            z-index: 100;
+            color: var(--text);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .favorite-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .favorite-btn.active {
+            color: #facc15;
+        }
+
         h1 {
             font-size: 1.5rem;
             color: var(--text);
@@ -718,11 +770,11 @@
             }
         };
     </script>
-    <script src="mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
 </head>
 <body>
 <div class="container">
-    <h1>ФСУ, квадратный трёхчлен и метод интервалов</h1>
+<h1>ФСУ, квадратный трёхчлен и метод интервалов</h1>
 
     <!-- БАННЕР С ПРЕДУПРЕЖДЕНИЕМ -->
     <div class="importance-banner" style="background: transparent; border-left: 4px solid #ef4444; padding: 16px 20px; margin-bottom: 20px;">
@@ -1043,21 +1095,6 @@
 </div>
 
 <script>
-     else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
-        }
-        if (window.MathJax) MathJax.typesetPromise();
-        setTimeout(drawAllIntervalPlots, 400);
-    }
-
-    (function() {
-        if (localStorage.getItem('mathTheme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            document.getElementById('themeBtn').textContent = '☀️';
-        }
-    })();
 
     // Калькулятор
     function solveQuadraticCalc() {
@@ -1415,55 +1452,9 @@
         drawAllIntervalPlots();
     });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-
-    // Избранное
-    var FAV_KEY = 'math_favorites';
-
-    function getFavorites() {
-        var s = localStorage.getItem(FAV_KEY);
-        return s ? JSON.parse(s) : [];
-    }
-
-    function saveFavorites(f) {
-        localStorage.setItem(FAV_KEY, JSON.stringify(f));
-    }
-
-    function isFavorite() {
-        var u = window.location.pathname.split('/').pop();
-        return getFavorites().includes(u);
-    }
-
-    function toggleFavorite() {
-        var u = window.location.pathname.split('/').pop();
-        var f = getFavorites();
-        var btn = document.getElementById('favoriteBtn');
-        if (f.includes(u)) {
-            f = f.filter(function(x) { return x !== u; });
-            btn.textContent = '☆';
-            btn.classList.remove('active');
-        } else {
-            f.push(u);
-            btn.textContent = '★';
-            btn.classList.add('active');
-        }
-        saveFavorites(f);
-    }
-
-    function updateFavoriteBtn() {
-        var btn = document.getElementById('favoriteBtn');
-        if (btn) {
-            if (isFavorite()) {
-                btn.textContent = '★';
-                btn.classList.add('active');
-            } else {
-                btn.textContent = '☆';
-                btn.classList.remove('active');
-            }
-        }
-    }
-    updateFavoriteBtn();
+    window.drawAllIntervalPlots = drawAllIntervalPlots;
 </script>
-<script src="favorites.js"></script>
-<script src="theme.js"></script>
+    <script src="favorites.js"></script>
+    <script src="theme.js"></script>
 </body>
 </html>
