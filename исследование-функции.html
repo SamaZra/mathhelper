@@ -53,13 +53,14 @@
         --danger-color: #dc2626;
     }
 
+    html,body{max-width:100%;overflow-x:hidden;}
     body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
     .container{max-width:1000px;margin:0 auto;position:relative;}
 
     .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
     h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
     .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
-    .content-card{background:var(--card-bg);border-radius:32px;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+    .content-card{background:var(--card-bg);border-radius:32px;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;overflow-x:hidden;}
 
     /* ===== СЕКЦИИ ===== */
     .section{margin-bottom:14px;}
@@ -127,15 +128,17 @@
     .asymptote-horizontal{color:#34d399;font-weight:700;}
     .asymptote-oblique{color:#a78bfa;font-weight:700;}
 
-    /* ===== ГРАФИКИ: как в асимптотах ===== */
+    /* ===== ГРАФИКИ ===== */
     .graph-container{
         text-align:center;
-        margin:8px 0;
+        margin:14px 0;
         background:var(--canvas-bg);
         border-radius:14px;
-        padding:6px;
+        padding:8px;
         display:block;
         transition:background 0.2s;
+        max-width:100%;
+        overflow:hidden;
     }
     .graph-container canvas{
         max-width:100%;
@@ -151,7 +154,7 @@
         font-size:0.85rem;
         color:var(--text-secondary);
         text-align:center;
-        margin-top:4px;
+        margin-top:6px;
         font-style:italic;
     }
 
@@ -166,18 +169,30 @@
     .error-table .right{color:var(--result-color);font-weight:700;}
 
     @media (max-width:700px){
-        body{padding:20px 14px 36px;}
-        .content-card{padding:14px 16px;}
-        .section-title{font-size:1rem;padding:6px 10px;}
-        .section-title .main-title{font-size:0.95rem;}
-        .section-title .sub-title{font-size:0.75rem;}
-        .definition-block p{font-size:0.95rem;}
-        .example{padding:12px 14px;font-size:0.9rem;}
-        .example-no-border{padding:12px 14px;font-size:0.9rem;}
-        .formula-block{padding:12px 14px;font-size:0.9rem;}
-        mjx-container{font-size:0.9em !important;}
-        .graph-container canvas{min-height:200px;}
-        .graph-label{font-size:0.75rem;}
+        body{padding:16px 8px 36px;}
+        .container{max-width:100%;}
+        .content-card{padding:12px 10px;border-radius:20px;}
+        .header{padding:16px 14px;margin-bottom:16px;border-radius:24px;}
+        h1{font-size:1.1rem;}
+        .subtitle{font-size:0.7rem;}
+        .section-title{font-size:0.95rem;padding:6px 10px;}
+        .section-title .main-title{font-size:0.9rem;}
+        .section-title .sub-title{font-size:0.72rem;}
+        .definition-block{padding:12px 14px;}
+        .definition-block p{font-size:0.9rem;}
+        .example{padding:12px 12px;font-size:0.88rem;line-height:1.9;}
+        .example-no-border{padding:12px 12px;font-size:0.88rem;line-height:1.9;}
+        .formula-block{padding:10px 12px;font-size:0.88rem;}
+        mjx-container{font-size:0.88em !important;}
+        .graph-container{padding:4px;margin:10px 0;border-radius:10px;}
+        .graph-container canvas{border-radius:6px;min-height:0;height:auto;}
+        .graph-label{font-size:0.7rem;margin-top:4px;}
+        .back-link{font-size:0.82rem;padding:8px 16px;}
+    }
+
+    @media (max-width:380px){
+        .content-card{padding:10px 8px;}
+        .graph-container canvas{border-radius:6px;}
     }
 
     @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
@@ -337,14 +352,15 @@
           <div class="formula-line">С \(Ox\): \(x(x^2 - 3) = 0\) → \((-\sqrt{3}; 0)\), \((0; 0)\), \((\sqrt{3}; 0)\)</div>
 
           <span class="step">🔹 9. График</span>
-          <div class="graph-container">
-            <canvas id="graph1" width="700" height="380"></canvas>
-            <div class="graph-label">
-              🔴 Максимум \((-1; 2)\) &nbsp;·&nbsp; 🟢 Минимум \((1; -2)\) &nbsp;·&nbsp; 🟡 Точка перегиба \((0; 0)\)
-            </div>
-          </div>
 
           <span class="result">✅ Ответ: максимум \((-1; 2)\), минимум \((1; -2)\), точка перегиба \((0; 0)\)</span>
+        </div>
+
+        <div class="graph-container">
+          <canvas id="graph1"></canvas>
+          <div class="graph-label">
+            🔴 Максимум \((-1; 2)\) &nbsp;·&nbsp; 🟢 Минимум \((1; -2)\) &nbsp;·&nbsp; 🟡 Точка перегиба \((0; 0)\)
+          </div>
         </div>
       </div>
     </div>
@@ -389,14 +405,15 @@
           <div class="formula-line">Нет пересечений с осями</div>
 
           <span class="step">🔹 9. График</span>
-          <div class="graph-container">
-            <canvas id="graph2" width="700" height="380"></canvas>
-            <div class="graph-label">
-              🔴 Максимум \((-1; -2)\) &nbsp;·&nbsp; 🟢 Минимум \((1; 2)\) &nbsp;·&nbsp; ⚫ Асимптоты \(x = 0\), \(y = x\)
-            </div>
-          </div>
 
           <span class="result">✅ Ответ: максимум \((-1; -2)\), минимум \((1; 2)\), асимптоты \(x = 0\), \(y = x\)</span>
+        </div>
+
+        <div class="graph-container">
+          <canvas id="graph2"></canvas>
+          <div class="graph-label">
+            🔴 Максимум \((-1; -2)\) &nbsp;·&nbsp; 🟢 Минимум \((1; 2)\) &nbsp;·&nbsp; ⚫ Асимптоты \(x = 0\), \(y = x\)
+          </div>
         </div>
       </div>
     </div>
@@ -437,14 +454,15 @@
           <div class="formula-line">\((0; 0)\), \((\pi k; 0)\)</div>
 
           <span class="step">🔹 9. График</span>
-          <div class="graph-container">
-            <canvas id="graph3" width="700" height="380"></canvas>
-            <div class="graph-label">
-              🔴 Максимум \((\frac{\pi}{2}; 1)\) &nbsp;·&nbsp; 🟢 Минимум \((-\frac{\pi}{2}; -1)\) &nbsp;·&nbsp; 🟡 Точки перегиба \((\pi k; 0)\)
-            </div>
-          </div>
 
           <span class="result">✅ Ответ: максимумы \((\frac{\pi}{2} + 2\pi k; 1)\), минимумы \((-\frac{\pi}{2} + 2\pi k; -1)\), точки перегиба \((\pi k; 0)\)</span>
+        </div>
+
+        <div class="graph-container">
+          <canvas id="graph3"></canvas>
+          <div class="graph-label">
+            🔴 Максимум \((\frac{\pi}{2}; 1)\) &nbsp;·&nbsp; 🟢 Минимум \((-\frac{\pi}{2}; -1)\) &nbsp;·&nbsp; 🟡 Точки перегиба \((\pi k; 0)\)
+          </div>
         </div>
       </div>
     </div>
@@ -473,14 +491,15 @@
           <div class="formula-line">\(f''(x) = 6x\), \(f''(0)=0\), знак меняется → точка перегиба \((0; 0)\)</div>
 
           <span class="step">🔹 9. График</span>
-          <div class="graph-container">
-            <canvas id="graph4" width="700" height="380"></canvas>
-            <div class="graph-label">
-              🟡 Точка перегиба \((0; 0)\) &nbsp;·&nbsp; ⚠️ Экстремумов нет
-            </div>
-          </div>
 
           <span class="result">✅ Ответ: экстремумов нет, \(x = 0\) — точка перегиба</span>
+        </div>
+
+        <div class="graph-container">
+          <canvas id="graph4"></canvas>
+          <div class="graph-label">
+            🟡 Точка перегиба \((0; 0)\) &nbsp;·&nbsp; ⚠️ Экстремумов нет
+          </div>
         </div>
       </div>
     </div>
@@ -540,14 +559,15 @@
           <div class="formula-line">\(f''(x) = 6(x - 1)\), \(x = 1\) — точка перегиба, \((1; -2)\)</div>
 
           <span class="step">🔹 9. График</span>
-          <div class="graph-container">
-            <canvas id="graph6" width="700" height="380"></canvas>
-            <div class="graph-label">
-              🔴 Максимум \((0; 0)\) &nbsp;·&nbsp; 🟢 Минимум \((2; -4)\) &nbsp;·&nbsp; 🟡 Точка перегиба \((1; -2)\)
-            </div>
-          </div>
 
           <span class="result">✅ Ответ: максимум \((0; 0)\), минимум \((2; -4)\), точка перегиба \((1; -2)\)</span>
+        </div>
+
+        <div class="graph-container">
+          <canvas id="graph6"></canvas>
+          <div class="graph-label">
+            🔴 Максимум \((0; 0)\) &nbsp;·&nbsp; 🟢 Минимум \((2; -4)\) &nbsp;·&nbsp; 🟡 Точка перегиба \((1; -2)\)
+          </div>
         </div>
       </div>
     </div>
@@ -590,14 +610,15 @@
           <div class="formula-line">\((0; 0)\) — единственная</div>
 
           <span class="step">🔹 9. График</span>
-          <div class="graph-container">
-            <canvas id="graph7" width="700" height="380"></canvas>
-            <div class="graph-label">
-              🔴 Максимум \((0; 0)\) &nbsp;·&nbsp; 🟢 Минимум \((2; 4)\) &nbsp;·&nbsp; ⚫ Асимптоты \(x = 1\), \(y = x+1\)
-            </div>
-          </div>
 
           <span class="result">✅ Ответ: максимум \((0; 0)\), минимум \((2; 4)\), асимптоты \(x = 1\), \(y = x+1\)</span>
+        </div>
+
+        <div class="graph-container">
+          <canvas id="graph7"></canvas>
+          <div class="graph-label">
+            🔴 Максимум \((0; 0)\) &nbsp;·&nbsp; 🟢 Минимум \((2; 4)\) &nbsp;·&nbsp; ⚫ Асимптоты \(x = 1\), \(y = x+1\)
+          </div>
         </div>
       </div>
     </div>
@@ -667,20 +688,27 @@
       'use strict';
 
       /* ============================================================
-         КАНВАС: как в асимптотах — логическая система 700×380,
-         адаптивно по ширине контейнера, с учётом devicePixelRatio.
+         КАНВАС: ширина ограничена шириной экрана и родителя,
+         чтобы не вылезать за пределы на телефоне.
       ============================================================ */
 
       function drawGraph(canvasId, func, xMin, xMax, yMin, yMax, points) {
           const canvas = document.getElementById(canvasId);
           if (!canvas) return;
-          const container = canvas.parentElement;
+
           const baseW = 700, baseH = 380;
 
-          const cssW = Math.max(280, container.clientWidth - 12);
-          const cssH = Math.round(cssW * baseH / baseW);
-          const dpr = window.devicePixelRatio || 1;
+          // Сбрасываем инлайн-размеры, чтобы CSS width:100% сработал
+          canvas.style.width = '100%';
+          canvas.style.height = 'auto';
 
+          // Реальный размер после раскладки, ограниченный экраном
+          const rect = canvas.getBoundingClientRect();
+          const maxAllowed = Math.max(200, window.innerWidth - 40);
+          const cssW = Math.max(200, Math.min(rect.width, maxAllowed));
+          const cssH = Math.round(cssW * baseH / baseW);
+
+          const dpr = window.devicePixelRatio || 1;
           canvas.width = Math.round(cssW * dpr);
           canvas.height = Math.round(cssH * dpr);
           canvas.style.width = cssW + 'px';
@@ -867,6 +895,7 @@
 
       window.drawAllGraphs = drawAllGraphs;
       window.addEventListener('resize', drawAllGraphs);
+      window.addEventListener('orientationchange', () => setTimeout(drawAllGraphs, 200));
 
       var observer = new MutationObserver(function () { drawAllGraphs(); });
       observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
