@@ -17,12 +17,8 @@
             user-drag: none;
             -webkit-touch-callout: none;
         }
-        ::selection {
-            background: transparent !important;
-        }
-        ::-moz-selection {
-            background: transparent !important;
-        }
+        ::selection { background: transparent !important; }
+        ::-moz-selection { background: transparent !important; }
         body{font-family:'Segoe UI',Roboto,sans-serif;background:#1a2d3c;padding:8px;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;}
         .container{max-width:1200px;margin:0 auto;position:relative;}
 
@@ -96,10 +92,12 @@
         .question{background:var(--block-bg);border-radius:16px;padding:16px;margin-bottom:14px;border:1px solid var(--border);}
         .question .num{color:var(--accent);font-weight:bold;margin-right:8px;}
         .question p{font-weight:600;margin-bottom:10px;line-height:1.6;color:var(--text);}
+        .question .q-text{white-space:normal;word-spacing:normal;}
         .question .opts{display:flex;flex-direction:column;gap:6px;}
         .question .opts label{display:block;padding:10px 14px;background:var(--card-bg);border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:0.15s;color:var(--text);}
         .question .opts label:hover{background:var(--block-bg);border-color:var(--accent);}
         .question .opts input{margin-right:10px;}
+        .question .opts .opt-text{white-space:normal;}
         .question .opts label.correct{background:rgba(52,211,153,0.2);border-color:var(--success);color:var(--success);}
         .question .opts label.wrong{background:rgba(239,68,68,0.2);border-color:var(--danger);color:var(--danger);}
         .question .opts label.disabled{opacity:0.6;cursor:default;}
@@ -175,76 +173,44 @@
 .light-mode .question .opts label.wrong{background:#fee2e2 !important;border-color:#dc2626 !important;color:#991b1b !important;}
     </style>
     <script>
-        MathJax = {tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},chtml:{scale:0.95}};
+        MathJax = {
+            tex: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+                ignoreHtmlClass: 'no-mathjax',
+                processHtmlClass: 'mathjax-process'
+            },
+            chtml: { scale: 0.95 },
+            startup: {
+                pageReady: function () {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
     </script>
     <script src="mathjax/es5/tex-chtml.js" async></script>
 </head>
 <body>
 
 <script>
-    // ===== ЗАЩИТА ОТ СПИСЫВАНИЯ =====
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        alert('⚠️ Копирование и сохранение контента запрещено!');
-        return false;
-    });
-    document.addEventListener('copy', function(e) {
-        e.preventDefault();
-        alert('⚠️ Копирование контента запрещено!');
-        return false;
-    });
-    document.addEventListener('cut', function(e) {
-        e.preventDefault();
-        alert('⚠️ Вырезание контента запрещено!');
-        return false;
-    });
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
+    document.addEventListener('copy', function(e) { e.preventDefault(); return false; });
+    document.addEventListener('cut', function(e) { e.preventDefault(); return false; });
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12' || e.keyCode === 123) {
-            e.preventDefault();
-            alert('⚠️ Инструменты разработчика отключены!');
-            return false;
-        }
-        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'i' || e.key === 'j')) {
-            e.preventDefault();
-            alert('⚠️ Инструменты разработчика отключены!');
-            return false;
-        }
-        if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) {
-            e.preventDefault();
-            alert('⚠️ Просмотр исходного кода запрещён!');
-            return false;
-        }
-        if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
-            e.preventDefault();
-            alert('⚠️ Сохранение страницы запрещено!');
-            return false;
-        }
-        if (e.key === 'PrintScreen' || e.keyCode === 44) {
-            e.preventDefault();
-            alert('⚠️ Создание скриншотов запрещено!');
-            return false;
-        }
+        if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); return false; }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'i' || e.key === 'j')) { e.preventDefault(); return false; }
+        if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) { e.preventDefault(); return false; }
+        if (e.ctrlKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); return false; }
+        if (e.key === 'PrintScreen' || e.keyCode === 44) { e.preventDefault(); return false; }
     });
-        document.addEventListener('touchstart', function(e) {
-        if (e.touches && e.touches.length > 1) {
-            e.preventDefault();
-            alert('⚠️ Масштабирование отключено!');
-            return false;
-        }
-    }, { passive: false });
-    document.addEventListener('gesturestart', function(e) {
-        e.preventDefault();
-        alert('⚠️ Масштабирование отключено!');
-        return false;
-    });
-    document.addEventListener('selectstart', function(e) {
-        e.preventDefault();
-        return false;
-    });
-    document.addEventListener('dragstart', function(e) {
-        e.preventDefault();
-        return false;
-    });
+    document.addEventListener('touchstart', function(e) { if (e.touches && e.touches.length > 1) { e.preventDefault(); return false; } }, { passive: false });
+    document.addEventListener('gesturestart', function(e) { e.preventDefault(); return false; });
+    document.addEventListener('selectstart', function(e) { e.preventDefault(); return false; });
+    document.addEventListener('dragstart', function(e) { e.preventDefault(); return false; });
 </script>
 
 <div class="container">
@@ -253,7 +219,7 @@
 
     <div class="header">
         <h1>Тест: Интегралы</h1>
-        <div class="sub">400+ заданий · 4 режима </div>
+        <div class="sub">Табличные интегралы · 4 режима</div>
     </div>
 
     <div class="fixed-timer" id="fixedTimer">
@@ -304,14 +270,98 @@
 <script src="test-common.js"></script>
 <script>
     function shuffle(arr){for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var temp=arr[i];arr[i]=arr[j];arr[j]=temp;}return arr;}
-    function shuffleArray(arr){for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var temp=arr[i];arr[i]=arr[j];arr[j]=temp;}return arr;}
+    function shuffleArray(arr){return shuffle(arr.slice());}
 
-    // ================================================================
-    // РЕЖИМ 1: ПЕРВООБРАЗНАЯ (100 вопросов)
-    // ================================================================
+    // ★ ИСПРАВЛЕННАЯ fixLatex — убрана строка, которая склеивала текст
+    function fixLatex(str) {
+        if (!str || typeof str !== 'string') return str;
+        var s = str.trim();
+
+        // 1. Убираем ТОЛЬКО реальные двойные обёртки \( \( ... \) \)
+        var guard = 0;
+        while (guard++ < 5) {
+            var before = s;
+            s = s.replace(/\\\( \s*\\\(/g, '\\(');
+            s = s.replace(/\\\)\s*\\\)/g, '\\)');
+            if (s === before) break;
+        }
+
+        // 2. Нормализуем sqrt / tg / ctg
+        for (var iter = 0; iter < 5; iter++) {
+            var b2 = s;
+            s = s.replace(/sqrt\(([^()]*)\)/g, '\\sqrt{$1}');
+            if (s === b2) break;
+        }
+        s = s.replace(/\bsqrt\s*([a-zA-Z0-9])/g, '\\sqrt{$1}');
+        s = s.replace(/√\(([^()]*)\)/g, '\\sqrt{$1}');
+        s = s.replace(/√\s*([a-zA-Z0-9])/g, '\\sqrt{$1}');
+        s = s.replace(/(?<!\\)\btg\b/g, '\\operatorname{tg}');
+        s = s.replace(/(?<!\\)\bctg\b/g, '\\operatorname{ctg}');
+
+        // 3. Уже обёрнуто — оставляем как есть
+        if (s.indexOf('\\(') === 0 || s.indexOf('$') === 0) return s;
+
+        // 4. Иначе оборачиваем, если похоже на математику
+        var looksLikeMath = /[\^\\]/.test(s) ||
+                            /\d\s*[\/x]/.test(s) ||
+                            /[+\-]\s*\d/.test(s) ||
+                            /\bx\b/.test(s) ||
+                            /^(0|1|x)$/.test(s);
+        if (looksLikeMath) return '\\( ' + s + ' \\)';
+        return s;
+    }
+
+    // ★ ИСПРАВЛЕННАЯ ensureMath — простая обёртка
+    function ensureMath(str) {
+        if (!str || typeof str !== 'string') return str;
+        var s = str.trim();
+        if (s.indexOf('\\(') === 0 || s.indexOf('$') === 0) return s;
+        return '\\( ' + s + ' \\)';
+    }
+
+    function normalizeForCompare(str) {
+        if (!str || typeof str !== 'string') return '';
+        return String(str)
+            .replace(/\\\(|\\\)/g, '').replace(/\s+/g, '')
+            .replace(/\+?\s*C\b/g, '').replace(/dx|dy/g, '')
+            .replace(/[{}]/g, '').replace(/\\left|\\right/g, '')
+            .trim().toLowerCase();
+    }
+
+    function makeUniqueOptions(correct, distractors) {
+        var result = []; var seen = {};
+        function tryAdd(opt) {
+            if (!opt) return false;
+            var norm = normalizeForCompare(opt);
+            if (!norm) return false;
+            if (seen[norm]) return false;
+            seen[norm] = true; result.push(opt); return true;
+        }
+        tryAdd(correct);
+        if (distractors) { for (var i = 0; i < distractors.length; i++) { if (result.length >= 4) break; tryAdd(distractors[i]); } }
+        var rawCorrect = String(correct).replace(/\\\(|\\\)/g, '').replace(/\+?\s*C\b/g, '').trim();
+        var generators = [
+            function(){ return rawCorrect.indexOf('-') !== -1 ? rawCorrect.replace('-','') : '-' + rawCorrect; },
+            function(){ return rawCorrect.replace(/(\d+)/g, function(m){ return String(parseInt(m)+1); }); },
+            function(){ return rawCorrect.replace(/(\d+)/g, function(m){ var v = parseInt(m)-1; return String(v); }); },
+            function(){ return '0'; }, function(){ return 'x'; },
+            function(){ return 'x^2/2'; }, function(){ return '\\ln|x|'; },
+            function(){ return 'e^x'; }, function(){ return '\\cos x'; },
+            function(){ return '\\sin x'; }, function(){ return '1/x'; },
+            function(){ return '-1/x'; }, function(){ return 'x^3/3'; },
+            function(){ return '\\operatorname{tg} x'; }, function(){ return '-\\operatorname{ctg} x'; }
+        ];
+        var gi = 0;
+        while (result.length < 4 && gi < generators.length) { tryAdd(ensureMath(generators[gi++]())); }
+        var safety = 0;
+        while (result.length < 4 && safety < 30) { safety++; tryAdd(ensureMath(String(Math.floor(Math.random() * 20) - 10))); }
+        result = result.slice(0, 4);
+        for (var k = 0; k < result.length; k++) result[k] = fixLatex(result[k]);
+        return result;
+    }
+
+    /* ===== РЕЖИМ 1: ПЕРВООБРАЗНАЯ ===== */
     var primitiveBank = [];
-
-    // Теория (50 интерактивных) — только разрешённые темы
     var primitiveTheory = [
         { q: "Что такое первообразная функции \\( f(x) \\)?", opts: ["Функция \\( F(x) \\), такая что \\( F'(x) = f(x) \\)", "Функция \\( F(x) \\), такая что \\( F(x) = f'(x) \\)", "Производная функции \\( f(x) \\)", "Интеграл функции \\( f(x) \\)"], ans: 0, diff: "easy", type: "interactive" },
         { q: "Если \\( F(x) \\) — первообразная для \\( f(x) \\), то \\( F'(x) \\) равна:", opts: ["\\( f(x) \\)", "\\( f'(x) \\)", "\\( F(x) \\)", "\\( \\int f(x) dx \\)"], ans: 0, diff: "easy", type: "interactive" },
@@ -345,123 +395,156 @@
         { q: "Первообразная для \\( \\cos(2x+3) \\) равна:", opts: ["\\( \\frac{1}{2}\\sin(2x+3) + C \\)", "\\( -\\frac{1}{2}\\sin(2x+3) + C \\)", "\\( \\sin(2x+3) + C \\)", "\\( \\frac{1}{2}\\cos(2x+3) + C \\)"], ans: 0, diff: "medium", type: "interactive" },
         { q: "Первообразная для \\( e^{3x-2} \\) равна:", opts: ["\\( \\frac{1}{3}e^{3x-2} + C \\)", "\\( e^{3x-2} + C \\)", "\\( 3e^{3x-2} + C \\)", "\\( \\frac{1}{3}e^{x} + C \\)"], ans: 0, diff: "medium", type: "interactive" },
         { q: "Первообразная для \\( \\frac{1}{5x-1} \\) равна:", opts: ["\\( \\frac{1}{5}\\ln|5x-1| + C \\)", "\\( \\ln|5x-1| + C \\)", "\\( \\frac{1}{5x-1} + C \\)", "\\( 5\\ln|5x-1| + C \\)"], ans: 0, diff: "medium", type: "interactive" },
-        { q: "Первообразная для \\( (2x-1)^4 \\) равна:", opts: ["\\( \\frac{(2x-1)^5}{10} + C \\)", "\\( \\frac{(2x-1)^5}{5} + C \\)", "\\( \\frac{(2x-1)^5}{2} + C \\)", "\\( \\frac{(2x-1)^5}{10} + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Первообразная для \\( (2x-1)^4 \\) равна:", opts: ["\\( \\frac{(2x-1)^5}{10} + C \\)", "\\( \\frac{(2x-1)^5}{5} + C \\)", "\\( \\frac{(2x-1)^5}{2} + C \\)", "\\( \\frac{(2x-1)^5}{8} + C \\)"], ans: 0, diff: "medium", type: "interactive" },
         { q: "Первообразная для \\( \\sqrt{2x+1} \\) равна:", opts: ["\\( \\frac{1}{3}(2x+1)^{3/2} + C \\)", "\\( \\frac{1}{2}(2x+1)^{1/2} + C \\)", "\\( \\frac{2}{3}(2x+1)^{3/2} + C \\)", "\\( \\frac{1}{2}(2x+1)^{3/2} + C \\)"], ans: 0, diff: "hard", type: "interactive" },
-        { q: "Первообразная для \\( (3x+2)^3 \\) равна:", opts: ["\\( \\frac{(3x+2)^4}{12} + C \\)", "\\( \\frac{(3x+2)^4}{4} + C \\)", "\\( \\frac{(3x+2)^4}{3} + C \\)", "\\( \\frac{(3x+2)^4}{12} + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Первообразная для \\( (3x+2)^3 \\) равна:", opts: ["\\( \\frac{(3x+2)^4}{12} + C \\)", "\\( \\frac{(3x+2)^4}{4} + C \\)", "\\( \\frac{(3x+2)^4}{3} + C \\)", "\\( \\frac{(3x+2)^4}{9} + C \\)"], ans: 0, diff: "medium", type: "interactive" },
         { q: "Первообразная для \\( \\frac{1}{2x-5} \\) равна:", opts: ["\\( \\frac{1}{2}\\ln|2x-5| + C \\)", "\\( \\ln|2x-5| + C \\)", "\\( \\frac{1}{2x-5} + C \\)", "\\( 2\\ln|2x-5| + C \\)"], ans: 0, diff: "medium", type: "interactive" },
         { q: "Первообразная для \\( \\sin(6x-\\pi) \\) равна:", opts: ["\\( -\\frac{1}{6}\\cos(6x-\\pi) + C \\)", "\\( \\frac{1}{6}\\cos(6x-\\pi) + C \\)", "\\( -\\cos(6x-\\pi) + C \\)", "\\( \\frac{1}{6}\\sin(6x-\\pi) + C \\)"], ans: 0, diff: "medium", type: "interactive" },
         { q: "Первообразная для \\( \\cos(7x+2) \\) равна:", opts: ["\\( \\frac{1}{7}\\sin(7x+2) + C \\)", "\\( -\\frac{1}{7}\\sin(7x+2) + C \\)", "\\( \\sin(7x+2) + C \\)", "\\( \\frac{1}{7}\\cos(7x+2) + C \\)"], ans: 0, diff: "medium", type: "interactive" },
         { q: "Первообразная для \\( e^{4x+3} \\) равна:", opts: ["\\( \\frac{1}{4} e^{4x+3} + C \\)", "\\( e^{4x+3} + C \\)", "\\( 4 e^{4x+3} + C \\)", "\\( \\frac{1}{4} e^{x} + C \\)"], ans: 0, diff: "medium", type: "interactive" },
         { q: "Первообразная для \\( \\frac{1}{3x+7} \\) равна:", opts: ["\\( \\frac{1}{3}\\ln|3x+7| + C \\)", "\\( \\ln|3x+7| + C \\)", "\\( \\frac{1}{3x+7} + C \\)", "\\( 3\\ln|3x+7| + C \\)"], ans: 0, diff: "medium", type: "interactive" },
-        { q: "Первообразная для \\( (5x-2)^3 \\) равна:", opts: ["\\( \\frac{(5x-2)^4}{20} + C \\)", "\\( \\frac{(5x-2)^4}{5} + C \\)", "\\( \\frac{(5x-2)^4}{4} + C \\)", "\\( \\frac{(5x-2)^4}{20} + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Первообразная для \\( (5x-2)^3 \\) равна:", opts: ["\\( \\frac{(5x-2)^4}{20} + C \\)", "\\( \\frac{(5x-2)^4}{5} + C \\)", "\\( \\frac{(5x-2)^4}{4} + C \\)", "\\( \\frac{(5x-2)^4}{25} + C \\)"], ans: 0, diff: "medium", type: "interactive" },
         { q: "Первообразная для \\( \\sqrt{3x+4} \\) равна:", opts: ["\\( \\frac{2}{9}(3x+4)^{3/2} + C \\)", "\\( \\frac{1}{2}(3x+4)^{1/2} + C \\)", "\\( \\frac{2}{3}(3x+4)^{3/2} + C \\)", "\\( \\frac{1}{3}(3x+4)^{3/2} + C \\)"], ans: 0, diff: "hard", type: "interactive" },
         { q: "Первообразная для \\( a^{3x-1} \\) равна:", opts: ["\\( \\frac{a^{3x-1}}{3\\ln a} + C \\)", "\\( \\frac{a^{3x-1}}{\\ln a} + C \\)", "\\( 3 a^{3x-1} + C \\)", "\\( \\frac{a^{3x-1}}{3} + C \\)"], ans: 0, diff: "hard", type: "interactive" },
         { q: "Первообразная для \\( \\sin(5x+\\pi/3) \\) равна:", opts: ["\\( -\\frac{1}{5}\\cos(5x+\\pi/3) + C \\)", "\\( \\frac{1}{5}\\cos(5x+\\pi/3) + C \\)", "\\( -\\cos(5x+\\pi/3) + C \\)", "\\( \\frac{1}{5}\\sin(5x+\\pi/3) + C \\)"], ans: 0, diff: "medium", type: "interactive" },
-        { q: "Первообразная для \\( \\cos(4x-\\pi/4) \\) равна:", opts: ["\\( \\frac{1}{4}\\sin(4x-\\pi/4) + C \\)", "\\( -\\frac{1}{4}\\sin(4x-\\pi/4) + C \\)", "\\( \\sin(4x-\\pi/4) + C \\)", "\\( \\frac{1}{4}\\cos(4x-\\pi/4) + C \\)"], ans: 0, diff: "medium", type: "interactive" }
+        { q: "Первообразная для \\( \\cos(4x-\\pi/4) \\) равна:", opts: ["\\( \\frac{1}{4}\\sin(4x-\\pi/4) + C \\)", "\\( -\\frac{1}{4}\\sin(4x-\\pi/4) + C \\)", "\\( \\sin(4x-\\pi/4) + C \\)", "\\( \\frac{1}{4}\\cos(4x-\\pi/4) + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Первообразная для \\( \\frac{1}{\\cos^2(kx+b)} \\) равна:", opts: ["\\( \\frac{1}{k}\\operatorname{tg}(kx+b) + C \\)", "\\( \\operatorname{tg}(kx+b) + C \\)", "\\( -\\frac{1}{k}\\operatorname{ctg}(kx+b) + C \\)", "\\( \\frac{1}{k}\\operatorname{ctg}(kx+b) + C \\)"], ans: 0, diff: "medium", type: "interactive" }
     ];
-
-    // Убедимся, что ровно 50 вопросов
     while (primitiveTheory.length < 50) {
         primitiveTheory.push({
-            q: "Первообразная для \\( \\frac{1}{\\cos^2(kx+b)} \\) равна:",
-            opts: ["\\( \\frac{1}{k}\\operatorname{tg}(kx+b) + C \\)", "\\( \\operatorname{tg}(kx+b) + C \\)", "\\( -\\frac{1}{k}\\operatorname{ctg}(kx+b) + C \\)", "\\( \\frac{1}{k}\\operatorname{ctg}(kx+b) + C \\)"],
+            q: "Первообразная для \\( \\frac{1}{\\sin^2(kx+b)} \\) равна:",
+            opts: ["\\( -\\frac{1}{k}\\operatorname{ctg}(kx+b) + C \\)", "\\( \\frac{1}{k}\\operatorname{tg}(kx+b) + C \\)", "\\( \\operatorname{ctg}(kx+b) + C \\)", "\\( -\\frac{1}{k}\\operatorname{tg}(kx+b) + C \\)"],
             ans: 0, diff: "medium", type: "interactive"
         });
     }
+    primitiveTheory = primitiveTheory.slice(0, 50);
 
-    // Практика (50)
     function generatePrimitivePractice() {
         var bank = [];
         var templates = [
-            { func: "x^3", diff: "easy", ans: "x^4/4" },
-            { func: "x^5", diff: "easy", ans: "x^6/6" },
-            { func: "3x^2", diff: "easy", ans: "x^3" },
-            { func: "2x^4", diff: "easy", ans: "(2/5)x^5" },
-            { func: "1/x", diff: "easy", ans: "ln|x|" },
-            { func: "2/x", diff: "easy", ans: "2 ln|x|" },
-            { func: "sin x", diff: "easy", ans: "-cos x" },
-            { func: "cos x", diff: "easy", ans: "sin x" },
-            { func: "e^x", diff: "easy", ans: "e^x" },
-            { func: "2e^x", diff: "easy", ans: "2e^x" },
-            { func: "a^x", diff: "easy", ans: "a^x / ln a" },
-            { func: "1/cos^2 x", diff: "easy", ans: "tg x" },
-            { func: "1/sin^2 x", diff: "easy", ans: "-ctg x" },
-            { func: "sqrt(x)", diff: "easy", ans: "(2/3)x^(3/2)" },
-            { func: "1/x^2", diff: "easy", ans: "-1/x" },
-            { func: "1/sqrt(x)", diff: "easy", ans: "2 sqrt(x)" },
-            { func: "sin(2x)", diff: "medium", ans: "-(1/2) cos(2x)" },
-            { func: "cos(3x)", diff: "medium", ans: "(1/3) sin(3x)" },
-            { func: "e^(2x)", diff: "medium", ans: "(1/2)e^(2x)" },
-            { func: "1/(3x+1)", diff: "medium", ans: "(1/3) ln|3x+1|" },
-            { func: "(2x-1)^4", diff: "medium", ans: "(2x-1)^5/10" },
-            { func: "sin(4x-π)", diff: "medium", ans: "-(1/4) cos(4x-π)" },
-            { func: "cos(2x+3)", diff: "medium", ans: "(1/2) sin(2x+3)" },
-            { func: "e^(5x-2)", diff: "medium", ans: "(1/5)e^(5x-2)" },
-            { func: "1/(4x-1)", diff: "medium", ans: "(1/4) ln|4x-1|" },
-            { func: "sqrt(2x+1)", diff: "medium", ans: "(1/3)(2x+1)^(3/2)" },
-            { func: "(3x+2)^3", diff: "medium", ans: "(3x+2)^4/12" },
-            { func: "a^(2x)", diff: "hard", ans: "a^(2x)/(2 ln a)" },
-            { func: "sin(5x-3)", diff: "medium", ans: "-(1/5) cos(5x-3)" },
-            { func: "cos(4x+1)", diff: "medium", ans: "(1/4) sin(4x+1)" },
-            { func: "e^(x/2)", diff: "medium", ans: "2e^(x/2)" },
-            { func: "1/(2x-5)", diff: "medium", ans: "(1/2) ln|2x-5|" },
-            { func: "sin(6x+π/4)", diff: "medium", ans: "-(1/6) cos(6x+π/4)" },
-            { func: "cos(5x-2)", diff: "medium", ans: "(1/5) sin(5x-2)" },
-            { func: "e^(3x+1)", diff: "medium", ans: "(1/3)e^(3x+1)" },
-            { func: "1/(7x-3)", diff: "medium", ans: "(1/7) ln|7x-3|" },
-            { func: "(4x+1)^2", diff: "medium", ans: "(4x+1)^3/12" },
-            { func: "sqrt(5x-1)", diff: "hard", ans: "(2/15)(5x-1)^(3/2)" },
-            { func: "a^(3x)", diff: "hard", ans: "a^(3x)/(3 ln a)" },
-            { func: "sin(7x+π/6)", diff: "medium", ans: "-(1/7) cos(7x+π/6)" },
-            { func: "cos(6x-π/3)", diff: "medium", ans: "(1/6) sin(6x-π/3)" },
-            { func: "e^(4x-2)", diff: "medium", ans: "(1/4)e^(4x-2)" },
-            { func: "1/(8x+5)", diff: "medium", ans: "(1/8) ln|8x+5|" },
-            { func: "(2-3x)^5", diff: "hard", ans: "-(2-3x)^6/18" },
-            { func: "sqrt(7-2x)", diff: "hard", ans: "-(7-2x)^(3/2)/3" },
-            { func: "a^(2x-1)", diff: "hard", ans: "a^(2x-1)/(2 ln a)" }
+            /* --- Степени x^n --- */
+            { func: "x^3", ans: "x^4/4" }, { func: "x^5", ans: "x^6/6" },
+            { func: "x^7", ans: "x^8/8" }, { func: "x^9", ans: "x^{10}/10" },
+            { func: "x^{11}", ans: "x^{12}/12" },
+            /* --- Степени с коэффициентом --- */
+            { func: "3x^2", ans: "x^3" }, { func: "2x^4", ans: "(2/5)x^5" },
+            { func: "5x^4", ans: "x^5" }, { func: "4x^3", ans: "x^4" },
+            { func: "6x^5", ans: "x^6" }, { func: "7x^6", ans: "x^7" },
+            /* --- 1/x --- */
+            { func: "1/x", ans: "\\ln|x|" }, { func: "2/x", ans: "2\\ln|x|" },
+            { func: "3/x", ans: "3\\ln|x|" }, { func: "5/x", ans: "5\\ln|x|" },
+            /* --- sin, cos --- */
+            { func: "\\sin x", ans: "-\\cos x" }, { func: "\\cos x", ans: "\\sin x" },
+            { func: "2\\sin x", ans: "-2\\cos x" }, { func: "3\\cos x", ans: "3\\sin x" },
+            /* --- e^x и a^x --- */
+            { func: "e^x", ans: "e^x" }, { func: "2e^x", ans: "2e^x" },
+            { func: "5e^x", ans: "5e^x" }, { func: "a^x", ans: "a^x/\\ln a" },
+            { func: "2^x", ans: "2^x/\\ln 2" }, { func: "3^x", ans: "3^x/\\ln 3" },
+            /* --- 1/cos^2, 1/sin^2 --- */
+            { func: "1/\\cos^2 x", ans: "\\operatorname{tg} x" },
+            { func: "1/\\sin^2 x", ans: "-\\operatorname{ctg} x" },
+            { func: "2/\\cos^2 x", ans: "2\\operatorname{tg} x" },
+            { func: "3/\\sin^2 x", ans: "-3\\operatorname{ctg} x" },
+            /* --- Корни, отрицательные, дробные --- */
+            { func: "\\sqrt{x}", ans: "(2/3)x^{3/2}" },
+            { func: "1/x^2", ans: "-1/x" },
+            { func: "1/\\sqrt{x}", ans: "2\\sqrt{x}" },
+            { func: "x^{-3}", ans: "-1/(2x^2)" },
+            { func: "x^{-4}", ans: "-1/(3x^3)" },
+            { func: "\\sqrt[3]{x}", ans: "(3/4)x^{4/3}" },
+            /* --- Линейная замена sin(kx+b) --- */
+            { func: "\\sin(2x)", ans: "-(1/2)\\cos(2x)" },
+            { func: "\\sin(3x)", ans: "-(1/3)\\cos(3x)" },
+            { func: "\\sin(4x)", ans: "-(1/4)\\cos(4x)" },
+            { func: "\\sin(5x)", ans: "-(1/5)\\cos(5x)" },
+            { func: "\\sin(x/2)", ans: "-2\\cos(x/2)" },
+            { func: "\\sin(2x+1)", ans: "-(1/2)\\cos(2x+1)" },
+            { func: "\\sin(3x-2)", ans: "-(1/3)\\cos(3x-2)" },
+            { func: "\\sin(4x-\\pi)", ans: "-(1/4)\\cos(4x-\\pi)" },
+            { func: "\\sin(5x+\\pi/3)", ans: "-(1/5)\\cos(5x+\\pi/3)" },
+            { func: "\\sin(6x+\\pi/4)", ans: "-(1/6)\\cos(6x+\\pi/4)" },
+            /* --- Линейная замена cos(kx+b) --- */
+            { func: "\\cos(2x)", ans: "(1/2)\\sin(2x)" },
+            { func: "\\cos(3x)", ans: "(1/3)\\sin(3x)" },
+            { func: "\\cos(4x)", ans: "(1/4)\\sin(4x)" },
+            { func: "\\cos(5x)", ans: "(1/5)\\sin(5x)" },
+            { func: "\\cos(x/3)", ans: "3\\sin(x/3)" },
+            { func: "\\cos(2x+3)", ans: "(1/2)\\sin(2x+3)" },
+            { func: "\\cos(3x-1)", ans: "(1/3)\\sin(3x-1)" },
+            { func: "\\cos(4x+1)", ans: "(1/4)\\sin(4x+1)" },
+            { func: "\\cos(5x-2)", ans: "(1/5)\\sin(5x-2)" },
+            { func: "\\cos(6x-\\pi/3)", ans: "(1/6)\\sin(6x-\\pi/3)" },
+            /* --- Линейная замена e^{kx+b} --- */
+            { func: "e^{2x}", ans: "(1/2)e^{2x}" },
+            { func: "e^{3x}", ans: "(1/3)e^{3x}" },
+            { func: "e^{4x}", ans: "(1/4)e^{4x}" },
+            { func: "e^{5x}", ans: "(1/5)e^{5x}" },
+            { func: "e^{x/2}", ans: "2e^{x/2}" },
+            { func: "e^{2x+1}", ans: "(1/2)e^{2x+1}" },
+            { func: "e^{3x-2}", ans: "(1/3)e^{3x-2}" },
+            { func: "e^{4x+3}", ans: "(1/4)e^{4x+3}" },
+            /* --- 1/(kx+b) --- */
+            { func: "1/(2x+1)", ans: "(1/2)\\ln|2x+1|" },
+            { func: "1/(3x+1)", ans: "(1/3)\\ln|3x+1|" },
+            { func: "1/(4x-1)", ans: "(1/4)\\ln|4x-1|" },
+            { func: "1/(2x-5)", ans: "(1/2)\\ln|2x-5|" },
+            { func: "1/(7x-3)", ans: "(1/7)\\ln|7x-3|" },
+            { func: "1/(8x+5)", ans: "(1/8)\\ln|8x+5|" },
+            { func: "1/(3x+7)", ans: "(1/3)\\ln|3x+7|" },
+            { func: "1/(5x-1)", ans: "(1/5)\\ln|5x-1|" },
+            /* --- (kx+b)^n --- */
+            { func: "(2x-1)^4", ans: "(2x-1)^5/10" },
+            { func: "(3x+2)^3", ans: "(3x+2)^4/12" },
+            { func: "(4x+1)^2", ans: "(4x+1)^3/12" },
+            { func: "(5x-2)^3", ans: "(5x-2)^4/20" },
+            { func: "(2-3x)^5", ans: "-(2-3x)^6/18" },
+            { func: "(x+1)^5", ans: "(x+1)^6/6" },
+            { func: "(2x+3)^4", ans: "(2x+3)^5/10" },
+            /* --- Корни с линейной заменой --- */
+            { func: "\\sqrt{2x+1}", ans: "(1/3)(2x+1)^{3/2}" },
+            { func: "\\sqrt{3x+4}", ans: "(2/9)(3x+4)^{3/2}" },
+            { func: "\\sqrt{5x-1}", ans: "(2/15)(5x-1)^{3/2}" },
+            { func: "\\sqrt{7-2x}", ans: "-(7-2x)^{3/2}/3" },
+            { func: "1/\\sqrt{2x+1}", ans: "\\sqrt{2x+1}" },
+            { func: "1/\\sqrt{3x+1}", ans: "(2/3)\\sqrt{3x+1}" },
+            /* --- a^{kx+b} --- */
+            { func: "a^{2x}", ans: "a^{2x}/(2\\ln a)" },
+            { func: "a^{3x}", ans: "a^{3x}/(3\\ln a)" },
+            { func: "a^{2x-1}", ans: "a^{2x-1}/(2\\ln a)" },
+            { func: "a^{3x-1}", ans: "a^{3x-1}/(3\\ln a)" },
+            { func: "2^{2x}", ans: "2^{2x}/(2\\ln 2)" },
+            { func: "3^{2x}", ans: "3^{2x}/(2\\ln 3)" },
+            /* --- Комбинации --- */
+            { func: "\\sin x + \\cos x", ans: "-\\cos x + \\sin x" },
+            { func: "\\cos x - \\sin x", ans: "\\sin x + \\cos x" },
+            { func: "e^x + 1", ans: "e^x + x" },
+            { func: "2\\sin(2x)", ans: "-\\cos(2x)" },
+            { func: "1/(x+1)", ans: "\\ln|x+1|" },
+            { func: "3x^2 + 2x", ans: "x^3 + x^2" },
+            { func: "4x^3 + 1", ans: "x^4 + x" },
+            { func: "x^2 + \\sin x", ans: "x^3/3 - \\cos x" },
+            { func: "x + \\cos x", ans: "x^2/2 + \\sin x" }
         ];
-
-        for (var i = 0; i < templates.length && bank.length < 50; i++) {
+        for (var i = 0; i < templates.length; i++) {
             var t = templates[i];
-            var q = {
-                q: "Найти первообразную для \\( f(x) = " + t.func + " \\):",
-                opts: [
-                    "\\( " + t.ans + " + C \\)",
-                    "\\( " + (t.ans.indexOf('-') !== -1 ? t.ans.replace('-', '') : '-' + t.ans) + " + C \\)",
-                    "\\( " + t.ans.replace(/\d/g, function(m) { return parseInt(m)+1; }) + " + C \\)",
-                    "\\( 0 \\)"
-                ],
-                ans: 0,
-                diff: t.diff,
-                type: "practice"
-            };
-            var optsWithIdx = q.opts.map(function(opt, idx) { return {text: opt, idx: idx}; });
+            var correct = ensureMath(t.ans + " + C");
+            var d1 = ensureMath((t.ans.indexOf('-') !== -1 ? t.ans.replace('-', '') : '-' + t.ans) + " + C");
+            var d2 = ensureMath(t.ans.replace(/(\d+)/g, function(m){ return String(parseInt(m)+1); }) + " + C");
+            var d3 = ensureMath("0");
+            var opts = makeUniqueOptions(correct, [d1, d2, d3]);
+            var q = { q: "Найти первообразную для \\( f(x) = " + t.func + " \\):", opts: opts, ans: 0, diff: "medium", type: "practice" };
+            var optsWithIdx = q.opts.map(function(o, idx){ return { text: o, idx: idx }; });
             var shuffled = shuffleArray(optsWithIdx);
-            var newAns = shuffled.findIndex(function(item) { return item.idx === 0; });
-            q.opts = shuffled.map(function(item) { return item.text; });
-            q.ans = newAns;
+            q.opts = shuffled.map(function(o){ return o.text; });
+            q.ans = shuffled.findIndex(function(o){ return o.idx === 0; });
             bank.push(q);
         }
         return bank;
     }
-
     primitiveBank = primitiveTheory.concat(generatePrimitivePractice());
-    // Если меньше 100, добавим дубликаты с другими числами
-    while (primitiveBank.length < 100) {
-        var extra = primitiveBank.slice(0, 10).map(function(q) {
-            var newQ = JSON.parse(JSON.stringify(q));
-            newQ.q = newQ.q.replace(/\d/g, function(m) { return (parseInt(m)+1) % 10; });
-            return newQ;
-        });
-        primitiveBank = primitiveBank.concat(extra);
-    }
-    primitiveBank = primitiveBank.slice(0, 100);
 
-    // ================================================================
-    // РЕЖИМ 2: НЕОПРЕДЕЛЁННЫЙ ИНТЕГРАЛ (100 вопросов)
-    // ================================================================
+    /* ===== РЕЖИМ 2: НЕОПРЕДЕЛЁННЫЙ ИНТЕГРАЛ ===== */
     var indefiniteBank = [];
-
     var indefiniteTheory = [
         { q: "Что такое неопределённый интеграл \\( \\int f(x) dx \\)?", opts: ["Совокупность всех первообразных \\( f(x) \\)", "Одна из первообразных \\( f(x) \\)", "Производная \\( f(x) \\)", "Площадь под графиком \\( f(x) \\)"], ans: 0, diff: "easy", type: "interactive" },
         { q: "Символ \\( \\int \\) называется:", opts: ["Знак интеграла", "Знак суммы", "Знак произведения", "Знак дифференциала"], ans: 0, diff: "easy", type: "interactive" },
@@ -485,9 +568,23 @@
         { q: "\\( \\int a^{kx+b} dx = ? \\)", opts: ["\\( \\frac{a^{kx+b}}{k \\ln a} + C \\)", "\\( \\frac{a^{kx+b}}{\\ln a} + C \\)", "\\( k a^{kx+b} + C \\)", "\\( \\frac{a^{kx+b}}{k} + C \\)"], ans: 0, diff: "hard", type: "interactive" },
         { q: "\\( \\int \\sqrt{x} dx = ? \\)", opts: ["\\( \\frac{2}{3} x^{3/2} + C \\)", "\\( \\frac{1}{2\\sqrt{x}} + C \\)", "\\( x^{1/2} + C \\)", "\\( \\frac{1}{3} x^{3/2} + C \\)"], ans: 0, diff: "easy", type: "interactive" },
         { q: "\\( \\int \\frac{1}{x^2} dx = ? \\)", opts: ["\\( -\\frac{1}{x} + C \\)", "\\( \\ln x^2 + C \\)", "\\( \\frac{1}{x} + C \\)", "\\( -\\frac{2}{x^3} + C \\)"], ans: 0, diff: "easy", type: "interactive" },
-        { q: "\\( \\int \\frac{1}{\\sqrt{x}} dx = ? \\)", opts: ["\\( 2\\sqrt{x} + C \\)", "\\( \\ln \\sqrt{x} + C \\)", "\\( \\frac{1}{2\\sqrt{x}} + C \\)", "\\( \\sqrt{x} + C \\)"], ans: 0, diff: "easy", type: "interactive" }
+        { q: "\\( \\int \\frac{1}{\\sqrt{x}} dx = ? \\)", opts: ["\\( 2\\sqrt{x} + C \\)", "\\( \\ln \\sqrt{x} + C \\)", "\\( \\frac{1}{2\\sqrt{x}} + C \\)", "\\( \\sqrt{x} + C \\)"], ans: 0, diff: "easy", type: "interactive" },
+        { q: "\\( \\int \\frac{1}{\\cos^2(kx+b)} dx = ? \\)", opts: ["\\( \\frac{1}{k}\\operatorname{tg}(kx+b) + C \\)", "\\( \\operatorname{tg}(kx+b) + C \\)", "\\( -\\frac{1}{k}\\operatorname{ctg}(kx+b) + C \\)", "\\( \\frac{1}{k}\\operatorname{ctg}(kx+b) + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int \\frac{1}{\\sin^2(kx+b)} dx = ? \\)", opts: ["\\( -\\frac{1}{k}\\operatorname{ctg}(kx+b) + C \\)", "\\( \\frac{1}{k}\\operatorname{tg}(kx+b) + C \\)", "\\( \\operatorname{ctg}(kx+b) + C \\)", "\\( -\\operatorname{tg}(kx+b) + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int (x^2 + 2x + 1) dx = ? \\)", opts: ["\\( \\frac{x^3}{3} + x^2 + x + C \\)", "\\( x^3 + x^2 + x + C \\)", "\\( \\frac{x^3}{3} + x^2 + C \\)", "\\( x^2 + 2x + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int (\\sin x + \\cos x) dx = ? \\)", opts: ["\\( -\\cos x + \\sin x + C \\)", "\\( \\cos x + \\sin x + C \\)", "\\( -\\cos x - \\sin x + C \\)", "\\( \\cos x - \\sin x + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int (e^x + 1) dx = ? \\)", opts: ["\\( e^x + x + C \\)", "\\( e^x + C \\)", "\\( x e^x + C \\)", "\\( e^x + x^2 + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int \\frac{1}{x+1} dx = ? \\)", opts: ["\\( \\ln|x+1| + C \\)", "\\( \\frac{1}{x+1} + C \\)", "\\( \\ln x + C \\)", "\\( -\\frac{1}{(x+1)^2} + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int (2x + 3)^4 dx = ? \\)", opts: ["\\( \\frac{(2x+3)^5}{10} + C \\)", "\\( \\frac{(2x+3)^5}{5} + C \\)", "\\( \\frac{(2x+3)^5}{2} + C \\)", "\\( 5(2x+3)^4 + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int \\sqrt{3x+1} dx = ? \\)", opts: ["\\( \\frac{2}{9}(3x+1)^{3/2} + C \\)", "\\( \\frac{2}{3}(3x+1)^{3/2} + C \\)", "\\( \\frac{1}{3}(3x+1)^{3/2} + C \\)", "\\( \\frac{1}{2\\sqrt{3x+1}} + C \\)"], ans: 0, diff: "hard", type: "interactive" },
+        { q: "\\( \\int (x^3 - 2x^2 + x) dx = ? \\)", opts: ["\\( \\frac{x^4}{4} - \\frac{2x^3}{3} + \\frac{x^2}{2} + C \\)", "\\( x^4 - 2x^3 + x^2 + C \\)", "\\( \\frac{x^4}{4} - \\frac{x^3}{3} + \\frac{x^2}{2} + C \\)", "\\( x^3 - x^2 + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int \\frac{1}{2x+3} dx = ? \\)", opts: ["\\( \\frac{1}{2}\\ln|2x+3| + C \\)", "\\( \\ln|2x+3| + C \\)", "\\( \\frac{1}{2x+3} + C \\)", "\\( 2\\ln|2x+3| + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int e^{2x} dx = ? \\)", opts: ["\\( \\frac{1}{2}e^{2x} + C \\)", "\\( 2e^{2x} + C \\)", "\\( e^{2x} + C \\)", "\\( e^{2x}/2 \\cdot x + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int \\sin(3x) dx = ? \\)", opts: ["\\( -\\frac{1}{3}\\cos(3x) + C \\)", "\\( \\frac{1}{3}\\cos(3x) + C \\)", "\\( -3\\cos(3x) + C \\)", "\\( 3\\sin(3x) + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int \\cos(2x) dx = ? \\)", opts: ["\\( \\frac{1}{2}\\sin(2x) + C \\)", "\\( 2\\sin(2x) + C \\)", "\\( -\\frac{1}{2}\\sin(2x) + C \\)", "\\( -2\\cos(2x) + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int (3x^2 + 2x + 1) dx = ? \\)", opts: ["\\( x^3 + x^2 + x + C \\)", "\\( 3x^3 + 2x^2 + x + C \\)", "\\( x^3 + x^2 + C \\)", "\\( 6x + 2 + C \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int \\frac{1}{\\sqrt{2x+1}} dx = ? \\)", opts: ["\\( \\sqrt{2x+1} + C \\)", "\\( 2\\sqrt{2x+1} + C \\)", "\\( \\frac{1}{2}\\sqrt{2x+1} + C \\)", "\\( \\frac{1}{\\sqrt{2x+1}} + C \\)"], ans: 0, diff: "hard", type: "interactive" }
     ];
-
     while (indefiniteTheory.length < 40) {
         indefiniteTheory.push({
             q: "\\( \\int \\frac{1}{\\cos^2(kx+b)} dx = ? \\)",
@@ -497,98 +594,117 @@
     }
     indefiniteTheory = indefiniteTheory.slice(0, 40);
 
-    // Практика (60)
     function generateIndefinitePractice() {
         var bank = [];
         var templates = [
-            { func: "x^3", diff: "easy", ans: "x^4/4" },
-            { func: "x^5", diff: "easy", ans: "x^6/6" },
-            { func: "3x^2", diff: "easy", ans: "x^3" },
-            { func: "2x^4", diff: "easy", ans: "(2/5)x^5" },
-            { func: "1/x", diff: "easy", ans: "ln|x|" },
-            { func: "2/x", diff: "easy", ans: "2 ln|x|" },
-            { func: "sin x", diff: "easy", ans: "-cos x" },
-            { func: "cos x", diff: "easy", ans: "sin x" },
-            { func: "e^x", diff: "easy", ans: "e^x" },
-            { func: "2e^x", diff: "easy", ans: "2e^x" },
-            { func: "a^x", diff: "easy", ans: "a^x / ln a" },
-            { func: "1/cos^2 x", diff: "easy", ans: "tg x" },
-            { func: "1/sin^2 x", diff: "easy", ans: "-ctg x" },
-            { func: "sqrt(x)", diff: "easy", ans: "(2/3)x^(3/2)" },
-            { func: "1/x^2", diff: "easy", ans: "-1/x" },
-            { func: "1/sqrt(x)", diff: "easy", ans: "2 sqrt(x)" },
-            { func: "sin(2x)", diff: "medium", ans: "-(1/2) cos(2x)" },
-            { func: "cos(3x)", diff: "medium", ans: "(1/3) sin(3x)" },
-            { func: "e^(2x)", diff: "medium", ans: "(1/2)e^(2x)" },
-            { func: "1/(3x+1)", diff: "medium", ans: "(1/3) ln|3x+1|" },
-            { func: "(2x-1)^4", diff: "medium", ans: "(2x-1)^5/10" },
-            { func: "sin(4x-π)", diff: "medium", ans: "-(1/4) cos(4x-π)" },
-            { func: "cos(2x+3)", diff: "medium", ans: "(1/2) sin(2x+3)" },
-            { func: "e^(5x-2)", diff: "medium", ans: "(1/5)e^(5x-2)" },
-            { func: "1/(4x-1)", diff: "medium", ans: "(1/4) ln|4x-1|" },
-            { func: "sqrt(2x+1)", diff: "medium", ans: "(1/3)(2x+1)^(3/2)" },
-            { func: "(3x+2)^3", diff: "medium", ans: "(3x+2)^4/12" },
-            { func: "a^(2x)", diff: "hard", ans: "a^(2x)/(2 ln a)" },
-            { func: "sin(5x-3)", diff: "medium", ans: "-(1/5) cos(5x-3)" },
-            { func: "cos(4x+1)", diff: "medium", ans: "(1/4) sin(4x+1)" },
-            { func: "e^(x/2)", diff: "medium", ans: "2e^(x/2)" },
-            { func: "1/(2x-5)", diff: "medium", ans: "(1/2) ln|2x-5|" },
-            { func: "sin(6x+π/4)", diff: "medium", ans: "-(1/6) cos(6x+π/4)" },
-            { func: "cos(5x-2)", diff: "medium", ans: "(1/5) sin(5x-2)" },
-            { func: "e^(3x+1)", diff: "medium", ans: "(1/3)e^(3x+1)" },
-            { func: "1/(7x-3)", diff: "medium", ans: "(1/7) ln|7x-3|" },
-            { func: "(4x+1)^2", diff: "medium", ans: "(4x+1)^3/12" },
-            { func: "sqrt(5x-1)", diff: "hard", ans: "(2/15)(5x-1)^(3/2)" },
-            { func: "a^(3x)", diff: "hard", ans: "a^(3x)/(3 ln a)" },
-            { func: "sin(7x+π/6)", diff: "medium", ans: "-(1/7) cos(7x+π/6)" },
-            { func: "cos(6x-π/3)", diff: "medium", ans: "(1/6) sin(6x-π/3)" },
-            { func: "e^(4x-2)", diff: "medium", ans: "(1/4)e^(4x-2)" },
-            { func: "1/(8x+5)", diff: "medium", ans: "(1/8) ln|8x+5|" },
-            { func: "(2-3x)^5", diff: "hard", ans: "-(2-3x)^6/18" },
-            { func: "sqrt(7-2x)", diff: "hard", ans: "-(7-2x)^(3/2)/3" },
-            { func: "a^(2x-1)", diff: "hard", ans: "a^(2x-1)/(2 ln a)" }
+            { func: "x^3", ans: "x^4/4" }, { func: "x^5", ans: "x^6/6" },
+            { func: "x^7", ans: "x^8/8" }, { func: "x^9", ans: "x^{10}/10" },
+            { func: "x^{11}", ans: "x^{12}/12" },
+            { func: "3x^2", ans: "x^3" }, { func: "2x^4", ans: "(2/5)x^5" },
+            { func: "5x^4", ans: "x^5" }, { func: "4x^3", ans: "x^4" },
+            { func: "6x^5", ans: "x^6" }, { func: "7x^6", ans: "x^7" },
+            { func: "1/x", ans: "\\ln|x|" }, { func: "2/x", ans: "2\\ln|x|" },
+            { func: "3/x", ans: "3\\ln|x|" }, { func: "5/x", ans: "5\\ln|x|" },
+            { func: "\\sin x", ans: "-\\cos x" }, { func: "\\cos x", ans: "\\sin x" },
+            { func: "2\\sin x", ans: "-2\\cos x" }, { func: "3\\cos x", ans: "3\\sin x" },
+            { func: "e^x", ans: "e^x" }, { func: "2e^x", ans: "2e^x" },
+            { func: "5e^x", ans: "5e^x" }, { func: "a^x", ans: "a^x/\\ln a" },
+            { func: "2^x", ans: "2^x/\\ln 2" }, { func: "3^x", ans: "3^x/\\ln 3" },
+            { func: "1/\\cos^2 x", ans: "\\operatorname{tg} x" },
+            { func: "1/\\sin^2 x", ans: "-\\operatorname{ctg} x" },
+            { func: "2/\\cos^2 x", ans: "2\\operatorname{tg} x" },
+            { func: "3/\\sin^2 x", ans: "-3\\operatorname{ctg} x" },
+            { func: "\\sqrt{x}", ans: "(2/3)x^{3/2}" },
+            { func: "1/x^2", ans: "-1/x" },
+            { func: "1/\\sqrt{x}", ans: "2\\sqrt{x}" },
+            { func: "x^{-3}", ans: "-1/(2x^2)" },
+            { func: "x^{-4}", ans: "-1/(3x^3)" },
+            { func: "\\sqrt[3]{x}", ans: "(3/4)x^{4/3}" },
+            { func: "\\sin(2x)", ans: "-(1/2)\\cos(2x)" },
+            { func: "\\sin(3x)", ans: "-(1/3)\\cos(3x)" },
+            { func: "\\sin(4x)", ans: "-(1/4)\\cos(4x)" },
+            { func: "\\sin(5x)", ans: "-(1/5)\\cos(5x)" },
+            { func: "\\sin(x/2)", ans: "-2\\cos(x/2)" },
+            { func: "\\sin(2x+1)", ans: "-(1/2)\\cos(2x+1)" },
+            { func: "\\sin(3x-2)", ans: "-(1/3)\\cos(3x-2)" },
+            { func: "\\sin(4x-\\pi)", ans: "-(1/4)\\cos(4x-\\pi)" },
+            { func: "\\sin(5x+\\pi/3)", ans: "-(1/5)\\cos(5x+\\pi/3)" },
+            { func: "\\sin(6x+\\pi/4)", ans: "-(1/6)\\cos(6x+\\pi/4)" },
+            { func: "\\cos(2x)", ans: "(1/2)\\sin(2x)" },
+            { func: "\\cos(3x)", ans: "(1/3)\\sin(3x)" },
+            { func: "\\cos(4x)", ans: "(1/4)\\sin(4x)" },
+            { func: "\\cos(5x)", ans: "(1/5)\\sin(5x)" },
+            { func: "\\cos(x/3)", ans: "3\\sin(x/3)" },
+            { func: "\\cos(2x+3)", ans: "(1/2)\\sin(2x+3)" },
+            { func: "\\cos(3x-1)", ans: "(1/3)\\sin(3x-1)" },
+            { func: "\\cos(4x+1)", ans: "(1/4)\\sin(4x+1)" },
+            { func: "\\cos(5x-2)", ans: "(1/5)\\sin(5x-2)" },
+            { func: "\\cos(6x-\\pi/3)", ans: "(1/6)\\sin(6x-\\pi/3)" },
+            { func: "e^{2x}", ans: "(1/2)e^{2x}" },
+            { func: "e^{3x}", ans: "(1/3)e^{3x}" },
+            { func: "e^{4x}", ans: "(1/4)e^{4x}" },
+            { func: "e^{5x}", ans: "(1/5)e^{5x}" },
+            { func: "e^{x/2}", ans: "2e^{x/2}" },
+            { func: "e^{2x+1}", ans: "(1/2)e^{2x+1}" },
+            { func: "e^{3x-2}", ans: "(1/3)e^{3x-2}" },
+            { func: "e^{4x+3}", ans: "(1/4)e^{4x+3}" },
+            { func: "1/(2x+1)", ans: "(1/2)\\ln|2x+1|" },
+            { func: "1/(3x+1)", ans: "(1/3)\\ln|3x+1|" },
+            { func: "1/(4x-1)", ans: "(1/4)\\ln|4x-1|" },
+            { func: "1/(2x-5)", ans: "(1/2)\\ln|2x-5|" },
+            { func: "1/(7x-3)", ans: "(1/7)\\ln|7x-3|" },
+            { func: "1/(8x+5)", ans: "(1/8)\\ln|8x+5|" },
+            { func: "1/(3x+7)", ans: "(1/3)\\ln|3x+7|" },
+            { func: "1/(5x-1)", ans: "(1/5)\\ln|5x-1|" },
+            { func: "(2x-1)^4", ans: "(2x-1)^5/10" },
+            { func: "(3x+2)^3", ans: "(3x+2)^4/12" },
+            { func: "(4x+1)^2", ans: "(4x+1)^3/12" },
+            { func: "(5x-2)^3", ans: "(5x-2)^4/20" },
+            { func: "(2-3x)^5", ans: "-(2-3x)^6/18" },
+            { func: "(x+1)^5", ans: "(x+1)^6/6" },
+            { func: "(2x+3)^4", ans: "(2x+3)^5/10" },
+            { func: "\\sqrt{2x+1}", ans: "(1/3)(2x+1)^{3/2}" },
+            { func: "\\sqrt{3x+4}", ans: "(2/9)(3x+4)^{3/2}" },
+            { func: "\\sqrt{5x-1}", ans: "(2/15)(5x-1)^{3/2}" },
+            { func: "\\sqrt{7-2x}", ans: "-(7-2x)^{3/2}/3" },
+            { func: "1/\\sqrt{2x+1}", ans: "\\sqrt{2x+1}" },
+            { func: "1/\\sqrt{3x+1}", ans: "(2/3)\\sqrt{3x+1}" },
+            { func: "a^{2x}", ans: "a^{2x}/(2\\ln a)" },
+            { func: "a^{3x}", ans: "a^{3x}/(3\\ln a)" },
+            { func: "a^{2x-1}", ans: "a^{2x-1}/(2\\ln a)" },
+            { func: "a^{3x-1}", ans: "a^{3x-1}/(3\\ln a)" },
+            { func: "2^{2x}", ans: "2^{2x}/(2\\ln 2)" },
+            { func: "3^{2x}", ans: "3^{2x}/(2\\ln 3)" },
+            { func: "\\sin x + \\cos x", ans: "-\\cos x + \\sin x" },
+            { func: "\\cos x - \\sin x", ans: "\\sin x + \\cos x" },
+            { func: "e^x + 1", ans: "e^x + x" },
+            { func: "2\\sin(2x)", ans: "-\\cos(2x)" },
+            { func: "1/(x+1)", ans: "\\ln|x+1|" },
+            { func: "3x^2 + 2x", ans: "x^3 + x^2" },
+            { func: "4x^3 + 1", ans: "x^4 + x" },
+            { func: "x^2 + \\sin x", ans: "x^3/3 - \\cos x" },
+            { func: "x + \\cos x", ans: "x^2/2 + \\sin x" }
         ];
-
-        for (var i = 0; i < templates.length && bank.length < 60; i++) {
+        for (var i = 0; i < templates.length; i++) {
             var t = templates[i];
-            var q = {
-                q: "\\( \\int " + t.func + " \\, dx = ? \\)",
-                opts: [
-                    "\\( " + t.ans + " + C \\)",
-                    "\\( " + (t.ans.indexOf('-') !== -1 ? t.ans.replace('-', '') : '-' + t.ans) + " + C \\)",
-                    "\\( " + t.ans.replace(/\d/g, function(m) { return parseInt(m)+1; }) + " + C \\)",
-                    "\\( 0 \\)"
-                ],
-                ans: 0,
-                diff: t.diff,
-                type: "practice"
-            };
-            var optsWithIdx = q.opts.map(function(opt, idx) { return {text: opt, idx: idx}; });
+            var correct = ensureMath(t.ans + " + C");
+            var d1 = ensureMath((t.ans.indexOf('-') !== -1 ? t.ans.replace('-', '') : '-' + t.ans) + " + C");
+            var d2 = ensureMath(t.ans.replace(/(\d+)/g, function(m){ return String(parseInt(m)+1); }) + " + C");
+            var d3 = ensureMath("0");
+            var opts = makeUniqueOptions(correct, [d1, d2, d3]);
+            var q = { q: "\\( \\int " + t.func + " \\, dx = ? \\)", opts: opts, ans: 0, diff: "medium", type: "practice" };
+            var optsWithIdx = q.opts.map(function(o, idx){ return { text: o, idx: idx }; });
             var shuffled = shuffleArray(optsWithIdx);
-            var newAns = shuffled.findIndex(function(item) { return item.idx === 0; });
-            q.opts = shuffled.map(function(item) { return item.text; });
-            q.ans = newAns;
+            q.opts = shuffled.map(function(o){ return o.text; });
+            q.ans = shuffled.findIndex(function(o){ return o.idx === 0; });
             bank.push(q);
         }
         return bank;
     }
-
     indefiniteBank = indefiniteTheory.concat(generateIndefinitePractice());
-    while (indefiniteBank.length < 100) {
-        var extra = indefiniteBank.slice(0, 10).map(function(q) {
-            var newQ = JSON.parse(JSON.stringify(q));
-            newQ.q = newQ.q.replace(/\d/g, function(m) { return (parseInt(m)+1) % 10; });
-            return newQ;
-        });
-        indefiniteBank = indefiniteBank.concat(extra);
-    }
-    indefiniteBank = indefiniteBank.slice(0, 100);
 
-    // ================================================================
-    // РЕЖИМ 3: ОПРЕДЕЛЁННЫЙ ИНТЕГРАЛ (100 вопросов)
-    // ================================================================
+    /* ===== РЕЖИМ 3: ОПРЕДЕЛЁННЫЙ ИНТЕГРАЛ ===== */
     var definiteBank = [];
-
     var definiteTheory = [
         { q: "Определённый интеграл \\( \\int_a^b f(x) dx \\) — это:", opts: ["Число", "Функция", "Переменная", "Вектор"], ans: 0, diff: "easy", type: "interactive" },
         { q: "Формула Ньютона-Лейбница:", opts: ["\\( \\int_a^b f(x) dx = F(b) - F(a) \\)", "\\( \\int_a^b f(x) dx = F(a) - F(b) \\)", "\\( \\int_a^b f(x) dx = f(b) - f(a) \\)", "\\( \\int_a^b f(x) dx = F(b) + F(a) \\)"], ans: 0, diff: "easy", type: "interactive" },
@@ -600,93 +716,119 @@
         { q: "\\( \\int_a^b c \\, dx = ? \\)", opts: ["\\( c(b-a) \\)", "\\( c \\)", "\\( b-a \\)", "\\( c^2(b-a) \\)"], ans: 0, diff: "easy", type: "interactive" },
         { q: "\\( \\int_a^b (f(x) \\pm g(x)) dx = ? \\)", opts: ["\\( \\int_a^b f(x) dx \\pm \\int_a^b g(x) dx \\)", "\\( \\int_a^b f(x) dx \\cdot \\int_a^b g(x) dx \\)", "\\( \\int_a^b f(x) dx / \\int_a^b g(x) dx \\)", "\\( \\int_a^b f(x) dx \\pm g(x) \\)"], ans: 0, diff: "easy", type: "interactive" },
         { q: "\\( \\int_a^b c f(x) dx = ? \\)", opts: ["\\( c \\int_a^b f(x) dx \\)", "\\( \\int_a^b f(cx) dx \\)", "\\( c f(x) \\Big|_a^b \\)", "\\( \\frac{1}{c} \\int_a^b f(x) dx \\)"], ans: 0, diff: "easy", type: "interactive" },
-        { q: "Геометрический смысл определённого интеграла \\( \\int_a^b f(x) dx \\) при \\( f(x) \\ge 0 \\):", opts: ["Площадь под графиком", "Длина кривой", "Объём тела", "Скорость изменения"], ans: 0, diff: "easy", type: "interactive" },
+        { q: "Геометрический смысл \\( \\int_a^b f(x) dx \\) при \\( f(x) \\ge 0 \\):", opts: ["Площадь под графиком", "Длина кривой", "Объём тела", "Скорость изменения"], ans: 0, diff: "easy", type: "interactive" },
+        { q: "При вычислении \\( \\int_a^b f(x) dx \\) по формуле Ньютона-Лейбница константа \\( C \\):", opts: ["Не пишется (сокращается)", "Обязательно пишется", "Прибавляется к ответу", "Умножается на (b−a)"], ans: 0, diff: "easy", type: "interactive" },
+        { q: "Если поменять местами пределы интегрирования, знак интеграла:", opts: ["Меняется на противоположный", "Не меняется", "Становится нулём", "Удваивается"], ans: 0, diff: "easy", type: "interactive" },
+        { q: "Если верхний предел равен нижнему, интеграл равен:", opts: ["0", "1", "\\( f(a) \\)", "\\( 2f(a) \\)"], ans: 0, diff: "easy", type: "interactive" },
         { q: "\\( \\int_0^1 x^2 dx = ? \\)", opts: ["\\( \\frac{1}{3} \\)", "\\( \\frac{1}{2} \\)", "1", "\\( \\frac{2}{3} \\)"], ans: 0, diff: "easy", type: "interactive" },
         { q: "\\( \\int_0^{\\pi} \\sin x dx = ? \\)", opts: ["2", "0", "1", "-2"], ans: 0, diff: "easy", type: "interactive" },
         { q: "\\( \\int_1^2 \\frac{1}{x} dx = ? \\)", opts: ["\\( \\ln 2 \\)", "\\( \\ln 3 \\)", "1", "\\( \\frac{1}{2} \\)"], ans: 0, diff: "easy", type: "interactive" },
         { q: "\\( \\int_0^1 e^x dx = ? \\)", opts: ["\\( e-1 \\)", "\\( e \\)", "1", "\\( \\frac{1}{e} \\)"], ans: 0, diff: "easy", type: "interactive" },
         { q: "\\( \\int_0^{\\pi/2} \\cos x dx = ? \\)", opts: ["1", "0", "-1", "2"], ans: 0, diff: "easy", type: "interactive" },
         { q: "\\( \\int_0^2 3x^2 dx = ? \\)", opts: ["8", "6", "4", "2"], ans: 0, diff: "easy", type: "interactive" },
-        { q: "\\( \\int_0^1 (x^3 + x) dx = ? \\)", opts: ["\\( \\frac{3}{4} \\)", "\\( \\frac{1}{2} \\)", "\\( \\frac{1}{4} \\)", "\\( 1 \\)"], ans: 0, diff: "medium", type: "interactive" }
-    ];
+        { q: "\\( \\int_0^1 (x^3 + x) dx = ? \\)", opts: ["\\( \\frac{3}{4} \\)", "\\( \\frac{1}{2} \\)", "\\( \\frac{1}{4} \\)", "\\( 1 \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int_0^1 \\frac{1}{1+x^2} dx = ? \\)", opts: ["\\( \\frac{\\pi}{4} \\)", "\\( \\frac{\\pi}{2} \\)", "\\( \\frac{1}{2} \\)", "\\( 1 \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int_0^1 (2x+1) dx = ? \\)", opts: ["2", "1", "3", "0"], ans: 0, diff: "easy", type: "interactive" },
+        { q: "\\( \\int_1^3 (x+2) dx = ? \\)", opts: ["8", "6", "4", "10"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int_0^2 (x^2 + 1) dx = ? \\)", opts: ["\\( \\frac{14}{3} \\)", "\\( \\frac{8}{3} \\)", "\\( \\frac{4}{3} \\)", "\\( 4 \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int_0^{\\pi/2} \\sin x dx = ? \\)", opts: ["1", "0", "-1", "2"], ans: 0, diff: "easy", type: "interactive" },
+        { q: "\\( \\int_0^1 e^{2x} dx = ? \\)", opts: ["\\( \\frac{e^2-1}{2} \\)", "\\( e^2-1 \\)", "\\( \\frac{e^2}{2} \\)", "\\( e-1 \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "\\( \\int_1^e \\frac{1}{x} dx = ? \\)", opts: ["1", "\\( e \\)", "0", "\\( \\ln e^2 \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Если \\( f \\) — нечётная и пределы симметричны \\( [-a; a] \\), то \\( \\int_{-a}^{a} f(x) dx = ? \\)", opts: ["0", "\\( 2\\int_0^a f \\)", "\\( f(a) \\)", "Не определён"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Если \\( f \\) — чётная и пределы симметричны \\( [-a; a] \\), то \\( \\int_{-a}^{a} f(x) dx = ? \\)", opts: ["\\( 2\\int_0^a f \\)", "0", "\\( f(a) \\)", "\\( \\int_0^a f \\)"], ans: 0, diff: "medium", type: "interactive" }
+    ].slice(0, 30);
 
-    while (definiteTheory.length < 30) {
-        definiteTheory.push({
-            q: "\\( \\int_0^1 \\frac{1}{1+x^2} dx = ? \\)",
-            opts: ["\\( \\frac{\\pi}{4} \\)", "\\( \\frac{\\pi}{2} \\)", "\\( \\frac{1}{2} \\)", "\\( 1 \\)"],
-            ans: 0, diff: "medium", type: "interactive"
-        });
-    }
-    definiteTheory = definiteTheory.slice(0, 30);
-
-    // Практика (70)
     function generateDefinitePractice() {
         var bank = [];
         var items = [
-            { func: "x^2", a: "0", b: "1", ans: "1/3", diff: "easy" },
-            { func: "x^3", a: "0", b: "2", ans: "4", diff: "easy" },
-            { func: "sin x", a: "0", b: "π", ans: "2", diff: "easy" },
-            { func: "cos x", a: "0", b: "π/2", ans: "1", diff: "easy" },
-            { func: "e^x", a: "0", b: "1", ans: "e - 1", diff: "easy" },
-            { func: "1/x", a: "1", b: "2", ans: "ln 2", diff: "easy" },
-            { func: "3x^2", a: "0", b: "2", ans: "8", diff: "easy" },
-            { func: "2x", a: "0", b: "1", ans: "1", diff: "easy" },
-            { func: "x^2 + 1", a: "0", b: "1", ans: "4/3", diff: "medium" },
-            { func: "sin(2x)", a: "0", b: "π/2", ans: "1", diff: "medium" },
-            { func: "cos(3x)", a: "0", b: "π/6", ans: "1/3", diff: "medium" },
-            { func: "e^(2x)", a: "0", b: "1", ans: "(e^2 - 1)/2", diff: "medium" },
-            { func: "1/(2x+1)", a: "0", b: "1", ans: "(1/2) ln 3", diff: "medium" },
-            { func: "(2x-1)^3", a: "0", b: "1", ans: "0", diff: "medium" },
-            { func: "cos(2x)", a: "0", b: "π/4", ans: "1/2", diff: "medium" },
-            { func: "sin(3x)", a: "0", b: "π/3", ans: "2/3", diff: "medium" },
-            { func: "e^(3x)", a: "0", b: "1", ans: "(e^3 - 1)/3", diff: "medium" },
-            { func: "1/(3x+2)", a: "0", b: "1", ans: "(1/3) ln(5/2)", diff: "hard" },
-            { func: "sqrt(x)", a: "0", b: "4", ans: "16/3", diff: "medium" },
-            { func: "1/sqrt(x)", a: "1", b: "4", ans: "2", diff: "medium" },
-            { func: "x^3 - 2x", a: "0", b: "2", ans: "0", diff: "hard" },
-            { func: "sin x + cos x", a: "0", b: "π/2", ans: "2", diff: "medium" }
+            { func: "x^2", a: "0", b: "1", ans: "1/3" },
+            { func: "x^3", a: "0", b: "2", ans: "4" },
+            { func: "3x^2", a: "0", b: "2", ans: "8" },
+            { func: "2x", a: "0", b: "1", ans: "1" },
+            { func: "x^2 + 1", a: "0", b: "1", ans: "4/3" },
+            { func: "x^4", a: "0", b: "1", ans: "1/5" },
+            { func: "x^2 + x", a: "0", b: "1", ans: "5/6" },
+            { func: "2x + 3", a: "0", b: "2", ans: "10" },
+            { func: "x^2 - 1", a: "0", b: "2", ans: "2/3" },
+            { func: "4x^3", a: "0", b: "1", ans: "1" },
+            { func: "x^3 - 2x", a: "0", b: "2", ans: "0" },
+            { func: "x^3 + x", a: "0", b: "1", ans: "3/4" },
+            { func: "5x^4", a: "0", b: "1", ans: "1" },
+            { func: "6x^5", a: "0", b: "1", ans: "1" },
+            { func: "x^2 - 2x", a: "0", b: "3", ans: "0" },
+            { func: "x^2 + 2x + 1", a: "0", b: "1", ans: "7/3" },
+            { func: "x^3 + 2x^2", a: "0", b: "1", ans: "11/12" },
+            { func: "2x^3 - x", a: "0", b: "2", ans: "6" },
+            { func: "1/x", a: "1", b: "2", ans: "\\ln 2" },
+            { func: "1/x", a: "1", b: "e", ans: "1" },
+            { func: "1/x", a: "1", b: "3", ans: "\\ln 3" },
+            { func: "1/(2x+1)", a: "0", b: "1", ans: "(1/2)\\ln 3" },
+            { func: "1/(3x+2)", a: "0", b: "1", ans: "(1/3)\\ln(5/2)" },
+            { func: "1/(x+1)", a: "0", b: "1", ans: "\\ln 2" },
+            { func: "1/(x+1)", a: "0", b: "2", ans: "\\ln 3" },
+            { func: "1/(2x+3)", a: "0", b: "1", ans: "(1/2)\\ln(5/3)" },
+            { func: "e^x", a: "0", b: "1", ans: "e - 1" },
+            { func: "e^{2x}", a: "0", b: "1", ans: "(e^2 - 1)/2" },
+            { func: "e^{3x}", a: "0", b: "1", ans: "(e^3 - 1)/3" },
+            { func: "e^{x/2}", a: "0", b: "2", ans: "2(e - 1)" },
+            { func: "e^{-x}", a: "0", b: "1", ans: "1 - 1/e" },
+            { func: "e^{2x}", a: "0", b: "\\ln 2", ans: "3/2" },
+            { func: "e^{x}", a: "0", b: "\\ln 3", ans: "2" },
+            { func: "\\sin x", a: "0", b: "\\pi", ans: "2" },
+            { func: "\\cos x", a: "0", b: "\\pi/2", ans: "1" },
+            { func: "\\sin x", a: "0", b: "\\pi/2", ans: "1" },
+            { func: "\\cos x", a: "0", b: "\\pi", ans: "0" },
+            { func: "\\sin(2x)", a: "0", b: "\\pi/2", ans: "1" },
+            { func: "\\cos(3x)", a: "0", b: "\\pi/6", ans: "1/3" },
+            { func: "\\cos(2x)", a: "0", b: "\\pi/4", ans: "1/2" },
+            { func: "\\sin(3x)", a: "0", b: "\\pi/3", ans: "2/3" },
+            { func: "\\sin(\\pi x)", a: "0", b: "1", ans: "2/\\pi" },
+            { func: "\\sin x + \\cos x", a: "0", b: "\\pi/2", ans: "2" },
+            { func: "\\cos x - \\sin x", a: "0", b: "\\pi/4", ans: "0" },
+            { func: "\\sin(2x)", a: "0", b: "\\pi", ans: "0" },
+            { func: "\\cos(4x)", a: "0", b: "\\pi/8", ans: "1/4" },
+            { func: "\\sin x", a: "0", b: "2\\pi", ans: "0" },
+            { func: "\\cos x", a: "-\\pi/2", b: "\\pi/2", ans: "2" },
+            { func: "\\sin x", a: "-\\pi/2", b: "\\pi/2", ans: "0" },
+            { func: "\\sqrt{x}", a: "0", b: "4", ans: "16/3" },
+            { func: "1/\\sqrt{x}", a: "1", b: "4", ans: "2" },
+            { func: "\\sqrt{x}", a: "0", b: "1", ans: "2/3" },
+            { func: "\\sqrt{x}", a: "0", b: "9", ans: "18" },
+            { func: "1/\\sqrt{x}", a: "1", b: "9", ans: "4" },
+            { func: "\\sqrt{2x+1}", a: "0", b: "4", ans: "26/3" },
+            { func: "x^{-2}", a: "1", b: "2", ans: "1/2" },
+            { func: "x^{-1/2}", a: "1", b: "4", ans: "2" },
+            { func: "x^{1/2}", a: "0", b: "4", ans: "16/3" },
+            { func: "2x^2 + 3x", a: "0", b: "1", ans: "13/6" },
+            { func: "x + 1/x", a: "1", b: "2", ans: "3/2 + \\ln 2" },
+            { func: "e^x + 1", a: "0", b: "1", ans: "e" },
+            { func: "2e^x", a: "0", b: "1", ans: "2(e-1)" },
+            { func: "x + \\sin x", a: "0", b: "\\pi", ans: "\\pi^2/2 + 2" },
+            { func: "\\sin x + x", a: "0", b: "\\pi/2", ans: "1 + \\pi^2/8" },
+            { func: "e^x - 1", a: "0", b: "1", ans: "e - 2" },
+            { func: "x^2 + \\cos x", a: "0", b: "\\pi/2", ans: "\\pi^3/24 + 1" }
         ];
-
-        for (var i = 0; i < items.length && bank.length < 70; i++) {
+        for (var i = 0; i < items.length; i++) {
             var it = items[i];
-            var q = {
-                q: "\\( \\int_{" + it.a + "}^{" + it.b + "} " + it.func + " \\, dx = ? \\)",
-                opts: [
-                    "\\( " + it.ans + " \\)",
-                    "\\( " + (it.ans.indexOf('-') !== -1 ? it.ans.replace('-', '') : '-' + it.ans) + " \\)",
-                    "\\( " + (typeof it.ans === 'string' && it.ans.indexOf('ln') !== -1 ? '1' : '0') + " \\)",
-                    "\\( " + (typeof it.ans === 'string' && it.ans.indexOf('/') !== -1 ? it.ans.replace(/\d/g, function(m){return parseInt(m)+1;}) : it.ans) + " \\)"
-                ],
-                ans: 0,
-                diff: it.diff,
-                type: "practice"
-            };
-            var optsWithIdx = q.opts.map(function(opt, idx) { return {text: opt, idx: idx}; });
+            var correct = ensureMath(it.ans);
+            var raw = String(it.ans).replace(/\\\(|\\\)/g, '');
+            var d1 = ensureMath(raw.indexOf('-') !== -1 ? raw.replace('-', '') : '-' + raw);
+            var d2 = ensureMath(raw.replace(/(\d+)/g, function(m){ return String(parseInt(m)+1); }));
+            var d3 = ensureMath('0');
+            var opts = makeUniqueOptions(correct, [d1, d2, d3]);
+            var q = { q: "\\( \\int_{" + it.a + "}^{" + it.b + "} " + it.func + " \\, dx = ? \\)", opts: opts, ans: 0, diff: "medium", type: "practice" };
+            var optsWithIdx = q.opts.map(function(o, idx){ return { text: o, idx: idx }; });
             var shuffled = shuffleArray(optsWithIdx);
-            var newAns = shuffled.findIndex(function(item) { return item.idx === 0; });
-            q.opts = shuffled.map(function(item) { return item.text; });
-            q.ans = newAns;
+            q.opts = shuffled.map(function(o){ return o.text; });
+            q.ans = shuffled.findIndex(function(o){ return o.idx === 0; });
             bank.push(q);
         }
         return bank;
     }
-
     definiteBank = definiteTheory.concat(generateDefinitePractice());
-    while (definiteBank.length < 100) {
-        var extra = definiteBank.slice(0, 10).map(function(q) {
-            var newQ = JSON.parse(JSON.stringify(q));
-            newQ.q = newQ.q.replace(/\d/g, function(m) { return (parseInt(m)+1) % 10; });
-            return newQ;
-        });
-        definiteBank = definiteBank.concat(extra);
-    }
-    definiteBank = definiteBank.slice(0, 100);
 
-    // ================================================================
-    // РЕЖИМ 4: ПЛОЩАДЬ КРИВОЛИНЕЙНОЙ ТРАПЕЦИИ (100 вопросов)
-    // ================================================================
+    /* ===== РЕЖИМ 4: ПЛОЩАДЬ КРИВОЛИНЕЙНОЙ ТРАПЕЦИИ ===== */
     var areaBank = [];
-
     var areaTheory = [
         { q: "Криволинейная трапеция — это фигура, ограниченная:", opts: ["Графиком \\( y=f(x) \\), осью \\( Ox \\), прямыми \\( x=a \\) и \\( x=b \\)", "Графиком \\( y=f(x) \\) и осью \\( Oy \\)", "Любой кривой", "Двумя кривыми"], ans: 0, diff: "easy", type: "interactive" },
         { q: "Формула площади криволинейной трапеции:", opts: ["\\( S = \\int_a^b f(x) dx \\)", "\\( S = \\int_a^b f'(x) dx \\)", "\\( S = \\int_a^b |f(x)| dx \\)", "\\( S = F(b) - F(a) \\)"], ans: 0, diff: "easy", type: "interactive" },
@@ -701,14 +843,18 @@
         { q: "Если фигура расположена под осью \\( Ox \\), то интеграл даёт:", opts: ["Отрицательное число", "Положительное число", "Ноль", "Неопределённость"], ans: 0, diff: "easy", type: "interactive" },
         { q: "Площадь фигуры, ограниченной \\( y = 4 - x^2 \\) и осью \\( Ox \\), равна:", opts: ["\\( \\frac{32}{3} \\)", "\\( 16 \\)", "\\( 8 \\)", "\\( \\frac{16}{3} \\)"], ans: 0, diff: "medium", type: "interactive" },
         { q: "Площадь фигуры, ограниченной \\( y = \\sqrt{x} \\), \\( x=0 \\), \\( x=4 \\) и осью \\( Ox \\), равна:", opts: ["\\( \\frac{16}{3} \\)", "\\( 8 \\)", "\\( 4 \\)", "\\( \\frac{32}{3} \\)"], ans: 0, diff: "medium", type: "interactive" },
-        { q: "Площадь между \\( y = e^x \\) и осью \\( Ox \\) на \\( [0,1] \\) равна:", opts: ["\\( e-1 \\)", "\\( e \\)", "\\( 1 \\)", "\\( \\frac{1}{e} \\)"], ans: 0, diff: "medium", type: "interactive" }
+        { q: "Площадь между \\( y = e^x \\) и осью \\( Ox \\) на \\( [0,1] \\) равна:", opts: ["\\( e-1 \\)", "\\( e \\)", "\\( 1 \\)", "\\( \\frac{1}{e} \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Площадь фигуры, ограниченной \\( y = x^2 - 2x \\) и осью \\( Ox \\) на \\( [0,2] \\), равна:", opts: ["\\( \\frac{4}{3} \\)", "\\( \\frac{2}{3} \\)", "\\( \\frac{1}{3} \\)", "\\( 2 \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Площадь между \\( y = x \\) и \\( y = x^3 \\) на \\( [0,1] \\) равна:", opts: ["\\( \\frac{1}{4} \\)", "\\( \\frac{1}{2} \\)", "\\( \\frac{1}{3} \\)", "\\( \\frac{2}{3} \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Площадь фигуры, ограниченной \\( y = \\sin x \\) и осью \\( Ox \\) на \\( [0, 2\\pi] \\), равна:", opts: ["4", "2", "0", "\\( 2\\pi \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Площадь фигуры, ограниченной \\( y = \\cos x \\) и осью \\( Ox \\) на \\( [0, \\pi] \\), равна:", opts: ["2", "1", "0", "\\( \\pi \\)"], ans: 0, diff: "medium", type: "interactive" },
+        { q: "Площадь фигуры между \\( y = x^2 \\) и \\( y = 4 \\) равна:", opts: ["\\( \\frac{32}{3} \\)", "\\( \\frac{16}{3} \\)", "\\( 8 \\)", "\\( 4 \\)"], ans: 0, diff: "hard", type: "interactive" }
     ];
-
     while (areaTheory.length < 30) {
         areaTheory.push({
-            q: "Площадь фигуры, ограниченной \\( y = x^2 - 2x \\) и осью \\( Ox \\) на \\( [0,2] \\) равна:",
-            opts: ["\\( \\frac{4}{3} \\)", "\\( \\frac{2}{3} \\)", "\\( \\frac{1}{3} \\)", "\\( 2 \\)"],
-            ans: 0, diff: "medium", type: "interactive"
+            q: "Площадь фигуры, ограниченной \\( y = \\sqrt{x} \\) и \\( y = x^2 \\), равна:",
+            opts: ["\\( \\frac{1}{3} \\)", "\\( \\frac{1}{2} \\)", "\\( \\frac{2}{3} \\)", "\\( 1 \\)"],
+            ans: 0, diff: "hard", type: "interactive"
         });
     }
     areaTheory = areaTheory.slice(0, 30);
@@ -716,66 +862,94 @@
     function generateAreaPractice() {
         var bank = [];
         var items = [
-            { func: "x^2", a: "0", b: "1", ans: "1/3", diff: "easy" },
-            { func: "x^3", a: "0", b: "2", ans: "4", diff: "easy" },
-            { func: "sin x", a: "0", b: "π", ans: "2", diff: "easy" },
-            { func: "cos x", a: "0", b: "π/2", ans: "1", diff: "easy" },
-            { func: "e^x", a: "0", b: "1", ans: "e - 1", diff: "easy" },
-            { func: "1/x", a: "1", b: "2", ans: "ln 2", diff: "easy" },
-            { func: "3x^2", a: "0", b: "2", ans: "8", diff: "easy" },
-            { func: "2x", a: "0", b: "1", ans: "1", diff: "easy" },
-            { func: "x^2 + 1", a: "0", b: "1", ans: "4/3", diff: "medium" },
-            { func: "4 - x^2", a: "-2", b: "2", ans: "32/3", diff: "medium" },
-            { func: "sqrt(x)", a: "0", b: "4", ans: "16/3", diff: "medium" },
-            { func: "x^2 - 2x", a: "0", b: "2", ans: "-4/3 (площадь 4/3)", diff: "medium" },
-            { func: "x - x^2", a: "0", b: "1", ans: "1/6", diff: "medium" },
-            { func: "e^x - 1", a: "0", b: "1", ans: "e - 2", diff: "hard" },
-            { func: "sin(2x)", a: "0", b: "π/2", ans: "1", diff: "medium" },
-            { func: "cos(3x)", a: "0", b: "π/6", ans: "1/3", diff: "medium" },
-            { func: "x^2 - 3x + 2", a: "1", b: "2", ans: "-1/6 (площадь 1/6)", diff: "hard" },
-            { func: "e^{2x}", a: "0", b: "1", ans: "(e^2 - 1)/2", diff: "medium" }
+            { func: "x^2", a: "0", b: "1", ans: "1/3" },
+            { func: "x^3", a: "0", b: "2", ans: "4" },
+            { func: "\\sin x", a: "0", b: "\\pi", ans: "2" },
+            { func: "\\cos x", a: "0", b: "\\pi/2", ans: "1" },
+            { func: "e^x", a: "0", b: "1", ans: "e-1" },
+            { func: "1/x", a: "1", b: "2", ans: "\\ln 2" },
+            { func: "3x^2", a: "0", b: "2", ans: "8" },
+            { func: "2x", a: "0", b: "1", ans: "1" },
+            { func: "x^2 + 1", a: "0", b: "1", ans: "4/3" },
+            { func: "4 - x^2", a: "-2", b: "2", ans: "32/3" },
+            { func: "\\sqrt{x}", a: "0", b: "4", ans: "16/3" },
+            { func: "x - x^2", a: "0", b: "1", ans: "1/6" },
+            { func: "\\sin(2x)", a: "0", b: "\\pi/2", ans: "1" },
+            { func: "\\cos(3x)", a: "0", b: "\\pi/6", ans: "1/3" },
+            { func: "e^{2x}", a: "0", b: "1", ans: "(e^2 - 1)/2" },
+            { func: "x^4", a: "0", b: "1", ans: "1/5" },
+            { func: "x^2 - x", a: "0", b: "1", ans: "-1/6" },
+            { func: "6x - x^2", a: "0", b: "6", ans: "36" },
+            { func: "x^2 - 4", a: "0", b: "2", ans: "-16/3" },
+            { func: "\\sin x + \\cos x", a: "0", b: "\\pi/2", ans: "2" },
+            { func: "2x + 1", a: "0", b: "2", ans: "6" },
+            { func: "3 - x^2", a: "-1", b: "1", ans: "16/3" },
+            { func: "e^x + 1", a: "0", b: "1", ans: "e" },
+            { func: "x^3 - x", a: "-1", b: "1", ans: "0" },
+            { func: "\\sqrt{1 + x}", a: "0", b: "3", ans: "14/3" },
+            { func: "\\cos x - \\sin x", a: "0", b: "\\pi/4", ans: "0" },
+            { func: "x^2 + 2x + 1", a: "-1", b: "1", ans: "8/3" },
+            { func: "4 - 2x", a: "0", b: "2", ans: "4" },
+            { func: "1/(x+1)", a: "0", b: "2", ans: "\\ln 3" },
+            { func: "e^{-x}", a: "0", b: "2", ans: "1 - e^{-2}" }
         ];
-
-        for (var i = 0; i < items.length && bank.length < 70; i++) {
+        for (var i = 0; i < items.length; i++) {
             var it = items[i];
+            var correct = ensureMath(it.ans);
+            var raw = String(it.ans).replace(/\\\(|\\\)/g, '').replace(/\(площадь[^)]*\)/g, '').trim();
+            var d1 = ensureMath(raw.indexOf('-') !== -1 ? raw.replace('-', '') : '-' + raw);
+            var d2 = ensureMath(raw.replace(/(\d+)/g, function(m){ return String(parseInt(m)+1); }));
+            var d3 = ensureMath('0');
+            var opts = makeUniqueOptions(correct, [d1, d2, d3]);
             var q = {
-                q: "Найти площадь фигуры, ограниченной \\( y = " + it.func + " \\), осью \\( Ox \\), \\( x=" + it.a + " \\), \\( x=" + it.b + " \\):",
-                opts: [
-                    "\\( " + it.ans + " \\)",
-                    "\\( " + (it.ans.indexOf('-') !== -1 ? it.ans.replace('-', '') : '-' + it.ans) + " \\)",
-                    "\\( " + (typeof it.ans === 'string' && it.ans.indexOf('ln') !== -1 ? '1' : '0') + " \\)",
-                    "\\( " + (typeof it.ans === 'string' && it.ans.indexOf('/') !== -1 ? it.ans.replace(/\d/g, function(m){return parseInt(m)+1;}) : it.ans) + " \\)"
-                ],
-                ans: 0,
-                diff: it.diff,
-                type: "practice"
+                q: "Найти площадь фигуры, ограниченной \\( y = " + fixLatex(it.func) + " \\), осью \\( Ox \\), \\( x=" + it.a + " \\), \\( x=" + it.b + " \\):",
+                opts: opts, ans: 0, diff: "medium", type: "practice"
             };
-            var optsWithIdx = q.opts.map(function(opt, idx) { return {text: opt, idx: idx}; });
+            var optsWithIdx = q.opts.map(function(o, idx){ return { text: o, idx: idx }; });
             var shuffled = shuffleArray(optsWithIdx);
-            var newAns = shuffled.findIndex(function(item) { return item.idx === 0; });
-            q.opts = shuffled.map(function(item) { return item.text; });
-            q.ans = newAns;
+            q.opts = shuffled.map(function(o){ return o.text; });
+            q.ans = shuffled.findIndex(function(o){ return o.idx === 0; });
             bank.push(q);
         }
         return bank;
     }
-
     areaBank = areaTheory.concat(generateAreaPractice());
-    while (areaBank.length < 100) {
-        var extra = areaBank.slice(0, 10).map(function(q) {
-            var newQ = JSON.parse(JSON.stringify(q));
-            newQ.q = newQ.q.replace(/\d/g, function(m) { return (parseInt(m)+1) % 10; });
-            return newQ;
-        });
-        areaBank = areaBank.concat(extra);
-    }
-    areaBank = areaBank.slice(0, 100);
 
-    // ================================================================
-    // ОБЪЕДИНЕНИЕ И РЕЖИМЫ
-    // ================================================================
+    (function fixBanks() {
+        var banks = [primitiveBank, indefiniteBank, definiteBank, areaBank];
+        for (var b = 0; b < banks.length; b++) {
+            var bank = banks[b];
+            for (var i = 0; i < bank.length; i++) {
+                var q = bank[i];
+                if (q.opts) {
+                    q.opts = q.opts.map(function(o){ return fixLatex(o); });
+                    var seen = {}, unique = [];
+                    for (var k = 0; k < q.opts.length; k++) {
+                        var norm = normalizeForCompare(q.opts[k]);
+                        if (!norm || seen[norm]) continue;
+                        seen[norm] = true;
+                        unique.push(q.opts[k]);
+                    }
+                    var correctText = unique[0];
+                    while (unique.length < 4) {
+                        var candidate = ensureMath(String(Math.floor(Math.random()*20) - 10));
+                        var n2 = normalizeForCompare(candidate);
+                        if (seen[n2]) continue;
+                        seen[n2] = true;
+                        unique.push(candidate);
+                    }
+                    q.opts = unique.slice(0, 4);
+                    var newAns = 0;
+                    for (var kk = 0; kk < q.opts.length; kk++) {
+                        if (normalizeForCompare(q.opts[kk]) === normalizeForCompare(correctText)) { newAns = kk; break; }
+                    }
+                    q.ans = newAns;
+                }
+            }
+        }
+    })();
+
     var fullBank = primitiveBank.concat(indefiniteBank).concat(definiteBank).concat(areaBank);
-
     var currentMode = 'primitive';
 
     document.querySelectorAll('.mode-btn').forEach(function(btn) {
@@ -788,22 +962,19 @@
     });
 
     function getQuestionsByMode(mode, count) {
-        var source = [];
+        var source;
         switch(mode) {
             case 'primitive': source = primitiveBank; break;
             case 'indefinite': source = indefiniteBank; break;
             case 'definite': source = definiteBank; break;
             case 'area': source = areaBank; break;
-            default: source = fullBank; break;
+            default: source = fullBank;
         }
-        if (source.length === 0) source = fullBank;
+        if (!source || source.length === 0) source = fullBank;
         var pool = shuffleArray(source.slice());
         return pool.slice(0, count);
     }
 
-    // ================================================================
-    // ТАЙМЕР И ЛОГИКА ТЕСТА
-    // ================================================================
     var currentQuestions = [];
     var timerInterval = null;
     var timeLeft = 0;
@@ -811,13 +982,14 @@
     var isFinished = false;
     var isStarted = false;
     var state = { correct: 0, wrong: 0 };
+    var testStarted = false;
+    var testFinished = false;
 
     function formatTime(sec) {
         var m = Math.floor(sec / 60);
         var s = sec % 60;
         return m + ':' + (s < 10 ? '0' : '') + s;
     }
-
     function updateTimer() {
         var el = document.getElementById('timerFixed');
         if (el) {
@@ -826,22 +998,19 @@
             if (timeLeft <= 10) el.classList.add('danger');
         }
         var bar = document.getElementById('timerBarFixed');
-        if (bar && totalTime > 0) {
-            bar.style.width = (timeLeft / totalTime * 100) + '%';
-        }
+        if (bar && totalTime > 0) bar.style.width = (timeLeft / totalTime * 100) + '%';
     }
-
     function updateProgress() {
         var total = currentQuestions.length;
         var answered = 0;
         for (var i = 0; i < total; i++) {
-            var sel = document.querySelector('input[name="q' + i + '"]:checked');
-            if (sel) answered++;
+            if (document.querySelector('input[name="q' + i + '"]:checked')) answered++;
         }
-        document.getElementById('answeredFixed').textContent = answered;
-        document.getElementById('totalFixed').textContent = total;
+        var a = document.getElementById('answeredFixed');
+        var t = document.getElementById('totalFixed');
+        if (a) a.textContent = answered;
+        if (t) t.textContent = total;
     }
-
     function timeExpired() {
         if (isFinished) return;
         isFinished = true;
@@ -856,11 +1025,8 @@
                 for (var j = 0; j < labels.length; j++) {
                     var input = labels[j];
                     var label = input.closest('label');
-                    if (parseInt(input.value) === q.ans) {
-                        label.classList.add('correct');
-                    } else {
-                        label.classList.add('wrong');
-                    }
+                    if (parseInt(input.value) === q.ans) label.classList.add('correct');
+                    else label.classList.add('wrong');
                     input.disabled = true;
                     label.classList.add('disabled');
                 }
@@ -868,12 +1034,11 @@
         }
         checkAnswers(true);
     }
-
     function startTest() {
         if (isStarted) return;
         isStarted = true;
-    testStarted = true;
-    testFinished = false;
+        testStarted = true;
+        testFinished = false;
         var startBtn = document.getElementById('startBtn');
         if (startBtn) startBtn.classList.remove('show');
         var hiddenNotice = document.getElementById('questionsHidden');
@@ -881,9 +1046,7 @@
         var questionsWrapper = document.getElementById('questionsWrapper');
         if (questionsWrapper) questionsWrapper.classList.add('show');
         var allInputs = document.querySelectorAll('#questions input[type="radio"]');
-        for (var i = 0; i < allInputs.length; i++) {
-            allInputs[i].disabled = false;
-        }
+        for (var i = 0; i < allInputs.length; i++) allInputs[i].disabled = false;
         var submitBtn = document.getElementById('submitBtn');
         if (submitBtn) submitBtn.classList.add('show');
         document.getElementById('fixedTimer').classList.add('show');
@@ -891,16 +1054,11 @@
             timeLeft--;
             updateTimer();
             updateProgress();
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                timeExpired();
-            }
+            if (timeLeft <= 0) { clearInterval(timerInterval); timerInterval = null; timeExpired(); }
         }, 1000);
         updateTimer();
         updateProgress();
     }
-
     function generateTest() {
         if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
         isFinished = false;
@@ -911,22 +1069,11 @@
         timeLeft = totalTime;
 
         currentQuestions = getQuestionsByMode(currentMode, count);
-
         currentQuestions = currentQuestions.map(function(q) {
-            var optsWithIndex = q.opts.map(function(opt, idx) {
-                return { text: opt, idx: idx };
-            });
+            var optsWithIndex = q.opts.map(function(opt, idx) { return { text: opt, idx: idx }; });
             var shuffledOpts = shuffleArray(optsWithIndex);
-            var newAns = shuffledOpts.findIndex(function(item) {
-                return item.idx === q.ans;
-            });
-            return {
-                q: q.q,
-                opts: shuffledOpts.map(function(item) { return item.text; }),
-                ans: newAns,
-                diff: q.diff,
-                type: q.type || 'practice'
-            };
+            var newAns = shuffledOpts.findIndex(function(item) { return item.idx === q.ans; });
+            return { q: q.q, opts: shuffledOpts.map(function(item){ return item.text; }), ans: newAns, diff: q.diff, type: q.type || 'practice' };
         });
 
         document.getElementById('fixedTimer').classList.remove('show');
@@ -948,7 +1095,6 @@
         html += '      Результат будет сохранён по уже отвеченным вопросам.';
         html += '    </p>';
         html += '  </div>';
-
         html += '</div>';
         html += '<div id="questionsWrapper" class="questions-wrapper">';
         html += '  <div id="questions"></div>';
@@ -961,94 +1107,86 @@
         updateProgress();
 
         var allInputs = document.querySelectorAll('#questions input[type="radio"]');
-        for (var i = 0; i < allInputs.length; i++) {
-            allInputs[i].disabled = true;
-        }
+        for (var i = 0; i < allInputs.length; i++) allInputs[i].disabled = true;
         var submitBtn = document.getElementById('submitBtn');
         if (submitBtn) submitBtn.classList.remove('show');
 
-        if (window.MathJax && MathJax.typesetPromise) {
-            MathJax.typesetPromise();
+        // ★ типизируем только контейнер, а не всю страницу
+        var container = document.getElementById('testContainer');
+        if (window.MathJax) {
+            if (typeof MathJax.typesetPromise === 'function') {
+                MathJax.typesetPromise([container]).catch(function(){});
+            } else if (typeof MathJax.typeset === 'function') {
+                MathJax.typeset([container]);
+            }
         }
     }
-
+    // ★ ИСПРАВЛЕННАЯ renderQuestions — оборачивает текст и формулы в span, чтобы MathJax не склеивал кириллицу
     function renderQuestions() {
         var html = '';
         for (var i = 0; i < currentQuestions.length; i++) {
             var q = currentQuestions[i];
-            html += '<div class="question"><p><span class="num">' + (i+1) + '.</span> ' + q.q + '</p><div class="opts">';
+            var qText = q.q;
+            html += '<div class="question"><p><span class="num">' + (i+1) + '.</span> <span class="q-text">' + qText + '</span></p><div class="opts">';
             for (var j = 0; j < q.opts.length; j++) {
-                html += '<label><input type="radio" name="q' + i + '" value="' + j + '" onchange="updateProgress(); saveTestState();"> ' + q.opts[j] + '</label>';
+                var optText = q.opts[j];
+                html += '<label><input type="radio" name="q' + i + '" value="' + j + '" onchange="updateProgress();"> <span class="opt-text">' + optText + '</span></label>';
             }
             html += '</div></div>';
         }
-        document.getElementById('questions').innerHTML = html;
-        if (window.MathJax && MathJax.typesetPromise) {
-            MathJax.typesetPromise();
+        var container = document.getElementById('questions');
+        container.innerHTML = html;
+        if (window.MathJax) {
+            if (typeof MathJax.typesetPromise === 'function') {
+                MathJax.typesetPromise([container]).catch(function(){});
+            } else if (typeof MathJax.typeset === 'function') {
+                MathJax.typeset([container]);
+            }
         }
     }
-
     function getGrade(pct) {
         if (pct >= 91) return { text: 'Отлично!', cls: 'excellent' };
         if (pct >= 70) return { text: 'Хорошо!', cls: 'good' };
         if (pct >= 50) return { text: 'Удовлетворительно', cls: 'satisfactory' };
         return { text: 'Плохо. Повторите тему!', cls: 'poor' };
     }
-
     function checkAnswers(timeUp) {
         if (isFinished && !timeUp) return;
         if (!isStarted && !timeUp) return;
-    testFinished = true;
-    testStarted = false;
-        clearTestState();
+        testFinished = true;
+        testStarted = false;
         if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
         isFinished = true;
 
         var correct = 0;
         var totalAnswered = 0;
-
         for (var i = 0; i < currentQuestions.length; i++) {
             var q = currentQuestions[i];
             var sel = document.querySelector('input[name="q' + i + '"]:checked');
             if (sel) totalAnswered++;
             if (sel && parseInt(sel.value) === q.ans) correct++;
-
             var labels = document.querySelectorAll('input[name="q' + i + '"]');
             for (var j = 0; j < labels.length; j++) {
                 var input = labels[j];
                 var label = input.closest('label');
-                if (parseInt(input.value) === q.ans) {
-                    label.classList.add('correct');
-                } else if (input.checked && parseInt(input.value) !== q.ans) {
-                    label.classList.add('wrong');
-                }
+                if (parseInt(input.value) === q.ans) label.classList.add('correct');
+                else if (input.checked && parseInt(input.value) !== q.ans) label.classList.add('wrong');
                 input.disabled = true;
                 label.classList.add('disabled');
             }
         }
-
         state.correct = correct;
         state.wrong = currentQuestions.length - correct;
-
         var pct = Math.round((correct / currentQuestions.length) * 100);
         var grade = getGrade(pct);
-
         var msg = grade.text + ' ' + correct + '/' + currentQuestions.length + ' (' + pct + '%)';
         if (timeUp) msg = '⏰ Время вышло! ' + msg;
-        if (totalAnswered < currentQuestions.length) {
-            msg += ' (не отвечено: ' + (currentQuestions.length - totalAnswered) + ')';
-        }
-
+        if (totalAnswered < currentQuestions.length) msg += ' (не отвечено: ' + (currentQuestions.length - totalAnswered) + ')';
         var result = document.getElementById('result');
         result.textContent = msg;
         result.className = 'result show ' + grade.cls;
-
         var btn = document.getElementById('submitBtn');
-        if (btn) {
-            btn.disabled = true;
-            btn.textContent = 'Тест завершён';
-        }
-
+        if (btn) { btn.disabled = true; btn.textContent = 'Тест завершён'; }
         if (!document.querySelector('.restart-btn')) {
             var restart = document.createElement('button');
             restart.className = 'restart-btn show';
@@ -1056,116 +1194,9 @@
             restart.onclick = function() { generateTest(); };
             result.after(restart);
         }
-
         result.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // ================================================================
-    // ОТПРАВКА ОТЧЁТА
-    // ================================================================
-    function openShareModal() {
-        var modal = document.getElementById('shareModal');
-        if (!modal) {
-            var div = document.createElement('div');
-            div.id = 'shareModal';
-            div.className = 'share-modal';
-            div.innerHTML = '<div class="modal-content">' +
-                '<button class="modal-close" onclick="closeShareModal()">✕</button>' +
-                '<div class="modal-title">📝 Введите данные</div>' +
-                '<input type="text" id="studentName" placeholder="Фамилия Имя">' +
-                '<input type="text" id="studentGroup" placeholder="Группа / Класс">' +
-                '<button class="modal-btn" onclick="sendShare()">📤 Отправить отчёт</button>' +
-                '<div class="modal-note">Откроется системное окно для выбора приложения</div>' +
-                '</div>';
-            document.body.appendChild(div);
-            document.getElementById('shareModal').addEventListener('click', function(e) {
-                if (e.target === this) closeShareModal();
-            });
-        }
-        document.getElementById('shareModal').className = 'share-modal show';
-        document.getElementById('studentName').focus();
-    }
-
-    function closeShareModal() {
-        var modal = document.getElementById('shareModal');
-        if (modal) modal.className = 'share-modal';
-    }
-
-    function sendShare() {
-        var name = document.getElementById('studentName').value.trim();
-        var group = document.getElementById('studentGroup').value.trim();
-        if (!name) { alert('Пожалуйста, введите Фамилию и Имя'); document.getElementById('studentName').focus(); return; }
-        if (!group) { alert('Пожалуйста, введите номер группы/класса'); document.getElementById('studentGroup').focus(); return; }
-        closeShareModal();
-        var text = getResultText(name, group);
-        if (navigator.share) {
-            navigator.share({
-                title: 'Результат теста: Интегралы',
-                text: text
-            }).catch(function(err) {
-                if (err.name !== 'AbortError') {
-                    copyToClipboard(text);
-                }
-            });
-        } else {
-            copyToClipboard(text);
-        }
-    }
-
-    function getResultText(name, group) {
-        var total = state.correct + state.wrong;
-        var pct = total > 0 ? Math.round((state.correct / total) * 100) : 0;
-        var date = new Date().toLocaleString('ru-RU');
-        var modeNames = {
-            'primitive': 'Первообразная',
-            'indefinite': 'Неопределённый интеграл',
-            'definite': 'Определённый интеграл',
-            'area': 'Площадь криволинейной трапеции'
-        };
-        var modeName = modeNames[currentMode] || 'Все темы';
-        return '📊 Тест: Интегралы\n' +
-               '👤 Студент: ' + name + '\n' +
-               '📚 Группа: ' + group + '\n' +
-               '📅 Дата: ' + date + '\n' +
-               '📌 Режим: ' + modeName + '\n' +
-               '✅ Правильно: ' + state.correct + '\n' +
-               '❌ Ошибок: ' + state.wrong + '\n' +
-               '📈 Результат: ' + pct + '%\n' +
-               '\n#математика #интегралы #тест';
-    }
-
-    function copyToClipboard(text) {
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(text).then(function() {
-                alert('📋 Отчёт скопирован в буфер обмена!');
-            }).catch(function() {
-                fallbackCopy(text);
-            });
-        } else {
-            fallbackCopy(text);
-        }
-    }
-
-    function fallbackCopy(text) {
-        var textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.top = '-9999px';
-        textarea.style.left = '-9999px';
-        document.body.appendChild(textarea);
-        textarea.select();
-        try {
-            document.execCommand('copy');
-            alert('📋 Отчёт скопирован в буфер обмена!');
-        } catch(e) {
-            alert('❌ Не удалось скопировать. Текст отчёта:\n\n' + text);
-        }
-        document.body.removeChild(textarea);
-    }
-
-    // ================================================================
-    // ТЕМА И ИЗБРАННОЕ
-    // ================================================================
     function toggleTheme() {
         var html = document.documentElement;
         var btn = document.getElementById('themeBtn');
@@ -1179,7 +1210,6 @@
             btn.textContent = '☀️';
         }
     }
-
     (function() {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
@@ -1195,36 +1225,27 @@
         var u = window.location.pathname.split('/').pop();
         var f = getFavorites();
         var btn = document.getElementById('favoriteBtn');
-        if (f.includes(u)) {
-            f = f.filter(function(x) { return x !== u; });
-            btn.textContent = '☆';
-            btn.classList.remove('active');
-        } else {
-            f.push(u);
-            btn.textContent = '★';
-            btn.classList.add('active');
-        }
+        if (f.includes(u)) { f = f.filter(function(x){ return x !== u; }); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
         saveFavorites(f);
     }
     function updateFavoriteBtn() {
         var btn = document.getElementById('favoriteBtn');
         if (btn) {
-            if (isFavorite()) {
-                btn.textContent = '★';
-                btn.classList.add('active');
-            } else {
-                btn.textContent = '☆';
-                btn.classList.remove('active');
-            }
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
         }
     }
     updateFavoriteBtn();
 
+    // ★ ИСПРАВЛЕННЫЙ запуск — ждём MathJax.startup.promise, а не фиксированные 300 мс
     window.addEventListener('load', function() {
-        setTimeout(function() {
-            if (checkViolationOnLoad()) return;
-            generateTest();
-        }, 300);
+        function run() { generateTest(); }
+        if (window.MathJax && MathJax.startup && MathJax.startup.promise) {
+            MathJax.startup.promise.then(run).catch(run);
+        } else {
+            setTimeout(run, 500);
+        }
     });
 </script>
 

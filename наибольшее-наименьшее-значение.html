@@ -13,12 +13,22 @@
             --text: #ffffff;
             --text-secondary: #8ba5b8;
             --accent: #1abc9c;
-            --border: rgba(46, 204, 113, 0.1);
+            --border: rgba(139, 92, 246, 0.1);
             --header-bg: linear-gradient(135deg, #1e3545, #162a38);
-            --formula-card-bg: #1e3545;
-            --example-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --step-color: #a78bfa;
+            --result-color: #4ade80;
+            --explain-color: #34d399;
             --info-bg: #1e3545;
-            --info-border: #8b5cf6;
+            --canvas-bg: #162a38;
+            --graph-bg: #243848;
+            --highlight-bg: rgba(139, 92, 246, 0.10);
+            --highlight-border: #8b5cf6;
+            --highlight-text: #a78bfa;
+            --warning-bg: rgba(139,92,246,0.12);
+            --warning-border: #8b5cf6;
+            --danger-color: #f87171;
         }
 
         :root.light-mode {
@@ -29,10 +39,20 @@
             --accent: #1abc9c;
             --border: #eff3f8;
             --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
-            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --special-border: #8b5cf6;
             --example-bg: #f8fafc;
+            --step-color: #7c3aed;
+            --result-color: #059669;
+            --explain-color: #059669;
             --info-bg: #f5f3ff;
-            --info-border: #8b5cf6;
+            --canvas-bg: #f8fafc;
+            --graph-bg: #f8fafc;
+            --highlight-bg: rgba(139, 92, 246, 0.10);
+            --highlight-border: #8b5cf6;
+            --highlight-text: #6d28d9;
+            --warning-bg: #f5f3ff;
+            --warning-border: #8b5cf6;
+            --danger-color: #dc2626;
         }
 
         body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
@@ -42,43 +62,132 @@
         h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
         .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
         .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+
         .section{margin-bottom:14px;}
-        .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--info-border);padding-left:12px;cursor:pointer;user-select:none;}
-        .section-title:hover{opacity:0.8;}
-        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
-        .section.collapsed .section-title::after{transform:rotate(-90deg);}
-        .section-content{max-height:3000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section-title{
+            font-size:1.1rem;font-weight:700;color:var(--text);
+            margin-bottom:6px;
+            display:flex;flex-direction:column;gap:4px;
+            border-left:4px solid var(--special-border);
+            padding:8px 12px;cursor:pointer;user-select:none;
+            text-align:left;background:var(--info-bg);
+            border-radius:10px;transition:background 0.2s;
+            line-height:1.4;position:relative;
+        }
+        .section-title:hover{opacity:0.9;background:var(--example-bg);}
+        .section-title .main-title{
+            display:flex;align-items:center;gap:8px;width:100%;
+            font-size:1rem;color:var(--text);
+        }
+        .section-title .main-title::after{
+            content:"▼";margin-left:auto;font-size:0.85rem;
+            transition:transform 0.3s;color:var(--text-secondary);flex-shrink:0;
+        }
+        .section.collapsed .section-title .main-title::after{transform:rotate(-90deg);}
+        .section-title .sub-title{
+            font-size:0.85rem;color:var(--text-secondary);
+            font-weight:400;font-style:italic;opacity:0.9;display:block;
+        }
+        .section-title .main-title mjx-container{font-size:1em !important;}
+        .section-content{max-height:14000px;overflow:hidden;transition:max-height 0.4s ease;}
         .section.collapsed .section-content{max-height:0;}
 
-        .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:14px 18px;border-radius:14px;margin:10px 0;}
-        .definition-block p{font-size:1.1rem;line-height:1.6;color:var(--text);margin:6px 0;}
+        .definition-block{background:var(--info-bg);border-left:4px solid var(--special-border);padding:14px 18px;border-radius:14px;margin:10px 0;}
+        .definition-block p{font-size:1rem;line-height:1.6;color:var(--text);margin:6px 0;}
         .definition-block strong{color:var(--text);}
 
+        .important{background:var(--warning-bg);border-left:4px solid var(--warning-border);border-radius:14px;padding:12px 16px;margin:12px 0;color:var(--text);font-size:0.95rem;line-height:1.5;}
+        .important strong{color:var(--highlight-text);}
+
+        p{margin:8px 0;font-size:0.95rem;line-height:1.6;color:var(--text);}
+
         .algorithm-list{list-style:none;counter-reset:step;margin:10px 0;padding:0;}
-        .algorithm-list li{counter-increment:step;margin-bottom:6px;padding-left:30px;position:relative;font-size:1.1rem;line-height:1.6;color:var(--text);}
-        .algorithm-list li::before{content:counter(step) ".";position:absolute;left:0;font-weight:700;color:var(--info-border);font-size:1.1rem;}
+        .algorithm-list li{counter-increment:step;margin-bottom:8px;padding-left:30px;position:relative;font-size:1rem;line-height:1.6;color:var(--text);}
+        .algorithm-list li::before{content:counter(step) ".";position:absolute;left:0;font-weight:700;color:var(--special-border);font-size:1rem;}
         .algorithm-list li strong{color:var(--text);}
 
-        .example-block{background:var(--example-bg);border-radius:16px;padding:14px 18px;border:1px solid var(--border);margin:8px 0;}
-        .math-example{background:var(--card-bg);padding:12px 16px;border-radius:14px;margin:6px 0;font-size:1.1rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text);}
-        .math-example strong{color:var(--text);font-size:1.1rem;}
-        .math-example mjx-container {font-size:1.1rem !important;}
+        .example-block{background:var(--example-bg);border-radius:16px;padding:16px 20px;border-left:5px solid var(--special-border);margin:10px 0;font-size:0.95rem;line-height:2.0;color:var(--text);}
+        .example-block .step{font-weight:700;color:var(--step-color);margin-top:10px;margin-bottom:4px;display:block;}
+        .example-block .result{margin-top:10px;font-weight:600;color:var(--result-color);display:block;}
+        .example-block .explain{color:var(--explain-color);font-style:italic;margin:4px 0 8px 16px;border-left:2px solid var(--explain-color);padding-left:12px;display:block;font-size:0.9rem;}
+        .example-block .formula-line{display:block;margin:4px 0;word-break:break-word;}
 
-        .back-link{display:inline-block;margin-top:16px;padding:10px 24px;background:var(--accent);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+        .plus { color: #27ae60; font-weight: 700; }
+        .minus { color: #e74c3c; font-weight: 700; }
+
+        .back-link{display:inline-block;margin-top:16px;padding:10px 24px;background:var(--special-border);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
         .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
+
+        .case-block{margin:16px 0;padding:14px;background:var(--example-bg);border-left:4px solid var(--special-border);border-radius:14px;}
+        .case-block .case-title{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:8px;}
+
+        .graph-container{
+            text-align:center;margin:12px 0;
+            background:var(--canvas-bg);
+            border-radius:16px;padding:8px;display:block;
+            transition:background 0.2s;
+        }
+        .graph-container canvas{
+            max-width:100%;height:auto;border-radius:12px;
+            display:inline-block;background:var(--canvas-bg);
+            transition:background 0.2s;width:100%;
+        }
+        .graph-label{font-size:0.85rem;color:var(--text-secondary);text-align:center;margin-top:4px;font-style:italic;}
+
+        .interval-canvas-container {
+            background: var(--graph-bg);
+            border-radius: 12px;
+            margin: 10px 0;
+            padding: 6px;
+            border: 1px solid var(--border);
+            width: 100%;
+            transition: background 0.3s;
+        }
+        .interval-canvas-container canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .interval-canvas-container canvas.parabola-plot {
+            aspect-ratio: 650 / 200;
+            min-height: 160px;
+        }
+
+        .case-text{font-size:0.95rem;line-height:1.65;color:var(--text);}
+        .case-text p{margin:6px 0;font-size:0.95rem;line-height:1.6;}
+        .case-text .case-note{
+            margin-top:8px;padding:8px 12px;border-radius:10px;
+            background:var(--highlight-bg);border-left:3px solid var(--highlight-border);
+            font-size:0.9rem;color:var(--text);
+        }
+        .case-text .case-note strong{color:var(--highlight-text);}
 
         @media (max-width:700px){
             body{padding:20px 14px 36px;}
             .content-card{padding:14px 16px;}
-            .section-title{font-size:1rem;}
-            .definition-block p{font-size:1rem;}
-            .algorithm-list li{font-size:1rem;margin-bottom:4px;}
-            .math-example{font-size:1rem;padding:10px 14px;}
-            .math-example mjx-container {font-size:1rem !important;}
+            .section-title{font-size:0.95rem;padding:6px 10px;}
+            .section-title .main-title{font-size:0.92rem;}
+            .section-title .sub-title{font-size:0.72rem;}
+            .definition-block p{font-size:0.92rem;}
+            .algorithm-list li{font-size:0.9rem;}
+            .example-block{padding:12px 14px;font-size:0.9rem;line-height:1.9;}
+            .example-block .explain{font-size:0.85rem;}
+            .case-block{padding:12px 14px;}
+            .case-block .case-title{font-size:0.95rem;}
+            .case-text{font-size:0.9rem;}
+            .case-text p{font-size:0.9rem;}
+            .case-text .case-note{font-size:0.85rem;}
+            .graph-container{padding:6px;}
+            .graph-container canvas{min-height:200px;}
+            .graph-label{font-size:0.75rem;}
+            .interval-canvas-container{padding:4px;}
+            .back-link{font-size:0.82rem;padding:8px 18px;}
         }
 
         @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
-        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+        .header{animation:fadeInUp 0.4s ease-out;}
+        .content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
     </style>
     <script>
         MathJax = {
@@ -91,119 +200,273 @@
             options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' }
         };
     </script>
-    <script src="mathjax/es5/tex-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 <body>
 <div class="container">
-    <div class="header"><h1>📈 Наибольшее и наименьшее значение функции</h1><div class="subtitle">Определение · Алгоритм · Пример · Ошибки</div></div>
+    <div class="header"><h1>📈 Наибольшее и наименьшее значение функции</h1><div class="subtitle">Определение · Случаи · Алгоритм · Примеры · Экстремумы</div></div>
     <div class="content-card">
 
-        <!-- ОПРЕДЕЛЕНИЕ -->
+        <!-- ===== ВСТУПЛЕНИЕ ===== -->
         <div class="section">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Определение</div>
-            <div class="section-content"><div class="definition-block">
-                <p><strong>Наибольшее значение</strong> функции \(f(x)\) на отрезке \([a, b]\) — это самое большое из всех значений функции на этом отрезке.</p>
-                <p><strong>Наименьшее значение</strong> функции \(f(x)\) на отрезке \([a, b]\) — это самое маленькое из всех значений функции на этом отрезке.</p>
-                <p>Непрерывная на отрезке функция обязательно достигает своего наибольшего и наименьшего значений.</p>
-            </div></div>
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📖 Зачем искать наибольшее и наименьшее</span>
+                <span class="sub-title">от самой высокой точки маршрута до максимальной прибыли</span>
+            </div>
+            <div class="section-content">
+                <p>Представь, что ты идёшь по горной тропе. Важно знать, где ты поднимешься выше всего и где опустишься ниже всего. Математика делает то же самое: ищет <strong>самое большое</strong> и <strong>самое маленькое</strong> значение функции на заданном отрезке.</p>
+                <div class="important">
+                    <strong>💡 Главная идея:</strong> наибольшее и наименьшее значения на отрезке ищут среди <strong>критических точек</strong> и <strong>концов отрезка</strong>. Из найденных чисел выбирают самое большое и самое маленькое.
+                </div>
+            </div>
         </div>
 
-        <!-- АЛГОРИТМ -->
-        <div class="section">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Алгоритм нахождения</div>
-            <div class="section-content"><ol class="algorithm-list">
-                <li><strong>Найти производную \(f'(x)\).</strong></li>
-                <li><strong>Найти критические точки</strong> на отрезке \([a, b]\): решить \(f'(x) = 0\) или где производная не существует.</li>
-                <li><strong>Вычислить значения функции</strong> в критических точках и на концах отрезка \(a\) и \(b\).</li>
-                <li><strong>Выбрать наибольшее и наименьшее</strong> из полученных значений.</li>
-            </ol></div>
+        <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📖 Определение</span>
+                <span class="sub-title">что такое наибольшее и наименьшее значение</span>
+            </div>
+            <div class="section-content">
+                <div class="definition-block">
+                    <p><strong>Наибольшее значение</strong> функции \(f(x)\) на отрезке \([a, b]\) — это самое большое из всех значений функции на этом отрезке.</p>
+                    <p><strong>Наименьшее значение</strong> функции \(f(x)\) на отрезке \([a, b]\) — это самое маленькое из всех значений функции на этом отрезке.</p>
+                    <p>Непрерывная на отрезке функция обязательно достигает своего наибольшего и наименьшего значений.</p>
+                </div>
+            </div>
         </div>
 
-        <!-- СВЯЗЬ С ПРОИЗВОДНОЙ -->
+        <!-- ===== СЛУЧАЙ 1 ===== -->
         <div class="section">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📊 Таблица знаков производной</div>
-            <div class="section-content"><div class="definition-block">
-                <p>Знак производной показывает, возрастает или убывает функция на интервале:</p>
-                <p>✅ \(f'(x) > 0\) — функция <strong>возрастает</strong></p>
-                <p>✅ \(f'(x) < 0\) — функция <strong>убывает</strong></p>
-                <p>✅ \(f'(x) = 0\) — возможен экстремум (максимум или минимум)</p>
-                <p style="margin-top:6px;">Для поиска наибольшего/наименьшего значения достаточно сравнить значения в критических точках и на концах отрезка.</p>
-            </div></div>
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📊 Случай 1. Функция только возрастает или только убывает</span>
+                <span class="sub-title">наибольшее и наименьшее — на концах отрезка</span>
+            </div>
+            <div class="section-content">
+                <div class="case-block">
+                    <div class="case-title">Случай 1</div>
+                    <div class="graph-container">
+                        <canvas id="case1" width="500" height="320"></canvas>
+                        <div class="graph-label">
+                            Ось \(Oy\) проходит через точку \(a\) &nbsp;·&nbsp; синяя линия — наибольшее &nbsp;·&nbsp; красная — наименьшее
+                        </div>
+                    </div>
+                    <div class="case-text">
+                        <p>Если функция на отрезке \([a, b]\) только <strong>возрастает</strong> или только <strong>убывает</strong>, то наибольшее и наименьшее значения достигаются на <strong>концах отрезка</strong> — в точках \(a\) и \(b\).</p>
+                        <p>На рисунке функция возрастает. Значит:
+                            <br>• наибольшее значение — в правом конце \(b\),
+                            <br>• наименьшее значение — в левом конце \(a\) (в начале координат).
+                        </p>
+                        <p>Внутренняя точка \(c\) — просто точка внутри отрезка. Здесь ни максимума, ни минимума нет — это не экстремум.</p>
+                        <div class="case-note">
+                            <strong>Как определить:</strong> если \(f'(x) > 0\) на всём отрезке, функция возрастает. Если \(f'(x) < 0\) — убывает.
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- ПРИМЕР 1 (основной) -->
+        <!-- ===== СЛУЧАЙ 2 ===== -->
         <div class="section">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">💡 Пример 1: \(f(x) = x^3 - 3x\) на \([-2, 2]\)</div>
-            <div class="section-content"><div class="example-block"><div class="math-example">
-                <strong>1. Найдём производную:</strong><br>
-                $$ f'(x) = 3x^2 - 3 $$<br><br>
-                <strong>2. Найдём критические точки на отрезке \([-2, 2]\):</strong><br>
-                $$ f'(x) = 0 $$<br>
-                $$ 3x^2 - 3 = 0 $$<br>
-                $$ x^2 = 1 $$<br>
-                $$ x = -1,\; x = 1 $$ — обе точки принадлежат отрезку \([-2, 2]\).<br><br>
-                <strong>3. Вычислим значения функции в критических точках и на концах отрезка:</strong><br>
-                $$ f(-2) = (-2)^3 - 3(-2) = -8 + 6 = -2 $$<br>
-                $$ f(-1) = (-1)^3 - 3(-1) = -1 + 3 = 2 $$<br>
-                $$ f(1) = 1^3 - 3\cdot 1 = 1 - 3 = -2 $$<br>
-                $$ f(2) = 2^3 - 3\cdot 2 = 8 - 6 = 2 $$<br><br>
-                <strong>4. Выберем наибольшее и наименьшее:</strong><br>
-                Наибольшее значение: \(2\) (достигается при \(x = -1\) и \(x = 2\)).<br>
-                Наименьшее значение: \(-2\) (достигается при \(x = -2\) и \(x = 1\)).<br><br>
-                <strong>Ответ:</strong><br>
-                Наибольшее: \(y(-1) = 2,\; y(2) = 2\) <br>
-                Наименьшее: \(y(-2) = -2,\; y(1) = -2\)
-            </div></div></div>
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📊 Случай 2. Внутри отрезка есть экстремумы</span>
+                <span class="sub-title">наибольшее и наименьшее — в критических точках или на концах</span>
+            </div>
+            <div class="section-content">
+                <div class="case-block">
+                    <div class="case-title">Случай 2</div>
+                    <div class="graph-container">
+                        <canvas id="case2" width="500" height="320"></canvas>
+                        <div class="graph-label">
+                            Синяя линия — наибольшее значение &nbsp;·&nbsp; красная — наименьшее
+                        </div>
+                    </div>
+                    <div class="case-text">
+                        <p>Если внутри отрезка \([a, b]\) есть критические точки, в них может быть <strong>максимум</strong> или <strong>минимум</strong> функции — это экстремумы.</p>
+                        <p>Тогда наибольшее и наименьшее значения могут достигаться:
+                            <br>• в критических точках внутри отрезка (\(c\) и \(n\)),
+                            <br>• или на концах \(a\) и \(b\).
+                        </p>
+                        <p>На рисунке:
+                            <br>• в точке \(c\) — <strong>max</strong> (функция принимает наибольшее значение),
+                            <br>• в точке \(n\) — <strong>min</strong> (функция принимает наименьшее значение).
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- ПРИМЕР 2 (с sin) -->
-        <div class="section">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">💡 Пример 2: \(f(x) = \sin x\) на \([0, \pi]\)</div>
-            <div class="section-content"><div class="example-block"><div class="math-example">
-                <strong>1. Найдём производную:</strong><br>
-                $$ f'(x) = \cos x $$<br><br>
-                <strong>2. Найдём критические точки на отрезке \([0, \pi]\):</strong><br>
-                $$ \cos x = 0 $$<br>
-                $$ x = \frac{\pi}{2} $$ — принадлежит отрезку.<br><br>
-                <strong>3. Вычислим значения функции:</strong><br>
-                $$ f(0) = \sin 0 = 0 $$<br>
-                $$ f\left(\frac{\pi}{2}\right) = \sin\frac{\pi}{2} = 1 $$<br>
-                $$ f(\pi) = \sin\pi = 0 $$<br><br>
-                <strong>4. Выберем наибольшее и наименьшее:</strong><br>
-                Наибольшее: \(1\) (при \(x = \pi/2\))<br>
-                Наименьшее: \(0\) (при \(x = 0\) и \(x = \pi\))
-            </div></div></div>
+        <!-- ===== АЛГОРИТМ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Алгоритм нахождения</span>
+                <span class="sub-title">4 шага</span>
+            </div>
+            <div class="section-content">
+                <ol class="algorithm-list">
+                    <li><strong>Найти производную \(f'(x)\).</strong></li>
+                    <li><strong>Найти критические точки</strong> внутри отрезка \([a, b]\) — где \(f'(x) = 0\) или \(f'(x)\) не существует.</li>
+                    <li><strong>Вычислить значения функции</strong> в этих точках и на концах отрезка \(a\) и \(b\).</li>
+                    <li><strong>Из полученных чисел выбрать</strong> самое большое и самое маленькое.</li>
+                </ol>
+            </div>
         </div>
 
-        <!-- ПРИМЕР 3 (с квадратичной функцией) -->
-        <div class="section">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">💡 Пример 3: \(f(x) = x^2 + 2x + 1\) на \([-3, 1]\)</div>
-            <div class="section-content"><div class="example-block"><div class="math-example">
-                <strong>1. Найдём производную:</strong><br>
-                $$ f'(x) = 2x + 2 $$<br><br>
-                <strong>2. Найдём критические точки:</strong><br>
-                $$ 2x + 2 = 0 $$<br>
-                $$ x = -1 $$ — принадлежит отрезку \([-3, 1]\).<br><br>
-                <strong>3. Вычислим значения функции:</strong><br>
-                $$ f(-3) = 9 - 6 + 1 = 4 $$<br>
-                $$ f(-1) = 1 - 2 + 1 = 0 $$<br>
-                $$ f(1) = 1 + 2 + 1 = 4 $$<br><br>
-                <strong>4. Выберем наибольшее и наименьшее:</strong><br>
-                Наибольшее: \(4\) (при \(x = -3\) и \(x = 1\))<br>
-                Наименьшее: \(0\) (при \(x = -1\))
-            </div></div></div>
+        <!-- ===== ПРИМЕР 1 ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">💡 Пример 1. \(f(x) = x^3 - 3x\) на \([-2, 2]\)</span>
+                <span class="sub-title">экстремумы внутри отрезка</span>
+            </div>
+            <div class="section-content">
+                <div class="example-block">
+                    <strong>Условие.</strong> Найти наибольшее и наименьшее значения функции \(f(x) = x^3 - 3x\) на отрезке \([-2, 2]\).<br><br>
+
+                    <span class="step">Шаг 1. Находим производную.</span>
+                    \(f'(x) = (x^3)' - (3x)' = 3x^2 - 3 = 3(x-1)(x+1)\).
+
+                    <span class="step">Шаг 2. Находим критические точки.</span>
+                    \(3(x-1)(x+1) = 0 \Rightarrow x = -1,\ x = 1\).<br>
+                    Обе точки принадлежат отрезку \([-2, 2]\).
+
+                    <span class="step">Шаг 3. Вычисляем значения.</span>
+                    \(f(-2) = -2,\quad f(-1) = 2,\quad f(1) = -2,\quad f(2) = 2\).
+
+                    <span class="step">Шаг 4. Сравниваем.</span>
+                    Наибольшее \(= 2\) (при \(x = -1\) и \(x = 2\)). Наименьшее \(= -2\) (при \(x = -2\) и \(x = 1\)).
+
+                    <span class="result">Ответ: наибольшее значение \(= 2\), наименьшее значение \(= -2\).</span>
+                </div>
+            </div>
         </div>
 
-        <!-- ЧАСТЫЕ ОШИБКИ -->
+        <!-- ===== ПРИМЕР 2 ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">💡 Пример 2. \(f(x) = \sin x\) на \([0, \pi]\)</span>
+                <span class="sub-title">max внутри, min на концах</span>
+            </div>
+            <div class="section-content">
+                <div class="example-block">
+                    <strong>Условие.</strong> Найти наибольшее и наименьшее значения функции \(f(x) = \sin x\) на отрезке \([0, \pi]\).<br><br>
+
+                    <span class="step">Шаг 1. Производная.</span> \(f'(x) = \cos x\).
+
+                    <span class="step">Шаг 2. Критические точки.</span>
+                    \(\cos x = 0 \Rightarrow x = \dfrac{\pi}{2}\).
+
+                    <span class="step">Шаг 3. Значения.</span>
+                    \(f(0) = 0,\quad f\!\left(\dfrac{\pi}{2}\right) = 1,\quad f(\pi) = 0\).
+
+                    <span class="step">Шаг 4. Сравнение.</span>
+                    Наибольшее \(= 1\), наименьшее \(= 0\).
+
+                    <span class="result">Ответ: наибольшее \(= 1\), наименьшее \(= 0\).</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 3 ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">💡 Пример 3. \(f(x) = x^2 + 2x + 1\) на \([-3, 1]\)</span>
+                <span class="sub-title">min внутри, max на концах</span>
+            </div>
+            <div class="section-content">
+                <div class="example-block">
+                    <strong>Условие.</strong> Найти наибольшее и наименьшее значения функции \(f(x) = x^2 + 2x + 1\) на отрезке \([-3, 1]\).<br><br>
+
+                    <span class="step">Шаг 1. Производная.</span> \(f'(x) = 2x + 2\).
+
+                    <span class="step">Шаг 2. Критические точки.</span>
+                    \(2x + 2 = 0 \Rightarrow x = -1\).
+
+                    <span class="step">Шаг 3. Значения.</span>
+                    \(f(-3) = 4,\quad f(-1) = 0,\quad f(1) = 4\).
+
+                    <span class="step">Шаг 4. Сравнение.</span>
+                    Наибольшее \(= 4\), наименьшее \(= 0\).
+
+                    <span class="result">Ответ: наибольшее \(= 4\), наименьшее \(= 0\).</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕР 4 ===== -->
         <div class="section">
-            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚠️ Частые ошибки</div>
-            <div class="section-content"><div class="definition-block">
-                <p>❌ <strong>Забывают проверить концы отрезка</strong> — экстремум может быть на границе.</p>
-                <p>❌ <strong>Не учитывают разрывы функции</strong> — если функция не непрерывна, алгоритм не работает.</p>
-                <p>❌ <strong>Путают максимум/минимум с наибольшим/наименьшим</strong> — локальный экстремум ≠ глобальный.</p>
-                <p>❌ <strong>Не учитывают точки, где производная не существует</strong> — они тоже могут давать экстремум.</p>
-                <p style="margin-top:6px;">✅ <strong>Всегда проверяйте:</strong> критические точки (где \(f'(x)=0\) или не существует) + концы отрезка.</p>
-            </div></div>
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">⚡ Пример 4. Найти наименьшее значение через точку минимума</span>
+                <span class="sub-title">отрезок [1; 4], метод интервалов на параболе</span>
+            </div>
+            <div class="section-content">
+
+                <p>Иногда нужно найти <strong>только наименьшее значение</strong> функции. Тогда не обязательно проверять все критические точки и концы — достаточно найти <strong>точку минимума</strong>. Если точка минимума лежит внутри отрезка, значение функции в ней и будет наименьшим на всём отрезке.</p>
+
+                <div class="important">
+                    <strong>💡 Почему так можно?</strong> До точки минимума функция убывает — значит, все значения левее неё больше \(f(x_{\min})\). После точки минимума функция возрастает — значит, все значения правее неё тоже больше \(f(x_{\min})\). Значит, \(f(x_{\min})\) — самое маленькое значение на отрезке. Проверять концы не нужно.
+                </div>
+
+                <div class="example-block">
+                    <strong>Задание.</strong> Найти наименьшее значение функции \(f(x) = x^3 - 3x^2\) на отрезке \([1; 4]\).<br><br>
+
+                    <span class="step">Шаг 1. Находим производную.</span>
+                    \(f'(x) = 3x^2 - 6x = 3x(x - 2)\).
+
+                    <span class="step">Шаг 2. Находим критические точки.</span>
+                    \(3x(x - 2) = 0 \Rightarrow x = 0\) и \(x = 2\).<br>
+                    Точка \(x = 0\) <strong>не входит</strong> в отрезок \([1; 4]\) — отбрасываем её.<br>
+                    На отрезке остаётся только одна критическая точка: \(x = 2\).
+
+                    <span class="step">Шаг 3. Метод интервалов: определяем знак производной на \([1; 4]\).</span>
+                    Производная \(f'(x) = 3x(x-2)\) — парабола с ветвями вверх и корнями \(x = 0\) и \(x = 2\). На отрезке \([1; 4]\):
+                    <br>• \(f'(x) < 0\) при \(x \in (1; 2)\) — функция <strong>убывает</strong>,
+                    <br>• \(f'(x) > 0\) при \(x \in (2; 4)\) — функция <strong>возрастает</strong>.
+
+                    <div class="interval-canvas-container">
+                        <canvas id="parabolaDerivative" class="parabola-plot" width="650" height="200"></canvas>
+                    </div>
+
+                    <span class="step">Шаг 4. Определяем точку минимума.</span>
+                    В точке \(x = 2\) производная меняет знак с <span class="minus">−</span> на <span class="plus">+</span> — это <strong>точка минимума</strong>. На графике она выделена оранжевым.<br>
+                    Значит, именно здесь функция принимает наименьшее значение на отрезке \([1; 4]\).
+                    <span class="explain">💡 До \(x = 2\) функция убывает — значения выше. После \(x = 2\) функция возрастает — значения тоже выше. Значит, значение в точке минимума самое маленькое.</span>
+
+                    <span class="step">Шаг 5. Вычисляем значение в точке минимума.</span>
+                    \(f(2) = 2^3 - 3 \cdot 2^2 = 8 - 12 = -4\).
+
+                    <span class="step">Шаг 6. Делаем вывод.</span>
+                    Точка минимума \(x = 2\) лежит <strong>внутри</strong> отрезка \([1; 4]\). Значит, значение \(f(2) = -4\) и есть наименьшее значение функции на этом отрезке. Концы проверять не нужно.
+
+                    <span class="step">Проверка.</span>
+                    \(f(2) = 8 - 12 = -4\) — верно.
+
+                    <span class="result">Ответ: наименьшее значение функции \(= -4\) (достигается при \(x = 2\)).</span>
+                </div>
+
+                <div class="important">
+                    <strong>⚡ Короткое правило:</strong> когда нужно <strong>только наименьшее значение</strong>:
+                    <br>1. Найти критические точки и отобрать те, что попали в отрезок.
+                    <br>2. По методу интервалов найти <strong>точку минимума</strong> (смена знака \(f'\) с − на +).
+                    <br>3. Если точка минимума внутри отрезка — её значение и есть наименьшее. Концы проверять не нужно.
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ОШИБКИ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">⚠️ Частые ошибки</span>
+                <span class="sub-title">что чаще всего путают</span>
+            </div>
+            <div class="section-content">
+                <div class="definition-block">
+                    <p>❌ <strong>Называют концы отрезка максимумом или минимумом.</strong> Концы — это не экстремумы.</p>
+                    <p>❌ <strong>Путают точку минимума и наименьшее значение.</strong> Точка минимума — это \(x\), а наименьшее значение — это \(y = f(x_{\min})\).</p>
+                    <p>❌ <strong>Проверяют концы, когда точка минимума внутри отрезка.</strong> Это лишнее — если функция убывает до точки минимума и возрастает после, значение в точке минимума и есть наименьшее на отрезке.</p>
+                    <p>❌ <strong>Не отбрасывают критические точки, не попавшие в отрезок.</strong> Например, \(x = 0\) в примере 4 не входит в \([1; 4]\) — её нужно исключить.</p>
+                    <p>✅ <strong>Помните:</strong> если точка минимума внутри отрезка — её значение и есть наименьшее. Если вне — смотрим на ближайший конец.</p>
+                </div>
+            </div>
         </div>
 
         <a href="derivative.html" class="back-link">← Назад к производной</a>
@@ -211,24 +474,370 @@
 </div>
 
 <script>
-        if (window.MathJax) MathJax.typesetPromise();
-    }
+    (function () {
+        'use strict';
 
-    (function() {
+        function drawGraph(canvasId, func, xMin, xMax, yMin, yMax, options) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+
+            const padL = 95, padR = 25, padT = 30, padB = 45;
+            const pw = w - padL - padR, ph = h - padT - padB;
+
+            const toX = x => padL + (x - xMin) / (xMax - xMin) * pw;
+            const toY = y => h - padB - (y - yMin) / (yMax - yMin) * ph;
+
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const bg = isLight ? '#fefefe' : '#0f1a24';
+            const axis = isLight ? '#5b7c9c' : '#8899aa';
+            const curve = isLight ? '#222222' : '#e2e8f0';
+            const labelText = isLight ? '#1a2a3f' : '#cbd5e1';
+            const maxLine = isLight ? '#2563eb' : '#60a5fa';
+            const minLine = isLight ? '#dc2626' : '#f87171';
+            const dot = isLight ? '#1a2a3f' : '#e2e8f0';
+            const extremum = '#e67e22';
+
+            ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+
+            const y0 = toY(0);
+            const xAt = (options.yAxisAt === 'a' && options.marks && options.marks[0]) ? options.marks[0].x : 0;
+            const x0 = toX(xAt);
+
+            ctx.strokeStyle = axis; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.moveTo(padL, y0); ctx.lineTo(w - padR, y0); ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(w - padR, y0); ctx.lineTo(w - padR - 8, y0 - 4); ctx.lineTo(w - padR - 8, y0 + 4);
+            ctx.closePath(); ctx.fillStyle = axis; ctx.fill();
+
+            ctx.beginPath(); ctx.moveTo(x0, h - padB); ctx.lineTo(x0, padT); ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x0, padT); ctx.lineTo(x0 - 4, padT + 8); ctx.lineTo(x0 + 4, padT + 8);
+            ctx.closePath(); ctx.fillStyle = axis; ctx.fill();
+
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = isLight ? '#1a2a3f' : '#8ba5b8';
+            ctx.lineWidth = 1;
+            options.marks.forEach(m => {
+                const sx = toX(m.x);
+                ctx.beginPath(); ctx.moveTo(sx, y0); ctx.lineTo(sx, toY(m.y)); ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = labelText;
+            ctx.font = 'italic bold 16px Georgia,serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            options.marks.forEach(m => {
+                const sx = toX(m.x);
+                ctx.fillText(m.label, sx, y0 + 5);
+            });
+
+            ctx.strokeStyle = curve; ctx.lineWidth = 2;
+            ctx.beginPath();
+            let first = true;
+            const step = (xMax - xMin) / 600;
+            for (let x = xMin + 0.01; x <= xMax; x += step) {
+                let y;
+                try { y = func(x); } catch (e) { first = true; continue; }
+                if (y === null || y === undefined || isNaN(y) || !isFinite(y) || y < yMin - 1 || y > yMax + 1) { first = true; continue; }
+                const sx = toX(x), sy = toY(y);
+                if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+            }
+            ctx.stroke();
+
+            if (options.maxY !== undefined) {
+                const sy = toY(options.maxY);
+                ctx.strokeStyle = maxLine; ctx.lineWidth = 1.6;
+                ctx.beginPath(); ctx.moveTo(padL, sy); ctx.lineTo(w - padR, sy); ctx.stroke();
+                ctx.beginPath(); ctx.arc(padL, sy, 4, 0, 2 * Math.PI);
+                ctx.fillStyle = maxLine; ctx.fill();
+                ctx.fillStyle = maxLine;
+                ctx.font = 'bold 10px Inter,sans-serif';
+                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                ctx.fillText('наибольшее', padL - 6, sy - 6);
+                ctx.fillText('значение', padL - 6, sy + 6);
+            }
+
+            if (options.minY !== undefined) {
+                const sy = toY(options.minY);
+                ctx.strokeStyle = minLine; ctx.lineWidth = 1.6;
+                ctx.beginPath(); ctx.moveTo(padL, sy); ctx.lineTo(w - padR, sy); ctx.stroke();
+                ctx.beginPath(); ctx.arc(padL, sy, 4, 0, 2 * Math.PI);
+                ctx.fillStyle = minLine; ctx.fill();
+                ctx.fillStyle = minLine;
+                ctx.font = 'bold 10px Inter,sans-serif';
+                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                ctx.fillText('наименьшее', padL - 6, sy - 6);
+                ctx.fillText('значение', padL - 6, sy + 6);
+            }
+
+            options.marks.forEach(m => {
+                const sx = toX(m.x), sy = toY(m.y);
+                ctx.fillStyle = dot;
+                ctx.beginPath(); ctx.arc(sx, sy, 5, 0, 2 * Math.PI); ctx.fill();
+                ctx.strokeStyle = bg; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.arc(sx, sy, 5, 0, 2 * Math.PI); ctx.stroke();
+            });
+
+            if (options.extremes) {
+                options.extremes.forEach(e => {
+                    const sx = toX(e.x), sy = toY(e.y);
+                    ctx.fillStyle = extremum;
+                    ctx.font = 'bold 13px Inter,sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = e.baseline || 'bottom';
+                    const dy = e.baseline === 'top' ? 18 : -10;
+                    ctx.fillText(e.label, sx, sy + dy);
+                });
+            }
+        }
+
+        // ===== ПАРАБОЛА f'(x) = 3x(x-2), с подсветкой точки минимума x=2 =====
+        function drawParabolaDerivative() {
+            const canvas = document.getElementById('parabolaDerivative');
+            if (!canvas) return;
+
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const colors = {
+                axis: isLight ? '#5a7a94' : '#8ba5b8',
+                text: isLight ? '#1a2a3f' : '#ffffff',
+                bg: isLight ? '#f8fafc' : '#162a38',
+                grid: isLight ? 'rgba(26,42,63,0.1)' : 'rgba(139,165,184,0.2)',
+                plus: isLight ? '#059669' : '#34d399',
+                minus: isLight ? '#dc2626' : '#f87171',
+                curve: '#1abc9c',
+                point: '#e67e22',
+                minPoint: '#e67e22',
+                fillPlus: isLight ? 'rgba(5,150,105,0.15)' : 'rgba(52,211,153,0.15)',
+                fillMinus: isLight ? 'rgba(220,38,38,0.15)' : 'rgba(248,113,113,0.15)',
+                segmentBg: isLight ? 'rgba(139,92,246,0.10)' : 'rgba(139,92,246,0.16)',
+                segmentBorder: '#8b5cf6'
+            };
+
+            const parentWidth = canvas.parentElement.clientWidth - 8;
+            const W0 = parentWidth < 100 ? 600 : parentWidth;
+            const H0 = W0 * 200 / 650;
+            canvas.width = 650;
+            canvas.height = 200;
+            canvas.style.width = W0 + 'px';
+            canvas.style.height = H0 + 'px';
+
+            const ctx = canvas.getContext('2d');
+            const W = 650, H = 200;
+
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, W, H);
+
+            const pad = 40;
+            const roots = [0, 2];
+            const xMin = -1.5, xMax = 4.5;
+            const yMinActual = -4, yMaxActual = 6;
+
+            const xScale = (W - 2 * pad) / (xMax - xMin);
+            const yScale = (H - 2 * pad) / (yMaxActual - yMinActual);
+
+            const toX = x => pad + (x - xMin) * xScale;
+            const toY = y => pad + (yMaxActual - y) * yScale;
+
+            // Сетка
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 0.8;
+            for (let x = Math.ceil(xMin); x <= xMax; x++) {
+                if (x === 0) continue;
+                const xc = toX(x);
+                ctx.beginPath(); ctx.moveTo(xc, pad); ctx.lineTo(xc, H - pad); ctx.stroke();
+                ctx.fillStyle = colors.text;
+                ctx.font = '11px Inter,sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                ctx.fillText(x.toString(), xc, H - pad + 4);
+            }
+            for (let y = Math.ceil(yMinActual); y <= yMaxActual; y++) {
+                if (y === 0) continue;
+                const yc = toY(y);
+                ctx.beginPath(); ctx.moveTo(pad, yc); ctx.lineTo(W - pad, yc); ctx.stroke();
+                ctx.fillStyle = colors.text;
+                ctx.font = '11px Inter,sans-serif';
+                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                ctx.fillText(y.toString(), pad - 6, yc);
+            }
+
+            // Оси
+            ctx.strokeStyle = colors.axis;
+            ctx.lineWidth = 2;
+            const y0 = toY(0);
+            ctx.beginPath(); ctx.moveTo(pad, y0); ctx.lineTo(W - pad, y0); ctx.stroke();
+            const x0 = toX(0);
+            ctx.beginPath(); ctx.moveTo(x0, pad); ctx.lineTo(x0, H - pad); ctx.stroke();
+
+            ctx.fillStyle = colors.text;
+            ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText('x', W - pad - 4, y0 - 4);
+            ctx.fillText('y', x0 + 6, pad + 10);
+
+            // Подсветка отрезка [1; 4] (на оси X)
+            const segStart = toX(1), segEnd = toX(4);
+            ctx.fillStyle = colors.segmentBg;
+            ctx.fillRect(segStart, pad, segEnd - segStart, H - 2 * pad);
+
+            // Границы отрезка
+            ctx.strokeStyle = colors.segmentBorder;
+            ctx.lineWidth = 1.3;
+            ctx.setLineDash([5, 4]);
+            ctx.beginPath(); ctx.moveTo(segStart, pad); ctx.lineTo(segStart, H - pad); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(segEnd, pad); ctx.lineTo(segEnd, H - pad); ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = colors.segmentBorder;
+            ctx.font = 'bold 11px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('1', segStart, H - pad + 4);
+            ctx.fillText('4', segEnd, H - pad + 4);
+
+            // Корень x = 0 (вне отрезка) — серый
+            ctx.fillStyle = colors.text;
+            ctx.globalAlpha = 0.4;
+            ctx.beginPath(); ctx.arc(toX(0), y0, 4, 0, 2 * Math.PI); ctx.fill();
+            ctx.fillStyle = colors.text;
+            ctx.font = 'bold 11px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('0', toX(0), y0 + 8);
+            ctx.globalAlpha = 1;
+
+            // Парабола
+            ctx.shadowColor = 'rgba(26,188,156,0.2)';
+            ctx.shadowBlur = 4;
+            ctx.strokeStyle = colors.curve;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            let first = true;
+            for (let i = 0; i <= 200; i++) {
+                const t = i / 200;
+                const xVal = xMin + t * (xMax - xMin);
+                const yVal = 3 * xVal * (xVal - 2);
+                const xc = toX(xVal), yc = toY(yVal);
+                if (yc < pad - 20 || yc > H - pad + 20) { first = true; continue; }
+                if (first) { ctx.moveTo(xc, yc); first = false; } else ctx.lineTo(xc, yc);
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Закрашенные области знаков (только для тех участков, где это читается)
+            const signRegions = [
+                { from: -1.5, to: 0,    mid: -0.75 },   // + вне отрезка
+                { from: 0,    to: 2,    mid: 1 },       // − внутри отрезка
+                { from: 2,    to: 4.5,  mid: 3.25 }     // + внутри отрезка
+            ];
+            signRegions.forEach(r => {
+                const xStart = toX(r.from);
+                const xEnd = toX(r.to);
+                if (xEnd - xStart < 2) return;
+                const yMid = 3 * r.mid * (r.mid - 2);
+                const isPlus = yMid > 0;
+
+                ctx.fillStyle = isPlus ? colors.fillPlus : colors.fillMinus;
+                ctx.fillRect(xStart, pad, xEnd - xStart, H - 2 * pad);
+
+                const midPx = (xStart + xEnd) / 2;
+                ctx.fillStyle = isPlus ? colors.plus : colors.minus;
+                ctx.font = 'bold 22px Inter,sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(isPlus ? ' + ' : ' − ', midPx, y0 + 20);
+
+                ctx.font = '10px Inter,sans-serif';
+                ctx.fillStyle = colors.text;
+                ctx.textBaseline = 'top';
+                ctx.fillText(isPlus ? "f'(x) > 0" : "f'(x) < 0", midPx, y0 + 40);
+            });
+
+            // ===== ТОЧКА МИНИМУМА x = 2 =====
+            const xMinPt = toX(2);
+            const yMinPt = toY(0); // парабола производной проходит через 0 при x=0 и x=2
+
+            // Вертикальная линия от точки до кривой
+            ctx.strokeStyle = colors.minPoint;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 3]);
+            ctx.beginPath();
+            ctx.moveTo(xMinPt, pad);
+            ctx.lineTo(xMinPt, y0);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Кружок в точке x = 2
+            ctx.fillStyle = colors.minPoint;
+            ctx.beginPath(); ctx.arc(xMinPt, y0, 7, 0, 2 * Math.PI); ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(xMinPt, y0, 7, 0, 2 * Math.PI); ctx.stroke();
+
+            // Подпись min
+            ctx.fillStyle = colors.minPoint;
+            ctx.font = 'bold 13px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText('min', xMinPt, pad + 14);
+
+            // Подпись x = 2 под кружком
+            ctx.fillStyle = colors.minPoint;
+            ctx.font = 'bold 12px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('x = 2', xMinPt, y0 + 12);
+        }
+
+        function drawAllGraphs() {
+            drawGraph('case1', x => x*x*x, 0.3, 2.7, -1, 17, {
+                yAxisAt: 'a',
+                maxY: 15.625, minY: 0.125,
+                marks: [
+                    { x: 0.5, y: 0.125, label: 'a' },
+                    { x: 1.4, y: 1.4*1.4*1.4, label: 'c' },
+                    { x: 2.5, y: 15.625, label: 'b' }
+                ]
+            });
+
+            drawGraph('case2', x => x*x*x - 3*x, -2.4, 2.4, -3.5, 3.5, {
+                maxY: 2, minY: -2,
+                marks: [
+                    { x: -2, y: -2, label: 'a' },
+                    { x: -1, y: 2, label: 'c' },
+                    { x: 1, y: -2, label: 'n' },
+                    { x: 2, y: 2, label: 'b' }
+                ],
+                extremes: [
+                    { x: -1, y: 2, label: 'max' },
+                    { x: 1, y: -2, label: 'min', baseline: 'top' }
+                ]
+            });
+
+            drawParabolaDerivative();
+        }
+
+        function initGraphs() {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', drawAllGraphs);
+            } else {
+                drawAllGraphs();
+            }
+            window.addEventListener('load', drawAllGraphs);
+            setTimeout(drawAllGraphs, 500);
+            setTimeout(drawAllGraphs, 1500);
+        }
+
+        initGraphs();
+
+        window.drawAllGraphs = drawAllGraphs;
+        window.addEventListener('resize', drawAllGraphs);
+        window.addEventListener('orientationchange', function () { setTimeout(drawAllGraphs, 200); });
+
+        var observer = new MutationObserver(function () { drawAllGraphs(); });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
         }
     })();
-
-    window.addEventListener('load', function() {
-        if (window.MathJax) {
-            MathJax.typesetPromise();
-        }
-    });
 </script>
-
-<script src="favorites.js"></script>
-<script src="theme.js"></script>
 </body>
 </html>

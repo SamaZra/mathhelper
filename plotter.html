@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Построитель графиков</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --bg: #1a2d3c;
@@ -45,340 +41,107 @@
             --graph-deriv-color: #e74c3c;
         }
 
-        body {
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            padding: 16px;
-        }
+        body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: var(--bg); min-height: 100vh; padding: 16px; }
+        .container { max-width: 1100px; margin: 0 auto; position: relative; }
+        .card { background: var(--card-bg); border-radius: 28px; padding: 20px; border: 1px solid var(--border); margin-top: 50px; }
+        h1 { font-size: 1.3rem; text-align: center; margin-bottom: 6px; color: var(--text); }
+        .sub { text-align: center; color: var(--text-secondary); font-size: 0.7rem; margin-bottom: 16px; }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            position: relative;
-        }
+        .preview { background: var(--input-bg); border-radius: 14px; padding: 8px 12px; margin-top: 8px; margin-bottom: 12px; text-align: center; font-family: monospace; font-size: 0.9rem; color: var(--text); overflow-x: auto; }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 28px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            margin-top: 50px;
-        }
+        .input-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .input-row input { flex: 3; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 28px; font-size: 0.9rem; color: var(--text); outline: none; font-family: monospace; }
+        .btn-group { flex: 2; display: flex; gap: 8px; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 28px; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: var(--accent); color: white; text-align: center; }
+        .btn-secondary { background: var(--btn-bg); color: var(--text); }
+        .btn:active { transform: scale(0.96); }
 
-        h1 {
-            font-size: 1.3rem;
-            text-align: center;
-            margin-bottom: 6px;
-            color: var(--text);
-        }
+        .templates { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .tpl-btn { padding: 5px 10px; background: var(--btn-bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text); cursor: pointer; font-size: 0.7rem; font-family: monospace; }
 
-        .sub {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.7rem;
-            margin-bottom: 16px;
-        }
+        .graph-container { position: relative; width: 100%; height: 400px; margin: 16px 0 8px; background: var(--result-bg); border-radius: 20px; overflow: hidden; }
+        .graph-container:fullscreen { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; border-radius: 0; background: #0a0f16; }
+        .graph-container:fullscreen canvas { width: 100vw; height: 100vh; border-radius: 0; }
 
-        .preview {
-            background: var(--input-bg);
-            border-radius: 14px;
-            padding: 8px 12px;
-            margin-top: 8px;
-            margin-bottom: 12px;
-            text-align: center;
-            font-family: monospace;
-            font-size: 0.9rem;
-            color: var(--text);
-            overflow-x: auto;
-        }
+        canvas { width: 100%; height: 100%; cursor: grab; touch-action: none; }
+        canvas:active { cursor: grabbing; }
 
-        .input-row {
+        .fullscreen-btn { position: absolute; bottom: 15px; right: 15px; width: 44px; height: 44px; border-radius: 50%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 20; color: white; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .fullscreen-btn:hover { background: var(--accent); transform: scale(1.05); }
+
+        /* ===== КНОПКИ ПОД ГРАФИКОМ ===== */
+        .graph-controls-bottom {
             display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 14px 0;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 12px;
         }
-
-        .input-row input {
-            flex: 3;
-            padding: 10px 14px;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            font-size: 0.9rem;
-            color: var(--text);
-            outline: none;
-            font-family: monospace;
-        }
-
-        .btn-group {
-            flex: 2;
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 28px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            background: var(--accent);
-            color: white;
-            text-align: center;
-        }
-
-        .btn-secondary {
-            background: var(--btn-bg);
-            color: var(--text);
-        }
-
-        .btn:active {
-            transform: scale(0.96);
-        }
-
-        .templates {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-
-        .tpl-btn {
-            padding: 5px 10px;
-            background: var(--btn-bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            color: var(--text);
-            cursor: pointer;
-            font-size: 0.7rem;
-            font-family: monospace;
-        }
-
-        .graph-container {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            margin: 16px 0;
-            background: var(--result-bg);
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .graph-container:fullscreen {
-            width: 100vw;
-            height: 100vh;
-            max-width: none;
-            max-height: none;
-            margin: 0;
-            border-radius: 0;
-            background: #0a0f16;
-        }
-        .graph-container:fullscreen canvas {
-            width: 100vw;
-            height: 100vh;
-            border-radius: 0;
-        }
-        .graph-container:-webkit-full-screen {
-            width: 100vw;
-            height: 100vh;
-            background: #0a0f16;
-        }
-        .graph-container:-moz-full-screen {
-            width: 100vw;
-            height: 100vh;
-            background: #0a0f16;
-        }
-
-        canvas {
-            width: 100%;
-            height: 100%;
-            cursor: grab;
-            touch-action: none;
-        }
-
-        canvas:active {
-            cursor: grabbing;
-        }
-
-        .fullscreen-btn {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-            font-size: 22px;
+        .graph-controls-bottom button {
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
-            z-index: 20;
-            color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-        .fullscreen-btn:hover {
-            background: var(--accent);
-            transform: scale(1.05);
-        }
-
-        .graph-controls {
-            display: flex;
             gap: 6px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .graph-controls button {
-            padding: 6px 12px;
+            padding: 12px 20px;
             background: var(--btn-bg);
             border: 1px solid var(--border);
-            border-radius: 20px;
+            border-radius: 26px;
             color: var(--text);
             cursor: pointer;
-            font-size: 0.7rem;
-        }
-
-        .legend {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 3px;
-            border-radius: 2px;
-        }
-
-        .legend-color.func {
-            background: var(--graph-color);
-        }
-
-        .legend-color.deriv {
-            background: var(--graph-deriv-color);
-        }
-
-        .info-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        .intersections {
-            flex: 1;
-            background: var(--input-bg);
-            border-radius: 16px;
-            padding: 8px 12px;
-        }
-
-        .intersections h4 {
-            font-size: 0.65rem;
-            margin-bottom: 6px;
-            color: var(--text-secondary);
-        }
-
-        .intersections p {
-            font-size: 0.7rem;
-            color: var(--text);
-            font-family: monospace;
-            word-break: break-word;
-        }
-
-        .value-table {
-            flex: 1;
-            background: var(--input-bg);
-            border-radius: 16px;
-            padding: 8px 12px;
-            overflow-x: auto;
-        }
-
-        .value-table h4 {
-            font-size: 0.65rem;
-            margin-bottom: 6px;
-            color: var(--text-secondary);
-        }
-
-        .value-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .value-table th, .value-table td {
-            padding: 4px 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            min-width: 56px;
             text-align: center;
-            font-size: 0.7rem;
-            color: var(--text);
-            border-bottom: 1px solid var(--border);
+            transition: all 0.15s;
+            user-select: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
-
-        .value-table th {
-            background: var(--table-header);
-            font-weight: 600;
-        }
-
-        .error-message {
-            color: #e74c3c;
-            text-align: center;
-            margin-top: 10px;
-            font-size: 0.7rem;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-top: 16px;
-            padding: 8px 20px;
+        .graph-controls-bottom button:hover {
             background: var(--accent);
             color: white;
-            text-decoration: none;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-align: center;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
         }
+        .graph-controls-bottom button:active {
+            transform: scale(0.95);
+        }
+        .graph-controls-bottom .reset-btn {
+            font-size: 0.9rem;
+            padding: 12px 22px;
+            min-width: auto;
+        }
+
+        .legend { display: flex; gap: 12px; margin-bottom: 12px; justify-content: center; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.65rem; color: var(--text-secondary); }
+        .legend-color { width: 16px; height: 3px; border-radius: 2px; }
+        .legend-color.func { background: var(--graph-color); }
+        .legend-color.deriv { background: var(--graph-deriv-color); }
+
+        .info-panel { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+        .intersections { flex: 1; background: var(--input-bg); border-radius: 16px; padding: 8px 12px; }
+        .intersections h4 { font-size: 0.65rem; margin-bottom: 6px; color: var(--text-secondary); }
+        .intersections p { font-size: 0.7rem; color: var(--text); font-family: monospace; word-break: break-word; }
+
+        .value-table { flex: 1; background: var(--input-bg); border-radius: 16px; padding: 8px 12px; overflow-x: auto; }
+        .value-table h4 { font-size: 0.65rem; margin-bottom: 6px; color: var(--text-secondary); }
+        .value-table table { width: 100%; border-collapse: collapse; }
+        .value-table th, .value-table td { padding: 4px 6px; text-align: center; font-size: 0.7rem; color: var(--text); border-bottom: 1px solid var(--border); }
+        .value-table th { background: var(--table-header); font-weight: 600; }
+
+        .error-message { color: #e74c3c; text-align: center; margin-top: 10px; font-size: 0.7rem; }
+
+        .back-link { display: inline-block; margin-top: 16px; padding: 8px 20px; background: var(--accent); color: white; text-decoration: none; border-radius: 40px; font-weight: 600; font-size: 0.85rem; text-align: center; }
 
         @media (max-width: 700px) {
-            .graph-container {
-                height: 320px;
-            }
-            .btn-group {
-                flex: 1;
-            }
-            .btn {
-                padding: 8px;
-                font-size: 0.75rem;
-            }
-            .value-table th, .value-table td {
-                padding: 3px 4px;
-                font-size: 0.65rem;
-            }
-            .fullscreen-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 18px;
-                bottom: 12px;
-                right: 12px;
-            }
+            .graph-container { height: 320px; }
+            .btn-group { flex: 1; }
+            .btn { padding: 8px; font-size: 0.75rem; }
+            .value-table th, .value-table td { padding: 3px 4px; font-size: 0.65rem; }
+            .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
+            .graph-controls-bottom button { padding: 10px 16px; font-size: 0.9rem; min-width: 48px; }
         }
-    
     </style>
     <script src="libs/algebrite/algebrite.min.js"></script>
     <script>
@@ -416,12 +179,6 @@
             <button class="tpl-btn" onclick="setFunc('tan(x)')">tan(x)</button>
         </div>
 
-        <div class="graph-controls">
-            <button onclick="zoomIn()">+</button>
-            <button onclick="zoomOut()">-</button>
-            <button onclick="resetView()">⟳</button>
-        </div>
-
         <div class="legend">
             <div class="legend-item"><div class="legend-color func"></div> <span>f(x)</span></div>
             <div class="legend-item" id="derivLegend" style="display: none;"><div class="legend-color deriv"></div> <span>f'(x)</span></div>
@@ -430,6 +187,13 @@
         <div class="graph-container" id="graphContainer">
             <canvas id="graphCanvas" width="800" height="450"></canvas>
             <button class="fullscreen-btn" id="fullscreenBtn" title="Во весь экран">⛶</button>
+        </div>
+
+        <!-- ★ НОВЫЕ КНОПКИ ПОД ГРАФИКОМ -->
+        <div class="graph-controls-bottom">
+            <button onclick="zoomIn()" title="Приблизить">＋</button>
+            <button onclick="zoomOut()" title="Отдалить">−</button>
+            <button class="reset-btn" onclick="resetView()" title="Вернуть исходный вид">⟳ Сброс</button>
         </div>
 
         <div class="info-panel">
@@ -452,516 +216,514 @@
 </div>
 
 <script>
-    let canvas, ctx;
-    let width = 800, height = 450;
-    let currentFunc = 'x^3-3*x';
-    let currentDerivative = null;
-    let showDerivative = false;
+    (function () {
+        'use strict';
 
-    let isDragging = false;
-    let dragStartX = 0, dragStartY = 0;
-    let viewXMin = -6, viewXMax = 6, viewYMin = -5, viewYMax = 5;
-
-    // Полноэкранный режим
-    const container = document.getElementById('graphContainer');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-
-    async function toggleFullscreen() {
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        function typesetSafe(nodes) {
+            if (!window.MathJax) return;
             try {
-                await container.requestFullscreen();
-                fullscreenBtn.textContent = '✖';
-                fullscreenBtn.title = 'Выйти из полноэкранного режима';
-            } catch(err) {}
-        } else {
-            if (document.exitFullscreen) await document.exitFullscreen();
-            else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
-            fullscreenBtn.textContent = '⛶';
-            fullscreenBtn.title = 'Во весь экран';
-            setTimeout(() => resizeCanvas(), 50);
+                if (typeof MathJax.typesetPromise === 'function') MathJax.typesetPromise(nodes);
+                else if (typeof MathJax.typeset === 'function') MathJax.typeset(nodes);
+            } catch (e) {}
         }
-    }
 
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
+        let canvas, ctx;
+        let width = 800, height = 450;
+        let currentFunc = 'x^3-3*x';
+        let currentDerivative = null;
+        let showDerivative = false;
 
-    document.addEventListener('fullscreenchange', () => {
-        if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
-            fullscreenBtn.textContent = '✖';
-        } else {
-            fullscreenBtn.textContent = '⛶';
+        let isDragging = false;
+        let dragStartX = 0, dragStartY = 0;
+
+        const INITIAL_X_MIN = -6;
+        const INITIAL_X_MAX = 6;
+        const INITIAL_Y_MIN = -5;
+        const INITIAL_Y_MAX = 5;
+
+        let viewXMin = INITIAL_X_MIN, viewXMax = INITIAL_X_MAX;
+        let viewYMin = INITIAL_Y_MIN, viewYMax = INITIAL_Y_MAX;
+
+        function syncAspect() {
+            if (!width || !height) return;
+            const xScale = (viewXMax - viewXMin) / width;
+            const yRange = height * xScale;
+            const cy = (viewYMin + viewYMax) / 2;
+            viewYMin = cy - yRange / 2;
+            viewYMax = cy + yRange / 2;
         }
-        setTimeout(() => resizeCanvas(), 50);
-    });
 
-    function isTrigonometric(func) {
-        let lower = func.toLowerCase();
-        return lower.includes('sin') || lower.includes('cos') || lower.includes('tan') || lower.includes('tg');
-    }
-
-    function formatXLabel(x, isTrig) {
-        if (!isTrig) {
-            if (Math.abs(x - Math.round(x)) < 0.01) return Math.round(x).toString();
-            return x.toFixed(1);
+        function isTrigonometric(func) {
+            let lower = func.toLowerCase();
+            return lower.includes('sin') || lower.includes('cos') || lower.includes('tan') || lower.includes('tg');
         }
-        let eps = 0.01;
-        let pi = Math.PI;
-        if (Math.abs(x) < eps) return "0";
-        let piMult = x / pi;
-        if (Math.abs(piMult - Math.round(piMult)) < 0.05) {
-            let n = Math.round(piMult);
-            if (n === 1) return "π";
-            if (n === -1) return "-π";
-            if (n === 2) return "2π";
-            if (n === -2) return "-2π";
-            return n + "π";
+
+        function chooseXStep(isTrig) {
+            if (!isTrig) return 1;
+            const pxPerUnit = width / (viewXMax - viewXMin);
+            const pxPerPi = pxPerUnit * Math.PI;
+            if (pxPerPi > 300) return Math.PI / 4;
+            if (pxPerPi > 120) return Math.PI / 2;
+            return Math.PI;
         }
-        let half = (2 * x) / pi;
-        if (Math.abs(half - Math.round(half)) < 0.05) {
-            let n = Math.round(half);
-            if (n === 1) return "π/2";
-            if (n === -1) return "-π/2";
-            if (n === 3) return "3π/2";
-            return n + "π/2";
-        }
-        let quarter = (4 * x) / pi;
-        if (Math.abs(quarter - Math.round(quarter)) < 0.05) {
-            let n = Math.round(quarter);
-            if (n === 1) return "π/4";
-            if (n === 3) return "3π/4";
-            return n + "π/4";
-        }
-        return x.toFixed(2);
-    }
 
-    function formatNumber(num) {
-        if (Math.abs(num - Math.round(num)) < 0.001) return Math.round(num).toString();
-        return parseFloat(num.toFixed(3)).toString();
-    }
-
-    function evaluateFunction(func, x) {
-        if (!func) return NaN;
-        try {
-            let expr = func.replace(/\^/g, '**');
-            expr = expr.replace(/(\d)([a-zA-Z])/g, '$1*$2');
-            expr = expr.replace(/pi/gi, 'Math.PI');
-            expr = expr.replace(/exp\(/g, 'Math.exp(');
-            expr = expr.replace(/sin\(/g, 'Math.sin(');
-            expr = expr.replace(/cos\(/g, 'Math.cos(');
-            expr = expr.replace(/tan\(/g, 'Math.tan(');
-            expr = expr.replace(/tg\(/g, 'Math.tan(');
-            expr = expr.replace(/ln\(/g, 'Math.log(');
-            expr = expr.replace(/sqrt\(/g, 'Math.sqrt(');
-            const fn = new Function('x', 'return ' + expr);
-            const result = fn(x);
-            return isFinite(result) ? result : NaN;
-        } catch(e) {
-            return NaN;
-        }
-    }
-
-    function computeDerivative(func) {
-        if (typeof Algebrite === 'undefined') return null;
-        try {
-            let cleaned = func.replace(/\^/g, '^');
-            let deriv = Algebrite.derivative(cleaned, 'x').toString();
-            deriv = deriv.replace(/\*\*/g, '^');
-            deriv = deriv.replace(/pi/gi, 'pi');
-            return deriv;
-        } catch(e) {
-            return null;
-        }
-    }
-
-    function drawGraph() {
-        if (!canvas || !ctx) return;
-
-        canvas.width = width;
-        canvas.height = height;
-
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--result-bg').trim() || '#0f2a38';
-        ctx.fillRect(0, 0, width, height);
-
-        function toCanvasX(x) { return ((x - viewXMin) / (viewXMax - viewXMin)) * width; }
-        function toCanvasY(y) { return height - ((y - viewYMin) / (viewYMax - viewYMin)) * height; }
-
-        ctx.save();
-        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid-color').trim() || '#3a5a6e';
-        ctx.lineWidth = 0.5;
-
-        let isTrig = isTrigonometric(currentFunc);
-
-        let xTickValues = [];
-        if (isTrig) {
+        function formatXLabel(x, isTrig, xStep) {
+            if (!isTrig) {
+                if (Math.abs(x - Math.round(x)) < 0.01) return Math.round(x).toString();
+                return x.toFixed(1);
+            }
             let pi = Math.PI;
-            let vals = [-2*pi, -3*pi/2, -pi, -pi/2, 0, pi/2, pi, 3*pi/2, 2*pi];
-            for (let v of vals) {
-                if (v >= viewXMin - 0.5 && v <= viewXMax + 0.5) xTickValues.push(v);
-            }
-            xTickValues.sort((a,b) => a - b);
-        } else {
-            for (let x = Math.ceil(viewXMin); x <= Math.floor(viewXMax); x++) {
-                if (Math.abs(x) < 0.01) continue;
-                xTickValues.push(x);
-            }
-            if (viewXMin < 0 && viewXMax > 0) xTickValues.push(0);
-            xTickValues.sort((a,b) => a - b);
+            if (Math.abs(x) < 1e-6) return "0";
+
+            let ratio = x / (pi / 2);
+            let n = Math.round(ratio);
+            if (Math.abs(ratio - n) > 0.02) return x.toFixed(2);
+
+            let sign = n < 0 ? "-" : "";
+            let m = Math.abs(n);
+
+            if (m === 0) return "0";
+            if (m === 1) return sign + "π/2";
+            if (m === 2) return sign + "π";
+            if (m === 3) return sign + "3π/2";
+            if (m === 4) return sign + "2π";
+            if (m === 5) return sign + "5π/2";
+            if (m === 6) return sign + "3π";
+            if (m % 2 === 0) return sign + (m / 2) + "π";
+            return sign + m + "π/2";
         }
 
-        ctx.font = '10px monospace';
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#8ba5b8';
-
-        for (let x of xTickValues) {
-            let canvasX = toCanvasX(x);
-            if (canvasX >= 0 && canvasX <= width) {
-                ctx.beginPath();
-                ctx.moveTo(canvasX, 0);
-                ctx.lineTo(canvasX, height);
-                ctx.stroke();
-                let label = formatXLabel(x, isTrig);
-                ctx.fillText(label, canvasX - 6, toCanvasY(0) + 12);
-            }
+        function formatNumber(num) {
+            if (Math.abs(num - Math.round(num)) < 0.001) return Math.round(num).toString();
+            return parseFloat(num.toFixed(3)).toString();
         }
 
-        let yTickValues = [];
-        for (let y = Math.ceil(viewYMin); y <= Math.floor(viewYMax); y++) {
-            if (Math.abs(y) < 0.01) continue;
-            yTickValues.push(y);
-        }
-        if (viewYMin < 0 && viewYMax > 0) yTickValues.push(0);
-        yTickValues.sort((a,b) => a - b);
-
-        for (let y of yTickValues) {
-            let canvasY = toCanvasY(y);
-            if (canvasY >= 0 && canvasY <= height) {
-                ctx.beginPath();
-                ctx.moveTo(0, canvasY);
-                ctx.lineTo(width, canvasY);
-                ctx.stroke();
-                let label = formatNumber(y);
-                ctx.fillText(label, toCanvasX(0) + 6, canvasY - 2);
+        function evaluateFunction(func, x) {
+            if (!func) return NaN;
+            try {
+                let expr = func.replace(/\^/g, '**');
+                expr = expr.replace(/(\d)([a-zA-Z])/g, '$1*$2');
+                expr = expr.replace(/pi/gi, 'Math.PI');
+                expr = expr.replace(/exp\(/g, 'Math.exp(');
+                expr = expr.replace(/sin\(/g, 'Math.sin(');
+                expr = expr.replace(/cos\(/g, 'Math.cos(');
+                expr = expr.replace(/tan\(/g, 'Math.tan(');
+                expr = expr.replace(/tg\(/g, 'Math.tan(');
+                expr = expr.replace(/ln\(/g, 'Math.log(');
+                expr = expr.replace(/sqrt\(/g, 'Math.sqrt(');
+                const fn = new Function('x', 'return ' + expr);
+                const result = fn(x);
+                return isFinite(result) ? result : NaN;
+            } catch (e) {
+                return NaN;
             }
         }
 
-        ctx.beginPath();
-        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--axis-color').trim() || '#8ba5b8';
-        ctx.lineWidth = 2;
-        let axisX = toCanvasY(0);
-        let axisY = toCanvasX(0);
-        if (axisX >= 0 && axisX <= height) {
-            ctx.moveTo(0, axisX);
-            ctx.lineTo(width, axisX);
-            ctx.stroke();
-        }
-        if (axisY >= 0 && axisY <= width) {
-            ctx.moveTo(axisY, 0);
-            ctx.lineTo(axisY, height);
-            ctx.stroke();
+        function computeDerivative(func) {
+            if (typeof Algebrite === 'undefined') return null;
+            try {
+                let cleaned = func.replace(/\^/g, '^');
+                let deriv = Algebrite.derivative(cleaned, 'x').toString();
+                deriv = deriv.replace(/\*\*/g, '^');
+                deriv = deriv.replace(/pi/gi, 'pi');
+                return deriv;
+            } catch (e) {
+                return null;
+            }
         }
 
-        ctx.beginPath();
-        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--graph-color').trim() || '#1abc9c';
-        ctx.lineWidth = 2.5;
-        let firstPoint = true;
+        function drawGraph() {
+            if (!canvas || !ctx) return;
 
-        for (let px = 0; px <= width; px++) {
-            let x = viewXMin + (px / width) * (viewXMax - viewXMin);
-            let y = evaluateFunction(currentFunc, x);
-            if (!isNaN(y) && isFinite(y)) {
-                let canvasY = toCanvasY(y);
-                if (canvasY >= -100 && canvasY <= height + 100) {
-                    if (firstPoint) {
-                        ctx.moveTo(px, canvasY);
-                        firstPoint = false;
-                    } else {
-                        ctx.lineTo(px, canvasY);
+            canvas.width = width;
+            canvas.height = height;
+
+            syncAspect();
+
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--result-bg').trim() || '#0f2a38';
+            ctx.fillRect(0, 0, width, height);
+
+            function toCanvasX(x) { return ((x - viewXMin) / (viewXMax - viewXMin)) * width; }
+            function toCanvasY(y) { return height - ((y - viewYMin) / (viewYMax - viewYMin)) * height; }
+
+            ctx.save();
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid-color').trim() || '#3a5a6e';
+            ctx.lineWidth = 0.5;
+
+            let isTrig = isTrigonometric(currentFunc);
+            const xStep = chooseXStep(isTrig);
+
+            ctx.font = '10px monospace';
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#8ba5b8';
+
+            let xStart = Math.ceil(viewXMin / xStep) * xStep;
+            for (let x = xStart; x <= viewXMax + 1e-9; x += xStep) {
+                let canvasX = toCanvasX(x);
+                if (canvasX >= 0 && canvasX <= width) {
+                    ctx.beginPath();
+                    ctx.moveTo(canvasX, 0);
+                    ctx.lineTo(canvasX, height);
+                    ctx.stroke();
+                    if (!isTrig || Math.abs((x / (Math.PI / 2)) - Math.round(x / (Math.PI / 2))) < 0.02) {
+                        let label = formatXLabel(x, isTrig, xStep);
+                        ctx.fillText(label, canvasX - 6, toCanvasY(0) + 12);
                     }
-                } else {
-                    firstPoint = true;
                 }
-            } else {
-                firstPoint = true;
             }
-        }
-        ctx.stroke();
 
-        if (showDerivative && currentDerivative) {
+            const yStep = 1;
+            let yStart = Math.ceil(viewYMin / yStep) * yStep;
+            for (let y = yStart; y <= viewYMax + 1e-9; y += yStep) {
+                let canvasY = toCanvasY(y);
+                if (canvasY >= 0 && canvasY <= height) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, canvasY);
+                    ctx.lineTo(width, canvasY);
+                    ctx.stroke();
+                    let label = formatNumber(y);
+                    ctx.fillText(label, toCanvasX(0) + 6, canvasY - 2);
+                }
+            }
+
             ctx.beginPath();
-            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--graph-deriv-color').trim() || '#e74c3c';
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--axis-color').trim() || '#8ba5b8';
             ctx.lineWidth = 2;
-            ctx.setLineDash([8, 5]);
-            firstPoint = true;
+            let axisX = toCanvasY(0);
+            let axisY = toCanvasX(0);
+            if (axisX >= 0 && axisX <= height) {
+                ctx.moveTo(0, axisX);
+                ctx.lineTo(width, axisX);
+                ctx.stroke();
+            }
+            if (axisY >= 0 && axisY <= width) {
+                ctx.moveTo(axisY, 0);
+                ctx.lineTo(axisY, height);
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--graph-color').trim() || '#1abc9c';
+            ctx.lineWidth = 2.5;
+            let firstPoint = true;
 
             for (let px = 0; px <= width; px++) {
                 let x = viewXMin + (px / width) * (viewXMax - viewXMin);
-                let y = evaluateFunction(currentDerivative, x);
+                let y = evaluateFunction(currentFunc, x);
                 if (!isNaN(y) && isFinite(y)) {
                     let canvasY = toCanvasY(y);
                     if (canvasY >= -100 && canvasY <= height + 100) {
-                        if (firstPoint) {
-                            ctx.moveTo(px, canvasY);
-                            firstPoint = false;
-                        } else {
-                            ctx.lineTo(px, canvasY);
-                        }
-                    } else {
-                        firstPoint = true;
-                    }
-                } else {
-                    firstPoint = true;
-                }
+                        if (firstPoint) { ctx.moveTo(px, canvasY); firstPoint = false; }
+                        else { ctx.lineTo(px, canvasY); }
+                    } else { firstPoint = true; }
+                } else { firstPoint = true; }
             }
             ctx.stroke();
-            ctx.setLineDash([]);
-        }
 
-        ctx.restore();
-        updateIntersections();
-        updateValueTable();
-    }
+            if (showDerivative && currentDerivative) {
+                ctx.beginPath();
+                ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--graph-deriv-color').trim() || '#e74c3c';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 5]);
+                firstPoint = true;
 
-    function findRoots(func, start, end, step = 0.05) {
-        let roots = [];
-        let prevY = evaluateFunction(func, start);
-        for (let x = start + step; x <= end; x += step) {
-            let y = evaluateFunction(func, x);
-            if (!isNaN(prevY) && !isNaN(y) && prevY * y < 0) {
-                let a = x - step, b = x;
-                for (let i = 0; i < 15; i++) {
-                    let mid = (a + b) / 2;
-                    if (Math.abs(evaluateFunction(func, mid)) < 1e-7) { roots.push(mid); break; }
-                    if (evaluateFunction(func, a) * evaluateFunction(func, mid) < 0) b = mid;
-                    else a = mid;
+                for (let px = 0; px <= width; px++) {
+                    let x = viewXMin + (px / width) * (viewXMax - viewXMin);
+                    let y = evaluateFunction(currentDerivative, x);
+                    if (!isNaN(y) && isFinite(y)) {
+                        let canvasY = toCanvasY(y);
+                        if (canvasY >= -100 && canvasY <= height + 100) {
+                            if (firstPoint) { ctx.moveTo(px, canvasY); firstPoint = false; }
+                            else { ctx.lineTo(px, canvasY); }
+                        } else { firstPoint = true; }
+                    } else { firstPoint = true; }
                 }
-                roots.push((a + b) / 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
             }
-            prevY = y;
-        }
-        return roots.filter((r, i, arr) => Math.abs(r - arr[i-1]) > 0.001);
-    }
 
-    function updateIntersections() {
-        const roots = findRoots(currentFunc, viewXMin, viewXMax);
-        const yIntersect = evaluateFunction(currentFunc, 0);
-        const isTrig = isTrigonometric(currentFunc);
-
-        let html = '';
-        if (roots.length > 0) {
-            const formattedRoots = roots.map(r => formatXLabel(r, isTrig)).join(', ');
-            html += `🔴 x = ${formattedRoots}<br>`;
-        } else {
-            html += `🔴 Корней нет<br>`;
-        }
-        if (!isNaN(yIntersect) && isFinite(yIntersect)) {
-            html += `🟢 y(0) = ${formatNumber(yIntersect)}`;
-        } else {
-            html += `🟢 y(0) не определен`;
-        }
-        document.getElementById('intersectionsInfo').innerHTML = html;
-    }
-
-    function updateValueTable() {
-        const isTrig = isTrigonometric(currentFunc);
-        let xValues;
-
-        if (isTrig) {
-            xValues = [-Math.PI, -Math.PI/2, 0, Math.PI/2, Math.PI];
-        } else {
-            xValues = [-3, -2, -1, -0.5, 0, 0.5, 1, 2, 3];
+            ctx.restore();
+            updateIntersections();
+            updateValueTable();
         }
 
-        let html = '<table><th>x</th><th>f(x)</th><tr>';
-
-        for (let x of xValues) {
-            let y = evaluateFunction(currentFunc, x);
-            let xLabel = isTrig ? formatXLabel(x, true) : (Math.abs(x - Math.round(x)) < 0.01 ? Math.round(x).toString() : x.toFixed(2));
-            let yStr = (!isNaN(y) && isFinite(y)) ? formatNumber(y) : '—';
-            html += `<tr><td style="font-weight:600;">${xLabel}${isTrig ? '' : ''}</td><td>${yStr}</td></tr>`;
-        }
-        html += '</table>';
-        document.getElementById('valueTableContainer').innerHTML = html;
-    }
-
-    function updatePreview() {
-        let func = document.getElementById('functionInput').value.trim();
-        let previewDiv = document.getElementById('preview');
-        if (func) {
-            let formatted = func.replace(/\*/g, '·').replace(/\^/g, '^');
-            previewDiv.innerHTML = `\\( f(x) = ${formatted} \\)`;
-        } else {
-            previewDiv.innerHTML = `\\( f(x) = ? \\)`;
-        }
-        if (window.MathJax) MathJax.typesetPromise([previewDiv]);
-    }
-
-    function plotGraph() {
-        const funcInput = document.getElementById('functionInput').value.trim();
-        if (!funcInput) {
-            showError('Введите функцию');
-            return;
+        function findRoots(func, start, end, step) {
+            step = step || 0.05;
+            let roots = [];
+            let prevY = evaluateFunction(func, start);
+            for (let x = start + step; x <= end; x += step) {
+                let y = evaluateFunction(func, x);
+                if (!isNaN(prevY) && !isNaN(y) && prevY * y < 0) {
+                    let a = x - step, b = x;
+                    for (let i = 0; i < 15; i++) {
+                        let mid = (a + b) / 2;
+                        if (Math.abs(evaluateFunction(func, mid)) < 1e-7) { roots.push(mid); break; }
+                        if (evaluateFunction(func, a) * evaluateFunction(func, mid) < 0) b = mid;
+                        else a = mid;
+                    }
+                    roots.push((a + b) / 2);
+                }
+                prevY = y;
+            }
+            return roots.filter(function (r, i, arr) {
+                return i === 0 || Math.abs(r - arr[i - 1]) > 0.001;
+            });
         }
 
-        currentFunc = funcInput;
+        function updateIntersections() {
+            const roots = findRoots(currentFunc, viewXMin, viewXMax);
+            const yIntersect = evaluateFunction(currentFunc, 0);
+            const isTrig = isTrigonometric(currentFunc);
 
-        const deriv = computeDerivative(currentFunc);
-        if (deriv) {
-            currentDerivative = deriv;
-        } else {
-            currentDerivative = null;
+            let html = '';
+            if (roots.length > 0) {
+                const formattedRoots = roots.map(r => formatXLabel(r, isTrig, 1)).join(', ');
+                html += '🔴 x = ' + formattedRoots + '<br>';
+            } else {
+                html += '🔴 Корней нет<br>';
+            }
+            if (!isNaN(yIntersect) && isFinite(yIntersect)) {
+                html += '🟢 y(0) = ' + formatNumber(yIntersect);
+            } else {
+                html += '🟢 y(0) не определен';
+            }
+            document.getElementById('intersectionsInfo').innerHTML = html;
         }
 
-        let testVal = evaluateFunction(currentFunc, 1);
-        if (isNaN(testVal)) {
-            showError('Ошибка синтаксиса');
-            return;
+        function updateValueTable() {
+            const isTrig = isTrigonometric(currentFunc);
+            let xValues;
+            if (isTrig) xValues = [-Math.PI, -Math.PI / 2, 0, Math.PI / 2, Math.PI];
+            else xValues = [-3, -2, -1, -0.5, 0, 0.5, 1, 2, 3];
+
+            let html = '<table><tr><th>x</th><th>f(x)</th></tr>';
+            for (let x of xValues) {
+                let y = evaluateFunction(currentFunc, x);
+                let xLabel = isTrig ? formatXLabel(x, true, 1) : (Math.abs(x - Math.round(x)) < 0.01 ? Math.round(x).toString() : x.toFixed(2));
+                let yStr = (!isNaN(y) && isFinite(y)) ? formatNumber(y) : '—';
+                html += '<tr><td style="font-weight:600;">' + xLabel + '</td><td>' + yStr + '</td></tr>';
+            }
+            html += '</table>';
+            document.getElementById('valueTableContainer').innerHTML = html;
         }
 
-        hideError();
-
-        if (showDerivative && !currentDerivative) {
-            showDerivative = false;
-            document.getElementById('toggleDerivBtn').innerHTML = 'f\'';
-            document.getElementById('derivLegend').style.display = 'none';
+        function updatePreview() {
+            let func = document.getElementById('functionInput').value.trim();
+            let previewDiv = document.getElementById('preview');
+            if (func) {
+                let formatted = func.replace(/\*/g, '·');
+                formatted = formatted.replace(/\bpi\b/g, '\\pi');
+                previewDiv.innerHTML = '\\( f(x) = ' + formatted + ' \\)';
+            } else {
+                previewDiv.innerHTML = '\\( f(x) = ? \\)';
+            }
+            typesetSafe([previewDiv]);
         }
 
-        drawGraph();
-        updatePreview();
-    }
+        function plotGraph() {
+            const funcInput = document.getElementById('functionInput').value.trim();
+            if (!funcInput) { showError('Введите функцию'); return; }
 
-    function toggleDerivative() {
-        if (!currentDerivative) {
-            showError('Производная не вычислена');
-            return;
+            currentFunc = funcInput;
+
+            const deriv = computeDerivative(currentFunc);
+            currentDerivative = deriv || null;
+
+            let testVal = evaluateFunction(currentFunc, 1);
+            if (isNaN(testVal)) { showError('Ошибка синтаксиса'); return; }
+
+            hideError();
+
+            if (showDerivative && !currentDerivative) {
+                showDerivative = false;
+                document.getElementById('toggleDerivBtn').innerHTML = "f'";
+                document.getElementById('derivLegend').style.display = 'none';
+            }
+
+            drawGraph();
+            updatePreview();
         }
-        showDerivative = !showDerivative;
-        const btn = document.getElementById('toggleDerivBtn');
-        const legend = document.getElementById('derivLegend');
 
-        if (showDerivative) {
-            btn.innerHTML = 'f\' ✓';
-            legend.style.display = 'flex';
-        } else {
-            btn.innerHTML = 'f\'';
-            legend.style.display = 'none';
+        function toggleDerivative() {
+            if (!currentDerivative) { showError('Производная не вычислена'); return; }
+            showDerivative = !showDerivative;
+            const btn = document.getElementById('toggleDerivBtn');
+            const legend = document.getElementById('derivLegend');
+            if (showDerivative) {
+                btn.innerHTML = "f' ✓";
+                legend.style.display = 'flex';
+            } else {
+                btn.innerHTML = "f'";
+                legend.style.display = 'none';
+            }
+            drawGraph();
         }
-        drawGraph();
-    }
 
-    function setFunc(func) {
-        document.getElementById('functionInput').value = func;
-        updatePreview();
-        plotGraph();
-    }
+        function setFunc(func) {
+            document.getElementById('functionInput').value = func;
+            updatePreview();
+            plotGraph();
+        }
 
-    function zoomIn() {
-        let cx = (viewXMin + viewXMax) / 2;
-        let cy = (viewYMin + viewYMax) / 2;
-        viewXMin = cx - (viewXMax - viewXMin) * 0.7 / 2;
-        viewXMax = cx + (viewXMax - viewXMin) * 0.7 / 2;
-        viewYMin = cy - (viewYMax - viewYMin) * 0.7 / 2;
-        viewYMax = cy + (viewYMax - viewYMin) * 0.7 / 2;
-        drawGraph();
-    }
+        // ====== ЗУМ ======
+        function zoomIn() {
+            const cx = (viewXMin + viewXMax) / 2;
+            const cy = (viewYMin + viewYMax) / 2;
+            const newW = (viewXMax - viewXMin) * 0.7;
+            const newH = (viewYMax - viewYMin) * 0.7;
+            viewXMin = cx - newW / 2;
+            viewXMax = cx + newW / 2;
+            viewYMin = cy - newH / 2;
+            viewYMax = cy + newH / 2;
+            drawGraph();
+        }
 
-    function zoomOut() {
-        let cx = (viewXMin + viewXMax) / 2;
-        let cy = (viewYMin + viewYMax) / 2;
-        viewXMin = cx - (viewXMax - viewXMin) * 1.4 / 2;
-        viewXMax = cx + (viewXMax - viewXMin) * 1.4 / 2;
-        viewYMin = cy - (viewYMax - viewYMin) * 1.4 / 2;
-        viewYMax = cy + (viewYMax - viewYMin) * 1.4 / 2;
-        drawGraph();
-    }
+        function zoomOut() {
+            const cx = (viewXMin + viewXMax) / 2;
+            const cy = (viewYMin + viewYMax) / 2;
+            const newW = (viewXMax - viewXMin) * 1.4;
+            const newH = (viewYMax - viewYMin) * 1.4;
+            viewXMin = cx - newW / 2;
+            viewXMax = cx + newW / 2;
+            viewYMin = cy - newH / 2;
+            viewYMax = cy + newH / 2;
+            drawGraph();
+        }
 
-    function resetView() {
-        viewXMin = -6;
-        viewXMax = 6;
-        viewYMin = -5;
-        viewYMax = 5;
-        drawGraph();
-    }
+        function resetView() {
+            viewXMin = INITIAL_X_MIN;
+            viewXMax = INITIAL_X_MAX;
+            viewYMin = INITIAL_Y_MIN;
+            viewYMax = INITIAL_Y_MAX;
+            drawGraph();
+        }
 
-    function showError(msg) {
-        let d = document.getElementById('errorMessage');
-        d.innerHTML = msg;
-        setTimeout(() => d.innerHTML = '', 3000);
-    }
+        function showError(msg) {
+            let d = document.getElementById('errorMessage');
+            d.innerHTML = msg;
+            setTimeout(function () { d.innerHTML = ''; }, 3000);
+        }
 
-    function hideError() {
-        document.getElementById('errorMessage').innerHTML = '';
-    }
+        function hideError() {
+            document.getElementById('errorMessage').innerHTML = '';
+        }
 
-    function resizeCanvas() {
-        let container = document.querySelector('.graph-container');
-        if (container) {
+        function resizeCanvas() {
+            let container = document.querySelector('.graph-container');
+            if (!container || !canvas) return;
             width = container.clientWidth;
             height = Math.max(300, width * 0.56);
             canvas.width = width;
             canvas.height = height;
             drawGraph();
         }
-    }
 
-    function startDrag(e) {
-        isDragging = true;
-        let rect = canvas.getBoundingClientRect();
-        let cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-        let cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-        dragStartX = cx - rect.left;
-        dragStartY = cy - rect.top;
-        canvas.style.cursor = 'grabbing';
-    }
+        function startDrag(e) {
+            isDragging = true;
+            let rect = canvas.getBoundingClientRect();
+            let cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            let cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            dragStartX = cx - rect.left;
+            dragStartY = cy - rect.top;
+            canvas.style.cursor = 'grabbing';
+        }
 
-    function onDrag(e) {
-        if (!isDragging) return;
-        e.preventDefault();
-        let rect = canvas.getBoundingClientRect();
-        let cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-        let cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-        let curX = cx - rect.left;
-        let curY = cy - rect.top;
-        let dx = (curX - dragStartX) / width * (viewXMax - viewXMin);
-        let dy = (curY - dragStartY) / height * (viewYMax - viewYMin);
-        viewXMin -= dx;
-        viewXMax -= dx;
-        viewYMin += dy;
-        viewYMax += dy;
-        dragStartX = curX;
-        dragStartY = curY;
-        drawGraph();
-    }
+        function onDrag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            let rect = canvas.getBoundingClientRect();
+            let cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            let cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            let curX = cx - rect.left;
+            let curY = cy - rect.top;
+            let dx = (curX - dragStartX) / width * (viewXMax - viewXMin);
+            let dy = (curY - dragStartY) / height * (viewYMax - viewYMin);
+            viewXMin -= dx;
+            viewXMax -= dx;
+            viewYMin += dy;
+            viewYMax += dy;
+            dragStartX = curX;
+            dragStartY = curY;
+            drawGraph();
+        }
 
-    function endDrag() {
-        isDragging = false;
-        canvas.style.cursor = 'grab';
-    }
+        function endDrag() {
+            isDragging = false;
+            if (canvas) canvas.style.cursor = 'grab';
+        }
 
-    function initCanvas() {
-        canvas = document.getElementById('graphCanvas');
-        ctx = canvas.getContext('2d');
+        function setupFullscreen() {
+            const container = document.getElementById('graphContainer');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            if (!container || !fullscreenBtn) return;
 
-        canvas.addEventListener('mousedown', startDrag);
-        window.addEventListener('mousemove', onDrag);
-        window.addEventListener('mouseup', endDrag);
-        canvas.addEventListener('touchstart', startDrag);
-        window.addEventListener('touchmove', onDrag);
-        window.addEventListener('touchend', endDrag);
-        canvas.style.cursor = 'grab';
+            async function toggleFullscreen() {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    try {
+                        if (container.requestFullscreen) await container.requestFullscreen();
+                        else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+                        fullscreenBtn.textContent = '✖';
+                        fullscreenBtn.title = 'Выйти из полноэкранного режима';
+                    } catch (err) {}
+                } else {
+                    if (document.exitFullscreen) await document.exitFullscreen();
+                    else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                    fullscreenBtn.textContent = '⛶';
+                    fullscreenBtn.title = 'Во весь экран';
+                    setTimeout(resizeCanvas, 50);
+                }
+            }
 
-        window.addEventListener('resize', () => setTimeout(resizeCanvas, 100));
-        setTimeout(resizeCanvas, 100);
-        plotGraph();
-    }
-        drawGraph();
-    }
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
 
-    (function() {
+            document.addEventListener('fullscreenchange', function () {
+                if (document.fullscreenElement === container) fullscreenBtn.textContent = '✖';
+                else fullscreenBtn.textContent = '⛶';
+                setTimeout(resizeCanvas, 50);
+            });
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('graphCanvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+
+            canvas.addEventListener('mousedown', startDrag);
+            window.addEventListener('mousemove', onDrag);
+            window.addEventListener('mouseup', endDrag);
+            canvas.addEventListener('touchstart', startDrag, { passive: true });
+            window.addEventListener('touchmove', onDrag, { passive: false });
+            window.addEventListener('touchend', endDrag);
+            canvas.style.cursor = 'grab';
+
+            window.addEventListener('resize', function () { setTimeout(resizeCanvas, 100); });
+            setTimeout(resizeCanvas, 100);
+
+            setupFullscreen();
+            plotGraph();
+        }
+
+        // ====== ЭКСПОРТ В WINDOW ======
+        window.updatePreview = updatePreview;
+        window.plotGraph = plotGraph;
+        window.toggleDerivative = toggleDerivative;
+        window.setFunc = setFunc;
+        window.zoomIn = zoomIn;
+        window.zoomOut = zoomOut;
+        window.resetView = resetView;
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCanvas);
+        } else {
+            initCanvas();
+        }
+
+        var observer = new MutationObserver(function () { drawGraph(); });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
         }
     })();
-
-    initCanvas();
 </script>
 
 <script src="favorites.js"></script>

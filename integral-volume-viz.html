@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>3D: Сумма дисков → интеграл</title>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            chtml: { scale: 1.05, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -11,13 +22,12 @@
             --card-bg: #1e3545;
             --text: #ffffff;
             --text-secondary: #8ba5b8;
-            --border: rgba(16,185,129,0.1);
-            --special-border: #8b5cf6;
+            --border: rgba(20, 184, 166, 0.15);
+            --accent: #14b8a6;
+            --accent-soft: rgba(20, 184, 166, 0.12);
+            --accent-strong: #0d9488;
             --canvas-bg: #1a2d3c;
             --slider-bg: #2c5a77;
-            --slider-fill: #1abc9c;
-            --sum-positive: #34d399;
-            --sum-negative: #f87171;
         }
         :root.light-mode {
             --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
@@ -25,25 +35,23 @@
             --text: #1a2a3f;
             --text-secondary: #4a6a8a;
             --border: #eff3f8;
-            --special-border: #7c3aed;
+            --accent: #0d9488;
+            --accent-soft: rgba(13, 148, 136, 0.1);
+            --accent-strong: #0f766e;
             --canvas-bg: #eef2f8;
             --slider-bg: #e2e8f0;
-            --slider-fill: #1abc9c;
-            --sum-positive: #059669;
-            --sum-negative: #dc2626;
         }
         body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; }
         .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
-        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 12px; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
-        .back-link { display: inline-block; margin: 12px 0 4px; padding: 8px 18px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.9rem; transition: 0.2s; }
-        .back-link:hover { background: #6d28d9; }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 12px; padding-bottom: 8px; border-bottom: 4px solid var(--accent); text-align: center; }
+        .back-link { display: inline-block; margin: 12px 0 4px; padding: 8px 18px; background: var(--accent); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.9rem; transition: 0.2s; }
+        .back-link:hover { background: var(--accent-strong); }
 
         .viz-section { background: var(--card-bg); border-radius: 16px; padding: 16px 18px 20px; margin: 10px 0 14px; border: 1px solid var(--border); }
-        .viz-desc { color: var(--text-secondary); font-size: 0.92rem; line-height: 1.8; margin-bottom: 12px; padding: 12px 16px; background: var(--card-bg); border-radius: 14px; border-left: 3px solid var(--special-border); }
+        .viz-desc { color: var(--text-secondary); font-size: 0.92rem; line-height: 1.8; margin-bottom: 12px; padding: 12px 16px; background: var(--card-bg); border-radius: 14px; border-left: 3px solid var(--accent); }
         .viz-desc strong { color: var(--text); }
-        .viz-desc .highlight { color: #34d399; font-weight: 600; }
-        .viz-desc .highlight2 { color: #fbbf24; font-weight: 600; }
-        .viz-desc .highlight3 { color: #ef4444; font-weight: 600; }
+        .viz-desc .accent { color: var(--accent); font-weight: 700; }
+        .viz-desc .accent-soft { background: var(--accent-soft); color: var(--accent); padding: 1px 8px; border-radius: 6px; font-weight: 600; }
         .viz-sub { color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 10px; }
 
         .viz-model-container {
@@ -63,25 +71,23 @@
         .viz-slider-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
         .viz-slider-row label { color: var(--text); font-weight: 600; font-size: 0.9rem; white-space: nowrap; min-width: 60px; }
         .viz-slider-row input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 100px; height: 6px; border-radius: 3px; background: var(--slider-bg); outline: none; cursor: pointer; }
-        .viz-slider-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--slider-fill); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
-        .viz-slider-row input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--slider-fill); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
-        .viz-slider-value { font-weight: 700; color: var(--special-border); min-width: 60px; text-align: center; font-size: 0.9rem; }
+        .viz-slider-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+        .viz-slider-row input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+        .viz-slider-value { font-weight: 700; color: var(--accent); min-width: 60px; text-align: center; font-size: 0.9rem; }
 
         .viz-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
         .viz-stat { background: var(--card-bg); padding: 8px 12px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
         .viz-stat .label { color: var(--text-secondary); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .viz-stat .value { font-weight: 700; font-size: 1rem; color: var(--text); }
-        .viz-stat .value.accent { color: var(--special-border); }
-        .viz-stat .value.positive { color: var(--sum-positive); }
-        .viz-stat .value.negative { color: var(--sum-negative); }
+        .viz-stat .value.accent { color: var(--accent); }
 
         .viz-legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary); }
         .viz-legend-item { display: flex; align-items: center; gap: 6px; }
         .viz-legend-color { width: 20px; height: 12px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.08); }
 
         .viz-error { margin-top: 8px; text-align: center; font-size: 0.85rem; color: var(--text-secondary); }
-        .viz-error .err-val { font-weight: 700; color: var(--sum-negative); }
-        .viz-error .ok-val { font-weight: 700; color: var(--sum-positive); }
+        .viz-error .err-val { font-weight: 700; color: var(--accent); }
+        .viz-error .ok-val { font-weight: 700; color: var(--accent); }
 
         @media (max-width: 700px) {
             .container { padding: 12px; padding-top: 44px; }
@@ -103,29 +109,29 @@
         <div class="viz-desc">
             <strong>💡 Главная идея метода:</strong><br><br>
 
-            Если <span class="highlight3">тело вращения</span> (фиолетовый параболоид)
-            <span class="highlight">разрезать</span> на <span class="highlight">тонкие диски</span> (зелёные цилиндры),
+            Если <span class="accent">тело вращения</span> (фиолетовый параболоид)
+            <span class="accent-soft">разрезать</span> на <span class="accent-soft">тонкие диски</span> (зелёные цилиндры),
             то объём всего тела можно приближённо найти как
             <strong>сумму объёмов этих дисков</strong>.<br><br>
 
             <strong>🔥 Ключевой момент:</strong><br>
-            Чем <span class="highlight">больше дисков</span> мы возьмём,
-            тем <span class="highlight2">тоньше</span> будет каждый диск
-            (его высота <span class="highlight3">Δx → 0</span>),
-            а значит, тем <span class="highlight3">точнее</span>
-            их сумма будет приближаться к <span class="highlight3">точному объёму</span> тела.<br><br>
+            Чем <span class="accent-soft">больше дисков</span> мы возьмём,
+            тем <span class="accent">тоньше</span> будет каждый диск
+            (его высота <span class="accent">Δx → 0</span>),
+            а значит, тем <span class="accent">точнее</span>
+            их сумма будет приближаться к <span class="accent">точному объёму</span> тела.<br><br>
 
             <strong>🎯 А что такое интеграл?</strong><br>
-            Интеграл — это и есть <span class="highlight">предел</span> такой суммы,
-            когда число дисков <span class="highlight3">стремится к бесконечности</span>.<br><br>
+            Интеграл — это и есть <span class="accent-soft">предел</span> такой суммы,
+            когда число дисков <span class="accent">стремится к бесконечности</span>.<br><br>
 
             <span style="font-size:0.9rem; color:var(--text-secondary);">
-        👇 <strong>Смотрите на 3D-модель:</strong><br>
-        • <span class="highlight">Зелёные диски</span> — это приближение (сумма)<br>
-        • <span class="highlight3">Фиолетовое тело</span> — точный объём (интеграл)<br>
-        • Двигайте ползунок <strong>«Количество слоёв»</strong> —
-          чем больше дисков, тем <span class="highlight">точнее</span> результат!
-    </span>
+                👇 <strong>Смотрите на 3D-модель:</strong><br>
+                • <span class="accent">Зелёные диски</span> — это приближение (сумма)<br>
+                • <span class="accent">Фиолетовое тело</span> — точный объём (интеграл)<br>
+                • Двигайте ползунок <strong>«Количество слоёв»</strong> —
+                  чем больше дисков, тем <span class="accent">точнее</span> результат!
+            </span>
         </div>
         <div class="viz-sub">Зелёные диски — приближение · Полупрозрачное тело — точный объём</div>
 
@@ -142,7 +148,7 @@
         </div>
 
         <div class="viz-stats" id="vizStats">
-            <div class="viz-stat"><div class="label">📊 Приближение (сумма дисков)</div><div class="value positive" id="vizApproxVal">0.000</div></div>
+            <div class="viz-stat"><div class="label">📊 Приближение (сумма дисков)</div><div class="value accent" id="vizApproxVal">0.000</div></div>
             <div class="viz-stat"><div class="label">🎯 Точный объём</div><div class="value accent" id="vizExactVal">0.000</div></div>
             <div class="viz-stat"><div class="label">📉 Погрешность</div><div class="value" id="vizErrorVal">0.000%</div></div>
         </div>
@@ -160,34 +166,20 @@
     <a href="integral-volume.html" class="back-link">← Назад к объёмам</a>
 </div>
 
-<!-- ===== THREE.JS ===== -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
-    // ТЕМА
-        if (window._updateVizSceneBackground) window._updateVizSceneBackground();
-        updateLegendColors();
-    }
-
-    function updateLegendColors() {
-        const isLight = document.documentElement.classList.contains('light-mode');
-        const legend = document.querySelector('.viz-legend');
-        if (legend) {
-            legend.style.color = isLight ? '#1a2a3f' : '#8ba5b8';
-        }
-    }
-
+    // ===== ТЕМА (только установка класса, без вызовов несуществующих функций) =====
     (function() {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
+            const __btn = document.getElementById('themeBtn');
+            if (__btn) __btn.textContent = '☀️';
         }
-        setTimeout(updateLegendColors, 100);
     })();
 
-    // ИЗБРАННОЕ
-// ===== ВИЗУАЛИЗАЦИЯ ОБЪЁМА (3D) =====
+    // ===== ВИЗУАЛИЗАЦИЯ ОБЪЁМА (3D) =====
     (function() {
         const container = document.getElementById('vizContainer');
         const canvas = document.getElementById('vizCanvas');
@@ -487,13 +479,13 @@
 
             const vizError = document.getElementById('vizError');
             if (errorPercent < 0.5) {
-                document.getElementById('vizErrorVal').style.color = 'var(--sum-positive)';
+                document.getElementById('vizErrorVal').style.color = 'var(--accent)';
                 vizError.innerHTML = '<span class="ok-val">✓</span> Отлично! Сумма дисков почти совпадает с точным объёмом';
             } else if (errorPercent < 5) {
-                document.getElementById('vizErrorVal').style.color = '#fbbf24';
+                document.getElementById('vizErrorVal').style.color = 'var(--accent)';
                 vizError.innerHTML = '<span class="ok-val">✓</span> Хорошо! Увеличьте количество слоёв для большей точности';
             } else {
-                document.getElementById('vizErrorVal').style.color = 'var(--sum-negative)';
+                document.getElementById('vizErrorVal').style.color = 'var(--accent)';
                 vizError.innerHTML = '<span class="err-val">⟳</span> Добавьте больше слоёв для точного результата';
             }
         }
@@ -555,8 +547,30 @@
             buildVizScene(4);
             setTimeout(animateLayers, 400);
         }, 300);
+    })();
 
-        window._updateVizSceneBackground = updateSceneBackground;
+    // ===== МГНОВЕННАЯ СМЕНА ФОНА 3D ПРИ ПЕРЕКЛЮЧЕНИИ ТЕМЫ =====
+    (function() {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                if (m.attributeName === 'class') {
+                    if (window._updateVizSceneBackground) window._updateVizSceneBackground();
+                }
+            });
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+        document.addEventListener('click', function(e) {
+            const t = e.target;
+            if (t && (t.id === 'themeBtn' || (t.closest && t.closest('#themeBtn')))) {
+                setTimeout(function() {
+                    if (window._updateVizSceneBackground) window._updateVizSceneBackground();
+                }, 0);
+                setTimeout(function() {
+                    if (window._updateVizSceneBackground) window._updateVizSceneBackground();
+                }, 50);
+            }
+        }, true);
     })();
 </script>
 

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>3D: Параболоид вращения</title>
-    <!-- MathJax — локальное подключение (как в integral.html) -->
     <script>
         MathJax = {
             tex: {
@@ -31,11 +30,12 @@
             --card-bg: #1e3545;
             --text: #ffffff;
             --text-secondary: #8ba5b8;
-            --border: rgba(16,185,129,0.1);
-            --special-border: #8b5cf6;
+            --border: rgba(20, 184, 166, 0.15);
+            --accent: #14b8a6;
+            --accent-soft: rgba(20, 184, 166, 0.12);
+            --accent-strong: #0d9488;
             --canvas-bg: #1a2d3c;
             --slider-bg: #2c5a77;
-            --slider-fill: #1abc9c;
         }
         :root.light-mode {
             --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
@@ -43,16 +43,17 @@
             --text: #1a2a3f;
             --text-secondary: #4a6a8a;
             --border: #eff3f8;
-            --special-border: #7c3aed;
+            --accent: #0d9488;
+            --accent-soft: rgba(13, 148, 136, 0.1);
+            --accent-strong: #0f766e;
             --canvas-bg: #eef2f8;
             --slider-bg: #e2e8f0;
-            --slider-fill: #1abc9c;
         }
         body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; }
         .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
-        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 12px; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
-        .back-link { display: inline-block; margin: 12px 0 4px; padding: 8px 18px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.9rem; transition: 0.2s; }
-        .back-link:hover { background: #6d28d9; }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 12px; padding-bottom: 8px; border-bottom: 4px solid var(--accent); text-align: center; }
+        .back-link { display: inline-block; margin: 12px 0 4px; padding: 8px 18px; background: var(--accent); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.9rem; transition: 0.2s; }
+        .back-link:hover { background: var(--accent-strong); }
 
         .model-wrapper { position: relative; width: 100%; }
         .model-container {
@@ -88,7 +89,7 @@
             display: flex; align-items: center; justify-content: center;
             z-index: 20; color: white; transition: 0.2s;
         }
-        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+        .fullscreen-btn:hover { background: var(--accent); transform: scale(1.05); }
         .model-container:fullscreen .fullscreen-btn,
         .model-container:-webkit-full-screen .fullscreen-btn {
             position: fixed !important; top: 20px !important; right: 20px !important;
@@ -101,45 +102,41 @@
         .fs-sliders-overlay .slider-container { display: flex; align-items: center; gap: 16px; justify-content: center; flex-wrap: wrap; }
         .fs-sliders-overlay .slider-container label { color: #ffffff !important; font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
         .fs-sliders-overlay .slider-container input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 120px; max-width: 200px; height: 6px; border-radius: 3px; background: #4a6a7a; outline: none; cursor: pointer; }
-        .fs-sliders-overlay .slider-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #8b5cf6; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-        .fs-sliders-overlay .slider-value { font-weight: 700; color: #fbbf24 !important; min-width: 60px; text-align: center; font-size: 0.9rem; }
-        .fs-sliders-overlay .slider-label-h { color: #4ecdc4 !important; font-weight: 600; }
-        .fs-sliders-overlay .slider-label-x { color: #fbbf24 !important; font-weight: 600; }
+        .fs-sliders-overlay .slider-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .fs-sliders-overlay .slider-value { font-weight: 700; color: #ffffff !important; min-width: 60px; text-align: center; font-size: 0.9rem; }
+        .fs-sliders-overlay .slider-label-h { color: #ffffff !important; font-weight: 600; }
+        .fs-sliders-overlay .slider-label-x { color: #ffffff !important; font-weight: 600; }
 
         .slider-wrapper { margin: 12px 0 8px; padding: 12px 20px; background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); }
         .slider-container { display: flex; align-items: center; gap: 16px; justify-content: center; flex-wrap: wrap; }
         .slider-container label { font-weight: 600; color: var(--text); font-size: 0.9rem; white-space: nowrap; }
         .slider-container input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 120px; max-width: 200px; height: 6px; border-radius: 3px; background: var(--slider-bg); outline: none; cursor: pointer; }
-        .slider-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #8b5cf6; cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-        .slider-value { font-weight: 700; color: var(--special-border); min-width: 60px; text-align: center; font-size: 0.9rem; }
+        .slider-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .slider-value { font-weight: 700; color: var(--accent); min-width: 60px; text-align: center; font-size: 0.9rem; }
 
         .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 8px 0; }
         .info-grid .item { background: var(--card-bg); padding: 8px 12px; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
         .info-grid .item .label { color: var(--text-secondary); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-grid .item .value { font-weight: 700; color: var(--special-border); font-size: 1rem; }
+        .info-grid .item .value { font-weight: 700; color: var(--accent); font-size: 1rem; }
 
         .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin: 6px 0; font-size: 0.85rem; color: var(--text-secondary); }
         .legend-item { display: flex; align-items: center; gap: 6px; }
-        .legend-color { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
+        .legend-color { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: var(--accent); }
 
         .btn-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 8px 0; }
-        .btn-show { padding: 10px 24px; border: none; border-radius: 40px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; color: white; }
+        .btn-show { padding: 10px 24px; border: none; border-radius: 40px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; color: white; background: var(--accent); }
         .btn-show:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
         .btn-show.active { transform: scale(0.95); }
-        .btn-section { background: var(--special-border); }
-        .btn-section.active { background: #fbbf24; color: #1a2d3c; }
-        .btn-triangle { background: #ff6b6b; }
-        .btn-triangle.active { background: #fbbf24; color: #1a2d3c; }
 
-        .btn-rotate { padding: 10px 24px; border: none; border-radius: 40px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; color: white; background: #4ecdc4; }
+        .btn-rotate { padding: 10px 24px; border: none; border-radius: 40px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; color: white; background: var(--accent); }
         .btn-rotate:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
-        .btn-rotate.active { background: #fbbf24; color: #1a2d3c; }
+        .btn-rotate.active { background: var(--accent-strong); color: white; }
         .btn-rotate.playing { animation: pulse-btn 1s infinite; }
-        @keyframes pulse-btn { 0%,100% { box-shadow: 0 0 0 0 rgba(78, 205, 196, 0.4); } 50% { box-shadow: 0 0 0 10px rgba(78, 205, 196, 0); } }
+        @keyframes pulse-btn { 0%,100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.5); } 50% { box-shadow: 0 0 0 10px rgba(20, 184, 166, 0); } }
 
         .model-explanation {
             background: var(--card-bg);
-            border-left: 4px solid var(--special-border);
+            border-left: 4px solid var(--accent);
             border-radius: 14px;
             padding: 14px 18px;
             margin: 12px 0;
@@ -148,15 +145,19 @@
             font-size: 0.95rem;
             border: 1px solid var(--border);
         }
-        .model-explanation strong { color: var(--special-border); }
-        .model-explanation .highlight-r { color: #fbbf24; font-weight: 600; }
-        .model-explanation .highlight-s { color: #34d399; font-weight: 600; }
-        .model-explanation .highlight-axial { color: #ff6b6b; font-weight: 600; }
-        .model-explanation .highlight-link { color: #4ecdc4; font-weight: 600; }
-        .model-explanation .formula-inline { background: var(--card-bg); padding: 2px 10px; border-radius: 8px; font-family: monospace; }
-
-        .slider-label-h { color: #4ecdc4; font-weight: 600; }
-        .slider-label-x { color: #fbbf24; font-weight: 600; }
+        .model-explanation strong { color: var(--text); }
+        .model-explanation .accent {
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .model-explanation .accent-soft {
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: 1px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .model-explanation .formula-inline { display: block; text-align: center; margin: 8px 0; padding: 4px 10px; border-radius: 8px; color: var(--accent); }
 
         @media (max-width: 700px) {
             .container { padding: 12px; padding-top: 44px; }
@@ -178,14 +179,13 @@
 
     <div class="model-explanation">
         <strong>🔍 Как устроена 3D-модель:</strong><br>
-        <span class="highlight-axial">Красная парабола</span> — это <strong>осевое сечение</strong> (плоская фигура), которая вращается вокруг оси \(Ox\).<br>
-        При вращении она <span class="highlight-link">«описывает»</span> тело — <span style="color:rgba(139,92,246,0.6);">полупрозрачный параболоид</span>.<br>
-        <span class="highlight-r">Жёлтая линия \(r(x)\)</span> — это <strong>радиус</strong> поперечного сечения в точке \(x\).<br>
-        <span class="highlight-s">Жёлтый круг</span> — это поперечное сечение \(S(x)\) с площадью \(S(x) = \pi \cdot r^2(x)\).<br>
-        <strong>Объём тела</strong> — это <span class="highlight-link">сумма площадей всех поперечных сечений</span>:
+        <span class="accent">Красная парабола</span> — это <span class="accent-soft">осевое сечение</span> (плоская фигура), которая вращается вокруг оси \(Ox\).<br>
+        При вращении она «описывает» тело — полупрозрачный параболоид.<br>
+        <span class="accent">Жёлтая линия \(r(x)\)</span> — это <span class="accent-soft">радиус</span> поперечного сечения в точке \(x\).<br>
+        <span class="accent">Жёлтый круг</span> — это поперечное сечение \(S(x)\) с площадью \(S(x) = \pi \cdot r^2(x)\).<br>
+        <strong>Объём тела</strong> — это сумма площадей всех поперечных сечений:
         <span class="formula-inline">$$V = \int_{a}^{b} S(x) \, dx = \pi \int_{a}^{b} [f(x)]^2 \, dx$$</span>
-        <br>
-        <span style="font-size:0.85rem; color:var(--text-secondary);">💡 Попробуйте нажать кнопку <strong>«Вращать осевое сечение»</strong> — увидите, как парабола «описывает» тело!</span>
+        <span style="font-size:0.85rem; color:var(--text-secondary);">💡 Попробуйте нажать кнопку «Вращать осевое сечение» — увидите, как парабола «описывает» тело!</span>
     </div>
 
     <div class="model-wrapper">
@@ -233,10 +233,10 @@
         </div>
 
         <div class="legend">
-            <span class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span> Поперечное сечение \(S(x)\)</span>
-            <span class="legend-item"><span class="legend-color" style="background:#ff6b6b;"></span> Осевое сечение (парабола)</span>
-            <span class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span> Радиус \(r(x)\)</span>
-            <span class="legend-item"><span class="legend-color" style="background:#4ecdc4;"></span> <strong>OH — высота</strong></span>
+            <span class="legend-item"><span class="legend-color"></span> Поперечное сечение \(S(x)\)</span>
+            <span class="legend-item"><span class="legend-color"></span> Осевое сечение (парабола)</span>
+            <span class="legend-item"><span class="legend-color"></span> Радиус \(r(x)\)</span>
+            <span class="legend-item"><span class="legend-color"></span> OH — высота</span>
         </div>
 
         <div class="btn-group">
@@ -244,42 +244,26 @@
             <button class="btn-show btn-triangle active" id="showTriangleBtn">✕ Скрыть осевое сечение</button>
         </div>
         <div class="graph-label" style="font-size:0.85rem; margin-top:4px; color:var(--text-secondary); text-align:center;">
-            🟡 Жёлтая линия — радиус \(r(x)\) | 🟡 Жёлтый круг — поперечное сечение \(S(x)\)<br>
-            🔴 Красная заливка — осевое сечение (парабола) до точки H
+            Жёлтая линия — радиус \(r(x)\) | Жёлтый круг — поперечное сечение \(S(x)\)<br>
+            Красная заливка — осевое сечение (парабола) до точки H
         </div>
     </div>
 
     <a href="integral-volume.html" class="back-link">← Назад к объёмам</a>
 </div>
 
-<!-- ===== THREE.JS ===== -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
-    // ТЕМА
-        if (window._updateSceneBackground) window._updateSceneBackground();
-        updateLegendColors();
-    }
-
-    function updateLegendColors() {
-        const isLight = document.documentElement.classList.contains('light-mode');
-        const legend = document.querySelector('.legend');
-        if (legend) {
-            legend.style.color = isLight ? '#1a2a3f' : '#8ba5b8';
-        }
-    }
-
+    // ===== ТЕМА =====
     (function() {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
         }
-        setTimeout(updateLegendColors, 100);
     })();
 
-    // ИЗБРАННОЕ
-// ===== 3D СЦЕНА =====
+    // ===== 3D СЦЕНА =====
     (function() {
         const container = document.getElementById('container1');
         const canvas = document.getElementById('canvas1');
@@ -904,6 +888,33 @@
             camera.updateProjectionMatrix();
             updateSceneBackground();
         }
+    })();
+
+    // ===== МГНОВЕННАЯ СМЕНА ФОНА 3D ПРИ ПЕРЕКЛЮЧЕНИИ ТЕМЫ =====
+    (function() {
+        // Реагируем на изменение класса light-mode на <html>
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                if (m.attributeName === 'class') {
+                    if (window._updateSceneBackground) window._updateSceneBackground();
+                }
+            });
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+        // На случай, если переключатель темы в другом месте — перехватываем клики
+        // и через короткую задержку обновляем фон (после того, как theme.js сменит класс)
+        document.addEventListener('click', function(e) {
+            const t = e.target;
+            if (t && (t.id === 'themeBtn' || (t.closest && t.closest('#themeBtn')))) {
+                setTimeout(function() {
+                    if (window._updateSceneBackground) window._updateSceneBackground();
+                }, 0);
+                setTimeout(function() {
+                    if (window._updateSceneBackground) window._updateSceneBackground();
+                }, 50);
+            }
+        }, true);
     })();
 </script>
 

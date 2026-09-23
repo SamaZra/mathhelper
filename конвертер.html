@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +18,7 @@
             --text: #ffffff;
             --text-secondary: #8ba5b8;
             --accent: #1abc9c;
+            --accent-strong: #16a085;
             --border: rgba(46, 204, 113, 0.1);
             --btn-bg: #2c5a77;
             --display-bg: #0f2a38;
@@ -34,12 +35,13 @@
             --text: #1a2a3f;
             --text-secondary: #5a7a94;
             --accent: #1abc9c;
+            --accent-strong: #16a085;
             --border: #e2e8f0;
             --btn-bg: #e2e8f0;
             --display-bg: #f1f5f9;
             --func-bg: #eef2ff;
             --example-bg: #e8f0fe;
-            --menu-item-hover: linear-gradient(95deg, #f8fafd, #ffffff);
+            --menu-item-hover: #f8fafd;
             --icon-color: #1a2d3c;
             --history-bg: #eef2f8;
         }
@@ -67,10 +69,6 @@
             flex-direction: column;
             padding: 16px;
             position: relative;
-        }
-
-        .theme-toggle:active {
-            transform: scale(0.95);
         }
 
         .converter-card {
@@ -224,6 +222,10 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
+        .back-link:hover {
+            background: var(--accent-strong);
+        }
+
         .back-link:active {
             transform: scale(0.97);
         }
@@ -278,6 +280,10 @@
             color: var(--text-secondary);
             padding: 0 8px;
             line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: var(--accent);
         }
 
         .converter-body {
@@ -356,6 +362,12 @@
             color: var(--accent);
             border: 1px solid var(--border);
             flex-shrink: 0;
+            user-select: none;
+        }
+
+        .swap-icon:hover {
+            background: var(--accent);
+            color: white;
         }
 
         .info-note {
@@ -400,6 +412,10 @@
             width: 100%;
         }
 
+        .extra-input:focus {
+            border-color: var(--accent);
+        }
+
         .mode-switch {
             display: flex;
             gap: 12px;
@@ -434,7 +450,6 @@
             .unit-select-row { gap: 8px; }
             .swap-icon { padding: 4px 8px; font-size: 18px; }
         }
-    
     </style>
 </head>
 <body>
@@ -564,12 +579,18 @@
     }
 
     function addToHistory(fromVal, fromUnit, toVal, toUnit) {
-        if (fromVal && toVal && toVal !== 'Ошибка' && toVal !== 'неверно') {
-            history.unshift({ from: `${fromVal} ${fromUnit}`, to: `${toVal} ${toUnit}` });
-            if (history.length > 20) history.pop();
-            saveHistory();
-            updateHistoryDisplay();
-        }
+        if (fromVal === '' || fromVal === null || fromVal === undefined) return;
+        if (toVal === '' || toVal === null || toVal === undefined) return;
+        if (toVal === 'Ошибка' || toVal === 'неверно' || toVal === 'ошибка') return;
+        if (toVal === 'Введите вес и рост') return;
+        const fromStr = `${fromVal} ${fromUnit}`.trim();
+        const toStr = `${toVal} ${toUnit}`.trim();
+        // Не дублируем последнюю запись
+        if (history.length > 0 && history[0].from === fromStr && history[0].to === toStr) return;
+        history.unshift({ from: fromStr, to: toStr });
+        if (history.length > 20) history.pop();
+        saveHistory();
+        updateHistoryDisplay();
     }
 
     function updateHistoryDisplay() {
@@ -588,7 +609,7 @@
 
     function restoreFromHistory(index) {
         if (history[index]) {
-            const match = history[index].from.match(/([\d.,]+)\s+(.+)$/);
+            const match = history[index].from.match(/([\d.,\-]+)\s+(.+)$/);
             if (match) {
                 document.getElementById('inputValue').value = match[1];
                 const fromSelect = document.getElementById('fromUnit');
@@ -686,7 +707,7 @@
             toSelect.add(new Option(u, u));
         });
 
-        if (categoryId === 'temperature') { fromSelect.value = "Цельсий"; toSelect.value = "Фаренгейт"; infoNote.innerText = "°C → °F: *9/5+32"; }
+        if (categoryId === 'temperature') { fromSelect.value = "Цельсий"; toSelect.value = "Фаренгейт"; infoNote.innerText = "°C → °F: ×9/5+32"; }
         else if (categoryId === 'volume') { fromSelect.value = "Литры"; toSelect.value = "м³"; infoNote.innerText = "1 л = 0.001 м³"; }
         else if (categoryId === 'finance') { fromSelect.value = "Проценты %"; toSelect.value = "Десятичная дробь"; infoNote.innerText = "1% = 0.01"; }
         else if (categoryId === 'numeralSystem') { fromSelect.value = "Десятичная"; toSelect.value = "Двоичная"; infoNote.innerText = "Перевод систем счисления"; }
@@ -705,11 +726,13 @@
 
     function updateConversion() {
         if (!currentConverter) return;
+
         if (currentCategory === 'bmi') {
             if (currentConverter.convertWithExtra) {
                 let res = currentConverter.convertWithExtra(0, null, null, extraValues);
                 outputElem.value = res;
-                if (res && res !== 'Ошибка' && res !== 'Введите вес и рост') {
+                // В историю пишем только когда результат реальный
+                if (res && res !== 'Введите вес и рост' && !isNaN(parseFloat(res))) {
                     let weight = extraValues.weight || '0';
                     let height = extraValues.height || '0';
                     addToHistory(`${weight}кг/${height}см`, '', res, 'ИМТ');
@@ -717,15 +740,19 @@
             }
             return;
         }
+
         if (currentCategory === 'discount') {
             let val = parseFloat(inputElem.value);
             if (isNaN(val)) { outputElem.value = "ошибка"; return; }
             let from = fromSelect.value, to = toSelect.value;
             let res = currentConverter.convertWithExtra(val, from, to, extraValues);
             outputElem.value = res;
-            addToHistory(val, from, res, to);
+            if (res !== 'ошибка' && res !== '') {
+                addToHistory(val, from, res, to);
+            }
             return;
         }
+
         let val = parseFloat(inputElem.value);
         if (isNaN(val)) { outputElem.value = "ошибка"; return; }
         let from = fromSelect.value, to = toSelect.value;
@@ -739,14 +766,19 @@
         }
     }
 
-    function swapUnits() { let f = fromSelect.value, t = toSelect.value; fromSelect.value = t; toSelect.value = f; updateConversion(); }
+    function swapUnits() {
+        let f = fromSelect.value, t = toSelect.value;
+        fromSelect.value = t;
+        toSelect.value = f;
+        updateConversion();
+    }
+
     inputElem.addEventListener('input', updateConversion);
     fromSelect.addEventListener('change', updateConversion);
     toSelect.addEventListener('change', updateConversion);
     swapBtn.addEventListener('click', swapUnits);
     closeBtn.addEventListener('click', () => modal.classList.remove('active'));
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
-    }
 
     if (localStorage.getItem('mathTheme') === 'light') {
         document.documentElement.classList.add('light-mode');

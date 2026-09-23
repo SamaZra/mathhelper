@@ -4,7 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>Определённый интеграл</title>
-    <script src="mathjax/es5/tex-chtml.js"></script>
+
+    <!-- ===== КОНФИГ MATHJAX (важно: до подключения tex-chtml.js) ===== -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -62,7 +79,7 @@
         .section-title:hover { opacity: 0.8; }
         .section-title::after { content: "▼"; margin-left: auto; font-size: 0.9rem; transition: transform 0.3s; color: var(--text-secondary); }
         .section.collapsed .section-title::after { transform: rotate(-90deg); }
-        .section-content { max-height: 12000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section-content { max-height: 20000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
         .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 10px 0; }
         .formula-card { background: var(--formula-card-bg); border-radius: 16px; padding: 14px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; }
@@ -93,19 +110,18 @@
         .property-formula { font-family: 'Times New Roman', monospace; font-size: 1.1rem; font-weight: bold; color: var(--text); overflow-x: auto; white-space: nowrap; padding: 5px 0; }
 
         .example-block { background: var(--example-bg); border-radius: 16px; padding: 12px 14px; margin: 10px 0; border: 1px solid var(--border); }
-        .example-block p { margin: 2px 0; font-size: 1rem; line-height: 1.4; color: var(--text); }
+        .example-block p { margin: 2px 0; font-size: 1rem; line-height: 1.5; color: var(--text); }
         .example-block .step { color: var(--special-border); font-weight: 600; font-size: 0.95rem; }
         .example-block .formula-used { background: var(--info-bg); display: inline-block; padding: 1px 6px; border-radius: 12px; font-size: 0.9rem; color: var(--text); }
         .example-block .result { background: rgba(46, 139, 87, 0.2); display: inline-block; padding: 1px 6px; border-radius: 12px; font-size: 0.9rem; color: var(--text); font-weight: 600; }
+        .example-block .hint { font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px; }
         .note-box { background: var(--info-bg); border-left: 4px solid #2e8b57; border-radius: 16px; padding: 12px 14px; margin: 12px 0; font-size: 0.95rem; line-height: 1.5; color: var(--text); }
 
-        /* ===== НОВОЕ: врезка-предупреждение ===== */
         .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
         .important strong { color: var(--warning-border); }
 
         .back-link { display: inline-block; margin: 20px 0 10px; padding: 10px 20px; background: #2e8b57; color: white; text-decoration: none; font-weight: bold; border-radius: 20px; }
         mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
-
     </style>
 </head>
 <body>
@@ -189,24 +205,132 @@
         </div>
     </div>
 
-    <!-- ПРИМЕР -->
+    <!-- =============== ПРИМЕРЫ =============== -->
+
+    <!-- БАЗОВЫЙ ПРИМЕР -->
     <div class="section">
-        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример с подробным разбором</div>
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример 1. Базовый: \(\displaystyle \int_1^4 \frac{dx}{\sqrt{x}}\)</div>
         <div class="section-content">
             <div class="example-block">
                 <p><strong>Вычислить определённый интеграл:</strong></p>
                 <p style="text-align:center;font-size:1.3rem;margin:10px 0;">\(\displaystyle \int_1^4 \frac{dx}{\sqrt{x}}\)</p>
                 <p><span class="step">Шаг 1. Находим первообразную:</span></p>
-                <p>\(\displaystyle \int \frac{dx}{\sqrt{x}} = \int x^{-\frac{1}{2}} dx = \frac{x^{\frac{1}{2}}}{\frac{1}{2}} + C = 2\sqrt{x} + C\)</p>
-                <p style="font-size:0.9rem;color:var(--text-secondary);">✓ \(F(x) = 2\sqrt{x}\)</p>
+                <p>\(\displaystyle \int \frac{dx}{\sqrt{x}} = \int x^{-\frac{1}{2}} dx = \frac{x^{\frac{1}{2}}}{\frac{1}{2}} = 2\sqrt{x}\)</p>
+                <p class="hint">✓ \(F(x) = 2\sqrt{x}\). Константу \(C\) не пишем.</p>
                 <p style="margin-top:8px;"><span class="step">Шаг 2. Подставляем верхний предел \(b = 4\):</span></p>
                 <p>\(F(4) = 2\sqrt{4} = 2 \cdot 2 = 4\)</p>
                 <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем нижний предел \(a = 1\):</span></p>
                 <p>\(F(1) = 2\sqrt{1} = 2 \cdot 1 = 2\)</p>
-                <p style="margin-top:8px;"><span class="step">Шаг 4. Находим разность \(F(4) - F(1)\):</span></p>
-                <p>\(\int_1^4 \frac{dx}{\sqrt{x}} = F(4) - F(1) = 4 - 2 = 2\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Находим разность:</span></p>
+                <p>\(\displaystyle \int_1^4 \frac{dx}{\sqrt{x}} = F(4) - F(1) = 4 - 2 = 2\)</p>
                 <p style="margin-top:10px;"><span class="result">Ответ: \(\displaystyle \int_1^4 \frac{dx}{\sqrt{x}} = 2\)</span></p>
-                <p style="margin-top:10px;font-size:0.9rem;color:var(--text-secondary);">💡 <strong>Геометрический смысл:</strong> площадь под графиком функции \(y = \frac{1}{\sqrt{x}}\) на отрезке от \(x = 1\) до \(x = 4\) равна 2 квадратным единицам.</p>
+                <p class="hint">💡 Геометрический смысл: площадь под графиком \(y = \frac{1}{\sqrt{x}}\) на \([1; 4]\) равна 2.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 2: сумма, многочлен -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример 2. Сумма: \(\displaystyle \int_0^1 (3x^2 + 2x)\,dx\)</div>
+        <div class="section-content">
+            <div class="example-block">
+                <p><strong>Вычислить:</strong> \(\displaystyle \int_0^1 (3x^2 + 2x)\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Используем свойство суммы интегралов:</span></p>
+                <p>\(\displaystyle \int_0^1 (3x^2 + 2x)\,dx = \int_0^1 3x^2\,dx + \int_0^1 2x\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Выносим константы и находим первообразные:</span></p>
+                <p>\(\displaystyle \int 3x^2\,dx = 3 \cdot \frac{x^3}{3} = x^3, \qquad \int 2x\,dx = 2 \cdot \frac{x^2}{2} = x^2\)</p>
+                <p class="hint">✓ Использовали правило \(\int x^n dx = \frac{x^{n+1}}{n+1}\) при \(n \ne -1\).</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем пределы в каждую часть:</span></p>
+                <p>\(F_1(x) = x^3 \Rightarrow F_1(1) - F_1(0) = 1 - 0 = 1\)</p>
+                <p>\(F_2(x) = x^2 \Rightarrow F_2(1) - F_2(0) = 1 - 0 = 1\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Складываем:</span></p>
+                <p>\(\displaystyle \int_0^1 (3x^2 + 2x)\,dx = 1 + 1 = 2\)</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(2\)</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 3: отрицательные степени -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример 3. Отрицательные степени: \(\displaystyle \int_1^2 \left(\frac{2}{x^2} + x\right)dx\)</div>
+        <div class="section-content">
+            <div class="example-block">
+                <p><strong>Вычислить:</strong> \(\displaystyle \int_1^2 \left(\frac{2}{x^2} + x\right)dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Перепишем \(\frac{2}{x^2}\) как \(2x^{-2}\):</span></p>
+                <p>\(\displaystyle \int_1^2 (2x^{-2} + x)\,dx = \int_1^2 2x^{-2}\,dx + \int_1^2 x\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Находим первообразные:</span></p>
+                <p>\(\displaystyle \int 2x^{-2}\,dx = 2 \cdot \frac{x^{-1}}{-1} = -\frac{2}{x}\)</p>
+                <p>\(\displaystyle \int x\,dx = \frac{x^2}{2}\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем пределы:</span></p>
+                <p>Для первой части: \(\displaystyle \left(-\frac{2}{x}\right)\Bigg|_1^2 = \left(-\frac{2}{2}\right) - \left(-\frac{2}{1}\right) = -1 - (-2) = 1\)</p>
+                <p>Для второй части: \(\displaystyle \left.\frac{x^2}{2}\right|_1^2 = \frac{4}{2} - \frac{1}{2} = 2 - 0{,}5 = 1{,}5\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Складываем:</span></p>
+                <p>\(1 + 1{,}5 = 2{,}5\)</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(\displaystyle 2{,}5\) (или \(\frac{5}{2}\))</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 4: тригонометрия -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример 4. Тригонометрия: \(\displaystyle \int_0^{\pi/2} (2\sin x + \cos x)\,dx\)</div>
+        <div class="section-content">
+            <div class="example-block">
+                <p><strong>Вычислить:</strong> \(\displaystyle \int_0^{\pi/2} (2\sin x + \cos x)\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Разбиваем на два интеграла:</span></p>
+                <p>\(\displaystyle \int_0^{\pi/2} 2\sin x\,dx + \int_0^{\pi/2} \cos x\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Находим первообразные:</span></p>
+                <p>\(\displaystyle \int 2\sin x\,dx = -2\cos x\)</p>
+                <p>\(\displaystyle \int \cos x\,dx = \sin x\)</p>
+                <p class="hint">✓ Использовали: \((\cos x)' = -\sin x\), \((\sin x)' = \cos x\).</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем пределы:</span></p>
+                <p>Для первой части: \(\displaystyle \left(-2\cos x\right)\Big|_0^{\pi/2} = -2\cos\frac{\pi}{2} - (-2\cos 0) = -2\cdot 0 + 2\cdot 1 = 2\)</p>
+                <p>Для второй части: \(\displaystyle \left.\sin x\right|_0^{\pi/2} = \sin\frac{\pi}{2} - \sin 0 = 1 - 0 = 1\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Складываем:</span></p>
+                <p>\(2 + 1 = 3\)</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(3\)</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 5: отрицательный предел -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример 5. Отрицательный предел: \(\displaystyle \int_{-1}^{2} (x^3 - x)\,dx\)</div>
+        <div class="section-content">
+            <div class="example-block">
+                <p><strong>Вычислить:</strong> \(\displaystyle \int_{-1}^{2} (x^3 - x)\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Разбиваем на два интеграла:</span></p>
+                <p>\(\displaystyle \int_{-1}^{2} x^3\,dx - \int_{-1}^{2} x\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Находим первообразные:</span></p>
+                <p>\(\displaystyle \int x^3\,dx = \frac{x^4}{4}\)</p>
+                <p>\(\displaystyle \int x\,dx = \frac{x^2}{2}\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем пределы (аккуратно со знаками):</span></p>
+                <p>\(\displaystyle \left.\frac{x^4}{4}\right|_{-1}^{2} = \frac{16}{4} - \frac{1}{4} = 4 - 0{,}25 = 3{,}75\)</p>
+                <p>\(\displaystyle \left.\frac{x^2}{2}\right|_{-1}^{2} = \frac{4}{2} - \frac{1}{2} = 2 - 0{,}5 = 1{,}5\)</p>
+                <p class="hint">💡 Обрати внимание: \((-1)^4 = 1\), \((-1)^2 = 1\) — минус «исчезает» при чётной степени.</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Вычитаем:</span></p>
+                <p>\(3{,}75 - 1{,}5 = 2{,}25\)</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(\displaystyle 2{,}25\) (или \(\frac{9}{4}\))</span></p>
             </div>
         </div>
     </div>
@@ -216,16 +340,18 @@
         • Определённый интеграл — это <strong>число</strong><br>
         • Первообразную находим без константы \(C\)<br>
         • Формула Ньютона-Лейбница: \(\int_a^b f(x)dx = F(b) - F(a)\)<br>
-        • Геометрический смысл — площадь под графиком
+        • Геометрический смысл — площадь под графиком<br>
+        • Если внутри есть «функция и её производная» — попробуй замену
     </div>
 
-    <!-- ===== НОВОЕ: врезка про ошибку ===== -->
+    <!-- ===== ИСПРАВЛЕННАЯ ВРЕЗКА ПРО ОШИБКУ ===== -->
     <div class="important">
-        <strong>⚠️ Частая ошибка:</strong> в определённом интеграле <strong>не нужно писать «+ C»</strong>. Потому что ответ — это <strong>число</strong>, а не семейство функций. Константа бы всё равно сократилась: $(F(b) + C) - (F(a) + C) = F(b) - F(a)$. Поэтому в вычислениях $C$ просто опускают.
+        <strong>⚠️ Частая ошибка:</strong> в определённом интеграле <strong>не нужно писать «+ C»</strong>. Потому что ответ — это <strong>число</strong>, а не семейство функций. Константа бы всё равно сократилась: \((F(b) + C) - (F(a) + C) = F(b) - F(a)\). Поэтому в вычислениях \(C\) просто опускают.
     </div>
 
     <a href="integral.html" class="back-link">← назад в меню</a>
 </div>
+
 <script>
     function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
     (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();

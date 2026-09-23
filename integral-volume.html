@@ -93,27 +93,28 @@
         p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
         .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
         .important strong { color: #fbbf24; }
-        /* ===== Таблица ошибок ===== */
-.table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 10px 0; border-radius: 12px; }
-.error-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; border-radius: 12px; overflow: hidden; min-width: 600px; background: var(--card-bg); }
-.error-table th { background: #8b5cf6; color: white; padding: 10px 12px; text-align: left; font-weight: 700; }
-.error-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; background: transparent; text-align: left; }
-.error-table tr:nth-child(even) td { background: rgba(0,0,0,0.04); }
-.error-table tr:nth-child(odd) td { background: transparent; }
-:root.light-mode .error-table tr:nth-child(even) td { background: rgba(0,0,0,0.03); }
-.error-table tr:hover td { background: rgba(139,92,246,0.1); }
-.error-table tr:last-child td { border-bottom: none; }
-.error-table .wrong { color: #f87171; font-weight: 700; }
-.error-table .right { color: #4ade80; font-weight: 700; }
-:root.light-mode .error-table .wrong { color: #dc2626; }
-:root.light-mode .error-table .right { color: #059669; }
+
+        .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 10px 0; border-radius: 12px; }
+        .error-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; border-radius: 12px; overflow: hidden; min-width: 600px; background: var(--card-bg); }
+        .error-table th { background: #8b5cf6; color: white; padding: 10px 12px; text-align: left; font-weight: 700; }
+        .error-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; background: transparent; text-align: left; }
+        .error-table tr:nth-child(even) td { background: rgba(0,0,0,0.04); }
+        .error-table tr:nth-child(odd) td { background: transparent; }
+        :root.light-mode .error-table tr:nth-child(even) td { background: rgba(0,0,0,0.03); }
+        .error-table tr:hover td { background: rgba(139,92,246,0.1); }
+        .error-table tr:last-child td { border-bottom: none; }
+        .error-table .wrong { color: #f87171; font-weight: 700; }
+        .error-table .right { color: #4ade80; font-weight: 700; }
+        :root.light-mode .error-table .wrong { color: #dc2626; }
+        :root.light-mode .error-table .right { color: #059669; }
+
         .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
         .back-link:hover { background: #6d28d9; }
         mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
 
         .graph-container { text-align: center; margin: 12px 0; background: var(--canvas-bg); border-radius: 16px; padding: 8px; display: block; transition: background 0.2s; }
         .graphs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; }
-        .graph-container canvas { max-width: 100%; height: auto; border-radius: 12px; display: inline-block; background: var(--canvas-bg); transition: background 0.2s; }
+        .graph-container canvas { max-width: 100%; height: auto; border-radius: 12px; display: inline-block; background: var(--canvas-bg); transition: background 0.2s; width: 100%; }
         .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; }
         .graph-formula { text-align: center; }
 
@@ -456,6 +457,7 @@
             </div>
         </div>
     </div>
+
     <!-- ===== ТИПИЧНЫЕ ОШИБКИ ===== -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
@@ -508,361 +510,364 @@
     <a href="integral.html" class="back-link">← Назад к интегралам</a>
 </div>
 
-<!-- ===== СКРИПТЫ 2D ГРАФИКОВ ===== -->
+<!-- ===== СКРИПТ ===== -->
 <script>
-    // ТЕМА
-        drawAllGraphs();
-        updateLegendColors();
-    }
+    (function () {
+        'use strict';
 
-    function updateLegendColors() {
-        const isLight = document.documentElement.classList.contains('light-mode');
-        const legend = document.querySelector('.legend');
-        if (legend) {
-            legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
-        }
-    }
+        // ===== 2D ГРАФИКИ =====
+        function drawOneGraph(canvasId, functions, xMin, xMax, yMin, yMax, fillTo) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            const pad = 45;
+            const pw = w - 2 * pad, ph = h - 2 * pad;
 
-    (function() {
-        if (localStorage.getItem('mathTheme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
-        }
-        setTimeout(updateLegendColors, 100);
-    })();
+            function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+            function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
 
-    // ИЗБРАННОЕ
-// ===== 2D ГРАФИКИ =====
-    function drawOneGraph(canvasId, functions, xMin, xMax, yMin, yMax, fillTo) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width, h = canvas.height;
-        const pad = 45;
-        const pw = w - 2 * pad, ph = h - 2 * pad;
+            const isLight = document.documentElement.classList.contains('light-mode');
+            ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+            ctx.fillRect(0, 0, w, h);
 
-        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
-        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+            ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+            ctx.lineWidth = 0.6;
 
-        const isLight = document.documentElement.classList.contains('light-mode');
-        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
-        ctx.fillRect(0, 0, w, h);
+            const stepX = 1, stepY = 1;
+            for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x += stepX) {
+                const sx = toX(x);
+                ctx.beginPath();
+                ctx.moveTo(sx, pad);
+                ctx.lineTo(sx, h - pad);
+                ctx.stroke();
+                ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+                ctx.font = '11px "Segoe UI", monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                if (x !== 0) ctx.fillText(x, sx, h - pad + 4);
+            }
+            for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y += stepY) {
+                const sy = toY(y);
+                ctx.beginPath();
+                ctx.moveTo(pad, sy);
+                ctx.lineTo(w - pad, sy);
+                ctx.stroke();
+                ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+                ctx.font = '11px "Segoe UI", monospace';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                if (y !== 0) ctx.fillText(y, pad - 8, sy);
+            }
 
-        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
-        ctx.lineWidth = 0.6;
-
-        const stepX = 1, stepY = 1;
-        for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x += stepX) {
-            const sx = toX(x);
+            ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.lineWidth = 1.8;
+            const ox = toY(0), oy = toX(0);
+            if (ox >= pad && ox <= h - pad) {
+                ctx.beginPath();
+                ctx.moveTo(pad, ox);
+                ctx.lineTo(w - pad, ox);
+                ctx.stroke();
+            }
+            if (oy >= pad && oy <= w - pad) {
+                ctx.beginPath();
+                ctx.moveTo(oy, pad);
+                ctx.lineTo(oy, h - pad);
+                ctx.stroke();
+            }
+            ctx.fillStyle = ctx.strokeStyle;
             ctx.beginPath();
-            ctx.moveTo(sx, pad);
-            ctx.lineTo(sx, h - pad);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            if (x !== 0) ctx.fillText(x, sx, h - pad + 4);
-        }
-        for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y += stepY) {
-            const sy = toY(y);
+            ctx.moveTo(w - pad, ox);
+            ctx.lineTo(w - pad - 8, ox - 4);
+            ctx.lineTo(w - pad - 8, ox + 4);
+            ctx.fill();
             ctx.beginPath();
-            ctx.moveTo(pad, sy);
-            ctx.lineTo(w - pad, sy);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
-            if (y !== 0) ctx.fillText(y, pad - 8, sy);
+            ctx.moveTo(oy, pad);
+            ctx.lineTo(oy - 4, pad + 8);
+            ctx.lineTo(oy + 4, pad + 8);
+            ctx.fill();
+            ctx.font = '13px "Segoe UI", monospace';
+            ctx.fillStyle = isLight ? '#1e3a5f' : '#cbdbe6';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('x', w - pad - 5, ox - 8);
+            ctx.fillText('y', oy + 8, pad + 14);
+            if (oy >= pad && oy <= w - pad) {
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'top';
+                ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+                ctx.font = '11px "Segoe UI", monospace';
+                ctx.fillText('0', oy - 6, ox + 4);
+            }
+
+            if (fillTo !== undefined && functions.length > 0) {
+                const fn = functions[0];
+                ctx.beginPath();
+                ctx.moveTo(toX(0), toY(0));
+                const step = (xMax - xMin) / 800;
+                for (let x = 0; x <= fillTo; x += step) {
+                    let y;
+                    try { y = fn.f(x); } catch (e) { continue; }
+                    if (y === null || y === undefined || isNaN(y) || !isFinite(y)) continue;
+                    ctx.lineTo(toX(x), toY(y));
+                }
+                ctx.lineTo(toX(fillTo), toY(0));
+                ctx.closePath();
+                ctx.fillStyle = functions[0].color;
+                ctx.globalAlpha = 0.2;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+
+            functions.forEach(fn => {
+                ctx.strokeStyle = fn.color;
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                let first = true;
+                const step = (xMax - xMin) / 800;
+                for (let x = xMin; x <= xMax; x += step) {
+                    let y;
+                    try { y = fn.f(x); } catch (e) { first = true; continue; }
+                    if (y === null || y === undefined || isNaN(y) || !isFinite(y) || y < yMin - 0.5 || y > yMax + 0.5) {
+                        first = true;
+                        continue;
+                    }
+                    const sx = toX(x), sy = toY(y);
+                    if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+                }
+                ctx.stroke();
+            });
+
+            if (fillTo !== undefined) {
+                const H = fillTo;
+                const R = functions[0].f(H);
+                const color = functions[0].color;
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(toX(H), toY(R), 6, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(toX(H), toY(R), 6, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.fillStyle = color;
+                ctx.font = 'bold 13px "Segoe UI", monospace';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('(' + H + '; ' + R + ')', toX(H) + 10, toY(R) - 4);
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.2;
+                ctx.globalAlpha = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(toX(H), toY(R));
+                ctx.lineTo(toX(H), toY(0));
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(toX(H), toY(R));
+                ctx.lineTo(toX(0), toY(R));
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                ctx.setLineDash([]);
+                ctx.fillStyle = color;
+                ctx.font = 'bold 12px "Segoe UI", monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText('H=' + H, toX(H), toY(0) + 6);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('R=' + R.toFixed(1), toX(0) - 10, toY(R));
+            }
         }
 
-        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
-        ctx.lineWidth = 1.8;
-        const ox = toY(0), oy = toX(0);
-        if (ox >= pad && ox <= h - pad) {
+        // Специальная функция для второго графика (вращение вокруг Oy)
+        function drawGraph2() {
+            const canvas = document.getElementById('graph2');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            const pad = 45;
+            const pw = w - 2 * pad, ph = h - 2 * pad;
+
+            const yMin = 0, yMax = 4.5;
+            const xMin = 0, xMax = 2.5;
+
+            function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+            function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+            const isLight = document.documentElement.classList.contains('light-mode');
+            ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+            ctx.lineWidth = 0.6;
+            for (let y = 0; y <= 4; y++) {
+                const sy = toY(y);
+                ctx.beginPath();
+                ctx.moveTo(pad, sy);
+                ctx.lineTo(w - pad, sy);
+                ctx.stroke();
+                ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+                ctx.font = '11px sans-serif';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(y, pad - 8, sy);
+            }
+            for (let x = 0; x <= 2.5; x += 0.5) {
+                const sx = toX(x);
+                ctx.beginPath();
+                ctx.moveTo(sx, pad);
+                ctx.lineTo(sx, h - pad);
+                ctx.stroke();
+                ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+                ctx.font = '11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(x, sx, h - pad + 4);
+            }
+
+            ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.lineWidth = 1.8;
+            const ox = toY(0);
             ctx.beginPath();
             ctx.moveTo(pad, ox);
             ctx.lineTo(w - pad, ox);
             ctx.stroke();
-        }
-        if (oy >= pad && oy <= w - pad) {
+            const oy = toX(0);
             ctx.beginPath();
             ctx.moveTo(oy, pad);
             ctx.lineTo(oy, h - pad);
             ctx.stroke();
-        }
-        ctx.fillStyle = ctx.strokeStyle;
-        ctx.beginPath();
-        ctx.moveTo(w - pad, ox);
-        ctx.lineTo(w - pad - 8, ox - 4);
-        ctx.lineTo(w - pad - 8, ox + 4);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(oy, pad);
-        ctx.lineTo(oy - 4, pad + 8);
-        ctx.lineTo(oy + 4, pad + 8);
-        ctx.fill();
-        ctx.font = '13px "Segoe UI", "JetBrains Mono", monospace';
-        ctx.fillStyle = isLight ? '#1e3a5f' : '#cbdbe6';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('x', w - pad - 5, ox - 8);
-        ctx.fillText('y', oy + 8, pad + 14);
-        if (oy >= pad && oy <= w - pad) {
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'top';
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
-            ctx.fillText('0', oy - 6, ox + 4);
-        }
 
-        if (fillTo !== undefined && functions.length > 0) {
-            const fn = functions[0];
+            ctx.fillStyle = isLight ? '#1e3a5f' : '#cbdbe6';
+            ctx.font = '13px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('x', w - pad - 5, ox - 8);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText('y', oy + 8, pad + 2);
+
+            if (oy >= pad && oy <= w - pad) {
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'top';
+                ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+                ctx.font = '11px sans-serif';
+                ctx.fillText('0', oy - 6, ox + 4);
+            }
+
+            // Заливка
             ctx.beginPath();
             ctx.moveTo(toX(0), toY(0));
-            const step = (xMax - xMin) / 800;
-            for (let x = 0; x <= fillTo; x += step) {
-                let y;
-                try { y = fn.f(x); } catch (e) { continue; }
-                if (y === null || y === undefined || isNaN(y) || !isFinite(y)) continue;
+            const step = (yMax - yMin) / 400;
+            for (let y = 0; y <= 4; y += step) {
+                const x = Math.sqrt(y);
+                if (x > 2.5) break;
                 ctx.lineTo(toX(x), toY(y));
             }
-            ctx.lineTo(toX(fillTo), toY(0));
+            ctx.lineTo(toX(0), toY(4));
             ctx.closePath();
-            ctx.fillStyle = functions[0].color;
-            ctx.globalAlpha = 0.2;
+            ctx.fillStyle = '#34d399';
+            ctx.globalAlpha = 0.25;
             ctx.fill();
             ctx.globalAlpha = 1;
-        }
 
-        functions.forEach(fn => {
-            ctx.strokeStyle = fn.color;
+            // График x = √y
+            ctx.strokeStyle = '#34d399';
             ctx.lineWidth = 2.5;
             ctx.beginPath();
             let first = true;
-            const step = (xMax - xMin) / 800;
-            for (let x = xMin; x <= xMax; x += step) {
-                let y;
-                try { y = fn.f(x); } catch (e) { first = true; continue; }
-                if (y === null || y === undefined || isNaN(y) || !isFinite(y) || y < yMin - 0.5 || y > yMax + 0.5) {
-                    first = true;
-                    continue;
-                }
+            for (let y = 0; y <= 4.2; y += 0.01) {
+                const x = Math.sqrt(y);
+                if (x > 2.5) break;
                 const sx = toX(x), sy = toY(y);
                 if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
             }
             ctx.stroke();
-        });
 
-        if (fillTo !== undefined) {
-            const H = fillTo;
-            const R = functions[0].f(H);
-            const color = functions[0].color;
-            ctx.fillStyle = color;
+            // Точка (2; 4)
+            const dotX = 2, dotY = 4;
+            ctx.fillStyle = '#34d399';
             ctx.beginPath();
-            ctx.arc(toX(H), toY(R), 6, 0, 2 * Math.PI);
+            ctx.arc(toX(dotX), toY(dotY), 6, 0, 2 * Math.PI);
             ctx.fill();
             ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(toX(H), toY(R), 6, 0, 2 * Math.PI);
+            ctx.arc(toX(dotX), toY(dotY), 6, 0, 2 * Math.PI);
             ctx.stroke();
-            ctx.fillStyle = color;
-            ctx.font = 'bold 13px "Segoe UI", "JetBrains Mono", monospace';
+
+            ctx.fillStyle = '#34d399';
+            ctx.font = 'bold 13px sans-serif';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'bottom';
-            ctx.fillText('(' + H + '; ' + R + ')', toX(H) + 10, toY(R) - 4);
+            ctx.fillText('(2; 4)', toX(dotX) + 10, toY(dotY) - 4);
+
             ctx.setLineDash([4, 4]);
-            ctx.strokeStyle = color;
+            ctx.strokeStyle = '#34d399';
             ctx.lineWidth = 1.2;
             ctx.globalAlpha = 0.5;
             ctx.beginPath();
-            ctx.moveTo(toX(H), toY(R));
-            ctx.lineTo(toX(H), toY(0));
+            ctx.moveTo(toX(dotX), toY(dotY));
+            ctx.lineTo(toX(dotX), toY(0));
             ctx.stroke();
             ctx.beginPath();
-            ctx.moveTo(toX(H), toY(R));
-            ctx.lineTo(toX(0), toY(R));
+            ctx.moveTo(toX(dotX), toY(dotY));
+            ctx.lineTo(toX(0), toY(dotY));
             ctx.stroke();
             ctx.globalAlpha = 1;
             ctx.setLineDash([]);
-            ctx.fillStyle = color;
-            ctx.font = 'bold 12px "Segoe UI", "JetBrains Mono", monospace';
+
+            ctx.fillStyle = '#34d399';
+            ctx.font = 'bold 12px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
-            ctx.fillText('H=' + H, toX(H), toY(0) + 6);
+            ctx.fillText('H=4', toX(0), toY(4) + 6);
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
-            ctx.fillText('R=' + R.toFixed(1), toX(0) - 10, toY(R));
-        }
-    }
-
-    // Специальная функция для второго графика (вращение вокруг Oy)
-    function drawGraph2() {
-        const canvas = document.getElementById('graph2');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width, h = canvas.height;
-        const pad = 45;
-        const pw = w - 2 * pad, ph = h - 2 * pad;
-
-        const yMin = 0, yMax = 4.5;
-        const xMin = 0, xMax = 2.5;
-
-        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
-        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
-
-        const isLight = document.documentElement.classList.contains('light-mode');
-        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
-        ctx.fillRect(0, 0, w, h);
-
-        // Сетка
-        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
-        ctx.lineWidth = 0.6;
-        for (let y = 0; y <= 4; y++) {
-            const sy = toY(y);
-            ctx.beginPath();
-            ctx.moveTo(pad, sy);
-            ctx.lineTo(w - pad, sy);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '11px sans-serif';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(y, pad - 8, sy);
-        }
-        for (let x = 0; x <= 2.5; x += 0.5) {
-            const sx = toX(x);
-            ctx.beginPath();
-            ctx.moveTo(sx, pad);
-            ctx.lineTo(sx, h - pad);
-            ctx.stroke();
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '11px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            ctx.fillText(x, sx, h - pad + 4);
+            ctx.fillText('R=2', toX(2) + 8, toY(0) - 10);
         }
 
-        // Оси
-        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
-        ctx.lineWidth = 1.8;
-        const ox = toY(0);
-        ctx.beginPath();
-        ctx.moveTo(pad, ox);
-        ctx.lineTo(w - pad, ox);
-        ctx.stroke();
-        const oy = toX(0);
-        ctx.beginPath();
-        ctx.moveTo(oy, pad);
-        ctx.lineTo(oy, h - pad);
-        ctx.stroke();
-
-        // Подписи осей
-        ctx.fillStyle = isLight ? '#1e3a5f' : '#cbdbe6';
-        ctx.font = '13px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('x', w - pad - 5, ox - 8);
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText('y', oy + 8, pad + 2);
-
-        // Подпись "0"
-        if (oy >= pad && oy <= w - pad) {
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'top';
-            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
-            ctx.font = '11px sans-serif';
-            ctx.fillText('0', oy - 6, ox + 4);
+        function drawAllGraphs() {
+            drawOneGraph('graph1',
+                [{ f: x => Math.sqrt(x), color: '#fbbf24', label: 'y = √x' }],
+                -0.5, 4.5, -0.5, 3, 4
+            );
+            drawGraph2();
+            const gc1 = document.getElementById('gc1');
+            const gc2 = document.getElementById('gc2');
+            if (gc1) gc1.style.display = 'block';
+            if (gc2) gc2.style.display = 'block';
         }
 
-        // === ЗАЛИВКА ДЛЯ ВРАЩЕНИЯ ВОКРУГ Oy (по оси Y) ===
-        ctx.beginPath();
-        ctx.moveTo(toX(0), toY(0));
-        const step = (yMax - yMin) / 400;
-        for (let y = 0; y <= 4; y += step) {
-            const x = Math.sqrt(y);
-            if (x > 2.5) break;
-            ctx.lineTo(toX(x), toY(y));
+        // ===== ЭКСПОРТ В WINDOW (нужен MathJax.startup) =====
+        window.drawAllGraphs = drawAllGraphs;
+
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        function init() {
+            drawAllGraphs();
+            setTimeout(drawAllGraphs, 600);
+            setTimeout(drawAllGraphs, 1500);
         }
-        ctx.lineTo(toX(0), toY(4));
-        ctx.closePath();
-        ctx.fillStyle = '#34d399';
-        ctx.globalAlpha = 0.25;
-        ctx.fill();
-        ctx.globalAlpha = 1;
 
-        // === ГРАФИК y = x² (но как x = √y) ===
-        ctx.strokeStyle = '#34d399';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        let first = true;
-        for (let y = 0; y <= 4.2; y += 0.01) {
-            const x = Math.sqrt(y);
-            if (x > 2.5) break;
-            const sx = toX(x), sy = toY(y);
-            if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
         }
-        ctx.stroke();
+        window.addEventListener('load', drawAllGraphs);
 
-        // === ТОЧКА (2; 4) ===
-        const dotX = 2, dotY = 4;
-        ctx.fillStyle = '#34d399';
-        ctx.beginPath();
-        ctx.arc(toX(dotX), toY(dotY), 6, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(toX(dotX), toY(dotY), 6, 0, 2 * Math.PI);
-        ctx.stroke();
+        // ===== ПЕРЕРИСОВКА ПРИ СМЕНЕ ТЕМЫ =====
+        var observer = new MutationObserver(function () {
+            drawAllGraphs();
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
-        // Подпись точки
-        ctx.fillStyle = '#34d399';
-        ctx.font = 'bold 13px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('(2; 4)', toX(dotX) + 10, toY(dotY) - 4);
-
-        // Пунктирные линии к осям
-        ctx.setLineDash([4, 4]);
-        ctx.strokeStyle = '#34d399';
-        ctx.lineWidth = 1.2;
-        ctx.globalAlpha = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(toX(dotX), toY(dotY));
-        ctx.lineTo(toX(dotX), toY(0));
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(toX(dotX), toY(dotY));
-        ctx.lineTo(toX(0), toY(dotY));
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-        ctx.setLineDash([]);
-
-        // Подписи H и R
-        ctx.fillStyle = '#34d399';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText('H=4', toX(0), toY(4) + 6);
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('R=2', toX(2) + 8, toY(0) - 10);
-    }
-
-    function drawAllGraphs() {
-        drawOneGraph('graph1', [{ f: x => Math.sqrt(x), color: '#fbbf24', label: 'y = √x' }], -0.5, 4.5, -0.5, 3, 4);
-        drawGraph2();
-        document.getElementById('gc1').style.display = 'block';
-        document.getElementById('gc2').style.display = 'block';
-    }
-
-    window.addEventListener('load', function() {
-        setTimeout(drawAllGraphs, 500);
-    });
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
 </script>
 
 <script src="favorites.js"></script>

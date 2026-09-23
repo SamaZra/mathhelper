@@ -16,6 +16,12 @@
             --special-border: #f59e0b;
             --canvas-bg: #1a2d3c;
             --theorem-bg: #1a2d3c;
+            --accent: #1abc9c;
+            --warning-bg: rgba(251,191,36,0.15);
+            --warning-border: #fbbf24;
+            --danger-color: #f87171;
+            --result-color: #4ade80;
+            --formula-color: #fbbf24;
         }
 
         :root.light-mode {
@@ -27,10 +33,25 @@
             --special-border: #f59e0b;
             --canvas-bg: #eef2f8;
             --theorem-bg: #fefce8;
+            --accent: #1abc9c;
+            --warning-bg: #fffbeb;
+            --warning-border: #f59e0b;
+            --danger-color: #dc2626;
+            --result-color: #059669;
+            --formula-color: #b45309;
         }
 
         body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); padding: 8px; }
         .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; }
+
+        .theme-toggle {
+            position: absolute; top: 12px; right: 12px; width: 44px; height: 44px;
+            border-radius: 50%; background: transparent; border: none; cursor: pointer;
+            font-size: 26px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; z-index: 100; color: var(--text-secondary);
+            padding: 0; outline: none; -webkit-tap-highlight-color: transparent; user-select: none;
+        }
+        .theme-toggle:hover { transform: scale(1.1); }
 
         h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
         .section { margin-bottom: 12px; }
@@ -48,6 +69,9 @@
         .theorem-text { background: var(--theorem-bg); padding: 16px 18px; border-radius: 20px; border-left: 4px solid var(--special-border); margin: 10px 0; }
         .theorem-text p { color: var(--text); }
         .theorem-text strong { color: var(--text); }
+
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
 
         .model-container {
             text-align: center;
@@ -108,7 +132,6 @@
             .model-container { min-height: 280px; }
             .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
         }
-    
     </style>
     <script>MathJax={tex:{inlineMath:[['$','$']]}};</script>
     <script src="mathjax/es5/tex-chtml.js" async></script>
@@ -126,8 +149,23 @@
     <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn">🌙</button>
     <h1>📏 Параллельные, пересекающиеся, скрещивающиеся прямые</h1>
 
-    <!-- Параллельные прямые -->
+    <!-- ===== ВСТУПЛЕНИЕ ===== -->
     <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Зачем изучать классификацию прямых</div>
+        <div class="section-content">
+            <p>На плоскости две прямые могут вести себя <strong>всего двумя способами</strong>: либо <strong>пересечься</strong> в одной точке, либо <strong>никогда не встретиться</strong> — быть параллельными. Всё просто.</p>
+            <p>В пространстве к этим двум вариантам добавляется <strong>третий</strong> — <strong>скрещивающиеся прямые</strong>. Они не параллельны и не пересекаются: просто «пролетают» мимо друг друга в <strong>разных плоскостях</strong>. Их невозможно увидеть на плоском чертеже — нужна объёмная модель.</p>
+            <div class="important">
+                <strong>💡 Три случая взаимного расположения двух прямых в пространстве:</strong><br>
+                • <strong>Пересекаются</strong> — имеют одну общую точку<br>
+                • <strong>Параллельны</strong> — лежат в одной плоскости, общих точек нет<br>
+                • <strong>Скрещиваются</strong> — не лежат ни в одной плоскости, общих точек нет
+            </div>
+            <p>💡 <strong>Главная задача</strong> этого раздела — научиться <strong>видеть</strong> скрещивающиеся прямые там, где на плоском чертеже они выглядят как пересекающиеся, и различать все три случая в реальных задачах.</p>
+        </div>
+    </div>
+
+    <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Параллельные прямые</div>
         <div class="section-content">
             <div class="model-container" id="parallel-container">
@@ -138,7 +176,6 @@
         </div>
     </div>
 
-    <!-- Пересекающиеся прямые -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Пересекающиеся прямые</div>
         <div class="section-content">
@@ -150,7 +187,6 @@
         </div>
     </div>
 
-    <!-- Скрещивающиеся прямые -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Скрещивающиеся прямые</div>
         <div class="section-content">
@@ -158,11 +194,10 @@
                 <canvas id="skew-canvas" class="model-canvas"></canvas>
                 <button class="fullscreen-btn" id="skew-fullscreen" title="Во весь экран">⛶</button>
             </div>
-            <div class="subtitle">Прямые a и b не лежат в одной плоскости. a ⊂ α, b ⊂ β, плоскости α и β параллельны.</div>
+            <div class="subtitle">Прямые a и b не лежат в одной плоскости. a ⊂ α, b ⊂ β, α и β параллельны.</div>
         </div>
     </div>
 
-    <!-- Признак скрещивающихся прямых -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Признак скрещивающихся прямых</div>
         <div class="section-content">
@@ -177,7 +212,6 @@
         </div>
     </div>
 
-    <!-- Угол между скрещивающимися прямыми -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📏 Угол между скрещивающимися прямыми</div>
         <div class="section-content">
@@ -189,7 +223,6 @@
         </div>
     </div>
 
-    <!-- Свойства -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Свойства</div>
         <div class="section-content">
@@ -200,11 +233,10 @@
         </div>
     </div>
 
-    <a href="index.html" class="back-link">← Назад к меню</a>
+    <a href="stereo.html" class="back-link">← Назад к меню</a>
 </div>
 
 <script>
-    // ========== ОПРЕДЕЛЕНИЕ КАЧЕСТВА 3D ==========
     let quality3D = 'high';
     if (window.Android && window.Android.getQuality3D) {
         quality3D = window.Android.getQuality3D();
@@ -215,22 +247,26 @@
 
     const qualitySettings = {
         low:    { segments: 24, opacity: 1.0,  transparent: false },
-        medium: {
-            segments: 48,
-            opacity: 0.65,
-            transparent: true
-        },
-        high: {
-            segments: 96,
-            opacity: 0.55,
-            transparent: true
-        }
+        medium: { segments: 48, opacity: 0.65, transparent: true },
+        high:   { segments: 96, opacity: 0.55, transparent: true }
     };
 
-    const settings = qualitySettings[quality3D];
-    // ========== КОНЕЦ ОПРЕДЕЛЕНИЯ ==========
+    const settings = qualitySettings[quality3D] || qualitySettings.high;
 
-     
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        if (window.MathJax) MathJax.typesetPromise();
+    }
     (function initTheme() {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
@@ -244,29 +280,57 @@
         const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
         const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
 
-        function makeLabel(text, color, position, fontSize = '0.75rem') {
+        // ===== ПОДПИСЬ: обводка + многослойная тень, без фона и рамок =====
+        function makeLabel(text, color, position, fontSize = '0.85rem') {
             const sizeNum = parseFloat(fontSize);
-            const biggerSize = (sizeNum * 2).toFixed(2) + 'rem';
+            const biggerSize = (sizeNum * 1.15).toFixed(2) + 'rem';
 
             const div = document.createElement('div');
             div.textContent = text;
             div.style.color = color;
             div.style.fontSize = biggerSize;
             div.style.fontWeight = '900';
-
             div.style.fontFamily = "'JetBrains Mono', monospace";
-
             div.style.letterSpacing = '0.02em';
             div.style.background = 'transparent';
             div.style.padding = '0';
             div.style.border = 'none';
-            div.style.borderRadius = '0';
             div.style.whiteSpace = 'nowrap';
             div.style.pointerEvents = 'none';
-            div.style.textShadow = `0 0 1px #000, 0 0 2px #000, 0 0 8px ${color}, 0 0 16px ${color}`;
+            div.style.webkitTextStroke = '1.5px #000';
+            div.style.paintOrder = 'stroke fill';
+            div.style.textShadow = '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 0 0 #000, -1px 0 0 #000';
             const label = new CSS2DObject(div);
             label.position.copy(position);
             return label;
+        }
+
+        // ===== ТОЛЬКО ТОЛСТЫЕ ПРЯМЫЕ (для a, b, a', b') =====
+        // 5 линий: основная + 4 смещённые — как векторы в block1.html
+        function addThickLine(scene, start, end, color, thickness = 0.012) {
+            const mainGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+            const mainMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 1 });
+            scene.add(new THREE.Line(mainGeo, mainMat));
+
+            const dir = end.clone().sub(start);
+            if (dir.length() < 0.001) return;
+            dir.normalize();
+            const up = new THREE.Vector3(0, 1, 0);
+            let perp1 = new THREE.Vector3().crossVectors(dir, up);
+            if (perp1.length() < 0.001) perp1 = new THREE.Vector3(1, 0, 0);
+            perp1.normalize().multiplyScalar(thickness);
+            const perp2 = new THREE.Vector3().crossVectors(dir, perp1).normalize().multiplyScalar(thickness);
+            [perp1, perp1.clone().negate(), perp2, perp2.clone().negate()].forEach(off => {
+                const geo = new THREE.BufferGeometry().setFromPoints([start.clone().add(off), end.clone().add(off)]);
+                const m = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.7 });
+                scene.add(new THREE.Line(geo, m));
+            });
+        }
+
+        // Тонкая линия — для рамок плоскостей
+        function addThinLine(scene, start, end, color) {
+            const geo = new THREE.BufferGeometry().setFromPoints([start, end]);
+            scene.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color })));
         }
 
         function initScene(containerId, canvasId, builder, fullscreenBtnId = null) {
@@ -325,20 +389,15 @@
             resizeObserver.observe(container);
             setTimeout(updateSize, 100);
 
-            const ambientLight = new THREE.AmbientLight(0x40486c, 0.6);
-            scene.add(ambientLight);
+            scene.add(new THREE.AmbientLight(0x40486c, 0.6));
             const keyLight = new THREE.DirectionalLight(0xfff5e0, 1.2);
-            keyLight.position.set(2, 5, 2);
-            scene.add(keyLight);
+            keyLight.position.set(2, 5, 2); scene.add(keyLight);
             const fillLight = new THREE.PointLight(0xccaa77, 0.55);
-            fillLight.position.set(-1.5, 2, 2);
-            scene.add(fillLight);
+            fillLight.position.set(-1.5, 2, 2); scene.add(fillLight);
             const rimLight = new THREE.PointLight(0x88aaff, 0.5);
-            rimLight.position.set(1, 2, -3);
-            scene.add(rimLight);
+            rimLight.position.set(1, 2, -3); scene.add(rimLight);
             const bottomLight = new THREE.PointLight(0x6699cc, 0.35);
-            bottomLight.position.set(0, -1.2, 0);
-            scene.add(bottomLight);
+            bottomLight.position.set(0, -1.2, 0); scene.add(bottomLight);
 
             const gridHelper = new THREE.GridHelper(6, 16, 0x5f7f9e, 0x2c4258);
             gridHelper.position.y = -1.5;
@@ -355,19 +414,18 @@
             controls.rotateSpeed = 1.0;
             controls.target.set(0, 0, 0);
 
-            if (builder) builder(scene, THREE, labelRenderer, camera, makeLabel);
+            if (builder) builder(scene, THREE, labelRenderer, camera, makeLabel, addThickLine, addThinLine);
 
             if (fullscreenBtnId) {
                 const fullscreenBtn = document.getElementById(fullscreenBtnId);
                 if (fullscreenBtn) {
                     async function toggleFullscreen() {
                         if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                            try { await container.requestFullscreen(); fullscreenBtn.textContent = '✖'; fullscreenBtn.title = 'Выйти из полноэкранного режима'; } catch(err) {}
+                            try { await container.requestFullscreen(); fullscreenBtn.textContent = '✖'; } catch(err) {}
                         } else {
                             if (document.exitFullscreen) await document.exitFullscreen();
                             else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
                             fullscreenBtn.textContent = '⛶';
-                            fullscreenBtn.title = 'Во весь экран';
                             forceResizeScene();
                         }
                     }
@@ -393,63 +451,46 @@
             return { scene, controls };
         }
 
-        // 1. ПАРАЛЛЕЛЬНЫЕ ПРЯМЫЕ
-        initScene('parallel-container', 'parallel-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+        // ===== 1. ПАРАЛЛЕЛЬНЫЕ ПРЯМЫЕ =====
+        initScene('parallel-container', 'parallel-canvas', (scene, THREE, labelRenderer, camera, makeLabel, addThickLine, addThinLine) => {
             const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
             const planeMat = new THREE.MeshPhysicalMaterial({
-                color: 0xf59e0b,
-                side: THREE.DoubleSide,
-                transparent: settings.transparent,
-                opacity: settings.opacity,
-                metalness: 0.3,
-                roughness: 0.4,
-                emissive: 0x331a00
+                color: 0xf59e0b, side: THREE.DoubleSide,
+                transparent: settings.transparent, opacity: settings.opacity,
+                metalness: 0.3, roughness: 0.4, emissive: 0x331a00
             });
             const plane = new THREE.Mesh(planeGeo, planeMat);
             plane.rotation.x = -Math.PI / 2;
             plane.position.y = 0;
             scene.add(plane);
 
+            // Рамка плоскости — тонкая
             const borderPoints = [
-                new THREE.Vector3(-1.75, 0, -1.75),
-                new THREE.Vector3( 1.75, 0, -1.75),
-                new THREE.Vector3( 1.75, 0,  1.75),
-                new THREE.Vector3(-1.75, 0,  1.75),
+                new THREE.Vector3(-1.75, 0, -1.75), new THREE.Vector3( 1.75, 0, -1.75),
+                new THREE.Vector3( 1.75, 0,  1.75), new THREE.Vector3(-1.75, 0,  1.75),
                 new THREE.Vector3(-1.75, 0, -1.75)
             ];
-            const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
-            const border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0xf59e0b, linewidth: 2 }));
-            scene.add(border);
+            for (let i = 0; i < 4; i++) {
+                addThinLine(scene, borderPoints[i], borderPoints[i+1], 0xf59e0b);
+            }
 
-            const aPoints = [new THREE.Vector3(-1.5, 0, -0.5), new THREE.Vector3(1.5, 0, -0.5)];
-            const aGeo = new THREE.BufferGeometry().setFromPoints(aPoints);
-            const aMat = new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 3 });
-            const aLine = new THREE.Line(aGeo, aMat);
-            scene.add(aLine);
+            // Прямые a и b — ТОЛСТЫЕ
+            addThickLine(scene, new THREE.Vector3(-1.5, 0, -0.5), new THREE.Vector3(1.5, 0, -0.5), 0x60a5fa);
+            addThickLine(scene, new THREE.Vector3(-1.5, 0, 0.8),  new THREE.Vector3(1.5, 0, 0.8),  0x34d399);
 
-            const bPoints = [new THREE.Vector3(-1.5, 0, 0.8), new THREE.Vector3(1.5, 0, 0.8)];
-            const bGeo = new THREE.BufferGeometry().setFromPoints(bPoints);
-            const bMat = new THREE.LineBasicMaterial({ color: 0x10b981, linewidth: 3 });
-            const bLine = new THREE.Line(bGeo, bMat);
-            scene.add(bLine);
-
-            scene.add(makeLabel('Плоскость α', '#f59e0b', new THREE.Vector3(2.2, 0.15, 1.5), '0.7rem'));
-            scene.add(makeLabel('a', '#3b82f6', new THREE.Vector3(1.7, 0.1, -0.5), '0.7rem'));
-            scene.add(makeLabel('b', '#10b981', new THREE.Vector3(1.7, 0.1, 0.8), '0.7rem'));
-            scene.add(makeLabel('a ∥ b', '#88aaff', new THREE.Vector3(1.8, 0.2, 0.2), '0.65rem'));
+            scene.add(makeLabel('α', '#fbbf24', new THREE.Vector3(2.2, 0.15, 1.5), '0.85rem'));
+            scene.add(makeLabel('a', '#60a5fa', new THREE.Vector3(1.7, 0.15, -0.5), '0.85rem'));
+            scene.add(makeLabel('b', '#34d399', new THREE.Vector3(1.7, 0.15, 0.8), '0.85rem'));
+            scene.add(makeLabel('a ∥ b', '#93c5fd', new THREE.Vector3(1.8, 0.3, 0.15), '0.8rem'));
         }, 'parallel-fullscreen');
 
-        // 2. ПЕРЕСЕКАЮЩИЕСЯ ПРЯМЫЕ
-        initScene('intersecting-container', 'intersecting-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+        // ===== 2. ПЕРЕСЕКАЮЩИЕСЯ ПРЯМЫЕ =====
+        initScene('intersecting-container', 'intersecting-canvas', (scene, THREE, labelRenderer, camera, makeLabel, addThickLine, addThinLine) => {
             const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
             const planeMat = new THREE.MeshPhysicalMaterial({
-                color: 0x10b981,
-                side: THREE.DoubleSide,
-                transparent: settings.transparent,
-                opacity: settings.opacity,
-                metalness: 0.3,
-                roughness: 0.4,
-                emissive: 0x001a0a
+                color: 0x10b981, side: THREE.DoubleSide,
+                transparent: settings.transparent, opacity: settings.opacity,
+                metalness: 0.3, roughness: 0.4, emissive: 0x001a0a
             });
             const plane = new THREE.Mesh(planeGeo, planeMat);
             plane.rotation.x = -Math.PI / 2;
@@ -457,64 +498,51 @@
             scene.add(plane);
 
             const borderPoints = [
-                new THREE.Vector3(-1.75, 0, -1.75),
-                new THREE.Vector3( 1.75, 0, -1.75),
-                new THREE.Vector3( 1.75, 0,  1.75),
-                new THREE.Vector3(-1.75, 0,  1.75),
+                new THREE.Vector3(-1.75, 0, -1.75), new THREE.Vector3( 1.75, 0, -1.75),
+                new THREE.Vector3( 1.75, 0,  1.75), new THREE.Vector3(-1.75, 0,  1.75),
                 new THREE.Vector3(-1.75, 0, -1.75)
             ];
-            const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
-            const border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0x10b981, linewidth: 2 }));
-            scene.add(border);
+            for (let i = 0; i < 4; i++) {
+                addThinLine(scene, borderPoints[i], borderPoints[i+1], 0x34d399);
+            }
 
-            const aPoints = [new THREE.Vector3(-1.8, 0, 0), new THREE.Vector3(1.8, 0, 0)];
-            const aGeo = new THREE.BufferGeometry().setFromPoints(aPoints);
-            const aMat = new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 3 });
-            const aLine = new THREE.Line(aGeo, aMat);
-            scene.add(aLine);
+            // Прямая a — толстая
+            addThickLine(scene, new THREE.Vector3(-1.8, 0, 0), new THREE.Vector3(1.8, 0, 0), 0x60a5fa);
 
+            // Прямая b — толстая
             const angleRad = 60 * Math.PI / 180;
-            const bPoints = [new THREE.Vector3(-1.5 * Math.cos(angleRad), 0, -1.5 * Math.sin(angleRad)),
-                             new THREE.Vector3(1.5 * Math.cos(angleRad), 0, 1.5 * Math.sin(angleRad))];
-            const bGeo = new THREE.BufferGeometry().setFromPoints(bPoints);
-            const bMat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 3 });
-            const bLine = new THREE.Line(bGeo, bMat);
-            scene.add(bLine);
+            addThickLine(scene,
+                new THREE.Vector3(-1.5 * Math.cos(angleRad), 0, -1.5 * Math.sin(angleRad)),
+                new THREE.Vector3( 1.5 * Math.cos(angleRad), 0,  1.5 * Math.sin(angleRad)),
+                0xf87171);
 
-            const pointO = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments), new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 }));
+            const pointO = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0x442200 }));
             pointO.position.set(0, 0, 0);
             scene.add(pointO);
 
             const arcPoints = [];
             for (let i = 0; i <= 20; i++) {
                 const angle = i * angleRad / 20;
-                const x = 0.7 * Math.cos(angle);
-                const z = 0.7 * Math.sin(angle);
-                arcPoints.push(new THREE.Vector3(x, 0.05, z));
+                arcPoints.push(new THREE.Vector3(0.7 * Math.cos(angle), 0.05, 0.7 * Math.sin(angle)));
             }
             const arcGeo = new THREE.BufferGeometry().setFromPoints(arcPoints);
-            const arcMat = new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 2 });
-            const arcLine = new THREE.Line(arcGeo, arcMat);
-            scene.add(arcLine);
+            scene.add(new THREE.Line(arcGeo, new THREE.LineBasicMaterial({ color: 0xfde047 })));
 
-            scene.add(makeLabel('Плоскость β', '#10b981', new THREE.Vector3(2.2, 0.15, 1.5), '0.7rem'));
-            scene.add(makeLabel('a', '#3b82f6', new THREE.Vector3(2.0, 0.1, 0), '0.7rem'));
-            scene.add(makeLabel('b', '#ef4444', new THREE.Vector3(1.3, 0.1, 1.3), '0.7rem'));
-            scene.add(makeLabel('O = a ∩ b', '#facc15', new THREE.Vector3(0.15, 0.15, 0.15), '0.7rem'));
-            scene.add(makeLabel('60°', '#facc15', new THREE.Vector3(0.55, 0.15, 0.45), '0.65rem'));
+            scene.add(makeLabel('β', '#34d399', new THREE.Vector3(2.2, 0.15, 1.5), '0.85rem'));
+            scene.add(makeLabel('a', '#60a5fa', new THREE.Vector3(2.0, 0.15, 0), '0.85rem'));
+            scene.add(makeLabel('b', '#f87171', new THREE.Vector3(1.3, 0.15, 1.3), '0.85rem'));
+            scene.add(makeLabel('O', '#fde047', new THREE.Vector3(0.18, 0.15, 0.18), '0.85rem'));
+            scene.add(makeLabel('60°', '#fde047', new THREE.Vector3(0.6, 0.2, 0.5), '0.8rem'));
         }, 'intersecting-fullscreen');
 
-        // 3. СКРЕЩИВАЮЩИЕСЯ ПРЯМЫЕ
-        initScene('skew-container', 'skew-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+        // ===== 3. СКРЕЩИВАЮЩИЕСЯ ПРЯМЫЕ =====
+        initScene('skew-container', 'skew-canvas', (scene, THREE, labelRenderer, camera, makeLabel, addThickLine, addThinLine) => {
             const planeAGeo = new THREE.PlaneGeometry(3.5, 3.5);
             const planeAMat = new THREE.MeshPhysicalMaterial({
-                color: 0x3b82f6,
-                side: THREE.DoubleSide,
-                transparent: settings.transparent,
-                opacity: settings.opacity,
-                metalness: 0.3,
-                roughness: 0.4,
-                emissive: 0x001133
+                color: 0x3b82f6, side: THREE.DoubleSide,
+                transparent: settings.transparent, opacity: settings.opacity,
+                metalness: 0.3, roughness: 0.4, emissive: 0x001133
             });
             const planeA = new THREE.Mesh(planeAGeo, planeAMat);
             planeA.rotation.x = -Math.PI / 2;
@@ -522,25 +550,19 @@
             scene.add(planeA);
 
             const aBorderPoints = [
-                new THREE.Vector3(-1.75, -0.4, -1.75),
-                new THREE.Vector3( 1.75, -0.4, -1.75),
-                new THREE.Vector3( 1.75, -0.4,  1.75),
-                new THREE.Vector3(-1.75, -0.4,  1.75),
+                new THREE.Vector3(-1.75, -0.4, -1.75), new THREE.Vector3( 1.75, -0.4, -1.75),
+                new THREE.Vector3( 1.75, -0.4,  1.75), new THREE.Vector3(-1.75, -0.4,  1.75),
                 new THREE.Vector3(-1.75, -0.4, -1.75)
             ];
-            const aBorderGeo = new THREE.BufferGeometry().setFromPoints(aBorderPoints);
-            const aBorder = new THREE.Line(aBorderGeo, new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 }));
-            scene.add(aBorder);
+            for (let i = 0; i < 4; i++) {
+                addThinLine(scene, aBorderPoints[i], aBorderPoints[i+1], 0x60a5fa);
+            }
 
             const planeBGeo = new THREE.PlaneGeometry(3.5, 3.5);
             const planeBMat = new THREE.MeshPhysicalMaterial({
-                color: 0xef4444,
-                side: THREE.DoubleSide,
-                transparent: settings.transparent,
-                opacity: settings.opacity,
-                metalness: 0.3,
-                roughness: 0.4,
-                emissive: 0x330000
+                color: 0xef4444, side: THREE.DoubleSide,
+                transparent: settings.transparent, opacity: settings.opacity,
+                metalness: 0.3, roughness: 0.4, emissive: 0x330000
             });
             const planeB = new THREE.Mesh(planeBGeo, planeBMat);
             planeB.rotation.x = -Math.PI / 2;
@@ -548,46 +570,32 @@
             scene.add(planeB);
 
             const bBorderPoints = [
-                new THREE.Vector3(-1.75, 0.5, -1.75),
-                new THREE.Vector3( 1.75, 0.5, -1.75),
-                new THREE.Vector3( 1.75, 0.5,  1.75),
-                new THREE.Vector3(-1.75, 0.5,  1.75),
+                new THREE.Vector3(-1.75, 0.5, -1.75), new THREE.Vector3( 1.75, 0.5, -1.75),
+                new THREE.Vector3( 1.75, 0.5,  1.75), new THREE.Vector3(-1.75, 0.5,  1.75),
                 new THREE.Vector3(-1.75, 0.5, -1.75)
             ];
-            const bBorderGeo = new THREE.BufferGeometry().setFromPoints(bBorderPoints);
-            const bBorder = new THREE.Line(bBorderGeo, new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 2 }));
-            scene.add(bBorder);
+            for (let i = 0; i < 4; i++) {
+                addThinLine(scene, bBorderPoints[i], bBorderPoints[i+1], 0xf87171);
+            }
 
-            const aPoints = [new THREE.Vector3(-1.5, -0.4, 0), new THREE.Vector3(1.5, -0.4, 0)];
-            const aGeo = new THREE.BufferGeometry().setFromPoints(aPoints);
-            const aMat = new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 3 });
-            const aLine = new THREE.Line(aGeo, aMat);
-            scene.add(aLine);
+            // Прямые a и b — ТОЛСТЫЕ
+            addThickLine(scene, new THREE.Vector3(-1.5, -0.4, 0), new THREE.Vector3(1.5, -0.4, 0), 0x60a5fa);
+            addThickLine(scene, new THREE.Vector3(0, 0.5, -1.5), new THREE.Vector3(0, 0.5, 1.5), 0xf87171);
 
-            const bPoints = [new THREE.Vector3(0, 0.5, -1.5), new THREE.Vector3(0, 0.5, 1.5)];
-            const bGeo = new THREE.BufferGeometry().setFromPoints(bPoints);
-            const bMat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 3 });
-            const bLine = new THREE.Line(bGeo, bMat);
-            scene.add(bLine);
-
-            scene.add(makeLabel('Плоскость α', '#3b82f6', new THREE.Vector3(2.2, -0.25, 1.5), '0.7rem'));
-            scene.add(makeLabel('a', '#3b82f6', new THREE.Vector3(1.7, -0.3, 0.2), '0.7rem'));
-            scene.add(makeLabel('Плоскость β', '#ef4444', new THREE.Vector3(2.2, 0.65, 1.5), '0.7rem'));
-            scene.add(makeLabel('b', '#ef4444', new THREE.Vector3(0.3, 0.65, 1.7), '0.7rem'));
-            scene.add(makeLabel('α ∥ β', '#88aaff', new THREE.Vector3(1.5, 0.05, 1.8), '0.65rem'));
+            scene.add(makeLabel('α', '#60a5fa', new THREE.Vector3(2.2, -0.25, 1.5), '0.85rem'));
+            scene.add(makeLabel('a', '#60a5fa', new THREE.Vector3(1.7, -0.3, 0.2), '0.85rem'));
+            scene.add(makeLabel('β', '#f87171', new THREE.Vector3(2.2, 0.65, 1.5), '0.85rem'));
+            scene.add(makeLabel('b', '#f87171', new THREE.Vector3(0.3, 0.65, 1.7), '0.85rem'));
+            scene.add(makeLabel('α ∥ β', '#93c5fd', new THREE.Vector3(1.5, 0.05, 1.8), '0.8rem'));
         }, 'skew-fullscreen');
 
-        // 4. ПРИЗНАК СКРЕЩИВАЮЩИХСЯ
-        initScene('skew-criterion-container', 'skew-criterion-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+        // ===== 4. ПРИЗНАК СКРЕЩИВАЮЩИХСЯ =====
+        initScene('skew-criterion-container', 'skew-criterion-canvas', (scene, THREE, labelRenderer, camera, makeLabel, addThickLine, addThinLine) => {
             const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
             const planeMat = new THREE.MeshPhysicalMaterial({
-                color: 0xf59e0b,
-                side: THREE.DoubleSide,
-                transparent: settings.transparent,
-                opacity: settings.opacity,
-                metalness: 0.3,
-                roughness: 0.4,
-                emissive: 0x331a00
+                color: 0xf59e0b, side: THREE.DoubleSide,
+                transparent: settings.transparent, opacity: settings.opacity,
+                metalness: 0.3, roughness: 0.4, emissive: 0x331a00
             });
             const plane = new THREE.Mesh(planeGeo, planeMat);
             plane.rotation.x = -Math.PI / 2;
@@ -595,52 +603,37 @@
             scene.add(plane);
 
             const borderPoints = [
-                new THREE.Vector3(-1.75, 0, -1.75),
-                new THREE.Vector3( 1.75, 0, -1.75),
-                new THREE.Vector3( 1.75, 0,  1.75),
-                new THREE.Vector3(-1.75, 0,  1.75),
+                new THREE.Vector3(-1.75, 0, -1.75), new THREE.Vector3( 1.75, 0, -1.75),
+                new THREE.Vector3( 1.75, 0,  1.75), new THREE.Vector3(-1.75, 0,  1.75),
                 new THREE.Vector3(-1.75, 0, -1.75)
             ];
-            const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
-            const border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0xf59e0b, linewidth: 2 }));
-            scene.add(border);
+            for (let i = 0; i < 4; i++) {
+                addThinLine(scene, borderPoints[i], borderPoints[i+1], 0xfbbf24);
+            }
 
-            const aPoints = [new THREE.Vector3(-1.5, 0, -0.8), new THREE.Vector3(1.5, 0, 0.8)];
-            const aGeo = new THREE.BufferGeometry().setFromPoints(aPoints);
-            const aMat = new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 3 });
-            const aLine = new THREE.Line(aGeo, aMat);
-            scene.add(aLine);
-
-            const bPoints = [new THREE.Vector3(-0.8, -0.9, 1.2), new THREE.Vector3(1.0, 1.1, -0.6)];
-            const bGeo = new THREE.BufferGeometry().setFromPoints(bPoints);
-            const bMat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 3 });
-            const bLine = new THREE.Line(bGeo, bMat);
-            scene.add(bLine);
+            // Прямые a и b — ТОЛСТЫЕ
+            addThickLine(scene, new THREE.Vector3(-1.5, 0, -0.8), new THREE.Vector3(1.5, 0, 0.8), 0x60a5fa);
+            addThickLine(scene, new THREE.Vector3(-0.8, -0.9, 1.2), new THREE.Vector3(1.0, 1.1, -0.6), 0xf87171);
 
             const pointAPos = new THREE.Vector3(-0.0125, 0, 0.4125);
-            const pointA = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments), new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 }));
+            const pointA = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0x442200 }));
             pointA.position.copy(pointAPos);
             scene.add(pointA);
 
-            scene.add(makeLabel('Плоскость α', '#f59e0b', new THREE.Vector3(2.2, 0.15, 1.5), '0.7rem'));
-            scene.add(makeLabel('a ⊂ α', '#88aaff', new THREE.Vector3(1.4, -0.2, 1.1), '0.6rem'));
-            scene.add(makeLabel('a', '#3b82f6', new THREE.Vector3(1.6, 0.1, 1.0), '0.7rem'));
-            scene.add(makeLabel('b', '#ef4444', new THREE.Vector3(1.3, 0.8, -0.9), '0.7rem'));
-            scene.add(makeLabel('A = b ∩ α', '#facc15', new THREE.Vector3(0.18, 0.12, 0.58), '0.65rem'));
-            scene.add(makeLabel('A ∉ a', '#facc15', new THREE.Vector3(0.18, -0.12, 0.48), '0.6rem'));
+            scene.add(makeLabel('α', '#fbbf24', new THREE.Vector3(2.2, 0.15, 1.5), '0.85rem'));
+            scene.add(makeLabel('a', '#60a5fa', new THREE.Vector3(1.6, 0.15, 1.0), '0.85rem'));
+            scene.add(makeLabel('b', '#f87171', new THREE.Vector3(1.3, 0.8, -0.9), '0.85rem'));
+            scene.add(makeLabel('A', '#fde047', new THREE.Vector3(0.22, 0.18, 0.6), '0.85rem'));
         }, 'skew-criterion-fullscreen');
 
-        // 5. УГОЛ МЕЖДУ СКРЕЩИВАЮЩИМИСЯ
-        initScene('angle-skew-container', 'angle-skew-canvas', (scene, THREE, labelRenderer, camera, makeLabel) => {
+        // ===== 5. УГОЛ МЕЖДУ СКРЕЩИВАЮЩИМИСЯ =====
+        initScene('angle-skew-container', 'angle-skew-canvas', (scene, THREE, labelRenderer, camera, makeLabel, addThickLine, addThinLine) => {
             const planeAGeo = new THREE.PlaneGeometry(3.5, 3.5);
             const planeAMat = new THREE.MeshPhysicalMaterial({
-                color: 0x3b82f6,
-                side: THREE.DoubleSide,
-                transparent: settings.transparent,
-                opacity: settings.opacity,
-                metalness: 0.3,
-                roughness: 0.4,
-                emissive: 0x001133
+                color: 0x3b82f6, side: THREE.DoubleSide,
+                transparent: settings.transparent, opacity: settings.opacity,
+                metalness: 0.3, roughness: 0.4, emissive: 0x001133
             });
             const planeA = new THREE.Mesh(planeAGeo, planeAMat);
             planeA.rotation.x = -Math.PI / 2;
@@ -648,25 +641,19 @@
             scene.add(planeA);
 
             const aBorderPoints = [
-                new THREE.Vector3(-1.75, -0.3, -1.75),
-                new THREE.Vector3( 1.75, -0.3, -1.75),
-                new THREE.Vector3( 1.75, -0.3,  1.75),
-                new THREE.Vector3(-1.75, -0.3,  1.75),
+                new THREE.Vector3(-1.75, -0.3, -1.75), new THREE.Vector3( 1.75, -0.3, -1.75),
+                new THREE.Vector3( 1.75, -0.3,  1.75), new THREE.Vector3(-1.75, -0.3,  1.75),
                 new THREE.Vector3(-1.75, -0.3, -1.75)
             ];
-            const aBorderGeo = new THREE.BufferGeometry().setFromPoints(aBorderPoints);
-            const aBorder = new THREE.Line(aBorderGeo, new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 }));
-            scene.add(aBorder);
+            for (let i = 0; i < 4; i++) {
+                addThinLine(scene, aBorderPoints[i], aBorderPoints[i+1], 0x60a5fa);
+            }
 
             const planeBGeo = new THREE.PlaneGeometry(3.5, 3.5);
             const planeBMat = new THREE.MeshPhysicalMaterial({
-                color: 0xef4444,
-                side: THREE.DoubleSide,
-                transparent: settings.transparent,
-                opacity: settings.opacity,
-                metalness: 0.3,
-                roughness: 0.4,
-                emissive: 0x330000
+                color: 0xef4444, side: THREE.DoubleSide,
+                transparent: settings.transparent, opacity: settings.opacity,
+                metalness: 0.3, roughness: 0.4, emissive: 0x330000
             });
             const planeB = new THREE.Mesh(planeBGeo, planeBMat);
             planeB.rotation.x = -Math.PI / 2;
@@ -674,62 +661,39 @@
             scene.add(planeB);
 
             const bBorderPoints = [
-                new THREE.Vector3(-1.75, 0.6, -1.75),
-                new THREE.Vector3( 1.75, 0.6, -1.75),
-                new THREE.Vector3( 1.75, 0.6,  1.75),
-                new THREE.Vector3(-1.75, 0.6,  1.75),
+                new THREE.Vector3(-1.75, 0.6, -1.75), new THREE.Vector3( 1.75, 0.6, -1.75),
+                new THREE.Vector3( 1.75, 0.6,  1.75), new THREE.Vector3(-1.75, 0.6,  1.75),
                 new THREE.Vector3(-1.75, 0.6, -1.75)
             ];
-            const bBorderGeo = new THREE.BufferGeometry().setFromPoints(bBorderPoints);
-            const bBorder = new THREE.Line(bBorderGeo, new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 2 }));
-            scene.add(bBorder);
+            for (let i = 0; i < 4; i++) {
+                addThinLine(scene, bBorderPoints[i], bBorderPoints[i+1], 0xf87171);
+            }
 
-            const aPoints = [new THREE.Vector3(-1.5, -0.3, 0), new THREE.Vector3(1.5, -0.3, 0)];
-            const aGeo = new THREE.BufferGeometry().setFromPoints(aPoints);
-            const aMat = new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 3 });
-            const aLine = new THREE.Line(aGeo, aMat);
-            scene.add(aLine);
+            // Прямые a, b, a', b' — ВСЕ ТОЛСТЫЕ
+            addThickLine(scene, new THREE.Vector3(-1.5, -0.3, 0), new THREE.Vector3(1.5, -0.3, 0), 0x60a5fa);
+            addThickLine(scene, new THREE.Vector3(0, 0.6, -1.5), new THREE.Vector3(0, 0.6, 1.5), 0xf87171);
+            addThickLine(scene, new THREE.Vector3(-1.3, 0.15, 0), new THREE.Vector3(1.3, 0.15, 0), 0x60a5fa);
+            addThickLine(scene, new THREE.Vector3(0, 0.15, -1.3), new THREE.Vector3(0, 0.15, 1.3), 0xf87171);
 
-            const bPoints = [new THREE.Vector3(0, 0.6, -1.5), new THREE.Vector3(0, 0.6, 1.5)];
-            const bGeo = new THREE.BufferGeometry().setFromPoints(bPoints);
-            const bMat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 3 });
-            const bLine = new THREE.Line(bGeo, bMat);
-            scene.add(bLine);
-
-            const a1Points = [new THREE.Vector3(-1.3, 0.15, 0), new THREE.Vector3(1.3, 0.15, 0)];
-            const a1Geo = new THREE.BufferGeometry().setFromPoints(a1Points);
-            const a1Mat = new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 });
-            const a1Line = new THREE.Line(a1Geo, a1Mat);
-            scene.add(a1Line);
-
-            const b1Points = [new THREE.Vector3(0, 0.15, -1.3), new THREE.Vector3(0, 0.15, 1.3)];
-            const b1Geo = new THREE.BufferGeometry().setFromPoints(b1Points);
-            const b1Mat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 2 });
-            const b1Line = new THREE.Line(b1Geo, b1Mat);
-            scene.add(b1Line);
-
-            const pointO = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments), new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x442200 }));
+            const pointO = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0x442200 }));
             pointO.position.set(0, 0.15, 0);
             scene.add(pointO);
 
             const arcPoints = [];
             for (let i = 0; i <= 20; i++) {
                 const angle = i * Math.PI / 40;
-                const x = 0.6 * Math.cos(angle);
-                const z = 0.6 * Math.sin(angle);
-                arcPoints.push(new THREE.Vector3(x, 0.18, z));
+                arcPoints.push(new THREE.Vector3(0.6 * Math.cos(angle), 0.18, 0.6 * Math.sin(angle)));
             }
             const arcGeo = new THREE.BufferGeometry().setFromPoints(arcPoints);
-            const arcMat = new THREE.LineBasicMaterial({ color: 0xfacc15, linewidth: 2 });
-            const arcLine = new THREE.Line(arcGeo, arcMat);
-            scene.add(arcLine);
+            scene.add(new THREE.Line(arcGeo, new THREE.LineBasicMaterial({ color: 0xfde047 })));
 
-            scene.add(makeLabel('a', '#3b82f6', new THREE.Vector3(1.7, -0.3, 0), '0.7rem'));
-            scene.add(makeLabel('b', '#ef4444', new THREE.Vector3(0, 0.6, 1.7), '0.7rem'));
-            scene.add(makeLabel("a' ∥ a", '#3b82f6', new THREE.Vector3(1.5, 0.3, 0.3), '0.65rem'));
-            scene.add(makeLabel("b' ∥ b", '#ef4444', new THREE.Vector3(0.4, 0.3, 1.5), '0.65rem'));
-            scene.add(makeLabel('O', '#facc15', new THREE.Vector3(0.15, 0.28, 0.15), '0.7rem'));
-            scene.add(makeLabel('90°', '#facc15', new THREE.Vector3(0.55, 0.35, 0.35), '0.7rem'));
+            scene.add(makeLabel('a', '#60a5fa', new THREE.Vector3(1.7, -0.3, 0), '0.85rem'));
+            scene.add(makeLabel('b', '#f87171', new THREE.Vector3(0, 0.6, 1.7), '0.85rem'));
+            scene.add(makeLabel("a'", '#60a5fa', new THREE.Vector3(1.5, 0.3, 0.25), '0.85rem'));
+            scene.add(makeLabel("b'", '#f87171', new THREE.Vector3(0.4, 0.3, 1.5), '0.85rem'));
+            scene.add(makeLabel('O', '#fde047', new THREE.Vector3(0.18, 0.3, 0.18), '0.85rem'));
+            scene.add(makeLabel('90°', '#fde047', new THREE.Vector3(0.6, 0.35, 0.4), '0.8rem'));
         }, 'angle-skew-fullscreen');
     })();
 </script>

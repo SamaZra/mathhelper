@@ -118,6 +118,10 @@
           transition: all 0.2s;
         }
 
+        .calc-btn:hover {
+          background: #16a085;
+        }
+
         .calc-btn:active {
           transform: scale(0.97);
         }
@@ -131,6 +135,7 @@
           line-height: 1.8;
           font-size: 1.1rem;
           overflow-x: auto;
+          min-height: 60px;
         }
 
         .result-line {
@@ -141,28 +146,60 @@
           gap: 8px;
         }
 
-        .radical {
-          background: var(--input-bg);
-          padding: 4px 12px;
-          border-radius: 20px;
-          font-family: monospace;
-          font-size: 1.1rem;
+        .result-line:last-child {
+          margin-bottom: 0;
         }
 
+        /* ★ Раскрывающийся блок таблицы */
         .table-container {
           background: var(--table-bg);
           border-radius: 20px;
-          padding: 16px;
+          padding: 0;
+          overflow: hidden;
         }
 
-        .table-title {
+        details.table-details {
+          width: 100%;
+        }
+
+        details.table-details > summary {
+          list-style: none;
+          cursor: pointer;
+          padding: 16px 20px;
           font-weight: 600;
           color: var(--text);
-          margin-bottom: 12px;
-          font-size: 0.9rem;
+          font-size: 0.95rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          user-select: none;
+          transition: background 0.15s;
         }
 
-        /* Компактная таблица 3 столбца без прокрутки */
+        details.table-details > summary::-webkit-details-marker {
+          display: none;
+        }
+
+        details.table-details > summary:hover {
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        details.table-details > summary::after {
+          content: '▸';
+          font-size: 1.2rem;
+          color: var(--accent);
+          transition: transform 0.2s;
+          display: inline-block;
+        }
+
+        details.table-details[open] > summary::after {
+          transform: rotate(90deg);
+        }
+
+        details.table-details > .table-content {
+          padding: 0 16px 16px;
+        }
+
         #tableContainer {
           overflow-x: visible;
         }
@@ -219,6 +256,10 @@
           text-align: center;
         }
 
+        .back-link:hover {
+          background: #16a085;
+        }
+
         @media (max-width: 550px) {
           body {
             padding: 20px 16px;
@@ -248,7 +289,6 @@
             padding: 5px 2px;
           }
         }
-    
     </style>
     <script>
         MathJax = {
@@ -289,9 +329,13 @@
         </div>
 
         <div class="table-container">
-            <div class="table-title">📊 Квадраты и кубы чисел (2–20)</div>
-            <div id="tableContainer"></div>
-            <div class="footnote">Подсказка: √ — квадратный корень, ∛ — кубический</div>
+            <details class="table-details">
+                <summary>📊 Квадраты и кубы чисел (2–20)</summary>
+                <div class="table-content">
+                    <div id="tableContainer"></div>
+                    <div class="footnote">Подсказка: √ — квадратный корень, ∛ — кубический</div>
+                </div>
+            </details>
         </div>
     </div>
 
@@ -316,8 +360,8 @@
     }
 
     function simplifyRoot(n, degree) {
-      if (n === 0) return { outside: 0, inside: 0, display: '0' };
-      if (n === 1) return { outside: 1, inside: 1, display: '1' };
+      if (n === 0) return { outside: 0, inside: 0, display: '0', perfect: true };
+      if (n === 1) return { outside: 1, inside: 1, display: '1', perfect: true };
       if (n < 0 && degree % 2 === 0) return null;
 
       const absN = Math.abs(n);
@@ -476,14 +520,16 @@
       document.getElementById('resultPanel').innerHTML = resultHtml;
 
       if (window.MathJax) {
-        MathJax.typesetPromise();
+        if (typeof MathJax.typesetPromise === 'function') {
+          MathJax.typesetPromise();
+        } else if (typeof MathJax.typeset === 'function') {
+          MathJax.typeset();
+        }
       }
     }
 
     function renderTable() {
       document.getElementById('tableContainer').innerHTML = buildTable();
-    }
-      if (window.MathJax) MathJax.typesetPromise();
     }
 
     (function() {
@@ -501,8 +547,16 @@
 
     renderTable();
     updateUI();
-</script>
 
+    // Перетипизация MathJax после загрузки страницы (на случай, если ещё не готова)
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+          MathJax.typesetPromise();
+        }
+      }, 300);
+    });
+</script>
 
 <script src="favorites.js"></script>
 <script src="theme.js"></script>
