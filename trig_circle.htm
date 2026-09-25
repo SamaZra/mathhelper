@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -6,14 +6,31 @@
     <title>Тригонометрическая окружность</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{background:#1a2d3c;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:6px;flex-direction:column;font-family:'Inter','Segoe UI',sans-serif;transition:background 0.3s;}
-        body.light-mode{background:#eef2f8;}
-        
+        :root {
+            --bg-page: #1a2d3c;
+            --bg-wrapper: #162a38;
+            --bg-inner: #0f1a24;
+            --bg-item: #1a2d3c;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(46,204,113,0.1);
+        }
+        :root.light-mode {
+            --bg-page: #eef2f8;
+            --bg-wrapper: #ffffff;
+            --bg-inner: #e8edf6;
+            --bg-item: #eef2f8;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #d0d9e8;
+        }
+        body{background:var(--bg-page);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:6px;flex-direction:column;font-family:'Inter','Segoe UI',sans-serif;transition:background 0.3s;}
+
         .header-block{max-width:780px;width:100%;margin-bottom:10px;position:relative;}
         .header-block .section-title {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #fff;
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -21,18 +38,14 @@
             border-left: 4px solid #8b5cf6;
             padding: 14px 20px 10px;
             text-align: center;
-            background: #162a38;
+            background: var(--bg-wrapper);
             border-radius: 16px;
-            border: 1px solid rgba(46,204,113,0.1);
+            border: 1px solid var(--border);
             transition: all 0.3s;
         }
-        body.light-mode .header-block .section-title{background:#ffffff;border-color:#d0d9e8;color:#1a2a3f;}
-        .header-block .section-title .main-title{color:#fff;display:flex;align-items:center;gap:8px;justify-content:center;}
-        body.light-mode .header-block .section-title .main-title{color:#1a2a3f;}
-        .header-block .section-title .sub-title{font-size:0.8rem;color:#8ba5b8;font-weight:400;font-style:italic;}
-        body.light-mode .header-block .section-title .sub-title{color:#4a6a8a;}
+        .header-block .section-title .main-title{color:var(--text);display:flex;align-items:center;gap:8px;justify-content:center;}
+        .header-block .section-title .sub-title{font-size:0.8rem;color:var(--text-secondary);font-weight:400;font-style:italic;}
 
-        /* Строчка-инструкция (вариант Б) */
         .quick-hint {
             display: block;
             margin-top: 10px;
@@ -41,24 +54,21 @@
             border-left: 3px solid #1abc9c;
             border-radius: 8px;
             font-size: 0.82rem;
-            color: #8ba5b8;
+            color: var(--text-secondary);
             font-style: italic;
             text-align: left;
             line-height: 1.4;
             transition: all 0.3s;
         }
-        body.light-mode .quick-hint { background: rgba(26,188,156,0.08); color: #4a6a8a; }
 
-        /* Сворачиваемая легенда (вариант В) */
         .legend-box {
             margin-top: 10px;
-            background: #162a38;
+            background: var(--bg-wrapper);
             border-radius: 12px;
-            border: 1px solid rgba(46,204,113,0.1);
+            border: 1px solid var(--border);
             overflow: hidden;
             transition: all 0.3s;
         }
-        body.light-mode .legend-box { background: #ffffff; border-color: #d0d9e8; }
         .legend-toggle {
             display: flex;
             align-items: center;
@@ -68,10 +78,9 @@
             user-select: none;
             font-size: 0.82rem;
             font-weight: 600;
-            color: #8ba5b8;
+            color: var(--text-secondary);
             transition: all 0.2s;
         }
-        body.light-mode .legend-toggle { color: #4a6a8a; }
         .legend-toggle:hover { background: rgba(26,188,156,0.05); }
         .legend-toggle .arrow {
             font-size: 0.7rem;
@@ -91,10 +100,9 @@
             gap: 10px;
             padding: 6px 0;
             font-size: 0.8rem;
-            color: #8ba5b8;
-            border-top: 1px solid rgba(46,204,113,0.08);
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
         }
-        body.light-mode .legend-item { color: #4a6a8a; border-color: #eff3f8; }
         .legend-item:first-child { border-top: none; }
         .legend-item .marker {
             width: 14px;
@@ -107,59 +115,26 @@
         .legend-item .marker.dot-green { background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,0.5); }
         .legend-item .marker.dot-yellow { background: #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,0.5); }
 
-        .theme-toggle{
-            position:absolute;
-            top:10px;
-            right:10px;
-            width:34px;
-            height:34px;
-            border-radius:50%;
-            background:transparent;
-            border:1px solid rgba(46,204,113,0.2);
-            cursor:pointer;
-            font-size:16px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            color:#8ba5b8;
-            transition:all 0.2s;
-            z-index:10;
-        }
-        body.light-mode .theme-toggle{color:#2c3e50;border-color:#b0c4de;}
-        .theme-toggle:hover{transform:scale(1.1);background:rgba(26,188,156,0.1);}
-
-        .wrapper{background:#162a38;border-radius:16px;padding:16px;border:1px solid rgba(46,204,113,0.1);max-width:780px;width:100%;transition:background 0.3s;}
-        body.light-mode .wrapper{background:#ffffff;border-color:#d0d9e8;}
+        .wrapper{background:var(--bg-wrapper);border-radius:16px;padding:16px;border:1px solid var(--border);max-width:780px;width:100%;transition:background 0.3s;}
 
         .controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;justify-content:center;align-items:center;}
-        .controls input[type="range"]{flex:2;min-width:120px;accent-color:#1abc9c;background:#1e3545;height:5px;border-radius:3px;-webkit-appearance:none;}
-        body.light-mode .controls input[type="range"]{background:#c8d6e5;}
+        .controls input[type="range"]{flex:2;min-width:120px;accent-color:#1abc9c;background:var(--bg-item);height:5px;border-radius:3px;-webkit-appearance:none;}
         .controls input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#1abc9c;cursor:pointer;border:2px solid #fff;}
-        body.light-mode .controls input[type="range"]::-webkit-slider-thumb{border-color:#1a2a3f;}
-        .controls .angle-display{color:#fff;font-weight:700;font-size:1.1rem;min-width:70px;text-align:center;}
-        body.light-mode .controls .angle-display{color:#1a2a3f;}
-        .controls .angle-input-field{flex:1;min-width:80px;padding:6px 10px;background:#1e3545;border:1px solid rgba(46,204,113,0.15);border-radius:8px;font-size:0.95rem;color:#fff;text-align:center;outline:none;transition:0.3s;max-width:100px;}
-        body.light-mode .controls .angle-input-field{background:#f0f4fa;border-color:#c8d6e5;color:#1a2a3f;}
+        .controls .angle-display{color:var(--text);font-weight:700;font-size:1.1rem;min-width:70px;text-align:center;}
+        .controls .angle-input-field{flex:1;min-width:80px;padding:6px 10px;background:var(--bg-item);border:1px solid var(--border);border-radius:8px;font-size:0.95rem;color:var(--text);text-align:center;outline:none;transition:0.3s;max-width:100px;}
         .controls .angle-input-field:focus{border-color:#1abc9c;}
 
-        .circle-container{text-align:center;padding:6px;background:#0f1a24;border-radius:12px;border:1px solid rgba(46,204,113,0.05);}
-        body.light-mode .circle-container{background:#e8edf6;border-color:#c8d6e5;}
+        .circle-container{text-align:center;padding:6px;background:var(--bg-inner);border-radius:12px;border:1px solid var(--border);}
         .circle-container canvas{width:100%;height:auto;border-radius:10px;display:block;}
 
-        /* ТАБЛИЦА ЗНАЧЕНИЙ 2 СТОЛБЦА × 3 СТРОКИ */
         .values-table{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
-        .values-table .v-item{background:#1a2d3c;border-radius:10px;padding:10px 12px;text-align:center;border:1px solid rgba(46,204,113,0.05);transition:0.3s;}
-        body.light-mode .values-table .v-item{background:#eef2f8;border-color:#c8d6e5;}
-        .values-table .v-item .v-label{color:#8ba5b8;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;}
-        body.light-mode .values-table .v-item .v-label{color:#4a6a8a;}
-        .values-table .v-item .v-value{color:#fff;font-weight:700;font-size:1.1rem;margin-top:4px;line-height:1.4;word-break:break-all;}
-        body.light-mode .values-table .v-item .v-value{color:#1a2a3f;}
+        .values-table .v-item{background:var(--bg-item);border-radius:10px;padding:10px 12px;text-align:center;border:1px solid var(--border);transition:0.3s;}
+        .values-table .v-item .v-label{color:var(--text-secondary);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;}
+        .values-table .v-item .v-value{color:var(--text);font-weight:700;font-size:1.1rem;margin-top:4px;line-height:1.4;word-break:break-all;}
         .values-table .v-item .v-value mjx-container{font-size:1.1rem !important;display:inline-block !important;}
 
-        .back-link{display:block;text-align:center;margin-top:10px;padding:10px;background:#1e3545;border-radius:12px;color:#8ba5b8;text-decoration:none;font-size:0.8rem;transition:0.3s;border:1px solid rgba(46,204,113,0.1);}
-        body.light-mode .back-link{background:#e8edf6;color:#4a6a8a;border-color:#c8d6e5;}
+        .back-link{display:block;text-align:center;margin-top:10px;padding:10px;background:var(--bg-item);border-radius:12px;color:var(--text-secondary);text-decoration:none;font-size:0.8rem;transition:0.3s;border:1px solid var(--border);}
         .back-link:hover{background:#2a4a5a;color:#fff;}
-        body.light-mode .back-link:hover{background:#d0d9e8;color:#1a2a3f;}
 
         @media(max-width:500px){
             .wrapper{padding:10px;}
@@ -189,21 +164,17 @@
             chtml: { scale: 1.0, displayAlign: 'center' }
         };
     </script>
-    <script src="file:///android_asset/es5/tex-chtml.js" id="MathJax-script" async></script>
+    <script src="mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
 </head>
 <body>
 
 <div class="header-block">
-    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
     <div class="section-title">
         <span class="main-title">Тригонометрическая окружность</span>
         <span class="sub-title">Выберите угол на окружности</span>
-
-        <!-- ВАРИАНТ Б: строка-инструкция -->
         <span class="quick-hint">💡 Потяни ползунок или введи угол вручную — значения sin, cos, tg, ctg обновятся автоматически</span>
     </div>
 
-    <!-- ВАРИАНТ В: сворачиваемая легенда -->
     <div class="legend-box collapsed" id="legendBox">
         <div class="legend-toggle" onclick="document.getElementById('legendBox').classList.toggle('collapsed')">
             <span>📖 Что показывает круг</span>
@@ -241,7 +212,6 @@
         <canvas id="circleCanvas" width="800" height="800"></canvas>
     </div>
 
-    <!-- ТАБЛИЦА 2×3 -->
     <div class="values-table">
         <div class="v-item">
             <div class="v-label">Угол</div>
@@ -273,25 +243,7 @@
 </div>
 
 <script>
-    function toggleTheme() {
-        const body = document.body;
-        const btn = document.getElementById('themeBtn');
-        if (body.classList.contains('light-mode')) {
-            body.classList.remove('light-mode');
-            localStorage.setItem('circleTheme', 'dark');
-            btn.textContent = '🌙';
-        } else {
-            body.classList.add('light-mode');
-            localStorage.setItem('circleTheme', 'light');
-            btn.textContent = '☀️';
-        }
-        drawCircle();
-    }
-    if (localStorage.getItem('circleTheme') === 'light') {
-        document.body.classList.add('light-mode');
-        document.getElementById('themeBtn').textContent = '☀️';
-    }
-
+    // ===== ЗНАЧЕНИЯ =====
     function getExactValue(deg, func) {
         let d = ((deg % 360) + 360) % 360;
         d = Math.round(d);
@@ -368,7 +320,7 @@
         const cx = w/2, cy = h/2;
         const r = Math.min(w,h) * 0.44;
         const pad = 55;
-        const isLight = document.body.classList.contains('light-mode');
+        const isLight = document.documentElement.classList.contains('light-mode');
 
         ctx.fillStyle = isLight ? '#f5f7fa' : '#0a1520';
         ctx.fillRect(0,0,w,h);
@@ -387,7 +339,6 @@
         const ctgD = ctgExact || formatNumber(1/Math.tan(rad));
         const radD = radExact || rad.toFixed(4);
 
-        // Сетка
         ctx.strokeStyle = isLight ? 'rgba(180,195,215,0.35)' : 'rgba(70,90,110,0.35)';
         ctx.lineWidth = 0.8;
         for (let a=0; a<360; a+=30) {
@@ -397,7 +348,6 @@
             ctx.lineTo(cx + r*1.08*Math.cos(ang), cy - r*1.08*Math.sin(ang));
             ctx.stroke();
         }
-        // Внутренние окружности
         ctx.strokeStyle = isLight ? 'rgba(180,195,215,0.2)' : 'rgba(70,90,110,0.2)';
         ctx.lineWidth = 0.8;
         for (let i=1; i<=2; i++) {
@@ -405,26 +355,22 @@
             ctx.arc(cx, cy, r*i/3, 0, 2*Math.PI);
             ctx.stroke();
         }
-        // Основная окружность
         ctx.strokeStyle = isLight ? '#4a7a9a' : '#7ab0d0';
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, 2*Math.PI);
         ctx.stroke();
-        // Оси
         ctx.strokeStyle = isLight ? '#8899bb' : '#4a5a6a';
         ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.moveTo(pad,cy); ctx.lineTo(w-pad,cy);
         ctx.moveTo(cx,pad); ctx.lineTo(cx,h-pad);
         ctx.stroke();
-        // Стрелки
         ctx.fillStyle = isLight ? '#8899bb' : '#4a5a6a';
         ctx.beginPath();
         ctx.moveTo(w-pad,cy); ctx.lineTo(w-pad-8,cy-6); ctx.lineTo(w-pad-8,cy+6); ctx.fill();
         ctx.beginPath();
         ctx.moveTo(cx,pad); ctx.lineTo(cx-6,pad+8); ctx.lineTo(cx+6,pad+8); ctx.fill();
-        // Подписи осей
         ctx.fillStyle = isLight ? '#4a6a8a' : '#8ab0d0';
         ctx.font = 'bold 16px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
@@ -443,7 +389,6 @@
         ctx.font = 'bold 14px sans-serif';
         ctx.fillText('0', cx+4, cy+4);
 
-        // Подписи углов на окружности
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         const allAngles = [];
         for (let a = 0; a <= 360; a += 15) allAngles.push(a);
@@ -463,7 +408,6 @@
         const x = cosVal * r;
         const y = -sinVal * r;
 
-        // Пунктиры
         ctx.save();
         ctx.setLineDash([6,6]);
         ctx.lineWidth = 2.5;
@@ -474,7 +418,6 @@
         ctx.moveTo(cx, cy+y); ctx.lineTo(cx+x, cy+y); ctx.stroke();
         ctx.restore();
 
-        // Подписи sin и cos на осях
         ctx.font = 'bold 18px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
 
@@ -507,7 +450,6 @@
             ctx.fill();
         }
 
-        // Линия
         ctx.strokeStyle = '#fbbf24';
         ctx.lineWidth = 4;
         ctx.shadowColor = isLight ? 'rgba(255,200,50,0.3)' : 'rgba(255,200,50,0.3)';
@@ -516,7 +458,6 @@
         ctx.moveTo(cx,cy); ctx.lineTo(cx+x,cy+y); ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // Дуга
         ctx.strokeStyle = '#34d399';
         ctx.lineWidth = 3.5;
         const arcR = Math.min(r*0.18, 55);
@@ -527,7 +468,6 @@
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // Точка
         ctx.fillStyle = '#ff6b6b';
         ctx.shadowColor = isLight ? 'rgba(255,100,100,0.4)' : 'rgba(255,100,100,0.4)';
         ctx.shadowBlur = 10;
@@ -541,7 +481,6 @@
         ctx.arc(cx+x, cy+y, 12, 0, 2*Math.PI);
         ctx.stroke();
 
-        // Подпись угла
         ctx.fillStyle = '#fbbf24';
         ctx.font = 'bold 20px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
@@ -554,17 +493,22 @@
         ctx.fillText(deg.toFixed(0)+'°', lx, ly + (ly < cy ? 0 : 26));
         ctx.shadowBlur = 0;
 
-        // Обновляем таблицу
         document.getElementById('vAngle').textContent = deg.toFixed(0) + '°';
         document.getElementById('vRadians').innerHTML = '$' + radD + '$';
         document.getElementById('vSin').innerHTML = '$' + sinD + '$';
         document.getElementById('vCos').innerHTML = '$' + cosD + '$';
         document.getElementById('vTg').innerHTML = '$' + tgD + '$';
         document.getElementById('vCtg').innerHTML = '$' + ctgD + '$';
-        if (window.MathJax) MathJax.typesetPromise();
+        if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
     }
 
-    window.addEventListener('load', ()=>setTimeout(()=>drawCircle(30), 300));
+    // ===== РЕГИСТРИРУЕМ ФУНКЦИЮ ПЕРЕРИСОВКИ ДЛЯ theme.js =====
+    window.drawAllPlots = drawCircle;
+
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    window.addEventListener('load', () => setTimeout(() => drawCircle(30), 300));
 </script>
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
 </body>
 </html>
