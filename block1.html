@@ -6,8 +6,7 @@
     <title>Векторы — Вектор и действия</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-         <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
             --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
             --border: rgba(46,204,113,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
             --special-border: #2980b9; --example-bg: #162a38; --canvas-bg: #1a2d3c; --theorem-bg: #1a2d3c;
@@ -35,16 +34,14 @@
         .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
         .section.collapsed .section-content { max-height: 0; }
         .important {
-    background: var(--info-bg);
-    border-left: 4px solid #fbbf24;
-    border-radius: 14px;
-    padding: 12px 16px;
-    margin: 12px 0;
-    color: var(--text);
-}
-.important strong {
-    color: #fbbf24;
-}
+            background: var(--info-bg);
+            border-left: 4px solid #fbbf24;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            color: var(--text);
+        }
+        .important strong { color: #fbbf24; }
         .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-family: 'Times New Roman', monospace; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.0; color: var(--text); }
         .example { background: var(--example-bg); padding: 12px 16px; border-radius: 14px; margin-top: 8px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 1.9; color: var(--text); }
         p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
@@ -56,7 +53,7 @@
         }
         .model-container:fullscreen {
             width: 100vw; height: 100vh; max-width: none; max-height: none;
-            margin: 0; border-radius: 0; background: #0a0f16; aspect-ratio: auto;
+            margin: 0; border-radius: 0; background: var(--canvas-bg); aspect-ratio: auto;
         }
         .model-container:fullscreen .model-canvas { width: 100vw; height: 100vh; border-radius: 0; }
         .model-canvas { display: block; width: 100%; height: 100%; background: transparent; border-radius: 20px; cursor: grab; touch-action: none; }
@@ -76,23 +73,22 @@
             .model-container { min-height: 280px; }
             .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
         }
-
-    .action-btns {
-        display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
-        margin: 10px 0;
-    }
-    .action-btn {
-        padding: 8px 14px; border-radius: 18px;
-        background: var(--formula-bg); color: var(--text);
-        border: 1px solid var(--special-border);
-        cursor: pointer; font-size: 0.85rem; font-weight: 600;
-        transition: all 0.2s;
-    }
-    .action-btn:hover { background: var(--special-border); color: #fff; }
-    .action-btn.primary { background: var(--special-border); color: #fff; }
-    .action-btn.primary:hover { background: #1c6ea4; }
-    .action-btn.reset { border-color: #7a5c1e; }
-    .action-btn.reset:hover { background: #7a5c1e; }
+        .action-btns {
+            display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+            margin: 10px 0;
+        }
+        .action-btn {
+            padding: 8px 14px; border-radius: 18px;
+            background: var(--formula-bg); color: var(--text);
+            border: 1px solid var(--special-border);
+            cursor: pointer; font-size: 0.85rem; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .action-btn:hover { background: var(--special-border); color: #fff; }
+        .action-btn.primary { background: var(--special-border); color: #fff; }
+        .action-btn.primary:hover { background: #1c6ea4; }
+        .action-btn.reset { border-color: #7a5c1e; }
+        .action-btn.reset:hover { background: #7a5c1e; }
     </style>
 
     <script>
@@ -116,7 +112,6 @@
 <div class="container">
     <h1>Вектор и действия над векторами</h1>
 
-    <!-- ===== ВВЕДЕНИЕ ===== -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Зачем нужны векторы</div>
         <div class="section-content">
@@ -132,7 +127,6 @@
             <p>В этом разделе мы разберём, что такое вектор, как его складывать, вычитать, умножать на число и решать с ним задачи в пространстве.</p>
         </div>
     </div>
-    <!-- ===== ЧТО ТАКОЕ ВЕКТОР ===== -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📐 Что такое вектор в пространстве</div>
         <div class="section-content">
@@ -340,10 +334,9 @@
     if (window.Android && window.Android.getQuality3D) quality3D = window.Android.getQuality3D();
     else { const saved = localStorage.getItem('quality3d'); if (saved) quality3D = saved; }
 
-    // ====== Реестры объектов, зависящих от темы ======
-    const vertexLabels = [];   // подписи вершин
-    const edgeMaterials = [];  // материалы рёбер параллелепипеда
-    const faceMaterials = [];  // материалы заливок граней
+    const vertexLabels = [];
+    const edgeMaterials = [];
+    const faceMaterials = [];
 
     function cssVar(name, fallback){
         const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -354,24 +347,20 @@
     function themeFaceColor(){ return cssVar('--edge-face-color', '#4a90d9'); }
 
     function refreshThemeColors(){
-        // Подписи вершин
         const vc = themeVertexColor();
         vertexLabels.forEach(item=>{ item.el.style.color = vc; });
-        // Рёбра параллелепипеда
         const ec = new THREE.Color(themeEdgeColor());
         edgeMaterials.forEach(item=>{
             item.mat.color.copy(ec);
             item.mat.opacity = item.baseOpacity;
             item.mat.needsUpdate = true;
         });
-        // Заливки граней
         const fc = new THREE.Color(themeFaceColor());
         faceMaterials.forEach(item=>{
             item.mat.color.copy(fc);
             item.mat.opacity = item.baseOpacity;
             item.mat.needsUpdate = true;
         });
-        // Тень текста подписей
         refreshAllLabelShadows();
     }
     function refreshAllLabelShadows(){
@@ -384,12 +373,10 @@
         });
     }
 
-    // ====== ПОДПИСИ ======
     function makeLabel(text, color, position, fontSize = '0.75rem') {
         const div = document.createElement('div');
         div.textContent = text;
         div.style.fontSize = fontSize;
-
         div.style.fontFamily = "'JetBrains Mono', 'Segoe UI', 'Arial Unicode MS', monospace";
         div.style.background = 'transparent';
         div.style.border = 'none';
@@ -412,9 +399,6 @@
         return label;
     }
 
-    // ====== "Толстая" линия ======
-    // registerForTheme = true только для рёбер параллелепипеда (их цвет зависит от темы).
-    // Для векторов registerForTheme = false — их цвет НИКОГДА не меняется.
     function addThickLine(group, start, end, color, baseOpacity = 1, thickness = 0.012, registerForTheme = false) {
         const mainGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
         const mainMat = new THREE.LineBasicMaterial({color, transparent: true, opacity: baseOpacity});
@@ -437,7 +421,6 @@
         });
     }
 
-    // Векторы всегда сохраняют свой цвет — registerForTheme = false
     function createVectorLine(start, end, color) {
         const group = new THREE.Group();
         addThickLine(group, start, end, color, 1, 0.012, false);
@@ -483,7 +466,6 @@
         return g;
     }
 
-    // ====== ПАРАЛЛЕЛЕПИПЕД (цвет рёбер и граней из CSS-переменных) ======
     function createParallelepiped(origin, vx, vy, vz, colorUnused = 0xffffff, opacity = 0.5) {
         const group = new THREE.Group();
         const o = origin, px = o.clone().add(vx), py = o.clone().add(vy), pz = o.clone().add(vz);
@@ -494,7 +476,6 @@
         const edgeOpacity = Math.min(1, opacity + 0.4);
 
         const edges = [[o,px],[o,py],[o,pz],[px,pxy],[px,pxz],[py,pxy],[py,pyz],[pz,pxz],[pz,pyz],[pxy,pxyz],[pxz,pxyz],[pyz,pxyz]];
-        // Рёбра параллелепипеда — registerForTheme = true
         edges.forEach(([a,b]) => addThickLine(group, a, b, edgeCol, edgeOpacity, 0.008, true));
 
         const faceOpacity = 0.06;
@@ -538,10 +519,8 @@
         return group;
     }
 
-        // ====== MathJax через CDN (с фолбэком на unpkg) ======
     (function loadMathJaxCDN(){
-        const cdns = [
-    'mathjax/es5/tex-chtml.js'];
+        const cdns = ['mathjax/es5/tex-chtml.js'];
         let idx = 0;
 
         function tryNext(){
@@ -647,8 +626,6 @@
         animate();
     }
 
-    // ===================== СЦЕНЫ =====================
-
     initScene('container1','canvas1','fs1',(scene,t)=>{
         scene.add(t.createAxes());
         scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.4)));
@@ -661,35 +638,22 @@
     });
 
     initScene('container2','canvas2','fs2',(scene,t)=>{
-    scene.add(t.createAxes());
-    scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.4)));
-    scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.4,0,0)));
-    scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.4,0)));
-    const o = new THREE.Vector3(0,0,0);
-
-    // a — базовый вектор
-    const aEnd = new THREE.Vector3(0.7, 1.0, 0.4);
-
-    // b = 2a — сонаправленный, длиннее (λ = 2 > 0)
-    const bEnd = aEnd.clone().multiplyScalar(2.0);
-
-    // c = -a — противоположно направленный (λ = -1 < 0)
-    // Смещаем начало c чуть в сторону, чтобы его было видно отдельно.
-    const cStart = new THREE.Vector3(0, 0.6, 0);
-    const cEnd = cStart.clone().add(aEnd.clone().multiplyScalar(-1));
-
-    // a — оранжевый
-    scene.add(t.createVectorLine(o, aEnd, 0xffaa00));
-    scene.add(t.makeLabel('a','#ffaa00',aEnd.clone().add(new THREE.Vector3(0.1,0.1,0.08))));
-
-    // b = 2a — розовый, сонаправленный
-    scene.add(t.createVectorLine(o, bEnd, 0xff66aa));
-    scene.add(t.makeLabel('b = 2a (↑↑)','#ff66aa',bEnd.clone().add(new THREE.Vector3(0.1,0.08,0.08)),'0.6rem'));
-
-    // c = -a — бирюзовый, противоположно направленный
-    scene.add(t.createVectorLine(cStart, cEnd, 0x00d4b8));
-    scene.add(t.makeLabel('c = -a (↑↓)','#00d4b8',cEnd.clone().add(new THREE.Vector3(-0.3,-0.1,0.08)),'0.6rem'));
-});
+        scene.add(t.createAxes());
+        scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.4)));
+        scene.add(t.makeLabel('Y','#ff3333',new THREE.Vector3(AXES_LEN+0.4,0,0)));
+        scene.add(t.makeLabel('Z','#3388ff',new THREE.Vector3(0,AXES_LEN+0.4,0)));
+        const o = new THREE.Vector3(0,0,0);
+        const aEnd = new THREE.Vector3(0.7, 1.0, 0.4);
+        const bEnd = aEnd.clone().multiplyScalar(2.0);
+        const cStart = new THREE.Vector3(0, 0.6, 0);
+        const cEnd = cStart.clone().add(aEnd.clone().multiplyScalar(-1));
+        scene.add(t.createVectorLine(o, aEnd, 0xffaa00));
+        scene.add(t.makeLabel('a','#ffaa00',aEnd.clone().add(new THREE.Vector3(0.1,0.1,0.08))));
+        scene.add(t.createVectorLine(o, bEnd, 0xff66aa));
+        scene.add(t.makeLabel('b = 2a (↑↑)','#ff66aa',bEnd.clone().add(new THREE.Vector3(0.1,0.08,0.08)),'0.6rem'));
+        scene.add(t.createVectorLine(cStart, cEnd, 0x00d4b8));
+        scene.add(t.makeLabel('c = -a (↑↓)','#00d4b8',cEnd.clone().add(new THREE.Vector3(-0.3,-0.1,0.08)),'0.6rem'));
+    });
 
     initScene('container3','canvas3','fs3',(scene,t)=>{
         scene.add(t.createAxes());
@@ -770,7 +734,6 @@
         scene.add(t.makeLabel('-2a','#ff6666',minus2A.clone().add(new THREE.Vector3(0.08,0.08,0.08)),'0.65rem'));
     });
 
-    // ===== ЗАДАЧА 1 =====
     initScene('container7','canvas7','fs7',(scene,t)=>{
         scene.add(t.createAxes());
         scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.4)));
@@ -842,7 +805,6 @@
         };
     });
 
-    // ===== ЗАДАЧА 2 =====
     initScene('container8','canvas8','fs8',(scene,t)=>{
         scene.add(t.createAxes());
         scene.add(t.makeLabel('X','#33ff33',new THREE.Vector3(0,0,AXES_LEN+0.4)));
@@ -898,18 +860,6 @@
     });
 
     window.__themeRefreshAll = function(){ refreshThemeColors(); };
-
-</script>
-
-<script>
-    
-    (function () {
-        if (localStorage.getItem('mathTheme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            const b = document.getElementById('themeBtn');
-            if (b) b.textContent = '☀️';
-        }
-    })();
 </script>
 
 <script src="favorites.js"></script>
