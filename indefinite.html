@@ -187,6 +187,61 @@
         .intro-block p{font-size:0.95rem;line-height:1.5;color:var(--text);margin-bottom:8px;}
         .intro-block p:last-child{margin-bottom:0;}
 
+        /* ===== Раскрывающиеся подсказки и ответы (на <details>) ===== */
+        details.spoiler {
+            margin: 8px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--example-bg);
+        }
+
+        details.spoiler > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            background: var(--info-bg);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-left: 4px solid var(--special-border);
+            user-select: none;
+            transition: background-color 0.2s ease;
+        }
+
+        details.spoiler > summary::-webkit-details-marker { display: none; }
+        details.spoiler > summary::marker { content: ""; }
+
+        details.spoiler > summary::before {
+            content: "▶";
+            display: inline-block;
+            font-size: 0.75rem;
+            margin-right: 8px;
+            transition: transform 0.25s ease;
+            color: var(--text-secondary);
+        }
+
+        details.spoiler[open] > summary::before {
+            transform: rotate(90deg);
+        }
+
+        details.spoiler > summary:hover {
+            background: var(--property-hover);
+        }
+
+        details.spoiler > .spoiler-content {
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--example-bg);
+            animation: fadeInUp 0.25s ease-out;
+        }
+
+        details.spoiler > .spoiler-content p {
+            margin: 6px 0;
+        }
+
         .back-link{
             display:inline-block;
             margin-top:20px;
@@ -302,11 +357,87 @@
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚙️ Свойства неопределённого интеграла</div>
         <div class="section-content">
-            <div class="property-card"><div class="property-name">Свойство 1 · интеграл суммы/разности</div><div class="property-formula">\(\int (f(x) \pm g(x))dx = \int f(x)dx \pm \int g(x)dx\)</div><p>\(\int (x^2 + \sin x)dx = \frac{x^3}{3} - \cos x + C\)</p></div>
-            <div class="property-card"><div class="property-name">Свойство 2 · вынесение константы</div><div class="property-formula">\(\int a\cdot f(x)dx = a\cdot \int f(x)dx\)</div><p>\(\int 5\cos x\,dx = 5\sin x + C\)</p></div>
-            <div class="property-card"><div class="property-name">Свойство 3 · линейная замена</div><div class="property-formula">\(\int f(kx+b)dx = \frac{1}{k}F(kx+b) + C\)</div><p>\(\int \sin(5x)dx = -\frac{\cos(5x)}{5} + C\)</p></div>
+
+            <!-- СВОЙСТВО 1 -->
+            <div class="property-card">
+                <div class="property-name">Свойство 1 · интеграл суммы/разности</div>
+                <div class="property-formula">\(\int (f(x) \pm g(x))dx = \int f(x)dx \pm \int g(x)dx\)</div>
+            </div>
+
+            <div class="example-block">
+                <p><span class="step">Пример.</span> Найти интеграл: \(\int (x^2 + \sin x)\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Разбиваем интеграл суммы на сумму интегралов:</span></p>
+                <p>\(\int (x^2 + \sin x)\,dx = \int x^2\,dx + \int \sin x\,dx\)</p>
+                <p class="example-comment">✓ По свойству 1: интеграл от суммы равен сумме интегралов. Каждое слагаемое интегрируем отдельно.</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Применяем табличные формулы к каждому интегралу:</span></p>
+                <p>\(\int x^2\,dx = \frac{x^{3}}{3}\) &nbsp;&nbsp;и&nbsp;&nbsp; \(\int \sin x\,dx = -\cos x\)</p>
+                <p class="example-comment">✓ Используем формулы: \(\int x^n dx = \frac{x^{n+1}}{n+1}\) и \(\int \sin x\,dx = -\cos x\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Складываем результаты и добавляем одну общую константу \(C\):</span></p>
+                <p>\(= \frac{x^3}{3} - \cos x + C\)</p>
+                <p class="example-comment">✓ Константу \(C\) пишем один раз в конце, а не после каждого интеграла — это одна произвольная постоянная.</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(\frac{x^3}{3} - \cos x + C\)</span></p>
+            </div>
+
+            <!-- СВОЙСТВО 2 -->
+            <div class="property-card">
+                <div class="property-name">Свойство 2 · вынесение постоянного множителя</div>
+                <div class="property-formula">\(\int a\cdot f(x)dx = a\cdot \int f(x)dx\)</div>
+            </div>
+
+            <div class="example-block">
+                <p><span class="step">Пример.</span> Найти интеграл: \(\int 5\cos x\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Выносим постоянный множитель 5 за знак интеграла:</span></p>
+                <p>\(\int 5\cos x\,dx = 5\int \cos x\,dx\)</p>
+                <p class="example-comment">✓ По свойству 2: постоянный множитель можно вынести за знак интеграла. Число 5 не зависит от \(x\), поэтому оно «не участвует» в интегрировании.</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Интегрируем оставшуюся функцию по таблице:</span></p>
+                <p>\(5\int \cos x\,dx = 5\cdot \sin x + C\)</p>
+                <p class="example-comment">✓ Используем формулу \(\int \cos x\,dx = \sin x\). Множитель 5 просто умножается на результат.</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(5\sin x + C\)</span></p>
+            </div>
+
+            <!-- СВОЙСТВО 3 -->
+            <div class="property-card">
+                <div class="property-name">Свойство 3 · линейная замена (интегрирование \(f(kx+b)\))</div>
+                <div class="property-formula">\(\int f(kx+b)dx = \frac{1}{k}F(kx+b) + C\)</div>
+            </div>
+
+            <div class="example-block">
+                <p><span class="step">Пример.</span> Найти интеграл: \(\int \sin(5x)\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Определяем, что это интеграл от сложной функции вида \(f(kx+b)\):</span></p>
+                <p>Здесь \(f(\cdot) = \sin(\cdot)\) — внешняя функция, а внутренняя линейная функция: \(kx+b = 5x\). Значит, \(k = 5\), \(b = 0\).</p>
+                <p class="example-comment">✓ Сравниваем с табличным интегралом \(\int \sin x\,dx = -\cos x + C\). Но там аргумент просто \(x\), а у нас \(5x\).</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Вспоминаем формулу свойства 3:</span></p>
+                <p>\(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b) + C\)</p>
+                <p class="example-comment">✓ Где \(F\) — первообразная для \(f\). То есть сначала берём табличную первообразную, но вместо \(x\) подставляем \(kx+b\), а потом делим на \(k\).</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Находим табличную первообразную для \(\sin\):</span></p>
+                <p>\(F(x) = -\cos x\)</p>
+                <p class="example-comment">✓ Это мы знаем из таблицы: \(\int \sin x\,dx = -\cos x + C\).</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Подставляем \(kx+b = 5x\) вместо \(x\) и делим на \(k=5\):</span></p>
+                <p>\(\int \sin(5x)\,dx = \frac{1}{5}\cdot\bigl(-\cos(5x)\bigr) + C = -\frac{\cos(5x)}{5} + C\)</p>
+                <p class="example-comment">✓ Сначала записываем \(-\cos(5x)\), затем умножаем на \(\frac{1}{k} = \frac{1}{5}\). Именно поэтому появляется деление на 5.</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 5. Проверка (по желанию):</span></p>
+                <p>\(\left(-\frac{\cos(5x)}{5}\right)' = -\frac{1}{5}\cdot\bigl(-\sin(5x)\bigr)\cdot 5 = \sin(5x)\)</p>
+                <p class="example-comment">✓ Производная совпала с подынтегральной функцией — ответ верный.</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(-\frac{\cos(5x)}{5} + C\)</span></p>
+            </div>
+
+            <!-- Остальные свойства -->
             <div class="property-card"><div class="property-name">Свойство 4 · интеграл от нуля</div><div class="property-formula">\(\int 0 \cdot dx = C\)</div><p>\(\int 0\,dx = C\) (константа)</p></div>
             <div class="property-card"><div class="property-name">Свойство 5 · интеграл от дифференциала</div><div class="property-formula">\(\int dx = x + C\)</div><p>\(\int 1\,dx = x + C\)</p></div>
+
         </div>
     </div>
 
@@ -368,6 +499,213 @@
         </div>
     </div>
 
+    <!-- ПРИМЕРЫ ДЛЯ САМОСТОЯТЕЛЬНОГО РЕШЕНИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">✍️ Примеры для самостоятельного решения</div>
+        <div class="section-content">
+
+            <div class="note-box">
+                📝 Попробуйте решить каждый пример самостоятельно. Если возникнут трудности — откройте <strong>подсказку</strong>. Сверьте свой ответ с <strong>ответом</strong>. Помните: в конце всегда должна стоять константа \(C\)!<br>
+                🔥 В примерах <strong>6–10</strong> встречаются сложные функции вида \(f(kx+b)\) — применяйте <strong>свойство 3</strong>: \(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b) + C\).
+            </div>
+
+            <!-- ПРИМЕР 1 -->
+            <div class="example-block">
+                <p><span class="step">Пример 1.</span> Найти интеграл: \(\int (4x^3 - 2x + 7)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте интеграл на сумму трёх интегралов по свойству 1. Затем вынесите постоянные множители 4 и 2 за знак интеграла (свойство 2). Примените формулу \(\int x^n dx = \frac{x^{n+1}}{n+1}\) и \(\int 1\,dx = x\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(x^4 - x^2 + 7x + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 2 -->
+            <div class="example-block">
+                <p><span class="step">Пример 2.</span> Найти интеграл: \(\int (6x^2 + 4\cos x)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на два интеграла. Константы 6 и 4 вынесите за знак интеграла. Используйте табличные формулы \(\int x^2 dx = \frac{x^3}{3}\) и \(\int \cos x\,dx = \sin x\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(2x^3 + 4\sin x + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 3 -->
+            <div class="example-block">
+                <p><span class="step">Пример 3.</span> Найти интеграл: \(\int \frac{x^3 - 4x^2 + 2x}{x}\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Сначала почленно разделите числитель на знаменатель: \(\frac{x^3}{x} = x^2\), \(\frac{4x^2}{x} = 4x\), \(\frac{2x}{x} = 2\). Затем интегрируйте получившийся многочлен почленно.</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{x^3}{3} - 2x^2 + 2x + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 4 -->
+            <div class="example-block">
+                <p><span class="step">Пример 4.</span> Найти интеграл: \(\int 2x(x^2 + 3)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Сначала раскройте скобки: \(2x \cdot x^2 = 2x^3\), \(2x \cdot 3 = 6x\). Затем интегрируйте почленно, вынося константы за знак интеграла.</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{x^4}{2} + 3x^2 + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 5 -->
+            <div class="example-block">
+                <p><span class="step">Пример 5.</span> Найти интеграл: \(\int (5\sin x - 3e^x)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на два интеграла и вынесите константы. Используйте табличные формулы \(\int \sin x\,dx = -\cos x\) и \(\int e^x dx = e^x\). Следите за знаком минус!</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(-5\cos x - 3e^x + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 6 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 6.</span> Найти интеграл: \(\int \cos(3x)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = \cos(\cdot)\), \(k = 3\), \(b = 0\). Примените свойство 3: \(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b) + C\). Табличная первообразная: \(\int \cos x\,dx = \sin x\). Не забудьте разделить на \(k = 3\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{\sin(3x)}{3} + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 7 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 7.</span> Найти интеграл: \(\int e^{4x+1}\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = e^{(\cdot)}\), \(k = 4\), \(b = 1\). Примените свойство 3: \(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b) + C\). Табличная первообразная: \(\int e^x dx = e^x\). Разделите на \(k = 4\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{e^{4x+1}}{4} + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 8 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 8.</span> Найти интеграл: \(\int \frac{dx}{5x-2}\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = \frac{1}{\cdot}\), \(k = 5\), \(b = -2\). Примените свойство 3: \(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b) + C\). Табличная первообразная: \(\int \frac{1}{x}dx = \ln|x|\). Разделите на \(k = 5\) и не забудьте модуль.</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{1}{5}\ln|5x-2| + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 9 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 9.</span> Найти интеграл: \(\int (2x+3)^5\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = (\cdot)^5\), \(k = 2\), \(b = 3\). Примените свойство 3 (или табличную формулу для \((kx+b)^n\)): \(\int (kx+b)^n dx = \frac{(kx+b)^{n+1}}{k(n+1)} + C\). Здесь \(n = 5\), \(k = 2\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{(2x+3)^6}{12} + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 10 · смешанный -->
+            <div class="example-block">
+                <p><span class="step">Пример 10.</span> Найти интеграл: \(\int \bigl(3x^2 + \sin(2x) - e^{-x}\bigr)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на три интеграла по свойству 1: \(\int 3x^2\,dx + \int \sin(2x)\,dx - \int e^{-x}\,dx\).<br>
+                            • Первый — табличный: \(\int x^2 dx = \frac{x^3}{3}\), вынесите 3.<br>
+                            • Второй — сложная функция с \(k = 2\): \(\int \sin(2x)\,dx = -\frac{\cos(2x)}{2}\).<br>
+                            • Третий — сложная функция с \(k = -1\): \(\int e^{-x}\,dx = \frac{e^{-x}}{-1} = -e^{-x}\).<br>
+                            Будьте внимательны со знаками!</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(x^3 - \frac{\cos(2x)}{2} + e^{-x} + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
     <!-- ЧАСТЫЕ ОШИБКИ -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚠️ Частые ошибки</div>
@@ -385,9 +723,6 @@
 </div>
 
 <script>
-        if (window.MathJax) MathJax.typesetPromise();
-    }
-
     (function() {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');

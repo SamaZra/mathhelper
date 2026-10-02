@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -306,6 +306,77 @@
             color: var(--sum-positive);
         }
 
+        /* ===== Раскрывающиеся подсказки и ответы (на <details>) ===== */
+        details.spoiler {
+            margin: 8px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--example-bg);
+        }
+
+        details.spoiler > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            background: var(--info-bg);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-left: 4px solid var(--special-border);
+            user-select: none;
+            transition: background-color 0.2s ease;
+        }
+
+        details.spoiler > summary::-webkit-details-marker { display: none; }
+        details.spoiler > summary::marker { content: ""; }
+
+        details.spoiler > summary::before {
+            content: "▶";
+            display: inline-block;
+            font-size: 0.75rem;
+            margin-right: 8px;
+            transition: transform 0.25s ease;
+            color: var(--text-secondary);
+        }
+
+        details.spoiler[open] > summary::before {
+            transform: rotate(90deg);
+        }
+
+        details.spoiler > summary:hover {
+            background: var(--property-hover);
+        }
+
+        details.spoiler > .spoiler-content {
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--example-bg);
+            animation: fadeInUp 0.25s ease-out;
+        }
+
+        details.spoiler > .spoiler-content p {
+            margin: 6px 0;
+        }
+
+        details.spoiler details.spoiler .spoiler-content canvas,
+        details.spoiler .spoiler-canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 8px auto;
+            background: var(--canvas-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @media(max-width:600px){
             .main-formula{font-size:1.3rem;}
             .case-formula{font-size:1.05rem;}
@@ -508,6 +579,295 @@
         </div>
     </div>
 
+    <!-- ===== ПРИМЕРЫ ДЛЯ САМОСТОЯТЕЛЬНОГО РЕШЕНИЯ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">✍️ Примеры для самостоятельного решения</div>
+        <div class="section-content">
+
+            <div class="note-box">
+                📝 Попробуйте решить каждый пример самостоятельно. Если возникнут трудности — откройте <strong>подсказку</strong>.<br>
+                📊 В примерах, где нужен график, откройте блок <strong>«📊 График»</strong> — там показана фигура, площадь которой нужно найти.<br>
+                ✅ Сверьте свой ответ с <strong>ответом</strong>. Помните: <strong>площадь всегда положительна</strong>, а константу \(C\) в определённом интеграле писать не нужно.
+            </div>
+
+            <!-- ПРИМЕР 1 -->
+            <div class="example-block">
+                <p><span class="step-label">Пример 1.</span> Найти площадь фигуры, ограниченной линиями: \(y = x^2\), \(y = 0\), \(x = 0\), \(x = 2\).</p>
+
+                <details class="spoiler">
+                    <summary>📊 График</summary>
+                    <div class="spoiler-content">
+                        <canvas class="mini-graph" id="mg1" width="420" height="260" data-graph="mg1"></canvas>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Фигура ограничена параболой \(y = x^2\), осью \(Ox\) и прямыми \(x = 0\), \(x = 2\). Функция неотрицательна на \([0, 2]\).</p>
+                        <p>Используйте формулу \(S = \int_a^b f(x)\,dx\). Пределы интегрирования уже даны: \(a = 0\), \(b = 2\). Первообразная: \(\int x^2 dx = \frac{x^3}{3}\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(S = \frac{8}{3}\) кв. ед.</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 2 -->
+            <div class="example-block">
+                <p><span class="step-label">Пример 2.</span> Найти площадь фигуры, ограниченной линиями: \(y = \sqrt{x}\), \(y = 0\), \(x = 1\), \(x = 4\).</p>
+
+                <details class="spoiler">
+                    <summary>📊 График</summary>
+                    <div class="spoiler-content">
+                        <canvas class="mini-graph" id="mg2" width="420" height="260" data-graph="mg2"></canvas>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Функция \(y = \sqrt{x} = x^{1/2}\) неотрицательна на \([1, 4]\). Пределы: \(a = 1\), \(b = 4\).</p>
+                        <p>Первообразная: \(\int x^{1/2} dx = \frac{2}{3}x^{3/2}\). Не забудьте подставить пределы.</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(S = \frac{14}{3}\) кв. ед.</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 3 -->
+            <div class="example-block">
+                <p><span class="step-label">Пример 3.</span> Найти площадь фигуры, ограниченной линиями: \(y = 2x\), \(y = x^2\).</p>
+
+                <details class="spoiler">
+                    <summary>📊 График</summary>
+                    <div class="spoiler-content">
+                        <canvas class="mini-graph" id="mg3" width="420" height="260" data-graph="mg3"></canvas>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Фигура между прямой \(y = 2x\) и параболой \(y = x^2\).</p>
+                        <p>Шаг 1. Найдите точки пересечения: \(2x = x^2 \Rightarrow x(x-2) = 0 \Rightarrow x_1 = 0\), \(x_2 = 2\).</p>
+                        <p>Шаг 2. Определите, какая функция выше на \([0, 2]\) (подставьте, например, \(x = 1\)).</p>
+                        <p>Шаг 3. Примените формулу \(S = \int_a^b (f - g)\,dx\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(S = \frac{4}{3}\) кв. ед.</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 4 -->
+            <div class="example-block">
+                <p><span class="step-label">Пример 4.</span> Найти площадь фигуры, ограниченной линиями: \(y = x^2 - 9\), \(y = 0\).</p>
+
+                <details class="spoiler">
+                    <summary>📊 График</summary>
+                    <div class="spoiler-content">
+                        <canvas class="mini-graph" id="mg4" width="420" height="260" data-graph="mg4"></canvas>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Парабола ветвями вверх, пересекает ось \(Ox\) в точках \(x = -3\) и \(x = 3\). На отрезке \([-3, 3]\) функция \(f(x) = x^2 - 9 \le 0\).</p>
+                        <p>Площадь: \(S = -\int_{-3}^{3}(x^2 - 9)\,dx = \int_{-3}^{3}(9 - x^2)\,dx\).</p>
+                        <p>Первообразная: \(F(x) = 9x - \frac{x^3}{3}\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(S = 36\) кв. ед.</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 5 -->
+            <div class="example-block">
+                <p><span class="step-label">Пример 5.</span> Найти площадь фигуры, ограниченной линиями: \(y = 6x - x^2\), \(y = 0\).</p>
+
+                <details class="spoiler">
+                    <summary>📊 График</summary>
+                    <div class="spoiler-content">
+                        <canvas class="mini-graph" id="mg5" width="420" height="260" data-graph="mg5"></canvas>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Найдите корни: \(6x - x^2 = 0 \Rightarrow x(6 - x) = 0 \Rightarrow x_1 = 0\), \(x_2 = 6\).</p>
+                        <p>Парабола ветвями вниз, на \([0, 6]\) функция положительна. Значит, \(S = \int_0^6 (6x - x^2)\,dx\).</p>
+                        <p>Первообразная: \(F(x) = 3x^2 - \frac{x^3}{3}\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(S = 36\) кв. ед.</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 6 -->
+            <div class="example-block">
+                <p><span class="step-label">Пример 6.</span> Найти площадь фигуры, ограниченной линиями: \(y = x^2\), \(y = 4\).</p>
+
+                <details class="spoiler">
+                    <summary>📊 График</summary>
+                    <div class="spoiler-content">
+                        <canvas class="mini-graph" id="mg6" width="420" height="260" data-graph="mg6"></canvas>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Точки пересечения: \(x^2 = 4 \Rightarrow x = \pm 2\). Прямая \(y = 4\) — верхняя, парабола \(y = x^2\) — нижняя.</p>
+                        <p>Площадь: \(S = \int_{-2}^{2} (4 - x^2)\,dx\). Первообразная: \(F(x) = 4x - \frac{x^3}{3}\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(S = \frac{32}{3}\) кв. ед.</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 7 -->
+            <div class="example-block">
+                <p><span class="step-label">Пример 7.</span> Найти площадь фигуры, ограниченной линиями: \(y = x^2 - 4x + 3\), \(y = 0\).</p>
+
+                <details class="spoiler">
+                    <summary>📊 График</summary>
+                    <div class="spoiler-content">
+                        <canvas class="mini-graph" id="mg7" width="420" height="260" data-graph="mg7"></canvas>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Найдите корни: \(x^2 - 4x + 3 = 0 \Rightarrow x_1 = 1\), \(x_2 = 3\).</p>
+                        <p>Парабола ветвями вверх. На \((1, 3)\) функция отрицательна, поэтому \(S = -\int_1^3 (x^2 - 4x + 3)\,dx = \int_1^3 (-x^2 + 4x - 3)\,dx\).</p>
+                        <p>Первообразная: \(F(x) = -\frac{x^3}{3} + 2x^2 - 3x\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(S = \frac{4}{3}\) кв. ед.</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 8 -->
+            <div class="example-block">
+                <p><span class="step-label">Пример 8.</span> Найти площадь фигуры, ограниченной линиями: \(y = \sin x\), \(y = 0\), \(x = 0\), \(x = \pi\).</p>
+
+                <details class="spoiler">
+                    <summary>📊 График</summary>
+                    <div class="spoiler-content">
+                        <canvas class="mini-graph" id="mg8" width="420" height="260" data-graph="mg8"></canvas>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>На \([0, \pi]\) функция \(\sin x \ge 0\). Значит, \(S = \int_0^{\pi} \sin x\,dx\).</p>
+                        <p>Первообразная: \(\int \sin x\,dx = -\cos x\). Подставьте пределы: \(-\cos\pi - (-\cos 0)\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(S = 2\) кв. ед.</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 9 -->
+            <div class="example-block">
+                <p><span class="step-label">Пример 9.</span> Найти площадь фигуры, ограниченной линиями: \(y = x^2 + 1\), \(y = 5\).</p>
+
+                <details class="spoiler">
+                    <summary>📊 График</summary>
+                    <div class="spoiler-content">
+                        <canvas class="mini-graph" id="mg9" width="420" height="260" data-graph="mg9"></canvas>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Точки пересечения: \(x^2 + 1 = 5 \Rightarrow x^2 = 4 \Rightarrow x = \pm 2\).</p>
+                        <p>Верхняя функция: \(y = 5\), нижняя: \(y = x^2 + 1\). Площадь: \(S = \int_{-2}^{2} (5 - (x^2 + 1))\,dx = \int_{-2}^{2}(4 - x^2)\,dx\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(S = \frac{32}{3}\) кв. ед.</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 10 -->
+            <div class="example-block">
+                <p><span class="step-label">Пример 10.</span> Найти площадь фигуры, ограниченной линиями: \(y = x^3\), \(y = 0\), \(x = 0\), \(x = 2\).</p>
+
+                <details class="spoiler">
+                    <summary>📊 График</summary>
+                    <div class="spoiler-content">
+                        <canvas class="mini-graph" id="mg10" width="420" height="260" data-graph="mg10"></canvas>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>На \([0, 2]\) функция \(y = x^3 \ge 0\). Площадь: \(S = \int_0^2 x^3\,dx\).</p>
+                        <p>Первообразная: \(\int x^3 dx = \frac{x^4}{4}\). Подставьте пределы \(0\) и \(2\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(S = 4\) кв. ед.</p>
+                    </div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
     <!-- ===== СОВЕТЫ (несворачиваемый блок) ===== -->
     <div class="section section-advice">
         <div class="section-title" style="border-left-color: #ff4444;">
@@ -552,7 +912,7 @@
 <script>
     // ===== ТЕМА =====
     (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
-    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}drawAllGraphs();drawViz();}
+    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}drawAllGraphs();drawViz();drawAllMiniGraphs();}
 
     // ===== ИЗБРАННОЕ =====
     const FAV_KEY='math_favorites';function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}updateFavoriteBtn();
@@ -1378,16 +1738,323 @@
         stepAnim();
     }
 
+    // ===== МИНИ-ГРАФИКИ ДЛЯ ПРИМЕРОВ С/Р =====
+    function drawMiniGraph(canvas, config) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 38;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+        const isLight = document.documentElement.classList.contains('light-mode');
+
+        const xMin = config.xMin, xMax = config.xMax;
+        const yMin = config.yMin, yMax = config.yMax;
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = isLight ? '#f8fafc' : '#1a2d3c';
+        ctx.fillRect(0, 0, w, h);
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+        // Сетка
+        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 10; i++) {
+            const x = pad + i * pw / 10;
+            ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, h - pad); ctx.stroke();
+            const y = pad + i * ph / 10;
+            ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w - pad, y); ctx.stroke();
+        }
+
+        // Оси
+        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 1.6;
+        const ox = toY(0), oy = toX(0);
+        if (ox >= pad && ox <= h - pad) {
+            ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        }
+        if (oy >= pad && oy <= w - pad) {
+            ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
+        }
+        ctx.fillStyle = ctx.strokeStyle;
+        if (ox >= pad && ox <= h - pad) {
+            ctx.beginPath(); ctx.moveTo(w - pad, ox); ctx.lineTo(w - pad - 8, ox - 4); ctx.lineTo(w - pad - 8, ox + 4); ctx.fill();
+        }
+        if (oy >= pad && oy <= w - pad) {
+            ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy - 4, pad + 8); ctx.lineTo(oy + 4, pad + 8); ctx.fill();
+        }
+
+        // Цифры по осям
+        ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        (config.xTicks || []).forEach(t => {
+            if (ox >= pad && ox <= h - pad) ctx.fillText(t, toX(t), ox + 4);
+        });
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        (config.yTicks || []).forEach(t => {
+            if (oy >= pad && oy <= w - pad) ctx.fillText(t, oy - 4, toY(t));
+        });
+
+        // Заливка площади под графиком
+        if (config.fillArea && config.f) {
+            ctx.beginPath();
+            ctx.moveTo(toX(config.fillArea.a), toY(0));
+            for (let x = config.fillArea.a; x <= config.fillArea.b; x += 0.005) {
+                const y = config.f(x);
+                ctx.lineTo(toX(x), toY(y));
+            }
+            ctx.lineTo(toX(config.fillArea.b), toY(0));
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(46,139,87,0.35)';
+            ctx.fill();
+        }
+
+        // Заливка под осью
+        if (config.fillBelowZero && config.f) {
+            ctx.beginPath();
+            ctx.moveTo(toX(config.fillBelowZero.a), toY(0));
+            for (let x = config.fillBelowZero.a; x <= config.fillBelowZero.b; x += 0.005) {
+                const y = config.f(x);
+                ctx.lineTo(toX(x), toY(y));
+            }
+            ctx.lineTo(toX(config.fillBelowZero.b), toY(0));
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(46,139,87,0.35)';
+            ctx.fill();
+        }
+
+        // Заливка между кривыми
+        if (config.fillBetween) {
+            const fb = config.fillBetween;
+            ctx.beginPath();
+            ctx.moveTo(toX(fb.a), toY(fb.f1(fb.a)));
+            for (let x = fb.a; x <= fb.b; x += 0.005) {
+                ctx.lineTo(toX(x), toY(fb.f1(x)));
+            }
+            for (let x = fb.b; x >= fb.a; x -= 0.005) {
+                ctx.lineTo(toX(x), toY(fb.f2(x)));
+            }
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(46,139,87,0.35)';
+            ctx.fill();
+        }
+
+        // График f
+        if (config.f) {
+            ctx.strokeStyle = '#2e8b57';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            let first = true;
+            for (let x = xMin; x <= xMax; x += 0.005) {
+                const y = config.f(x);
+                if (!isFinite(y) || y < yMin - 1 || y > yMax + 1) { first = true; continue; }
+                const sx = toX(x), sy = toY(y);
+                if (first) { ctx.moveTo(sx, sy); first = false; }
+                else ctx.lineTo(sx, sy);
+            }
+            ctx.stroke();
+            if (config.fLabel) {
+                ctx.fillStyle = '#2e8b57';
+                ctx.font = '12px "Segoe UI", "JetBrains Mono", monospace';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(config.fLabel, toX(config.fLabelX || (xMax * 0.6)), toY(config.fLabelY || (yMax * 0.7)));
+            }
+        }
+
+        // График f1 (для между кривыми)
+        if (config.f1) {
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            let first = true;
+            for (let x = xMin; x <= xMax; x += 0.005) {
+                const y = config.f1(x);
+                if (!isFinite(y) || y < yMin - 1 || y > yMax + 1) { first = true; continue; }
+                const sx = toX(x), sy = toY(y);
+                if (first) { ctx.moveTo(sx, sy); first = false; }
+                else ctx.lineTo(sx, sy);
+            }
+            ctx.stroke();
+        }
+        if (config.f2) {
+            ctx.strokeStyle = '#2e8b57';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            let first = true;
+            for (let x = xMin; x <= xMax; x += 0.005) {
+                const y = config.f2(x);
+                if (!isFinite(y) || y < yMin - 1 || y > yMax + 1) { first = true; continue; }
+                const sx = toX(x), sy = toY(y);
+                if (first) { ctx.moveTo(sx, sy); first = false; }
+                else ctx.lineTo(sx, sy);
+            }
+            ctx.stroke();
+        }
+
+        // Подписи функций
+        if (config.labels) {
+            config.labels.forEach(lb => {
+                ctx.fillStyle = lb.color || (isLight ? '#1e3a5f' : '#cbdbe6');
+                ctx.font = '12px "Segoe UI", "JetBrains Mono", monospace';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(lb.text, toX(lb.x), toY(lb.y));
+            });
+        }
+
+        // Подпись S
+        if (config.sLabel) {
+            ctx.fillStyle = '#2e8b57';
+            ctx.font = 'italic 20px "Times New Roman", serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('S', toX(config.sLabel.x), toY(config.sLabel.y));
+        }
+
+        // Точки пересечения
+        if (config.points) {
+            config.points.forEach(p => {
+                ctx.fillStyle = '#2e8b57';
+                ctx.beginPath();
+                ctx.arc(toX(p.x), toY(p.y), 4, 0, 2 * Math.PI);
+                ctx.fill();
+                if (p.label) {
+                    ctx.fillStyle = isLight ? '#1e3a5f' : '#cbdbe6';
+                    ctx.font = '11px "Segoe UI", "JetBrains Mono", monospace';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(p.label, toX(p.x), toY(p.y) + 6);
+                }
+            });
+        }
+    }
+
+    // Конфигурации мини-графиков для 10 примеров
+    const miniGraphConfigs = {
+        mg1: {  // y = x², [0, 2]
+            xMin: -0.5, xMax: 2.8, yMin: -0.5, yMax: 5,
+            f: x => x*x, fLabel: 'y = x²', fLabelX: 1.4, fLabelY: 4.4,
+            fillArea: { a: 0, b: 2 },
+            xTicks: [1, 2], yTicks: [1, 2, 3, 4],
+            sLabel: { x: 0.9, y: 1.4 },
+            points: [{x:2, y:4, label:'x=2'}]
+        },
+        mg2: {  // y = √x, [1, 4]
+            xMin: -0.5, xMax: 4.8, yMin: -0.5, yMax: 3,
+            f: x => x >= 0 ? Math.sqrt(x) : NaN, fLabel: 'y = √x', fLabelX: 3, fLabelY: 2.4,
+            fillArea: { a: 1, b: 4 },
+            xTicks: [1, 2, 3, 4], yTicks: [1, 2],
+            sLabel: { x: 2.2, y: 0.9 },
+            points: [{x:1, y:1, label:'1'}, {x:4, y:2, label:'4'}]
+        },
+        mg3: {  // y = 2x и y = x², [0, 2]
+            xMin: -0.5, xMax: 2.8, yMin: -0.5, yMax: 5,
+            f1: x => 2*x, f2: x => x*x,
+            fillBetween: { a: 0, b: 2, f1: x => 2*x, f2: x => x*x },
+            xTicks: [1, 2], yTicks: [1, 2, 3, 4],
+            labels: [
+                {text:'y = 2x', x: 1.5, y: 4.0, color:'#e74c3c'},
+                {text:'y = x²', x: 1.5, y: 2.5}
+            ],
+            sLabel: { x: 1, y: 1.2 },
+            points: [{x:0, y:0, label:'0'}, {x:2, y:4, label:'2'}]
+        },
+        mg4: {  // y = x² − 9, [−3, 3]
+            xMin: -3.5, xMax: 3.5, yMin: -10, yMax: 2,
+            f: x => x*x - 9, fLabel: 'y = x² − 9', fLabelX: 1.5, fLabelY: -3,
+            fillBelowZero: { a: -3, b: 3 },
+            xTicks: [-3, -2, -1, 1, 2, 3], yTicks: [-9, -4, -1],
+            sLabel: { x: 0, y: -5 },
+            points: [{x:-3, y:0, label:'-3'}, {x:3, y:0, label:'3'}]
+        },
+        mg5: {  // y = 6x − x², [0, 6]
+            xMin: -0.5, xMax: 7, yMin: -0.5, yMax: 10,
+            f: x => 6*x - x*x, fLabel: 'y = 6x − x²', fLabelX: 2.5, fLabelY: 8.5,
+            fillArea: { a: 0, b: 6 },
+            xTicks: [1, 3, 6], yTicks: [3, 6, 9],
+            sLabel: { x: 3, y: 4 },
+            points: [{x:0, y:0, label:'0'}, {x:6, y:0, label:'6'}]
+        },
+        mg6: {  // y = x² и y = 4
+            xMin: -2.8, xMax: 2.8, yMin: -0.5, yMax: 5,
+            f1: x => x*x, f2: x => 4,
+            fillBetween: { a: -2, b: 2, f1: x => 4, f2: x => x*x },
+            xTicks: [-2, -1, 1, 2], yTicks: [1, 2, 3, 4],
+            labels: [
+                {text:'y = 4', x: 1.3, y: 4.4, color:'#e74c3c'},
+                {text:'y = x²', x: 1.5, y: 2.3}
+            ],
+            sLabel: { x: 0, y: 2.4 },
+            points: [{x:-2, y:4, label:'-2'}, {x:2, y:4, label:'2'}]
+        },
+        mg7: {  // y = x² − 4x + 3, [1, 3]
+            xMin: -0.3, xMax: 4, yMin: -1.5, yMax: 4,
+            f: x => x*x - 4*x + 3, fLabel: 'y = x² − 4x + 3', fLabelX: 1.6, fLabelY: 3.2,
+            fillBelowZero: { a: 1, b: 3 },
+            xTicks: [1, 2, 3], yTicks: [-1, 1, 2, 3],
+            sLabel: { x: 2, y: -0.6 },
+            points: [{x:1, y:0, label:'1'}, {x:3, y:0, label:'3'}]
+        },
+        mg8: {  // y = sin x, [0, π]
+            xMin: -0.4, xMax: 3.6, yMin: -0.4, yMax: 1.3,
+            f: x => Math.sin(x), fLabel: 'y = sin x', fLabelX: 1.7, fLabelY: 1.15,
+            fillArea: { a: 0, b: Math.PI },
+            xTicks: [1, 2, 3], yTicks: [1],
+            sLabel: { x: Math.PI/2, y: 0.45 },
+            points: [{x:0, y:0, label:'0'}, {x:Math.PI, y:0, label:'π'}]
+        },
+        mg9: {  // y = x² + 1 и y = 5
+            xMin: -2.8, xMax: 2.8, yMin: -0.5, yMax: 6,
+            f1: x => x*x + 1, f2: x => 5,
+            fillBetween: { a: -2, b: 2, f1: x => 5, f2: x => x*x + 1 },
+            xTicks: [-2, -1, 1, 2], yTicks: [1, 2, 3, 4, 5],
+            labels: [
+                {text:'y = 5', x: 1.3, y: 5.4, color:'#e74c3c'},
+                {text:'y = x² + 1', x: 1.4, y: 3.1}
+            ],
+            sLabel: { x: 0, y: 3.1 },
+            points: [{x:-2, y:5, label:'-2'}, {x:2, y:5, label:'2'}]
+        },
+        mg10: {  // y = x³, [0, 2]
+            xMin: -0.5, xMax: 2.5, yMin: -0.5, yMax: 9,
+            f: x => x*x*x, fLabel: 'y = x³', fLabelX: 1.3, fLabelY: 7,
+            fillArea: { a: 0, b: 2 },
+            xTicks: [1, 2], yTicks: [2, 4, 6, 8],
+            sLabel: { x: 0.9, y: 2.2 },
+            points: [{x:2, y:8, label:'x=2'}]
+        }
+    };
+
+    function drawAllMiniGraphs() {
+        Object.keys(miniGraphConfigs).forEach(id => {
+            const canvas = document.getElementById(id);
+            if (canvas) drawMiniGraph(canvas, miniGraphConfigs[id]);
+        });
+    }
+
     window.addEventListener('load', function() {
         setTimeout(function() {
             drawAllGraphs();
             drawViz();
+            drawAllMiniGraphs();
             setTimeout(animateRects, 400);
         }, 300);
     });
 
+    // Перерисовка мини-графиков при смене темы
+    const _origToggleTheme = window.toggleTheme;
+    window.toggleTheme = function() {
+        if (_origToggleTheme) _origToggleTheme();
+        setTimeout(drawAllMiniGraphs, 50);
+    };
+
     window.drawAllGraphs = drawAllGraphs;
     window.drawViz = drawViz;
+    window.drawAllMiniGraphs = drawAllMiniGraphs;
 </script>
 <script src="favorites.js"></script>
 <script src="theme.js"></script>

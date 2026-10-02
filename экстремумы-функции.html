@@ -105,6 +105,22 @@
       <div class="important">
         <strong>💡 Главная идея:</strong> в точке экстремума функция <strong>меняет направление</strong> — возрастание сменяется убыванием (максимум) или наоборот (минимум). А производная в этой точке либо равна нулю, либо не существует — и <strong>меняет знак</strong>.
       </div>
+
+      <!-- ===== НОВЫЙ ГРАФИК: критические точки vs экстремумы ===== -->
+      <div class="graph-container">
+        <canvas id="graphCritical" width="820" height="360"></canvas>
+        <div class="graph-label">
+          Функция с несколькими критическими точками: <strong style="color:#34d399;">зелёные</strong> — максимумы, <strong style="color:#f87171;">красные</strong> — минимумы, <strong style="color:#94a3b8;">серые</strong> — критические точки без экстремума (изломы)
+        </div>
+      </div>
+
+      <div class="important">
+        <strong>🔍 Что видно на графике:</strong><br>
+        • <span class="keep-sign">зелёные точки</span> — <strong>максимумы</strong> (производная меняет знак с «+» на «−»);<br>
+        • <span class="flip-sign">красные точки</span> — <strong>минимумы</strong> (производная меняет знак с «−» на «+»);<br>
+        • <strong style="color:#94a3b8;">серые точки</strong> — критические точки (изломы): производная <strong>не существует</strong> или равна нулю, но <strong>знак не меняется</strong> — экстремума здесь <strong>нет</strong>.<br><br>
+        Главное, что нужно запомнить: <strong>не всякая критическая точка — экстремум!</strong> Экстремум — только там, где функция меняет направление с «вверх» на «вниз» или наоборот.
+      </div>
     </div>
   </div>
 
@@ -233,6 +249,12 @@
 
         <span class="result">Ответ: максимум в $(-1; 2)$, минимум в $(1; -2)$.</span>
       </div>
+
+      <!-- ===== CANVAS: график функции в конце примера ===== -->
+      <div class="graph-container">
+        <canvas id="graphFunction" width="620" height="420"></canvas>
+        <div class="graph-label">График $f(x) = x^3 - 3x$ с точками экстремума (клетка = 1 единица)</div>
+      </div>
     </div>
   </div>
 
@@ -337,6 +359,511 @@
       }
   })();
 
+  // ============================================================
+  // ОБЩИЕ ЦВЕТА
+  // ============================================================
+  function getColors() {
+      const isLight = document.documentElement.classList.contains('light-mode');
+      return {
+          isLight,
+          bg:       isLight ? '#ffffff' : '#0f1a24',
+          grid:     isLight ? '#e2e8f0' : '#2a3a4a',
+          axis:     isLight ? '#5b7c9c' : '#8899aa',
+          text:     isLight ? '#1e3a5f' : '#cbdbe6',
+          numText:  isLight ? '#5a7a94' : '#8ba5b8',
+          curve:    isLight ? '#8b5cf6' : '#a78bfa',
+          max:      '#34d399',
+          min:      '#f87171',
+          crit:     isLight ? '#94a3b8' : '#64748b',
+          dash:     isLight ? '#94a3b8' : '#64748b'
+      };
+  }
+
+  // ============================================================
+  // СЕТКА + ОСИ (общая функция)
+  // ============================================================
+  function drawGridAndAxes(ctx, w, h, xMin, xMax, yMin, yMax, CELL, pad, COL) {
+      const ox = pad + (0 - xMin) * CELL;
+      const oy = pad + (yMax - 0) * CELL;
+
+      // Сетка
+      ctx.strokeStyle = COL.grid;
+      ctx.lineWidth = 1;
+      for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
+          const sx = pad + (x - xMin) * CELL;
+          ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+      }
+      for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y++) {
+          const sy = pad + (yMax - y) * CELL;
+          ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+      }
+
+      // Оси
+      ctx.strokeStyle = COL.axis;
+      ctx.lineWidth = 2;
+      if (oy >= pad && oy <= h - pad) {
+          ctx.beginPath(); ctx.moveTo(pad, oy); ctx.lineTo(w - pad, oy); ctx.stroke();
+      }
+      if (ox >= pad && ox <= w - pad) {
+          ctx.beginPath(); ctx.moveTo(ox, pad); ctx.lineTo(ox, h - pad); ctx.stroke();
+      }
+
+      // Стрелки
+      ctx.fillStyle = COL.axis;
+      if (oy >= pad && oy <= h - pad) {
+          ctx.beginPath();
+          ctx.moveTo(w - pad, oy);
+          ctx.lineTo(w - pad - 9, oy - 5);
+          ctx.lineTo(w - pad - 9, oy + 5);
+          ctx.fill();
+      }
+      if (ox >= pad && ox <= w - pad) {
+          ctx.beginPath();
+          ctx.moveTo(ox, pad);
+          ctx.lineTo(ox - 5, pad + 9);
+          ctx.lineTo(ox + 5, pad + 9);
+          ctx.fill();
+      }
+
+      // Подписи
+      ctx.font = '13px "Segoe UI", "JetBrains Mono", monospace';
+      ctx.fillStyle = COL.text;
+      if (oy >= pad && oy <= h - pad) ctx.fillText('x', w - pad - 14, oy - 8);
+      if (ox >= pad && ox <= w - pad) {
+          ctx.fillText('y', ox + 8, pad + 14);
+          ctx.fillText('0', ox - 14, oy + 16);
+      }
+
+      // Числа
+      ctx.font = '11px "Segoe UI", monospace';
+      ctx.fillStyle = COL.numText;
+      for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
+          if (x === 0) continue;
+          const sx = pad + (x - xMin) * CELL;
+          if (Math.abs(x) % 2 === 0 || Math.abs(x) === 1) {
+              ctx.fillText(String(x), sx - (x < 0 ? 10 : 4), oy + 15);
+          }
+      }
+      for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y++) {
+          if (y === 0) continue;
+          const sy = pad + (yMax - y) * CELL;
+          if (Math.abs(y) % 2 === 0 || Math.abs(y) === 1) {
+              ctx.fillText(String(y), ox - 22, sy + 4);
+          }
+      }
+  }
+
+  // ============================================================
+  // 1. ГРАФИК С КРИТИЧЕСКИМИ ТОЧКАМИ И ЭКСТРЕМУМАМИ
+  //    (схематичная ломаная/кривая, как на картинке)
+  // ============================================================
+  function drawCriticalGraph() {
+    const canvas = document.getElementById('graphCritical');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const COL = getColors();
+
+    const CELL = 32;
+    const pad = 25;
+
+    const cols = Math.floor((w - 2 * pad) / CELL);
+    const rows = Math.floor((h - 2 * pad) / CELL);
+
+    const originCol = Math.floor(cols / 2);
+    const originRow = Math.floor(rows * 0.68);
+
+    const ox = pad + originCol * CELL;
+    const oy = pad + originRow * CELL;
+
+    const xMin = -originCol;
+    const xMax = cols - originCol;
+    const yMin = -(rows - originRow);
+    const yMax = originRow;
+
+    function toX(x) { return ox + x * CELL; }
+    function toY(y) { return oy - y * CELL; }
+
+    ctx.fillStyle = COL.bg;
+    ctx.fillRect(0, 0, w, h);
+
+    // === СЕТКА ===
+    ctx.strokeStyle = COL.grid;
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= cols; i++) {
+        const x = pad + i * CELL;
+        ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, pad + rows * CELL); ctx.stroke();
+    }
+    for (let j = 0; j <= rows; j++) {
+        const y = pad + j * CELL;
+        ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(pad + cols * CELL, y); ctx.stroke();
+    }
+
+    // === ОСИ ===
+    ctx.strokeStyle = COL.axis;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad, oy); ctx.lineTo(pad + cols * CELL, oy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox, pad); ctx.lineTo(ox, pad + rows * CELL); ctx.stroke();
+
+    ctx.fillStyle = COL.axis;
+    ctx.beginPath();
+    ctx.moveTo(pad + cols * CELL, oy);
+    ctx.lineTo(pad + cols * CELL - 9, oy - 5);
+    ctx.lineTo(pad + cols * CELL - 9, oy + 5);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(ox, pad);
+    ctx.lineTo(ox - 5, pad + 9);
+    ctx.lineTo(ox + 5, pad + 9);
+    ctx.fill();
+
+    // Подписи осей
+    ctx.font = '14px "Segoe UI", "JetBrains Mono", monospace';
+    ctx.fillStyle = COL.text;
+    ctx.fillText('x', pad + cols * CELL - 14, oy - 10);
+    ctx.fillText('y', ox + 10, pad + 14);
+    ctx.fillText('0', ox - 14, oy + 16);
+    ctx.fillText('1', ox + CELL - 4, oy + 16);
+    ctx.fillText('1', ox - 14, oy - CELL + 5);
+
+    // === ПОДПИСЬ ФУНКЦИИ ===
+    ctx.font = 'italic bold 16px "Times New Roman", serif';
+    ctx.fillStyle = COL.curve;
+    ctx.fillText('y = f(x)', toX(-6), toY(4.6));
+
+    // === УЗЛЫ КРИВОЙ ===
+    // a — минимум
+    // b — максимум
+    // c — минимум (зубец)
+    // d — критическая (начало плоского участка)
+    // e — критическая (конец плоского участка)
+    // f — минимум
+    // g — максимум
+    // h — МИНИМУМ (правая впадина)
+    const nodes = [
+        // старт слева сверху, спуск
+        { x: -8.0, y: 3.2, type: 'start' },
+        { x: -7.5, y: 2.4 },
+        { x: -7.0, y: 1.2 },
+        { x: -6.6, y: 0.0 },
+
+        // === a: минимум ===
+        { x: -6.0, y: -2.2, type: 'min' },
+        { x: -5.4, y: -1.1 },
+        { x: -4.7, y: 0.4 },
+        { x: -4.1, y: 1.8 },
+
+        // === b: максимум ===
+        { x: -3.5, y: 3.0, type: 'max' },
+        { x: -3.0, y: 2.2 },
+        { x: -2.6, y: 1.0 },
+
+        // === c: минимум (зубец) ===
+        { x: -2.2, y: 0.2, type: 'min' },
+        { x: -1.8, y: 1.6 },
+        { x: -1.4, y: 2.7 },
+
+        // === d: критическая (начало плоского участка) ===
+        { x: -0.8, y: 3.3, type: 'crit' },
+        { x: -0.2, y: 3.3 },
+        { x: 0.4, y: 3.3 },
+        { x: 1.0, y: 3.3 },
+
+        // === e: критическая (конец плоского участка) ===
+        { x: 1.6, y: 3.3, type: 'crit' },
+        { x: 2.0, y: 2.6 },
+        { x: 2.3, y: 1.4 },
+        { x: 2.5, y: 0.2 },
+
+        // === f: минимум ===
+        { x: 2.9, y: -1.0, type: 'min' },
+        { x: 3.3, y: 0.2 },
+        { x: 3.7, y: 1.4 },
+        { x: 4.0, y: 2.4 },
+
+        // === g: максимум ===
+        { x: 4.5, y: 3.0, type: 'max' },
+        { x: 5.0, y: 2.2 },
+        { x: 5.4, y: 1.2 },
+        { x: 5.8, y: 0.2 },
+
+        // === h: МИНИМУМ (правая впадина) ===
+        { x: 6.3, y: -0.9, type: 'min' },
+        { x: 6.8, y: 0.2 },
+        { x: 7.3, y: 1.4 },
+        { x: 7.8, y: 2.4, type: 'end' }
+    ];
+
+    // === РИСУЕМ КРИВУЮ ===
+    ctx.strokeStyle = COL.curve;
+    ctx.lineWidth = 2.6;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(toX(nodes[0].x), toY(nodes[0].y));
+    for (let i = 1; i < nodes.length; i++) {
+        const prev = nodes[i - 1];
+        const cur = nodes[i];
+        const mx = (prev.x + cur.x) / 2;
+        const my = (prev.y + cur.y) / 2;
+        ctx.quadraticCurveTo(toX(prev.x), toY(prev.y), toX(mx), toY(my));
+        ctx.lineTo(toX(cur.x), toY(cur.y));
+    }
+    ctx.stroke();
+
+    // === ТОЧКИ + БУКВЫ ===
+    const specialNodes = nodes
+        .map((n, idx) => ({ ...n, idx }))
+        .filter(n => n.type === 'max' || n.type === 'min' || n.type === 'crit')
+        .sort((a, b) => a.x - b.x);
+
+    const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k'];
+    const nodeLetter = {};
+    specialNodes.forEach((n, i) => {
+        nodeLetter[n.idx] = letters[i] || '?';
+    });
+
+    // 1) Вертикальные пунктиры
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.2;
+    specialNodes.forEach((n) => {
+        const sx = toX(n.x);
+        let color = COL.crit;
+        if (n.type === 'max') color = COL.max;
+        else if (n.type === 'min') color = COL.min;
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = 0.55;
+        ctx.beginPath();
+        ctx.moveTo(sx, toY(n.y));
+        ctx.lineTo(sx, oy);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+    });
+    ctx.setLineDash([]);
+
+    // 2) Точки + подписи типа
+    nodes.forEach((n) => {
+        let color = null;
+        if (n.type === 'max') color = COL.max;
+        else if (n.type === 'min') color = COL.min;
+        else if (n.type === 'crit') color = COL.crit;
+        if (!color) return;
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(toX(n.x), toY(n.y), 7, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = COL.bg;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.font = 'bold 12px "Segoe UI", "JetBrains Mono", monospace';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        if (n.type === 'max') {
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('max', toX(n.x), toY(n.y) - 12);
+        } else if (n.type === 'min') {
+            ctx.textBaseline = 'top';
+            ctx.fillText('min', toX(n.x), toY(n.y) + 12);
+        } else if (n.type === 'crit') {
+            ctx.textBaseline = 'top';
+            ctx.fillText('крит.', toX(n.x), toY(n.y) + 12);
+        }
+    });
+
+    // 3) Буквы на оси Ox
+    ctx.font = 'bold 15px "Times New Roman", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    specialNodes.forEach((n) => {
+        const sx = toX(n.x);
+        const letter = nodeLetter[n.idx];
+
+        let color = COL.crit;
+        if (n.type === 'max') color = COL.max;
+        else if (n.type === 'min') color = COL.min;
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(sx, oy, 4.5, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = COL.bg;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.fillStyle = COL.text;
+        ctx.fillText(letter, sx, oy + 10);
+    });
+
+    // === ЛЕГЕНДА ===
+    ctx.font = '12px "Segoe UI", "JetBrains Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    const legendX = w - 190;
+    let legendY = pad + 20;
+
+    const legendItems = [
+        { color: COL.max, text: 'максимум' },
+        { color: COL.min, text: 'минимум' },
+        { color: COL.crit, text: 'крит. точка (не экстремум)' }
+    ];
+    legendItems.forEach(item => {
+        ctx.fillStyle = item.color;
+        ctx.beginPath();
+        ctx.arc(legendX, legendY, 6, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = COL.text;
+        ctx.fillText(item.text, legendX + 14, legendY);
+        legendY += 22;
+    });
+}
+  // ============================================================
+  // 2. ГРАФИК ФУНКЦИИ f(x) = x³ − 3x (в конце примера 1)
+  // ============================================================
+  function drawFunctionGraph() {
+      const canvas = document.getElementById('graphFunction');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height;
+      const COL = getColors();
+
+      const CELL = 40;
+      const pad = 25;
+
+      const cols = Math.floor((w - 2 * pad) / CELL);
+      const rows = Math.floor((h - 2 * pad) / CELL);
+
+      const originCol = Math.floor(cols / 2);
+      const originRow = Math.floor(rows / 2);
+
+      const ox = pad + originCol * CELL;
+      const oy = pad + originRow * CELL;
+
+      const xMin = -originCol;
+      const xMax = cols - originCol;
+      const yMin = -(rows - originRow);
+      const yMax = originRow;
+
+      function toX(x) { return ox + x * CELL; }
+      function toY(y) { return oy - y * CELL; }
+
+      ctx.fillStyle = COL.bg;
+      ctx.fillRect(0, 0, w, h);
+
+      // Сетка
+      ctx.strokeStyle = COL.grid;
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= cols; i++) {
+          const x = pad + i * CELL;
+          ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, pad + rows * CELL); ctx.stroke();
+      }
+      for (let j = 0; j <= rows; j++) {
+          const y = pad + j * CELL;
+          ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(pad + cols * CELL, y); ctx.stroke();
+      }
+
+      // Оси
+      ctx.strokeStyle = COL.axis;
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(pad, oy); ctx.lineTo(pad + cols * CELL, oy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox, pad); ctx.lineTo(ox, pad + rows * CELL); ctx.stroke();
+
+      ctx.fillStyle = COL.axis;
+      ctx.beginPath();
+      ctx.moveTo(pad + cols * CELL, oy);
+      ctx.lineTo(pad + cols * CELL - 9, oy - 5);
+      ctx.lineTo(pad + cols * CELL - 9, oy + 5);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(ox, pad);
+      ctx.lineTo(ox - 5, pad + 9);
+      ctx.lineTo(ox + 5, pad + 9);
+      ctx.fill();
+
+      // Подписи
+      ctx.font = '13px "Segoe UI", "JetBrains Mono", monospace';
+      ctx.fillStyle = COL.text;
+      ctx.fillText('x', pad + cols * CELL - 14, oy - 8);
+      ctx.fillText('y', ox + 8, pad + 14);
+      ctx.fillText('0', ox - 14, oy + 16);
+
+      // Числа
+      ctx.font = '11px "Segoe UI", monospace';
+      ctx.fillStyle = COL.numText;
+      for (let i = -originCol; i <= cols - originCol; i++) {
+          if (i === 0) continue;
+          const sx = toX(i);
+          ctx.fillText(String(i), sx - (i < 0 ? 10 : 4), oy + 15);
+      }
+      for (let j = -(rows - originRow); j <= originRow; j++) {
+          if (j === 0) continue;
+          const sy = toY(j);
+          ctx.fillText(String(j), ox - 22, sy + 4);
+      }
+
+      // Пунктиры к критическим точкам
+      ctx.setLineDash([5, 5]);
+      ctx.strokeStyle = COL.dash;
+      ctx.lineWidth = 1.5;
+      [-1, 1].forEach(xv => {
+          const sx = toX(xv);
+          ctx.beginPath();
+          ctx.moveTo(sx, pad);
+          ctx.lineTo(sx, oy);
+          ctx.stroke();
+      });
+      ctx.setLineDash([]);
+
+      // График
+      ctx.strokeStyle = COL.curve;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      let first = true;
+      const steps = 2000;
+      const dx = (xMax - xMin) / steps;
+      for (let x = xMin; x <= xMax; x += dx) {
+          const y = x*x*x - 3*x;
+          if (y < yMin - 2 || y > yMax + 2) { first = true; continue; }
+          const sx = toX(x), sy = toY(y);
+          if (first) { ctx.moveTo(sx, sy); first = false; }
+          else ctx.lineTo(sx, sy);
+      }
+      ctx.stroke();
+
+      // Точки экстремума
+      ctx.fillStyle = COL.max;
+      ctx.beginPath();
+      ctx.arc(toX(-1), toY(2), 7, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = COL.bg;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = COL.min;
+      ctx.beginPath();
+      ctx.arc(toX(1), toY(-2), 7, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+
+      // Подписи
+      ctx.font = 'bold 13px "Segoe UI", "JetBrains Mono", monospace';
+      ctx.fillStyle = COL.max;
+      ctx.textAlign = 'right';
+      ctx.fillText('max (−1; 2)', toX(-1) - 10, toY(2) - 6);
+      ctx.fillStyle = COL.min;
+      ctx.textAlign = 'left';
+      ctx.fillText('min (1; −2)', toX(1) + 10, toY(-2) + 16);
+
+      ctx.fillStyle = COL.curve;
+      ctx.font = 'bold 14px "Segoe UI", "JetBrains Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('f(x) = x³ − 3x', toX(2.5), toY(6));
+  }
+
+  // ============================================================
+  // 3. СХЕМА МЕТОДА ИНТЕРВАЛОВ
+  // ============================================================
   function drawAllIntervalPlots() {
       const isLight = document.documentElement.classList.contains('light-mode');
 
@@ -344,15 +871,9 @@
           axis: isLight ? '#5a7a94' : '#8ba5b8',
           text: isLight ? '#1a2a3f' : '#ffffff',
           bg: isLight ? '#f8fafc' : '#162a38',
-          grid: isLight ? 'rgba(26,42,63,0.1)' : 'rgba(139,165,184,0.2)',
           plus: isLight ? '#059669' : '#34d399',
           minus: isLight ? '#dc2626' : '#f87171',
-          dot: isLight ? '#1a2a3f' : '#ffffff',
           intervalLabel: isLight ? '#334155' : '#cbd5e1',
-          curve: '#1abc9c',
-          point: '#e67e22',
-          fillPlus: isLight ? 'rgba(5,150,105,0.15)' : 'rgba(52,211,153,0.15)',
-          fillMinus: isLight ? 'rgba(220,38,38,0.15)' : 'rgba(248,113,113,0.15)',
           curvePlus: isLight ? '#2563eb' : '#60a5fa',
           curveMinus: isLight ? '#dc2626' : '#f87171',
           curvePlusFill: isLight ? 'rgba(37,99,235,0.15)' : 'rgba(96,165,250,0.15)',
@@ -379,7 +900,6 @@
 
       const yAxis = 100;
 
-      // Ось X
       ctx1.strokeStyle = colors.axis;
       ctx1.lineWidth = 2;
       ctx1.beginPath();
@@ -399,7 +919,6 @@
       ctx1.textBaseline = 'top';
       ctx1.fillText('x', W1 - 20, yAxis + 4);
 
-      // Точки -1 и 1
       const points = ['-1', '1'];
       const signs = ['+', '-', '+'];
       const intervals = ['(−∞; −1)', '(−1; 1)', '(1; +∞)'];
@@ -410,7 +929,6 @@
           const x = 25 + (i + 1) * sp;
           xPos.push(x);
 
-          // Засечка
           ctx1.strokeStyle = colors.axis;
           ctx1.lineWidth = 2;
           ctx1.beginPath();
@@ -418,7 +936,6 @@
           ctx1.lineTo(x, yAxis + 5);
           ctx1.stroke();
 
-          // Точка (выколотая — критическая, но не входит в интервалы)
           ctx1.fillStyle = colors.bg;
           ctx1.beginPath();
           ctx1.arc(x, yAxis, 5, 0, Math.PI * 2);
@@ -427,7 +944,6 @@
           ctx1.lineWidth = 1.5;
           ctx1.stroke();
 
-          // Подпись точки
           ctx1.fillStyle = colors.text;
           ctx1.font = 'bold 14px Inter,sans-serif';
           ctx1.textAlign = 'center';
@@ -435,14 +951,12 @@
           ctx1.fillText(points[i], x, yAxis + 9);
       }
 
-      // Дуги со знаками
       const amp = 35;
       for (let si = 0; si < signs.length; si++) {
           const xStart = (si === 0) ? 25 : xPos[si - 1];
           const xEnd = (si === signs.length - 1) ? W1 - 25 : xPos[si];
           const isPlus = (signs[si] === '+');
 
-          // Заливка
           ctx1.beginPath();
           ctx1.strokeStyle = isPlus ? colors.curvePlus : colors.curveMinus;
           ctx1.lineWidth = 3;
@@ -459,7 +973,6 @@
           ctx1.fill();
           ctx1.stroke();
 
-          // Знак
           const mid = (xStart + xEnd) / 2;
           ctx1.fillStyle = isPlus ? colors.plus : colors.minus;
           ctx1.font = 'bold 28px Inter,sans-serif';
@@ -467,7 +980,6 @@
           ctx1.textBaseline = 'middle';
           ctx1.fillText(signs[si], mid, yAxis - amp / 2 + 2);
 
-          // Подпись интервала
           ctx1.fillStyle = colors.intervalLabel;
           ctx1.font = '12px Inter,sans-serif';
           ctx1.textBaseline = 'top';
@@ -475,7 +987,6 @@
           ctx1.fillText(intervals[si], mid, yAxis + 16);
       }
 
-      // Вертикальные пунктиры
       ctx1.setLineDash([4, 5]);
       ctx1.strokeStyle = colors.intervalLabel;
       ctx1.lineWidth = 1.5;
@@ -490,22 +1001,31 @@
       ctx1.setLineDash([]);
   }
 
+  function drawEverything() {
+      drawCriticalGraph();
+      drawFunctionGraph();
+      drawAllIntervalPlots();
+  }
+
   function initPlots() {
       if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', drawAllIntervalPlots);
+          document.addEventListener('DOMContentLoaded', drawEverything);
       } else {
-          drawAllIntervalPlots();
+          drawEverything();
       }
-      window.addEventListener('load', drawAllIntervalPlots);
-      setTimeout(drawAllIntervalPlots, 1500);
-      setTimeout(drawAllIntervalPlots, 3000);
+      window.addEventListener('load', drawEverything);
+      setTimeout(drawEverything, 1500);
+      setTimeout(drawEverything, 3000);
   }
 
   initPlots();
 
+  window.drawCriticalGraph = drawCriticalGraph;
+  window.drawFunctionGraph = drawFunctionGraph;
   window.drawAllIntervalPlots = drawAllIntervalPlots;
-  window.addEventListener('resize', drawAllIntervalPlots);
-  var observer = new MutationObserver(function () { drawAllIntervalPlots(); });
+  window.addEventListener('resize', drawEverything);
+
+  var observer = new MutationObserver(function () { drawEverything(); });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
 
