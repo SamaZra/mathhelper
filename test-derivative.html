@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -167,7 +167,46 @@
         .light-mode .btn-start:hover{background:#2980b9;}
         .light-mode .question .opts label.correct{background:#d1fae5 !important;border-color:#059669 !important;color:#065f46 !important;}
         .light-mode .question .opts label.wrong{background:#fee2e2 !important;border-color:#dc2626 !important;color:#991b1b !important;}
-    </style>
+    
+        /* ===== ИСТОРИЯ (автоматически добавлено) ===== */
+        .history-card { padding: 16px 20px; }
+        .history-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .history-title { font-weight: 700; font-size: 1rem; color: var(--text); }
+        .history-clear {
+            background: transparent; border: 1px solid var(--border);
+            color: var(--text-secondary); padding: 4px 12px;
+            border-radius: 20px; font-size: 0.8rem; cursor: pointer;
+            transition: 0.2s;
+        }
+        .history-clear:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+        .history-list { display: flex; flex-direction: column; gap: 8px; }
+        .history-item {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--block-bg); border-radius: 12px;
+            padding: 10px 14px; font-size: 0.85rem;
+            border-left: 3px solid var(--accent);
+        }
+        .history-item .hi-percent {
+            font-weight: 700; font-size: 1.1rem; min-width: 55px; text-align: center;
+        }
+        .hi-percent.excellent { color: var(--success); }
+        .hi-percent.satisfactory { color: var(--warning); }
+        .hi-percent.poor { color: var(--danger); }
+        .history-item .hi-info { flex: 1; }
+        .history-item .hi-mode { font-weight: 600; color: var(--text); }
+        .history-item .hi-date { font-size: 0.75rem; color: var(--text-secondary); }
+        .history-item .hi-time { font-size: 0.75rem; color: var(--text-secondary); text-align: right; }
+        .history-empty {
+            text-align: center; padding: 16px; color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .light-mode .history-clear:hover { color: #fff; }
+
+</style>
     <script>
         MathJax = {tex:{inlineMath:[['$','$'],['\\(','\\)']]},chtml:{scale:0.95}};
     </script>
@@ -288,6 +327,16 @@
         </div>
 
         <div id="testContainer"></div>
+    </div>
+
+    
+    <!-- ===== ИСТОРИЯ ПРОХОЖДЕНИЙ (автоматически добавлено) ===== -->
+    <div class="card history-card" id="historyCard" style="margin-top: 20px;">
+        <div class="history-header">
+            <span class="history-title">📊 История прохождений</span>
+            <button class="history-clear" onclick="clearHistory()">Очистить</button>
+        </div>
+        <div id="historyList" class="history-list"></div>
     </div>
 
     <a href="tests.html" class="back-link">Назад к тестам</a>
@@ -1146,6 +1195,106 @@
         updateProgress();
     }
 
+    // ================================================================
+    // ИСТОРИЯ ПРОХОЖДЕНИЙ (автоматически добавлено)
+    // ================================================================
+    var HISTORY_KEY = 'test_history_derivative';
+    var MAX_HISTORY = 20;
+
+    function loadHistory() {
+        try {
+            var s = localStorage.getItem(HISTORY_KEY);
+            return s ? JSON.parse(s) : [];
+        } catch (e) { return []; }
+    }
+
+    function saveHistory(entry) {
+        try {
+            var h = loadHistory();
+            h.unshift(entry);
+            if (h.length > MAX_HISTORY) h = h.slice(0, MAX_HISTORY);
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
+        } catch (e) {}
+    }
+
+    function clearHistory() {
+        if (confirm('Очистить всю историю прохождений?')) {
+            localStorage.removeItem(HISTORY_KEY);
+            renderHistory();
+        }
+    }
+
+    function formatDate(iso) {
+        var d = new Date(iso);
+        var dd = ('0' + d.getDate()).slice(-2);
+        var mm = ('0' + (d.getMonth() + 1)).slice(-2);
+        var hh = ('0' + d.getHours()).slice(-2);
+        var mi = ('0' + d.getMinutes()).slice(-2);
+        return dd + '.' + mm + ' ' + hh + ':' + mi;
+    }
+
+    function formatDuration(sec) {
+        if (!sec) return '';
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function modeLabel(mode) {
+        var labels = {
+            'fsu': 'ФСУ',
+            'quadratic': 'Квадратные уравнения',
+            'interval': 'Метод интервалов',
+            'all': 'Все темы',
+            'elementary': 'Элементарные производные',
+            'complex': 'Сложная функция',
+            'extremum': 'Экстремумы',
+            'maxmin': 'Наибольшее/наименьшее',
+            'research': 'Исследование функции',
+            'primitive': 'Первообразная',
+            'indefinite': 'Неопределённый интеграл',
+            'definite': 'Определённый интеграл',
+            'area': 'Площадь криволинейной трапеции',
+            'properties': 'Свойства логарифмов',
+            'equations': 'Логарифмические уравнения',
+            'inequalities': 'Логарифмические неравенства',
+            'combinatorics': 'Комбинаторика',
+            'probability': 'Вероятность',
+            'random': 'Случайные величины',
+            'statistics': 'Статистика'
+        };
+        return labels[mode] || mode;
+    }
+
+    function renderHistory() {
+        var container = document.getElementById('historyList');
+        if (!container) return;
+        var h = loadHistory();
+        if (h.length === 0) {
+            container.innerHTML = '<div class="history-empty">Пока нет пройденных тестов</div>';
+            return;
+        }
+        var html = '';
+        h.forEach(function(item) {
+            var gradeCls = item.percent >= 70 ? 'excellent'
+                         : item.percent >= 50 ? 'satisfactory'
+                         : 'poor';
+            html += '<div class="history-item">';
+            html += '  <div class="hi-percent ' + gradeCls + '">' + item.percent + '%</div>';
+            html += '  <div class="hi-info">';
+            html += '    <div class="hi-mode">' + modeLabel(item.mode) + '</div>';
+            html += '    <div class="hi-date">' + formatDate(item.date) + '</div>';
+            html += '  </div>';
+            html += '  <div class="hi-time">';
+            html += '    ' + item.correct + '/' + item.total;
+            if (item.timeSpent) html += '<br>' + formatDuration(item.timeSpent);
+            html += '  </div>';
+            html += '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+
     function generateTest() {
         if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
         isFinished = false;
@@ -1309,6 +1458,21 @@
         }
 
         result.scrollIntoView({ behavior: 'smooth' });
+        // ===== СОХРАНЕНИЕ В ИСТОРИЮ (автоматически добавлено) =====
+        try {
+            var timeSpent = totalTime - timeLeft;
+            saveHistory({
+                date: new Date().toISOString(),
+                mode: currentMode,
+                total: currentQuestions.length,
+                correct: correct,
+                percent: pct,
+                timeSpent: timeSpent,
+                timeUp: !!timeUp
+            });
+            renderHistory();
+        } catch (e) {}
+
     }
 
     // ================================================================
@@ -1460,8 +1624,13 @@
         setTimeout(function() {
             if (checkViolationOnLoad()) return;
             generateTest();
+            renderHistory();
         }, 300);
     });
+// ===== СТРАХОВКА: история всегда видна при загрузке =====
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof renderHistory === 'function') renderHistory();
+});
 </script>
 
 <script src="theme.js"></script>
