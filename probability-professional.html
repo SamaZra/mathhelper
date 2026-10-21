@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Вероятность в профессиональных задачах — справочник</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(46, 204, 113, 0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #1abc9c; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #1abc9c; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); transition: background 0.3s; }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; transition: color 0.3s; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 14000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        /* Специальные стили для блоков специальностей */
+        .spec-group { margin-bottom: 10px; border: 1px solid var(--border); border-radius: 14px; background: var(--formula-bg); overflow: hidden; }
+        .spec-title { padding: 12px 16px; font-size: 1.05rem; font-weight: 700; color: var(--text); cursor: pointer; user-select: none; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+        .spec-title:hover { background: var(--example-bg); }
+        .spec-title::before { content: "▶"; font-size: 0.8rem; color: var(--accent); transition: transform 0.3s; }
+        .spec-group.open .spec-title::before { transform: rotate(90deg); }
+        .spec-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; padding: 0 16px; }
+        .spec-group.open .spec-content { max-height: 3000px; padding: 0 16px 16px 16px; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 16px; }
+        .formula-card { background: var(--formula-bg); border-left: 5px solid var(--accent); padding: 14px 10px; border-radius: 16px; text-align: center; transition: background 0.3s; }
+        .formula-card p { font-size: 1.05rem; font-weight: 600; color: var(--text); margin: 0; line-height: 1.6; transition: color 0.3s; }
+        .formula-card .small-text { font-size: 0.85rem; font-weight: normal; margin-top: 6px; color: var(--text-secondary); }
+
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); text-align: left; transition: background 0.3s, color 0.3s; }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; transition: color 0.3s; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); transition: color 0.3s; }
+        .example .formula-highlight { color: var(--formula-color); font-weight: 600; transition: color 0.3s; }
+
+        /* Стили для задач (кнопки "Показать решение") */
+        .task-item { background: var(--info-bg); padding: 14px 18px; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid var(--accent); }
+        .task-item p { margin: 0 0 10px 0; font-weight: 600; color: var(--text); }
+
+        details.spoiler { background: var(--example-bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; margin-top: 8px; }
+        details.spoiler > summary { padding: 10px 14px; font-size: 0.9rem; font-weight: 600; color: var(--accent); cursor: pointer; list-style: none; user-select: none; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        details.spoiler > summary::-webkit-details-marker { display: none; }
+        details.spoiler > summary::before { content: "👁"; font-size: 0.9rem; }
+        details.spoiler[open] > summary::before { content: "▼"; font-size: 0.7rem; }
+        details.spoiler > summary:hover { background: rgba(26,188,156,0.1); }
+        details.spoiler > .spoiler-content { padding: 12px 14px; font-size: 0.9rem; color: var(--text); border-top: 1px solid var(--border); line-height: 1.6; background: var(--formula-bg); }
+
+        .spoiler-content .step { font-weight: 700; color: var(--danger-color); margin-top: 8px; margin-bottom: 4px; display: block; }
+        .spoiler-content .result { margin-top: 10px; font-weight: 600; color: var(--result-color); display: block; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+
+        .important { background: var(--info-bg); border-left: 4px solid var(--formula-color); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+        .important strong { color: var(--formula-color); transition: color 0.3s; }
+
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #16a085; }
+
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+            .formula-grid { grid-template-columns: 1fr; }
+            .formula-card p { font-size: 0.95rem; }
+            .task-item { padding: 12px 14px; }
+            .spec-title { font-size: 0.95rem; padding: 10px 12px; }
+        }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <h1>Вероятность в профессиональных задачах</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">☑ Зачем это нужно на практике</span>
+            <span class="sub-title">от контроля качества на производстве до надежности техники</span>
+        </div>
+        <div class="section-content">
+            <p>В школьных учебниках мы бросаем кубики и тянем шары из урны. Но теория вероятностей — это не игра. Каждый день инженеры, врачи, программисты, логисты и менеджеры используют её, чтобы принимать решения в условиях неопределённости.</p>
+            <p>В профессиональных задачах важно понять, какую роль играет вероятность: оцениваем ли мы долю брака, прогнозируем ли надежность прибора или страхуем риски.</p>
+            <div class="important">
+                <strong>Главная идея:</strong> Формулы те же самые (классическое определение, умножение, сложение), но меняется <strong>контекст</strong> — и именно он помогает понять, какие события независимы, а какие связаны.
+            </div>
+        </div>
+    </div>
+
+    <!-- КОНТРОЛЬ КАЧЕСТВА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Контроль качества и доля брака</span>
+            <span class="sub-title">как оценить надежность партии товара</span>
+        </div>
+        <div class="section-content">
+            <p>На производстве часто нужно проверить партию деталей. Если в партии есть бракованные, вероятность вытащить брак можно посчитать через классическое определение.</p>
+            <div class="example">
+                <strong>Пример:</strong> На складе 200 деталей, из них 8 бракованных. Мастер наугад берет одну деталь. Какова вероятность, что она бракованная?<br><br>
+                <span class="step">Шаг 1.</span> Всего исходов: \(n = 200\).<br>
+                <span class="step">Шаг 2.</span> Благоприятных (брак): \(m = 8\).<br>
+                <span class="step">Шаг 3.</span> \(P = \frac{8}{200} = 0{,}04\).<br>
+                <span class="result">Ответ: 0,04 (или 4% брака).</span>
+            </div>
+            <div class="important">
+                <strong>Как понять:</strong> если доля брака 4%, то из 100 деталей в среднем 4 будут бракованными.
+            </div>
+        </div>
+    </div>
+
+    <!-- НАДЕЖНОСТЬ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Надёжность приборов</span>
+            <span class="sub-title">вероятность безотказной работы</span>
+        </div>
+        <div class="section-content">
+            <p>Если прибор состоит из нескольких независимых элементов, вероятность его безотказной работы равна произведению вероятностей работы каждого элемента.</p>
+            <div class="formula-block" style="text-align: center;">
+                $$ P(\text{все работают}) = P_1 \cdot P_2 \cdot \ldots \cdot P_n $$
+            </div>
+            <div class="example">
+                <strong>Пример:</strong> Устройство состоит из двух независимых блоков. Вероятность безотказной работы первого — 0,9, второго — 0,8. Какова вероятность, что оба блока будут работать?<br><br>
+                <span class="step">Решение:</span> Так как блоки работают независимо, перемножаем вероятности: \(0{,}9 \cdot 0{,}8 = 0{,}72\).<br>
+                <span class="result">Ответ: 0,72.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ВЕРОЯТНОСТЬ ХОТЯ БЫ ОДНОГО СОБЫТИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Вероятность «хотя бы одного» события</span>
+            <span class="sub-title">приём, который экономит время</span>
+        </div>
+        <div class="section-content">
+            <p>Часто в задачах спрашивают: «Какова вероятность, что произойдёт <strong>хотя бы одно</strong> из событий?». Считать напрямую сложно, проще найти вероятность <strong>противоположного</strong> события (что не произойдёт ни одного) и вычесть из единицы.</p>
+            <div class="formula-block" style="text-align: center;">
+                $$ P(\text{хотя бы один}) = 1 - P(\text{ни один}) $$
+            </div>
+            <div class="example">
+                <strong>Пример:</strong> Два станка работают независимо. Вероятность поломки первого — 0,1, второго — 0,2. Какова вероятность, что хотя бы один станок сломается?<br><br>
+                <span class="step">Шаг 1.</span> Вероятность, что первый не сломается: \(1 - 0{,}1 = 0{,}9\).<br>
+                <span class="step">Шаг 2.</span> Вероятность, что второй не сломается: \(1 - 0{,}2 = 0{,}8\).<br>
+                <span class="step">Шаг 3.</span> Вероятность, что оба не сломаются: \(0{,}9 \cdot 0{,}8 = 0{,}72\).<br>
+                <span class="step">Шаг 4.</span> Искомая вероятность: \(1 - 0{,}72 = 0{,}28\).<br>
+                <span class="result">Ответ: 0,28.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРОФЕССИОНАЛЬНЫЕ ЗАДАЧИ С РЕШЕНИЕМ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🛠️ Профессиональные задачи с решением</span>
+            <span class="sub-title">по специальностям: от станков до логистики</span>
+        </div>
+        <div class="section-content">
+            <div class="important" style="margin-bottom: 16px;">
+                <strong>Как читать этот блок:</strong> откройте нужную специальность, прочитайте задачу, попробуйте решить её самостоятельно, и только потом нажмите «Показать решение», чтобы проверить себя.
+            </div>
+
+            <!-- МАШИНОСТРОЕНИЕ -->
+            <div class="spec-group">
+                <div class="spec-title" onclick="this.parentElement.classList.toggle('open')">⚙️ Машиностроение</div>
+                <div class="spec-content">
+                    <div class="task-item">
+                        <p>Задача 1. В цехе работает 3 независимых станка. Вероятность поломки первого — 0,05, второго — 0,08, третьего — 0,1. Найти вероятность того, что в течение смены сломается <strong>хотя бы один</strong> станок.</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> Сначала найдем вероятность того, что <strong>ни один</strong> станок не сломается. Станки независимы.<br>
+                                \(P(\text{не слом. 1}) = 1 - 0{,}05 = 0{,}95\).<br>
+                                \(P(\text{не слом. 2}) = 1 - 0{,}08 = 0{,}92\).<br>
+                                \(P(\text{не слом. 3}) = 1 - 0{,}1 = 0{,}9\).<br>
+                                \(P(\text{все целы}) = 0{,}95 \cdot 0{,}92 \cdot 0{,}9 = 0{,}7866\).<br>
+                                \(P(\text{хотя бы один}) = 1 - 0{,}7866 = 0{,}2134\).<br>
+                                <span class="result">Ответ: 0,2134 (≈21,3%).</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 2. На складе 400 подшипников, из них 10 бракованных. Мастер берет 1 подшипник. Какова вероятность, что он бракованный?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> Используем классическое определение вероятности. \(P = \frac{10}{400} = 0{,}025\).<br>
+                                <span class="result">Ответ: 0,025 (2,5% брака).</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 3. Станок обрабатывает 500 деталей за смену. Вероятность брака при обработке одной детали — 0,02. Сколько бракованных деталей ожидается за смену?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> Математическое ожидание числа бракованных деталей равно \(500 \cdot 0{,}02 = 10\).<br>
+                                <span class="result">Ответ: примерно 10 бракованных деталей.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 4. В партии из 1000 шестеренок 25 с дефектом. Какова вероятность, что случайно выбранная шестеренка окажется качественной?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> Вероятность брака: \(\frac{25}{1000} = 0{,}025\).<br>
+                                Вероятность качества: \(1 - 0{,}025 = 0{,}975\).<br>
+                                <span class="result">Ответ: 0,975 (97,5%).</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 5. Устройство состоит из двух независимых узлов. Вероятность безотказной работы первого — 0,9, второго — 0,85. Найти вероятность того, что оба узла проработают безотказно.</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> Так как узлы работают независимо, вероятности перемножаются: \(0{,}9 \cdot 0{,}85 = 0{,}765\).<br>
+                                <span class="result">Ответ: 0,765 (76,5%).</span>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЭЛЕКТРИКИ -->
+            <div class="spec-group">
+                <div class="spec-title" onclick="this.parentElement.classList.toggle('open')">⚡ Электрики</div>
+                <div class="spec-content">
+                    <div class="task-item">
+                        <p>Задача 1. В цепи три независимых элемента. Вероятности их отказа: 0,01, 0,02 и 0,03. Найти вероятность безотказной работы всей цепи.</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> Вероятности работы элементов: 0,99; 0,98; 0,97.<br>
+                                \(P(\text{вся цепь работает}) = 0{,}99 \cdot 0{,}98 \cdot 0{,}97 = 0{,}941094\).<br>
+                                <span class="result">Ответ: ≈0,941 (94,1%).</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 2. В партии 200 лампочек 4 бракованные. Какова вероятность, что наугад взятая лампочка окажется исправной?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{брак}) = \frac{4}{200} = 0{,}02\).<br>
+                                \(P(\text{исправная}) = 1 - 0{,}02 = 0{,}98\).<br>
+                                <span class="result">Ответ: 0,98.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 3. Электрик проверяет 3 предохранителя. Вероятность того, что предохранитель исправен — 0,95. Какова вероятность, что все три исправны?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> Предохранители независимы: \(0{,}95^3 = 0{,}857375\).<br>
+                                <span class="result">Ответ: ≈0,857 (85,7%).</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 4. На участке 15 розеток, 2 из них неисправны. Какова вероятность, что случайно выбранная розетка окажется исправной?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> Исправных розеток: \(15 - 2 = 13\). Вероятность: \(\frac{13}{15} \approx 0{,}8667\).<br>
+                                <span class="result">Ответ: ≈0,867.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 5. Два независимых автомата защищают сеть. Вероятность срабатывания первого — 0,9, второго — 0,8. Какова вероятность, что при перегрузке сработает <strong>хотя бы один</strong> автомат?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{ни один}) = (1 - 0{,}9)(1 - 0{,}8) = 0{,}1 \cdot 0{,}2 = 0{,}02\).<br>
+                                \(P(\text{хотя бы один}) = 1 - 0{,}02 = 0{,}98\).<br>
+                                <span class="result">Ответ: 0,98.</span>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- АВТОМЕХАНИКИ -->
+            <div class="spec-group">
+                <div class="spec-title" onclick="this.parentElement.classList.toggle('open')">🔧 Автомеханики</div>
+                <div class="spec-content">
+                    <div class="task-item">
+                        <p>Задача 1. В партии из 60 тормозных колодок 3 бракованные. Какова вероятность, что случайно выбранная колодка окажется качественной?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{брак}) = \frac{3}{60} = 0{,}05\).<br>
+                                \(P(\text{качественная}) = 1 - 0{,}05 = 0{,}95\).<br>
+                                <span class="result">Ответ: 0,95.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 2. Вероятность того, что аккумулятор разрядится в течение месяца — 0,01. Какова вероятность, что он проработает месяц?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> Это противоположное событие: \(1 - 0{,}01 = 0{,}99\).<br>
+                                <span class="result">Ответ: 0,99.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 3. Автомеханик проверяет 4 независимых узла автомобиля. Вероятность исправности каждого — 0,9. Найти вероятность того, что все 4 исправны.</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(0{,}9^4 = 0{,}6561\).<br>
+                                <span class="result">Ответ: 0,6561 (≈65,6%).</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 4. На складе 500 свечей зажигания, 15 бракованных. Найти вероятность купить качественную.</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{брак}) = \frac{15}{500} = 0{,}03\). \(P(\text{качественная}) = 1 - 0{,}03 = 0{,}97\).<br>
+                                <span class="result">Ответ: 0,97.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 5. У автомобиля 2 независимые тормозные системы. Вероятность отказа первой — 0,02, второй — 0,03. Какова вероятность, что откажет <strong>хотя бы одна</strong> система?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{обе работают}) = (1-0{,}02)(1-0{,}03) = 0{,}98 \cdot 0{,}97 = 0{,}9506\).<br>
+                                \(P(\text{хотя бы один отказ}) = 1 - 0{,}9506 = 0{,}0494\).<br>
+                                <span class="result">Ответ: ≈0,0494 (4,94%).</span>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- СВАРЩИКИ -->
+            <div class="spec-group">
+                <div class="spec-title" onclick="this.parentElement.classList.toggle('open')">🔥 Сварщики</div>
+                <div class="spec-content">
+                    <div class="task-item">
+                        <p>Задача 1. Вероятность образования дефекта при сварке одного шва — 0,03. Сварщик выполнил 200 швов. Сколько дефектных швов ожидается?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(200 \cdot 0{,}03 = 6\).<br>
+                                <span class="result">Ответ: примерно 6 дефектных швов.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 2. Вероятность того, что сварной шов пройдет контроль качества — 0,95. Найдите вероятность того, что шов не пройдет контроль.</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(1 - 0{,}95 = 0{,}05\).<br>
+                                <span class="result">Ответ: 0,05.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 3. Сварщик выполнил 3 независимых шва. Вероятность качественного выполнения каждого — 0,9. Найти вероятность, что все три шва качественные.</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(0{,}9^3 = 0{,}729\).<br>
+                                <span class="result">Ответ: 0,729.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 4. В партии из 150 электродов 6 бракованных. Какова вероятность, что случайно выбранный электрод окажется качественным?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{брак}) = \frac{6}{150} = 0{,}04\). \(P(\text{качественный}) = 0{,}96\).<br>
+                                <span class="result">Ответ: 0,96.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 5. Два независимых сварщика проверяют шов. Вероятность обнаружения дефекта первым — 0,8, вторым — 0,7. Какова вероятность, что дефект будет обнаружен <strong>хотя бы одним</strong>?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{не обнаружат оба}) = 0{,}2 \cdot 0{,}3 = 0{,}06\).<br>
+                                \(P(\text{хотя бы один}) = 1 - 0{,}06 = 0{,}94\).<br>
+                                <span class="result">Ответ: 0,94.</span>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ИНФОРМАЦИОННЫЕ СИСТЕМЫ -->
+            <div class="spec-group">
+                <div class="spec-title" onclick="this.parentElement.classList.toggle('open')">💻 Информационные системы</div>
+                <div class="spec-content">
+                    <div class="task-item">
+                        <p>Задача 1. Вероятность сбоя сервера в течение дня — 0,01. Какова вероятность, что сервер проработает день без сбоев?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(1 - 0{,}01 = 0{,}99\).<br>
+                                <span class="result">Ответ: 0,99.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 2. В локальной сети 3 независимых коммутатора. Вероятность отказа каждого — 0,02. Найти вероятность того, что все три будут работать.</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{работает}) = 1 - 0{,}02 = 0{,}98\). Вероятность работы всех: \(0{,}98^3 = 0{,}941192\).<br>
+                                <span class="result">Ответ: ≈0,941.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 3. В базе данных 5000 записей, из них 25 содержат ошибки. Какова вероятность, что случайно выбранная запись корректна?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{ошибка}) = \frac{25}{5000} = 0{,}005\). \(P(\text{корректная}) = 0{,}995\).<br>
+                                <span class="result">Ответ: 0,995.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 4. Антивирус обнаруживает 95% вирусов. Вирус проник в систему. Какова вероятность, что антивирус его <strong>не</strong> обнаружит?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(1 - 0{,}95 = 0{,}05\).<br>
+                                <span class="result">Ответ: 0,05 (5% пропусков).</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 5. Два независимых сервера обрабатывают запросы. Вероятность отказа первого — 0,03, второго — 0,01. Какова вероятность, что <strong>хотя бы один</strong> сервер откажет?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{оба работают}) = (1-0{,}03)(1-0{,}01) = 0{,}97 \cdot 0{,}99 = 0{,}9603\).<br>
+                                \(P(\text{хотя бы один откажет}) = 1 - 0{,}9603 = 0{,}0397\).<br>
+                                <span class="result">Ответ: ≈0,0397 (3,97%).</span>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЛОГИСТИКА -->
+            <div class="spec-group">
+                <div class="spec-title" onclick="this.parentElement.classList.toggle('open')">🚚 Логистика</div>
+                <div class="spec-content">
+                    <div class="task-item">
+                        <p>Задача 1. В партии из 1000 коробок 15 повреждены. Какова вероятность, что случайно выбранная коробка окажется неповрежденной?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{повреждена}) = \frac{15}{1000} = 0{,}015\). \(P(\text{целая}) = 0{,}985\).<br>
+                                <span class="result">Ответ: 0,985.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 2. Вероятность того, что доставка задержится — 0,12. Какова вероятность, что доставка придет вовремя?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(1 - 0{,}12 = 0{,}88\).<br>
+                                <span class="result">Ответ: 0,88.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 3. Логист проверяет 3 независимых склада. Вероятность того, что на каждом все в порядке — 0,95. Какова вероятность, что на всех трех складах порядок?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(0{,}95^3 = 0{,}857375\).<br>
+                                <span class="result">Ответ: ≈0,857.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 4. Из 400 заказов 8 потерялись. Какова вероятность, что случайно выбранный заказ не потерялся?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{потерян}) = \frac{8}{400} = 0{,}02\). \(P(\text{не потерян}) = 0{,}98\).<br>
+                                <span class="result">Ответ: 0,98.</span>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="task-item">
+                        <p>Задача 5. Два независимых перевозчика доставляют груз. Вероятность срыва сроков у первого — 0,05, у второго — 0,1. Какова вероятность, что <strong>хотя бы один</strong> сорвет сроки?</p>
+                        <details class="spoiler">
+                            <summary>Показать решение</summary>
+                            <div class="spoiler-content">
+                                <span class="step">Решение:</span> \(P(\text{оба вовремя}) = (1-0{,}05)(1-0{,}1) = 0{,}95 \cdot 0{,}9 = 0{,}855\).<br>
+                                \(P(\text{хотя бы один срыв}) = 1 - 0{,}855 = 0{,}145\).<br>
+                                <span class="result">Ответ: 0,145 (14,5%).</span>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ЗАДАЧИ ДЛЯ САМОСТОЯТЕЛЬНОГО РЕШЕНИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Задачи для самостоятельного решения</span>
+            <span class="sub-title">15 задач с подсказками</span>
+        </div>
+        <div class="section-content">
+            <div class="important" style="margin-bottom: 16px;">
+                <strong>Как работать с подсказками:</strong> откройте подсказку, только если не получается решить. В ней нет прямого ответа, но есть направление мысли. Сначала подумайте, какие события независимы, а какие нет.
+            </div>
+
+            <!-- Задачи 1-5 -->
+            <div class="task-item">
+                <p>1. В партии из 500 деталей 20 бракованных. Какова вероятность, что случайно выбранная деталь окажется бракованной?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Используйте классическое определение: отношение числа подходящих исходов к общему числу. Посчитайте проценты или оставьте в виде дроби.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>2. На заводе 3% лампочек бракованные. Какова вероятность, что купленная лампочка окажется качественной?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Если доля брака 3%, то оставшаяся доля — это качественные изделия. Сумма вероятностей для двух противоположных событий равна 1.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>3. Из 1000 изделий 15 дефектных. Найдите вероятность того, что наугад взятое изделие без дефекта.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сначала найдите количество бездефектных изделий, вычтя дефектные из общего числа. Затем поделите на общее количество.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>4. Вероятность безотказной работы первого прибора — 0,9, второго — 0,8. Какова вероятность, что оба прибора будут работать?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Приборы работают независимо друг от друга. Подумайте, какое действие нужно выполнить с вероятностями, чтобы узнать, что произойдёт и первое, и второе событие.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>5. Устройство состоит из трех независимых элементов. Вероятности их безотказной работы равны 0,95, 0,9 и 0,8. Какова вероятность, что все три будут работать?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">События независимы. Вам нужно, чтобы наступило и первое, и второе, и третье. Используйте соответствующее правило умножения.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 6-10 -->
+            <div class="task-item">
+                <p>6. Вероятность брака на первом станке — 0,05, на втором — 0,02. Какова вероятность, что наугад выбранная деталь, сделанная на одном из станков (не сказано, на каком), окажется бракованной?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">В условии нет вероятности того, какая доля деталей сделана на каждом станке. Если неизвестно, откуда деталь, предположите равные доли, либо перечитайте условие — возможно, требуется найти вероятность того, что брак возникнет на обоих станках.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>7. В магазине 3% телевизоров имеют дефект. Какова вероятность купить качественный телевизор?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Качественный телевизор — это противоположное событие по отношению к «иметь дефект». Сумма их вероятностей равна единице.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>8. Вероятность того, что деталь со станка будет бракованной, равна 0,04. Какова вероятность, что из двух наугад взятых деталей обе будут качественными?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сначала найдите вероятность того, что одна деталь качественная. Затем учтите, что детали независимы. Вам нужны обе качественные.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>9. Вероятность выхода из строя одного элемента цепи в течение года — 0,1. Элементы независимы. В цепи два элемента. Найдите вероятность, что в течение года выйдет из строя хотя бы один элемент.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Задайте себе вопрос: что противоположно событию «хотя бы один сломается»? Если ни один не сломался — это и есть противоположный исход. Его вероятность легче найти.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>10. На складе 150 упаковок, из них 6 повреждены. Какова вероятность, что случайно выбранная упаковка окажется целой?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Найдите количество целых упаковок. Разделите его на общее число упаковок. Или вычтите вероятность брака из единицы.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 11-15 -->
+            <div class="task-item">
+                <p>11. Прибор содержит 2 независимых узла. Вероятность отказа первого — 0,05, второго — 0,03. Какова вероятность, что прибор будет работать (оба узла исправны)?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сначала найдите вероятности того, что каждый узел исправен. Затем, поскольку отказы независимы, перемножьте вероятности исправной работы.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>12. В партии из 80 изделий 4 изделия с дефектами. Найдите вероятность того, что случайно извлеченное изделие окажется с дефектом.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Это классическая задача на отношение. Всего 80 вариантов (исходов), из них 4 — с дефектом.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>13. Вероятность того, что в течение дня потребуется ремонт первого станка — 0,1, второго — 0,2. Станки независимы. Какова вероятность, что ремонт потребуется хотя бы одному станку?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Вам нужно найти вероятность противоположного события — что ремонт не потребуется ни одному. Потом вычтите эту вероятность из 1.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>14. В магазин поступило 200 ящиков яблок, в 10 ящиках обнаружены поврежденные фрукты. Найдите вероятность, что случайно выбранный ящик не поврежден.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сколько всего ящиков? Сколько из них повреждены? Найдите сначала вероятность того, что выбранный ящик поврежден, а затем используйте противоположное событие.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>15. На предприятии изготавливают 2000 деталей за смену. Вероятность брака при изготовлении одной детали — 0,02. Оцените, сколько примерно бракованных деталей будет за смену.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Вероятность — это мера того, какая доля объектов обладает данным свойством. Если вероятность 0,02, то из каждых 100 деталей примерно 2 могут оказаться бракованными.</div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
+    <a href="combinatorics.html" class="back-link">← Назад к разделу</a>
+</div>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+</body>
+</html>

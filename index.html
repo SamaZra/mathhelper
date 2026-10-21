@@ -441,7 +441,7 @@
         }
         .header { animation: fadeInUp 0.4s ease-out 0.2s backwards; }
 
-        </style>
+    </style>
 </head>
 <body>
 
@@ -623,6 +623,66 @@
                 </a>
             </div>
 
+            <!-- ===== КОМБИНАТОРИКА И СТАТИСТИКА (НОВЫЙ РАЗДЕЛ) ===== -->
+            <div class="group-header" onclick="toggleGroup(this)">
+                <div class="group-icon">⚄</div>
+                <div class="group-content">
+                    <div class="group-title">Комбинаторика и статистика</div>
+                    <div class="group-desc">Вероятность, случайные величины, статистика, диаграммы</div>
+                </div>
+                <div class="group-arrow">›</div>
+            </div>
+            <div class="submenu">
+                <a href="combinatorics.html" class="submenu-item">
+                    <div class="submenu-icon">!</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Основные понятия комбинаторики</div>
+                        <div class="submenu-desc">Перестановки, размещения, сочетания, факториал</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="probability-events.html" class="submenu-item">
+                    <div class="submenu-icon">⚖</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Событие, вероятность события</div>
+                        <div class="submenu-desc">Сложение и умножение вероятностей</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="probability-professional.html" class="submenu-item">
+                    <div class="submenu-icon">️⌘</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Вероятность в профессиональных задачах</div>
+                        <div class="submenu-desc">Прикладные задачи, контроль качества, надежность</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="random-variables.html" class="submenu-item">
+                    <div class="submenu-icon">∑</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Дискретная случайная величина</div>
+                        <div class="submenu-desc">Закон распределения, мат. ожидание, дисперсия</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="math-statistics.html" class="submenu-item">
+                    <div class="submenu-icon">x̄</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Задачи математической статистики</div>
+                        <div class="submenu-desc">Выборка, среднее, мода, медиана</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+                <a href="diagrams-tables.html" class="submenu-item">
+                    <div class="submenu-icon">⊞</div>
+                    <div class="submenu-content">
+                        <div class="submenu-title">Составление таблиц и диаграмм</div>
+                        <div class="submenu-desc">Практика визуализации данных</div>
+                    </div>
+                    <div class="submenu-arrow">›</div>
+                </a>
+            </div>
+
             <!-- ===== ТЕСТЫ ===== -->
             <a href="tests.html" class="menu-item test-item">
                 <div class="menu-icon">✓</div>
@@ -711,37 +771,25 @@
         const percentDisplay = document.getElementById('progressPercent');
         const splash = document.getElementById('splash');
 
-        // Начинаем с 0%
         let progress = 0;
-        const duration = 3500; // 3.5 секунды
+        const duration = 3500;
         const startTime = Date.now();
 
         function updateProgress() {
             const elapsed = Date.now() - startTime;
             const rawProgress = Math.min((elapsed / duration) * 100, 100);
-
-            // Плавная кривая: сначала быстро, потом медленнее
-            // Используем кубическую функцию для реалистичности
             const t = rawProgress / 100;
-            // easeOutCubic: 1 - (1-t)^3
             const eased = 1 - Math.pow(1 - t, 2.5);
             const currentProgress = Math.round(eased * 100);
 
-            if (progressBar) {
-                progressBar.style.width = currentProgress + '%';
-            }
-            if (percentDisplay) {
-                percentDisplay.textContent = currentProgress + '%';
-            }
+            if (progressBar) progressBar.style.width = currentProgress + '%';
+            if (percentDisplay) percentDisplay.textContent = currentProgress + '%';
 
             if (elapsed < duration) {
                 requestAnimationFrame(updateProgress);
             } else {
-                // Достигли 100%
                 if (progressBar) progressBar.style.width = '100%';
                 if (percentDisplay) percentDisplay.textContent = '100%';
-
-                // Убираем заставку через 200мс после 100%
                 setTimeout(function() {
                     if (splash) {
                         splash.classList.add('fade-out');
@@ -754,16 +802,13 @@
             }
         }
 
-        // Если заставка уже показывалась — сразу удаляем
         if (sessionStorage.getItem('splashShown')) {
             if (splash) splash.remove();
             return;
         }
 
-        // Стартуем анимацию
         requestAnimationFrame(updateProgress);
 
-        // Запасной вариант — если что-то пойдёт не так
         setTimeout(function() {
             if (splash && !splash.classList.contains('fade-out')) {
                 if (progressBar) progressBar.style.width = '100%';
@@ -881,8 +926,15 @@
         { "title": "Асимптоты", "url": "asymptotes.html", "category": "Анализ", "icon": "📈", "desc": "Вертикальные, горизонтальные, наклонные асимптоты, правила, примеры", "keywords": ["асимптоты", "вертикальные", "горизонтальные", "наклонные", "предел"] },
         { "title": "Выпуклость и точки перегиба", "url": "convexity.html", "category": "Анализ", "icon": "∪", "desc": "Выпуклость вверх/вниз, точки перегиба, вторая производная, метод интервалов", "keywords": ["выпуклость", "точки перегиба", "вторая производная", "метод интервалов"] },
         { "title": "Тригонометрическая окружность","url": "trig_circle.htm", "category": "Тригонометрия", "icon": "◯","desc": "Интерактивный тригонометрический круг: углы, значения sin, cos, tg, ctg", "keywords": ["тригонометрический круг", "окружность", "sin", "cos", "tg", "ctg", "углы", "радианы", "тригонометрия"] },
-        { "title": "Таблица Брадиса", "url": "bradis.html", "category": "Инструменты", "icon": "📐", "desc": "Калькулятор sin, cos, tg, ctg — тригонометрические функции", "keywords": ["брадис", "таблица брадиса", "синус", "косинус", "тангенс", "котангенс", "sin", "cos", "tg", "ctg", "тригонометрический калькулятор"]},
         { "title": "Производные высших порядков", "url": "derivative-higher.html", "category": "Анализ", "icon": "ƒⁿ", "desc": "Производные 2-го, 3-го и n-го порядка, формулы, физический смысл", "keywords": ["производные высших порядков", "вторая производная", "третья производная", "n-я производная"] },
+
+        // === Раздел «Комбинаторика и статистика» ===
+        { "title": "Основные понятия комбинаторики", "url": "combinatorics-basics.html", "category": "Комбинаторика", "icon": "!", "desc": "Перестановки, размещения, сочетания, треугольник Паскаля, бином Ньютона", "keywords": ["комбинаторика", "перестановки", "размещения", "сочетания", "факториал", "паскаль", "бином", "ньютон"] },
+        { "title": "Событие, вероятность события", "url": "probability-events.html", "category": "Вероятность", "icon": "⚖", "desc": "Классическое определение, сложение и умножение вероятностей", "keywords": ["вероятность", "событие", "сложение вероятностей", "умножение вероятностей", "противоположное событие"] },
+        { "title": "Вероятность в профессиональных задачах", "url": "probability-professional.html", "category": "Вероятность", "icon": "⌘", "desc": "Прикладные задачи, контроль качества, надёжность", "keywords": ["прикладные задачи", "контроль качества", "надежность", "профессиональные задачи", "брак"] },
+        { "title": "Дискретная случайная величина", "url": "random-variables.html", "category": "Статистика", "icon": "∑", "desc": "Закон распределения, мат. ожидание, дисперсия", "keywords": ["дискретная случайная величина", "закон распределения", "математическое ожидание", "дисперсия", "среднее квадратическое отклонение"] },
+        { "title": "Задачи математической статистики", "url": "math-statistics.html", "category": "Статистика", "icon": "x̄", "desc": "Выборка, среднее, мода, медиана, размах", "keywords": ["математическая статистика", "выборка", "среднее", "мода", "медиана", "размах", "вариационный ряд"] },
+        { "title": "Составление таблиц и диаграмм", "url": "diagrams-tables.html", "category": "Статистика", "icon": "⊞", "desc": "Таблицы частот, столбчатые и круговые диаграммы", "keywords": ["таблицы", "диаграммы", "столбчатая", "круговая", "визуализация данных"] },
     ];
 
     // ============================================================

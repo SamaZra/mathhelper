@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Дискретная случайная величина — справочник</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(46, 204, 113, 0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #1abc9c; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --ege-color: #f59e0b;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #1abc9c; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --ege-color: #d97706;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); transition: background 0.3s; }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; transition: color 0.3s; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 18000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .ege-badge { background: var(--ege-color); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-left: 8px; vertical-align: middle; letter-spacing: 0.5px; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 16px; }
+        .formula-card { background: var(--formula-bg); border-left: 5px solid var(--accent); padding: 14px 10px; border-radius: 16px; text-align: center; transition: background 0.3s; }
+        .formula-card p { font-size: 1.05rem; font-weight: 600; color: var(--text); margin: 0; line-height: 1.6; transition: color 0.3s; }
+        .formula-card .small-text { font-size: 0.85rem; font-weight: normal; margin-top: 6px; color: var(--text-secondary); }
+
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); text-align: left; transition: background 0.3s, color 0.3s; }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; transition: color 0.3s; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); transition: color 0.3s; }
+        .example .formula-highlight { color: var(--formula-color); font-weight: 600; transition: color 0.3s; }
+
+        .task-item { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid var(--accent); }
+        .task-item p { margin: 0 0 10px 0; font-weight: 600; color: var(--text); }
+        details.spoiler { background: var(--example-bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+        details.spoiler > summary { padding: 8px 14px; font-size: 0.9rem; font-weight: 600; color: var(--accent); cursor: pointer; list-style: none; user-select: none; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        details.spoiler > summary::-webkit-details-marker { display: none; }
+        details.spoiler > summary::before { content: "▶"; font-size: 0.7rem; transition: transform 0.2s; }
+        details.spoiler[open] > summary::before { transform: rotate(90deg); }
+        details.spoiler > summary:hover { background: rgba(26,188,156,0.1); }
+        details.spoiler > .spoiler-content { padding: 10px 14px; font-size: 0.9rem; color: var(--text-secondary); border-top: 1px solid var(--border); line-height: 1.5; }
+
+        .dist-table { width: 100%; border-collapse: collapse; margin: 15px 0; background: var(--formula-bg); border-radius: 12px; overflow: hidden; }
+        .dist-table th, .dist-table td { padding: 10px 14px; text-align: center; font-size: 0.95rem; border: 1px solid var(--border); color: var(--text); }
+        .dist-table th { background: var(--special-border); color: white; font-weight: 600; }
+        .dist-table tr:nth-child(even) td { background: var(--example-bg); }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+
+        .important { background: var(--info-bg); border-left: 4px solid var(--formula-color); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+        .important strong { color: var(--formula-color); transition: color 0.3s; }
+
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #16a085; }
+
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+            .formula-grid { grid-template-columns: 1fr; }
+            .formula-card p { font-size: 0.95rem; }
+            .task-item { padding: 12px 14px; }
+            .dist-table th, .dist-table td { padding: 6px 8px; font-size: 0.85rem; }
+        }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <h1>Дискретная случайная величина</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">X Что такое случайная величина</span>
+            <span class="sub-title">переход от событий к числам</span>
+        </div>
+        <div class="section-content">
+            <p>В предыдущих темах мы работали с событиями: «выпал орёл», «вытянули красный шар». Но часто удобнее описывать результат числом. Например, сколько очков выпало на кубике, сколько бракованных деталей в партии, сколько клиентов пришло за час.</p>
+            <p><strong>Случайная величина</strong> — это переменная, которая в результате испытания принимает одно из возможных значений, причём заранее неизвестно, какое именно. Если эти значения можно пересчитать (они изолированы друг от друга), величина называется <strong>дискретной</strong>.</p>
+            <div class="important">
+                <strong>Обозначение:</strong> случайные величины обычно обозначают заглавными буквами \(X, Y, Z\), а их возможные значения — строчными \(x_1, x_2, \dots\)
+            </div>
+        </div>
+    </div>
+
+    <!-- ЗАКОН РАСПРЕДЕЛЕНИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Закон распределения</span>
+            <span class="sub-title">таблица, которая связывает значения и вероятности</span>
+        </div>
+        <div class="section-content">
+            <p>Чтобы задать дискретную случайную величину, нужно указать все её возможные значения и соответствующие им вероятности. Это и есть <strong>закон распределения</strong>.</p>
+
+            <table class="dist-table">
+                <thead>
+                <tr>
+                    <th>\(X\)</th>
+                    <th>\(x_1\)</th>
+                    <th>\(x_2\)</th>
+                    <th>\(\dots\)</th>
+                    <th>\(x_n\)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><strong>\(P\)</strong></td>
+                    <td>\(p_1\)</td>
+                    <td>\(p_2\)</td>
+                    <td>\(\dots\)</td>
+                    <td>\(p_n\)</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="important">
+                <strong>Главное свойство:</strong> сумма всех вероятностей всегда равна 1:<br>
+                $$ p_1 + p_2 + \dots + p_n = 1 $$
+                Это используют для проверки правильности составленной таблицы.
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР СОСТАВЛЕНИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Как составить таблицу</span>
+            <span class="sub-title">пошаговый пример с кубиком</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример:</strong> Бросают игральный кубик. Пусть \(X\) — число выпавших очков. Составить закон распределения.<br><br>
+                <span class="step">Шаг 1.</span> Возможные значения: \(X = 1, 2, 3, 4, 5, 6\).<br>
+                <span class="step">Шаг 2.</span> Вероятность каждого значения равна \(1/6\) (кубик симметричный).<br>
+                <span class="step">Шаг 3.</span> Записываем таблицу:
+
+                <table class="dist-table" style="margin-top: 12px;">
+                    <thead>
+                    <tr><th>\(X\)</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr><td><strong>\(P\)</strong></td><td>1/6</td><td>1/6</td><td>1/6</td><td>1/6</td><td>1/6</td><td>1/6</td></tr>
+                    </tbody>
+                </table>
+
+                <span class="step">Проверка:</span> \(\frac{1}{6} \cdot 6 = 1\). Сумма вероятностей равна 1 — таблица составлена верно.<br>
+                <span class="result">Ответ: закон распределения задан таблицей.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЧИСЛОВЫЕ ХАРАКТЕРИСТИКИ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Числовые характеристики</span>
+            <span class="sub-title">математическое ожидание, дисперсия, СКО</span>
+        </div>
+        <div class="section-content">
+            <p>Таблица распределения — это полное описание, но иногда нужно сжать информацию до нескольких чисел. Главные характеристики:</p>
+
+            <div class="formula-block">
+                <strong>Математическое ожидание \(M(X)\)</strong> — среднее ожидаемое значение случайной величины.<br>
+                $$ M(X) = x_1 p_1 + x_2 p_2 + \dots + x_n p_n $$
+            </div>
+
+            <div class="formula-block">
+                <strong>Дисперсия \(D(X)\)</strong> — мера разброса значений вокруг среднего.<br>
+                $$ D(X) = M(X^2) - (M(X))^2 $$
+                где \(M(X^2) = x_1^2 p_1 + x_2^2 p_2 + \dots + x_n^2 p_n\).
+            </div>
+
+            <div class="formula-block">
+                <strong>Среднее квадратическое отклонение \(\sigma(X)\)</strong> — корень из дисперсии, показывает разброс в тех же единицах, что и \(X\).<br>
+                $$ \sigma(X) = \sqrt{D(X)} $$
+            </div>
+
+            <div class="important">
+                <strong>Смысл:</strong> \(M(X)\) — это «центр» распределения, а \(\sigma(X)\) — насколько сильно значения отклоняются от этого центра.
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР ВЫЧИСЛЕНИЯ ХАРАКТЕРИСТИК -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Пример вычисления характеристик</span>
+            <span class="sub-title">пошаговый расчёт для кубика</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Дана случайная величина \(X\) — число очков на кубике. Найти \(M(X)\), \(D(X)\), \(\sigma(X)\).<br><br>
+                <span class="step">Шаг 1. Математическое ожидание:</span><br>
+                \(M(X) = 1 \cdot \frac{1}{6} + 2 \cdot \frac{1}{6} + 3 \cdot \frac{1}{6} + 4 \cdot \frac{1}{6} + 5 \cdot \frac{1}{6} + 6 \cdot \frac{1}{6} = \frac{21}{6} = 3{,}5\).<br><br>
+
+                <span class="step">Шаг 2. Математическое ожидание квадрата:</span><br>
+                \(M(X^2) = 1^2 \cdot \frac{1}{6} + 2^2 \cdot \frac{1}{6} + \dots + 6^2 \cdot \frac{1}{6} = \frac{91}{6} \approx 15{,}17\).<br><br>
+
+                <span class="step">Шаг 3. Дисперсия:</span><br>
+                \(D(X) = M(X^2) - (M(X))^2 = \frac{91}{6} - 3{,}5^2 = 15{,}17 - 12{,}25 = 2{,}92\).<br><br>
+
+                <span class="step">Шаг 4. Среднее квадратическое отклонение:</span><br>
+                \(\sigma(X) = \sqrt{2{,}92} \approx 1{,}71\).<br><br>
+
+                <span class="result">Ответ: \(M(X) = 3{,}5\), \(D(X) \approx 2{,}92\), \(\sigma(X) \approx 1{,}71\).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- НЕПРЕРЫВНЫЕ СЛУЧАЙНЫЕ ВЕЛИЧИНЫ ★ ЕГЭ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Непрерывные случайные величины <span class="ege-badge">★ ЕГЭ</span></span>
+            <span class="sub-title">плотность распределения, нормальное распределение</span>
+        </div>
+        <div class="section-content">
+            <p>Если случайная величина может принимать любое значение из некоторого промежутка (например, время ожидания автобуса), она называется <strong>непрерывной</strong>. Для неё нельзя составить таблицу, но можно задать <strong>плотность распределения</strong> \(f(x)\).</p>
+            <div class="formula-block">
+                <strong>Свойства плотности:</strong><br>
+                1. \(f(x) \ge 0\).<br>
+                2. Площадь под графиком \(f(x)\) на всей области равна 1.<br>
+                3. Вероятность попадания в интервал: \(P(a \le X \le b) = \int_a^b f(x)\,dx\).
+            </div>
+            <div class="important">
+                <strong>Нормальное распределение</strong> — самое важное в статистике. Его график — «колокол» Гаусса. Задаётся двумя параметрами: \(m\) (среднее) и \(\sigma\) (стандартное отклонение).<br>
+                <strong>Правило \(3\sigma\):</strong> практически все значения (99,7%) лежат в интервале \((m - 3\sigma; m + 3\sigma)\).
+            </div>
+            <div class="example">
+                <strong>Пример.</strong> Рост взрослых мужчин распределён нормально со средним \(m = 175\) см и \(\sigma = 7\) см. Какая доля мужчин имеет рост от 168 до 182 см?<br><br>
+                <span class="step">Решение:</span> Интервал \((168; 182)\) — это \((m - \sigma; m + \sigma)\). По правилу нормального распределения в этот интервал попадает примерно 68% значений.<br>
+                <span class="result">Ответ: около 68%.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЗАДАЧИ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Задачи для самостоятельного решения</span>
+            <span class="sub-title">15 задач с подсказками</span>
+        </div>
+        <div class="section-content">
+            <div class="important" style="margin-bottom: 16px;">
+                <strong>Как работать с подсказками:</strong> откройте подсказку, только если не получается решить. В ней нет прямого ответа, но есть направление мысли.
+            </div>
+
+            <!-- Задачи 1-5 -->
+            <div class="task-item">
+                <p>1. Монету бросают 3 раза. Пусть \(X\) — число выпавших орлов. Составьте таблицу распределения \(X\).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Возможные значения: 0, 1, 2, 3. Вспомните, что вероятности можно найти через комбинации (сколько способов получить 0 орлов, 1 орла и т.д.) и поделить на общее число исходов.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>2. В урне 4 белых и 6 чёрных шаров. Вынимают один шар. Пусть \(X = 1\), если шар белый, и \(X = 0\), если чёрный. Составьте закон распределения.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Здесь всего два возможных значения. Вероятность вынуть белый шар — это отношение количества белых к общему числу, а вероятность чёрного — отношение чёрных к общему.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>3. Бросают два кубика. Пусть \(X\) — сумма выпавших очков. Какие значения может принимать \(X\)? (Только перечислите значения, таблицу составлять не нужно).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Минимальная сумма — когда на обоих кубиках выпадает 1. Максимальная — когда на обоих выпадает 6. Все промежуточные целые значения тоже возможны.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>4. Дана таблица распределения:
+                <table class="dist-table" style="margin-top: 8px;">
+                    <tr><th>\(X\)</th><td>1</td><td>2</td><td>3</td></tr>
+                    <tr><th>\(P\)</th><td>0,2</td><td>0,3</td><td>?</td></tr>
+                </table>
+                Найдите недостающую вероятность.
+                </p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сумма всех вероятностей в таблице распределения всегда равна 1. Вычтите из 1 известные вероятности.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>5. Дана таблица распределения:
+                <table class="dist-table" style="margin-top: 8px;">
+                    <tr><th>\(X\)</th><td>0</td><td>1</td><td>2</td></tr>
+                    <tr><th>\(P\)</th><td>0,5</td><td>0,3</td><td>0,2</td></tr>
+                </table>
+                Найдите математическое ожидание \(M(X)\).
+                </p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Умножьте каждое значение на его вероятность и сложите результаты. Это и есть среднее ожидаемое значение.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 6-10 -->
+            <div class="task-item">
+                <p>6. Дана таблица распределения:
+                <table class="dist-table" style="margin-top: 8px;">
+                    <tr><th>\(X\)</th><td>1</td><td>2</td><td>4</td></tr>
+                    <tr><th>\(P\)</th><td>0,4</td><td>0,4</td><td>0,2</td></tr>
+                </table>
+                Найдите \(M(X)\).
+                </p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Используйте формулу математического ожидания: сумма произведений значений на их вероятности.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>7. Для условия задачи 5 найдите дисперсию \(D(X)\).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сначала найдите \(M(X^2)\), возведя каждое значение в квадрат и умножив на его вероятность. Затем вычтите квадрат уже найденного математического ожидания.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>8. В лотерее 100 билетов. Один билет выигрывает 500 руб., 5 билетов — по 100 руб., остальные — без выигрыша. Пусть \(X\) — выигрыш случайного билета. Найдите \(M(X)\).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Возможные значения выигрыша: 500, 100 и 0. Посчитайте вероятности каждого (количество выигрышных билетов делите на 100). Затем примените формулу математического ожидания.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>9. Бросают один кубик. Пусть \(X\) — число очков. Найдите \(M(X)\) и \(D(X)\). (Используйте формулы и результат из примера выше.)</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">В примере 2 на этой странице эти значения уже вычислены. Сверьтесь с решением, чтобы убедиться, что вы правильно понимаете ход мыслей.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>10. В партии из 50 деталей 5 бракованных. Наугад берут 1 деталь. Пусть \(X = 0\), если деталь качественная, и \(X = 1\), если бракованная. Составьте таблицу распределения и найдите \(M(X)\).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Посчитайте вероятность брака. Она же будет \(P(X=1)\). Соответственно \(P(X=0) = 1 - P(X=1)\). Математическое ожидание для такой величины просто равно вероятности получить 1.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 11-15 -->
+            <div class="task-item">
+                <p>11. Стрелок делает 2 выстрела. Вероятность попадания при каждом — 0,8. Пусть \(X\) — число попаданий. Составьте таблицу распределения и найдите \(M(X)\).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Возможные значения: 0, 1, 2. Используйте правило умножения для независимых событий и правило сложения для случаев «ровно одно попадание». Затем найдите математическое ожидание по таблице.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>12. Для условия задачи 5 найдите среднее квадратическое отклонение \(\sigma(X)\).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сначала найдите дисперсию (задача 7). Среднее квадратическое отклонение — это корень квадратный из дисперсии.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>13. В коробке 3 белых и 2 чёрных шара. Вынимают один шар. Пусть \(X\) — число белых шаров среди вынутых (0 или 1). Составьте закон распределения и найдите \(M(X)\).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сначала найдите вероятность вынуть белый шар. Это \(P(X=1)\). Затем найдите \(P(X=0)\). Математическое ожидание в этом случае равно вероятности вынуть белый шар.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>14. Бросают два кубика. Пусть \(X\) — разность между числом очков на первом и втором кубике. Какие значения может принимать \(X\)? (Только перечислите).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Разность может быть отрицательной, положительной и нулевой. Минимальное значение — когда на первом кубике 1, а на втором 6. Максимальное — наоборот.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>15. Для случайной величины из задачи 8 найдите вероятность того, что выигрыш будет не меньше 100 рублей.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">«Не меньше 100» — это события \(X = 100\) и \(X = 500\). Найдите вероятности каждого и сложите их (события несовместны).</div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
+    <a href="combinatorics.html" class="back-link">← Назад к разделу</a>
+</div>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+</body>
+</html>

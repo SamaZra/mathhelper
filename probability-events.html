@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Событие и вероятность — справочник</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(46, 204, 113, 0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #1abc9c; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --ege-color: #f59e0b;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #1abc9c; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --ege-color: #d97706;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); transition: background 0.3s; }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; transition: color 0.3s; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 18000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .ege-badge { background: var(--ege-color); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-left: 8px; vertical-align: middle; letter-spacing: 0.5px; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 16px; }
+        .formula-card { background: var(--formula-bg); border-left: 5px solid var(--accent); padding: 14px 10px; border-radius: 16px; text-align: center; transition: background 0.3s; }
+        .formula-card p { font-size: 1.05rem; font-weight: 600; color: var(--text); margin: 0; line-height: 1.6; transition: color 0.3s; }
+        .formula-card .small-text { font-size: 0.85rem; font-weight: normal; margin-top: 6px; color: var(--text-secondary); }
+
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); text-align: left; transition: background 0.3s, color 0.3s; }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; transition: color 0.3s; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); transition: color 0.3s; }
+        .example .formula-highlight { color: var(--formula-color); font-weight: 600; transition: color 0.3s; }
+
+        .task-item { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid var(--accent); }
+        .task-item p { margin: 0 0 10px 0; font-weight: 600; color: var(--text); }
+        details.spoiler { background: var(--example-bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+        details.spoiler > summary { padding: 8px 14px; font-size: 0.9rem; font-weight: 600; color: var(--accent); cursor: pointer; list-style: none; user-select: none; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        details.spoiler > summary::-webkit-details-marker { display: none; }
+        details.spoiler > summary::before { content: "▶"; font-size: 0.7rem; transition: transform 0.2s; }
+        details.spoiler[open] > summary::before { transform: rotate(90deg); }
+        details.spoiler > summary:hover { background: rgba(26,188,156,0.1); }
+        details.spoiler > .spoiler-content { padding: 10px 14px; font-size: 0.9rem; color: var(--text-secondary); border-top: 1px solid var(--border); line-height: 1.5; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+
+        .important { background: var(--info-bg); border-left: 4px solid var(--formula-color); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+        .important strong { color: var(--formula-color); transition: color 0.3s; }
+
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #16a085; }
+
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+            .formula-grid { grid-template-columns: 1fr; }
+            .formula-card p { font-size: 0.95rem; }
+            .task-item { padding: 12px 14px; }
+        }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <h1>Событие, вероятность события</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">P(A) Основные понятия</span>
+            <span class="sub-title">что такое событие и как измерить его вероятность</span>
+        </div>
+        <div class="section-content">
+            <p>В жизни мы часто говорим: «Наверное, пойдёт дождь», «Скорее всего, я сдам экзамен». Математика переводит эти «наверное» и «скорее всего» на точный язык чисел.</p>
+            <p><strong>Событие</strong> — это то, что может произойти или не произойти в результате испытания (опыта). <strong>Вероятность</strong> — это числовая мера того, насколько возможно это событие.</p>
+            <div class="important">
+                <strong>Обозначение:</strong> вероятность события \(A\) обозначается как \(P(A)\). Она всегда находится в пределах от 0 до 1: \(0 \le P(A) \le 1\).
+            </div>
+        </div>
+    </div>
+
+    <!-- КЛАССИЧЕСКОЕ ОПРЕДЕЛЕНИЕ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Классическое определение вероятности</span>
+            <span class="sub-title">формула, которая работает в большинстве школьных задач</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block" style="text-align: center;">
+                $$ P(A) = \frac{m}{n} $$
+            </div>
+            <p>Где:</p>
+            <ul>
+                <li>\(n\) — общее число <strong>равновозможных</strong> исходов испытания;</li>
+                <li>\(m\) — число исходов, <strong>благоприятствующих</strong> событию \(A\) (то есть тех, при которых событие происходит).</li>
+            </ul>
+
+            <div class="example">
+                <strong>Пример:</strong> Бросают игральный кубик. Какова вероятность того, что выпадет чётное число?<br><br>
+                <span class="step">Шаг 1.</span> Общее число исходов: кубик имеет 6 граней, значит \(n = 6\).<br>
+                <span class="step">Шаг 2.</span> Благоприятные исходы (чётные числа): 2, 4, 6. Значит \(m = 3\).<br>
+                <span class="step">Шаг 3.</span> По формуле: \(P(A) = \frac{3}{6} = \frac{1}{2} = 0{,}5\).<br>
+                <span class="result">Ответ: 0,5 (или 50%).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ВИДЫ СОБЫТИЙ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Виды событий</span>
+            <span class="sub-title">достоверные, невозможные, противоположные, несовместные</span>
+        </div>
+        <div class="section-content">
+            <ul>
+                <li><strong>Достоверное событие</strong> — обязательно произойдёт. Его вероятность равна 1.</li>
+                <li><strong>Невозможное событие</strong> — никогда не произойдёт. Его вероятность равна 0.</li>
+                <li><strong>Противоположное событие</strong> (обозначается \(\bar{A}\)) — происходит тогда и только тогда, когда \(A\) не происходит. \(P(\bar{A}) = 1 - P(A)\).</li>
+                <li><strong>Несовместные события</strong> — не могут произойти одновременно в одном испытании.</li>
+            </ul>
+            <div class="important">
+                <strong>Важно:</strong> если события \(A\) и \(B\) несовместны, вероятность их суммы равна сумме вероятностей.
+            </div>
+        </div>
+    </div>
+
+    <!-- СЛОЖЕНИЕ ВЕРОЯТНОСТЕЙ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Сложение вероятностей</span>
+            <span class="sub-title">вероятность того, что произойдёт хотя бы одно из событий</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>Для несовместных событий:</strong><br>
+                $$ P(A + B) = P(A) + P(B) $$
+            </div>
+            <div class="formula-block">
+                <strong>Для совместных событий (общая формула):</strong><br>
+                $$ P(A + B) = P(A) + P(B) - P(A \cdot B) $$
+            </div>
+
+            <div class="example">
+                <strong>Пример:</strong> В коробке 10 шаров: 3 красных, 2 синих, 5 белых. Наугад достают один шар. Какова вероятность, что он окажется красным <strong>или</strong> синим?<br><br>
+                <span class="step">Шаг 1.</span> Вероятность вытащить красный: \(P(\text{кр}) = \frac{3}{10}\).<br>
+                <span class="step">Шаг 2.</span> Вероятность вытащить синий: \(P(\text{син}) = \frac{2}{10}\).<br>
+                <span class="step">Шаг 3.</span> События несовместны (один шар не может быть одновременно красным и синим). Применяем правило сложения: \(P(\text{кр или син}) = \frac{3}{10} + \frac{2}{10} = \frac{5}{10} = 0{,}5\).<br>
+                <span class="result">Ответ: 0,5.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- УМНОЖЕНИЕ ВЕРОЯТНОСТЕЙ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Умножение вероятностей</span>
+            <span class="sub-title">вероятность совместного наступления событий</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>Для независимых событий:</strong><br>
+                $$ P(A \cdot B) = P(A) \cdot P(B) $$
+            </div>
+            <p>События называются <strong>независимыми</strong>, если наступление одного из них не меняет вероятность наступления другого.</p>
+
+            <div class="formula-block">
+                <strong>Для зависимых событий:</strong><br>
+                $$ P(A \cdot B) = P(A) \cdot P(B|A) $$
+            </div>
+            <p>Где \(P(B|A)\) — условная вероятность события \(B\) при условии, что событие \(A\) уже произошло.</p>
+
+            <div class="example">
+                <strong>Пример:</strong> Монету бросают два раза. Какова вероятность, что оба раза выпадет орёл?<br><br>
+                <span class="step">Шаг 1.</span> Вероятность орла при первом броске: \(P(O_1) = \frac{1}{2}\).<br>
+                <span class="step">Шаг 2.</span> Вероятность орла при втором броске: \(P(O_2) = \frac{1}{2}\).<br>
+                <span class="step">Шаг 3.</span> Броски независимы, поэтому применяем правило умножения: \(P(O_1 \cdot O_2) = \frac{1}{2} \cdot \frac{1}{2} = \frac{1}{4}\).<br>
+                <span class="result">Ответ: \(\frac{1}{4}\) (или 0,25).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПОЛНАЯ ВЕРОЯТНОСТЬ ★ ЕГЭ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Формула полной вероятности <span class="ege-badge">★ ЕГЭ</span></span>
+            <span class="sub-title">когда событие может произойти в разных «сценариях»</span>
+        </div>
+        <div class="section-content">
+            <p>Представьте, что событие \(A\) может произойти только вместе с одним из нескольких несовместных событий (гипотез) \(H_1, H_2, \dots, H_n\). Эти гипотезы образуют <strong>полную группу</strong> (их сумма вероятностей равна 1).</p>
+            <div class="formula-block" style="text-align: center;">
+                $$ P(A) = P(H_1) \cdot P(A|H_1) + P(H_2) \cdot P(A|H_2) + \dots + P(H_n) \cdot P(A|H_n) $$
+            </div>
+            <div class="example">
+                <strong>Пример.</strong> В первой коробке 3 белых и 2 чёрных шара, во второй — 4 белых и 1 чёрный. Наугад выбирают коробку (равновероятно) и достают шар. Какова вероятность, что шар белый?<br><br>
+                <span class="step">Шаг 1. Гипотезы:</span> \(H_1\) — выбрана первая коробка, \(H_2\) — вторая. \(P(H_1) = P(H_2) = 0{,}5\).<br>
+                <span class="step">Шаг 2. Условные вероятности:</span><br>
+                \(P(\text{бел}|H_1) = \frac{3}{5} = 0{,}6\); \(P(\text{бел}|H_2) = \frac{4}{5} = 0{,}8\).<br>
+                <span class="step">Шаг 3. Полная вероятность:</span><br>
+                \(P(\text{бел}) = 0{,}5 \cdot 0{,}6 + 0{,}5 \cdot 0{,}8 = 0{,}3 + 0{,}4 = 0{,}7\).<br>
+                <span class="result">Ответ: 0,7.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФОРМУЛА БАЙЕСА ★ ЕГЭ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Формула Байеса <span class="ege-badge">★ ЕГЭ</span></span>
+            <span class="sub-title">пересчёт вероятности гипотезы после события</span>
+        </div>
+        <div class="section-content">
+            <p>Если событие \(A\) уже произошло, вероятности гипотез нужно пересмотреть. Это делает формула Байеса:</p>
+            <div class="formula-block" style="text-align: center;">
+                $$ P(H_i|A) = \frac{P(H_i) \cdot P(A|H_i)}{P(A)} $$
+            </div>
+            <p>Где \(P(A)\) — полная вероятность события \(A\).</p>
+            <div class="example">
+                <strong>Пример (продолжение).</strong> Достали белый шар. Какова вероятность, что он из первой коробки?<br><br>
+                <span class="step">Решение:</span> \(P(H_1|A) = \frac{0{,}5 \cdot 0{,}6}{0{,}7} = \frac{0{,}3}{0{,}7} = \frac{3}{7}\).<br>
+                <span class="result">Ответ: \(\frac{3}{7}\).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- СХЕМА БЕРНУЛЛИ ★ ЕГЭ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Схема Бернулли <span class="ege-badge">★ ЕГЭ</span></span>
+            <span class="sub-title">повторные независимые испытания</span>
+        </div>
+        <div class="section-content">
+            <p>Если одно и то же испытание повторяется \(n\) раз, и в каждом успех наступает с вероятностью \(p\) (а неудача — с вероятностью \(q = 1-p\)), то вероятность ровно \(k\) успехов вычисляется по формуле Бернулли:</p>
+            <div class="formula-block" style="text-align: center;">
+                $$ P_n(k) = C_n^k \cdot p^k \cdot q^{n-k} $$
+            </div>
+            <div class="example">
+                <strong>Пример.</strong> Монету бросают 5 раз. Какова вероятность, что орёл выпадет ровно 3 раза?<br><br>
+                <span class="step">Шаг 1.</span> \(n = 5\), \(k = 3\), \(p = 0{,}5\), \(q = 0{,}5\).<br>
+                <span class="step">Шаг 2.</span> \(C_5^3 = 10\).<br>
+                <span class="step">Шаг 3.</span> \(P_5(3) = 10 \cdot (0{,}5)^3 \cdot (0{,}5)^2 = 10 \cdot 0{,}125 \cdot 0{,}25 = 0{,}3125\).<br>
+                <span class="result">Ответ: 0,3125.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ГЕОМЕТРИЧЕСКАЯ ВЕРОЯТНОСТЬ ★ ЕГЭ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Геометрическая вероятность <span class="ege-badge">★ ЕГЭ</span></span>
+            <span class="sub-title">когда исходов бесконечно много</span>
+        </div>
+        <div class="section-content">
+            <p>Если исходы нельзя пересчитать (например, точка на отрезке), вероятность находят как отношение мер (длин, площадей или объёмов):</p>
+            <div class="formula-block" style="text-align: center;">
+                $$ P = \frac{\text{мера благоприятной области}}{\text{мера всей области}} $$
+            </div>
+            <div class="example">
+                <strong>Пример.</strong> На отрезке \([0; 10]\) случайно выбирают точку. Какова вероятность, что она попадёт на отрезок \([2; 7]\)?<br><br>
+                <span class="step">Решение:</span> \(P = \frac{7-2}{10-0} = \frac{5}{10} = 0{,}5\).<br>
+                <span class="result">Ответ: 0,5.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЗАДАЧИ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Задачи для самостоятельного решения</span>
+            <span class="sub-title">15 задач с подсказками</span>
+        </div>
+        <div class="section-content">
+            <div class="important" style="margin-bottom: 16px;">
+                <strong>Как работать с подсказками:</strong> откройте подсказку, только если не получается решить. В ней нет прямого ответа, но есть направление мысли.
+            </div>
+
+            <!-- Задачи 1-5 -->
+            <div class="task-item">
+                <p>1. В лотерее 100 билетов, из них 5 выигрышных. Какова вероятность купить выигрышный билет?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Используйте классическое определение вероятности. Подумайте, сколько всего равновозможных исходов и сколько из них вас устраивают.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>2. В урне 15 белых и 10 чёрных шаров. Наугад достают один шар. Какова вероятность, что он белый?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сначала найдите общее количество шаров в урне. Это будет ваш знаменатель. Затем посчитайте, сколько шаров нужного цвета.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>3. Игральный кубик бросают один раз. Какова вероятность выпадения числа больше 4?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Числа на кубике: 1, 2, 3, 4, 5, 6. Выберите те, которые строго больше 4.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>4. В ящике 5 красных и 7 зелёных яблок. Наугад берут одно яблоко. Какова вероятность, что оно окажется красным или зелёным?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Может ли одно яблоко быть одновременно красным и зелёным? Подумайте, как это влияет на выбор правила.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>5. В коробке 4 синих, 3 жёлтых и 5 красных карандашей. Наугад достают один. Какова вероятность, что он синий или жёлтый?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Посчитайте вероятности каждого цвета отдельно, а затем сложите их, если события не могут произойти одновременно.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 6-10 -->
+            <div class="task-item">
+                <p>6. Монету бросают два раза. Какова вероятность, что оба раза выпадет решка?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Результат второго броска никак не зависит от первого. Как в таком случае найти вероятность того, что оба события произойдут?</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>7. Игральный кубик бросают дважды. Найдите вероятность того, что в первый раз выпадет 6, а во второй — 3.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Броски кубика — это независимые события. Вам нужно, чтобы произошло и первое, и второе.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>8. В первой коробке 3 белых и 2 чёрных шара, во второй — 4 белых и 1 чёрный. Из каждой коробки достают по одному шару. Какова вероятность, что оба шара окажутся белыми?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Действия в коробках происходят независимо друг от друга. Сначала найдите вероятность вытащить белый шар из первой коробки, затем — из второй.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>9. Вероятность попасть в мишень при одном выстреле равна 0,8. Стрелок делает два выстрела. Какова вероятность, что он попадёт оба раза?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Попадание при первом и втором выстрелах — независимые события. Что нужно сделать с их вероятностями, чтобы узнать вероятность попадания в обоих случаях?</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>10. В лотерее вероятность выигрыша 0,1. Какова вероятность проигрыша?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Выигрыш и проигрыш — это два события, которые вместе покрывают все возможные исходы. Сумма их вероятностей равна 1.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 11-15 -->
+            <div class="task-item">
+                <p>11. В корзине 6 яблок и 4 груши. Достают 2 фрукта по очереди (первый не возвращают обратно). Какова вероятность, что оба фрукта — яблоки?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">В этом случае после первого вытягивания фрукта в корзине остаётся меньше предметов. Событие «первый — яблоко» меняет вероятность для второго. Вам нужно учесть это изменение.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>12. В классе 20 учеников, из них 12 девочек. Случайно выбирают одного ученика. Какова вероятность, что это мальчик?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Найдите количество мальчиков в классе. Затем используйте классическое определение вероятности.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>13. В одной из урн 8 белых и 2 чёрных шара. Из урны достают два шара подряд без возвращения. Найдите вероятность, что первый шар белый, а второй — чёрный.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">После того как достали первый шар, общее количество шаров в урне уменьшилось, и количество чёрных тоже могло измениться (если бы достали чёрный). Здесь вам нужно найти вероятность последовательного наступления двух событий, учитывая изменение состава урны.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>14. Два стрелка стреляют по мишени. Вероятность попадания первого — 0,7, второго — 0,6. Какова вероятность хотя бы одного попадания?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">«Хотя бы один» — это противоположное событие к «ни одного попадания». Попробуйте сначала найти вероятность того, что оба промахнутся, а затем вычтите её из 1.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>15. Бросают два кубика. Какова вероятность, что сумма выпавших очков будет равна 7?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сначала определите общее число возможных пар чисел (сколько исходов всего при броске двух кубиков). Затем переберите все пары, дающие в сумме 7 (например, 1 и 6, 6 и 1 — это разные пары).</div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
+    <a href="combinatorics.html" class="back-link">← Назад к разделу</a>
+</div>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+</body>
+</html>

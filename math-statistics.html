@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Задачи математической статистики — справочник</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(46, 204, 113, 0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #1abc9c; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --ege-color: #f59e0b;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #1abc9c; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --ege-color: #d97706;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); transition: background 0.3s; }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; transition: color 0.3s; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 18000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .ege-badge { background: var(--ege-color); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-left: 8px; vertical-align: middle; letter-spacing: 0.5px; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 16px; }
+        .formula-card { background: var(--formula-bg); border-left: 5px solid var(--accent); padding: 14px 10px; border-radius: 16px; text-align: center; transition: background 0.3s; }
+        .formula-card p { font-size: 1.05rem; font-weight: 600; color: var(--text); margin: 0; line-height: 1.6; transition: color 0.3s; }
+        .formula-card .small-text { font-size: 0.85rem; font-weight: normal; margin-top: 6px; color: var(--text-secondary); }
+
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); text-align: left; transition: background 0.3s, color 0.3s; }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; transition: color 0.3s; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); transition: color 0.3s; }
+        .example .formula-highlight { color: var(--formula-color); font-weight: 600; transition: color 0.3s; }
+
+        .task-item { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid var(--accent); }
+        .task-item p { margin: 0 0 10px 0; font-weight: 600; color: var(--text); }
+        details.spoiler { background: var(--example-bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+        details.spoiler > summary { padding: 8px 14px; font-size: 0.9rem; font-weight: 600; color: var(--accent); cursor: pointer; list-style: none; user-select: none; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        details.spoiler > summary::-webkit-details-marker { display: none; }
+        details.spoiler > summary::before { content: "▶"; font-size: 0.7rem; transition: transform 0.2s; }
+        details.spoiler[open] > summary::before { transform: rotate(90deg); }
+        details.spoiler > summary:hover { background: rgba(26,188,156,0.1); }
+        details.spoiler > .spoiler-content { padding: 10px 14px; font-size: 0.9rem; color: var(--text-secondary); border-top: 1px solid var(--border); line-height: 1.5; }
+
+        .data-table { width: 100%; border-collapse: collapse; margin: 12px 0; background: var(--formula-bg); border-radius: 12px; overflow: hidden; }
+        .data-table th, .data-table td { padding: 8px 10px; text-align: center; font-size: 0.9rem; border: 1px solid var(--border); color: var(--text); }
+        .data-table th { background: var(--special-border); color: white; font-weight: 600; }
+        .data-table tr:nth-child(even) td { background: var(--example-bg); }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+
+        .important { background: var(--info-bg); border-left: 4px solid var(--formula-color); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+        .important strong { color: var(--formula-color); transition: color 0.3s; }
+
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #16a085; }
+
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+            .formula-grid { grid-template-columns: 1fr; }
+            .formula-card p { font-size: 0.95rem; }
+            .task-item { padding: 12px 14px; }
+            .data-table th, .data-table td { padding: 6px 8px; font-size: 0.8rem; }
+        }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <h1>Задачи математической статистики</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📊 Что такое математическая статистика</span>
+            <span class="sub-title">как из данных извлечь смысл</span>
+        </div>
+        <div class="section-content">
+            <p>Представьте, что вы измеряете рост 30 одноклассников. У вас есть 30 чисел — это <strong>данные</strong>. Но как их осмыслить? Просто смотреть на список чисел неудобно. Нужны инструменты, которые помогут найти <strong>среднее</strong>, <strong>самое частое</strong> или <strong>центральное</strong> значение.</p>
+            <p>Этим и занимается <strong>математическая статистика</strong> — наука о сборе, обработке и анализе данных. Она помогает делать выводы о целом (генеральной совокупности), изучая только его часть (выборку).</p>
+            <div class="important">
+                <strong>Главная идея:</strong> статистика превращает <strong>сырые числа</strong> в <strong>понятные характеристики</strong> — среднее, моду, медиану. По ним можно сравнивать группы, находить закономерности и принимать решения.
+            </div>
+        </div>
+    </div>
+
+    <!-- ОСНОВНЫЕ ПОНЯТИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Выборка и вариационный ряд</span>
+            <span class="sub-title">откуда берутся данные</span>
+        </div>
+        <div class="section-content">
+            <p>В статистике работают с двумя уровнями:</p>
+            <ul>
+                <li><strong>Генеральная совокупность</strong> — это <em>все</em> объекты, которые нас интересуют (например, все ученики школы, все детали в партии).</li>
+                <li><strong>Выборка</strong> — это <em>часть</em> генеральной совокупности, которую мы реально измерили. Обычно именно по выборке делают выводы обо всей совокупности.</li>
+            </ul>
+            <p>Чтобы данные было удобно анализировать, их упорядочивают по возрастанию — получается <strong>вариационный ряд</strong>. Это просто те же числа, но отсортированные.</p>
+
+            <div class="example">
+                <strong>Пример.</strong> Оценки: 4, 5, 3, 4, 5, 2, 3, 4, 5, 4.<br><br>
+                <span class="step">Вариационный ряд:</span> 2, 3, 3, 4, 4, 4, 4, 5, 5, 5.
+            </div>
+        </div>
+    </div>
+
+    <!-- ХАРАКТЕРИСТИКИ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Основные характеристики выборки</span>
+            <span class="sub-title">среднее, мода, медиана, размах</span>
+        </div>
+        <div class="section-content">
+
+            <div class="formula-block">
+                <strong>1. Среднее арифметическое ( \(\bar{x}\) )</strong> — это сумма всех значений, делённая на количество чисел.
+                $$ \bar{x} = \frac{x_1 + x_2 + \dots + x_n}{n} $$
+                <div style="font-size:0.9rem; color:var(--text-secondary); margin-top:6px;">Отражает «типичный» уровень. Если числа 2, 3, 5, то среднее = (2+3+5)/3 = 3,33.</div>
+            </div>
+
+            <div class="formula-block">
+                <strong>2. Мода ( Mo )</strong> — значение, которое встречается в выборке чаще всего.
+                <div style="font-size:0.9rem; color:var(--text-secondary); margin-top:6px;">В ряду 2, 3, 3, 5 мода = 3 (оно встречается чаще). В ряду 2, 3, 5, 7 моды нет (все уникальны).</div>
+            </div>
+
+            <div class="formula-block">
+                <strong>3. Медиана ( Me )</strong> — число, стоящее в середине упорядоченного (отсортированного) ряда.
+                <div style="font-size:0.9rem; color:var(--text-secondary); margin-top:6px;">Если чисел нечётное количество (например, 5), медиана — это 3-е число. Если чётное (например, 10), медиана — среднее между 5-м и 6-м.</div>
+            </div>
+
+            <div class="formula-block">
+                <strong>4. Размах ( R )</strong> — разность между максимальным и минимальным значением.
+                $$ R = x_{\max} - x_{\min} $$
+                <div style="font-size:0.9rem; color:var(--text-secondary); margin-top:6px;">Показывает ширину диапазона данных. Для ряда 2, 3, 7 размах = 7 − 2 = 5.</div>
+            </div>
+
+            <div class="important">
+                <strong>Что выбрать?</strong><br>
+                • <strong>Среднее</strong> — когда нужна общая оценка. Чувствительно к выбросам (одно огромное число может испортить картину).<br>
+                • <strong>Мода</strong> — когда нужно самое частое значение (например, самый популярный размер обуви).<br>
+                • <strong>Медиана</strong> — когда данные содержат выбросы и нужна устойчивая середина (например, зарплата: одна огромная зарплата не должна сильно сдвигать медиану).<br>
+                • <strong>Размах</strong> — для быстрой оценки разброса (например, от 5°C до 25°C).
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Пример обработки данных</span>
+            <span class="sub-title">пошаговый расчёт всех характеристик</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Условие:</strong> Даны оценки: 4, 5, 3, 4, 5, 2, 3, 4, 5, 4. Найти среднее, моду, медиану, размах.<br><br>
+                <span class="step">Шаг 1. Вариационный ряд (по возрастанию):</span><br>
+                2, 3, 3, 4, 4, 4, 4, 5, 5, 5.<br><br>
+
+                <span class="step">Шаг 2. Среднее арифметическое:</span><br>
+                \(\bar{x} = \frac{4+5+3+4+5+2+3+4+5+4}{10} = \frac{39}{10} = 3{,}9\).<br><br>
+
+                <span class="step">Шаг 3. Мода:</span><br>
+                Чаще всего встречается 4 (4 раза). <strong>Мода = 4</strong>.<br><br>
+
+                <span class="step">Шаг 4. Медиана:</span><br>
+                В ряду 10 чисел, значит, медиана — среднее между 5-м и 6-м числами. Оба равны 4.<br>
+                <strong>Медиана = 4</strong>.<br><br>
+
+                <span class="step">Шаг 5. Размах:</span><br>
+                \(R = 5 - 2 = 3\).<br><br>
+
+                <span class="result">Ответ: среднее = 3,9; мода = 4; медиана = 4; размах = 3.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ВЫБОРОЧНАЯ ДИСПЕРСИЯ ★ ЕГЭ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Выборочная дисперсия <span class="ege-badge">★ ЕГЭ</span></span>
+            <span class="sub-title">мера разброса данных</span>
+        </div>
+        <div class="section-content">
+            <p>Среднее арифметическое показывает «центр» данных, но не показывает, насколько сильно значения разбросаны. Для этого используется <strong>выборочная дисперсия</strong>:</p>
+            <div class="formula-block" style="text-align: center;">
+                $$ D_{\text{в}} = \frac{(x_1 - \bar{x})^2 + (x_2 - \bar{x})^2 + \dots + (x_n - \bar{x})^2}{n} $$
+            </div>
+            <p>Где \(\bar{x}\) — среднее арифметическое, \(n\) — объём выборки.</p>
+            <div class="important">
+                <strong>Смысл:</strong> дисперсия — это средний квадрат отклонения значений от среднего. Чем больше дисперсия, тем сильнее разброс. Корень из дисперсии называется <strong>выборочным средним квадратическим отклонением</strong>.
+            </div>
+            <div class="example">
+                <strong>Пример.</strong> Выборка: 2, 4, 6. Найти выборочную дисперсию.<br><br>
+                <span class="step">Шаг 1. Среднее:</span> \(\bar{x} = \frac{2+4+6}{3} = 4\).<br>
+                <span class="step">Шаг 2. Отклонения:</span> \((2-4)^2 = 4\), \((4-4)^2 = 0\), \((6-4)^2 = 4\).<br>
+                <span class="step">Шаг 3. Дисперсия:</span> \(D_{\text{в}} = \frac{4+0+4}{3} = \frac{8}{3} \approx 2{,}67\).<br>
+                <span class="result">Ответ: \(D_{\text{в}} \approx 2{,}67\).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ДОВЕРИТЕЛЬНЫЙ ИНТЕРВАЛ ★ ЕГЭ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Доверительный интервал <span class="ege-badge">★ ЕГЭ</span></span>
+            <span class="sub-title">оценка точности среднего</span>
+        </div>
+        <div class="section-content">
+            <p>Среднее по выборке — это лишь <strong>оценка</strong> истинного среднего генеральной совокупности. Насколько она точна? На этот вопрос отвечает <strong>доверительный интервал</strong>.</p>
+            <div class="formula-block" style="text-align: center;">
+                $$ \bar{x} \pm t \cdot \frac{s}{\sqrt{n}} $$
+            </div>
+            <p>Где \(\bar{x}\) — выборочное среднее, \(s\) — выборочное среднее квадратическое отклонение, \(n\) — объём выборки, \(t\) — коэффициент (для уровня доверия 95% и больших \(n\) \(t \approx 2\)).</p>
+            <div class="example">
+                <strong>Пример.</strong> Выборочное среднее роста 100 студентов \(\bar{x} = 175\) см, \(s = 7\) см. Найти 95%-й доверительный интервал.<br><br>
+                <span class="step">Решение:</span> \(175 \pm 2 \cdot \frac{7}{\sqrt{100}} = 175 \pm 1{,}4\).<br>
+                <span class="result">Ответ: \((173{,}6; 176{,}4)\) см с вероятностью 95%.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЗАДАЧИ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Задачи для самостоятельного решения</span>
+            <span class="sub-title">15 задач с подсказками</span>
+        </div>
+        <div class="section-content">
+            <div class="important" style="margin-bottom: 16px;">
+                <strong>Как работать с подсказками:</strong> откройте подсказку, только если не получается решить. В ней нет прямого ответа, но есть направление мысли.
+            </div>
+
+            <!-- Задачи 1-5 -->
+            <div class="task-item">
+                <p>1. Дан ряд чисел: 7, 8, 5, 9, 6, 8, 10. Найдите среднее арифметическое.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сложите все числа и разделите на их количество. Помните: важно не сбиться при подсчёте суммы.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>2. Дан ряд чисел: 7, 8, 5, 9, 6, 8, 10. Найдите моду.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Мода — это самое частое значение. Посчитайте, сколько раз встречается каждое число, и выберите то, у которого частота максимальна.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>3. Дан ряд чисел: 7, 8, 5, 9, 6, 8, 10. Найдите медиану.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сначала упорядочьте ряд по возрастанию. Затем найдите центральное число (в этом ряду нечётное количество чисел — медиана одно число).</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>4. Дан ряд чисел: 3, 3, 3, 3, 3, 3, 3, 3, 3, 3. Найдите среднее, моду и медиану.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Если все числа одинаковые, то все характеристики совпадают с этим числом. Убедитесь в этом самостоятельно.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>5. В классе 10 учеников. Их рост (в см): 150, 155, 160, 155, 165, 155, 160, 170, 155, 160. Найдите моду.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Посчитайте, сколько раз встречается каждое значение. Мода — то, которое встречается чаще всего.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 6-10 -->
+            <div class="task-item">
+                <p>6. Для данных из задачи 5 найдите медиану.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Упорядочьте значения по возрастанию. Количество чисел чётное (10). Медиана — это среднее арифметическое двух центральных чисел (5-го и 6-го).</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>7. Для данных из задачи 5 найдите среднее арифметическое и размах.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Среднее — это сумма всех значений, делённая на их количество. Размах — это разность между самым большим и самым маленьким значением.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>8. Даны оценки по математике: 3, 4, 2, 5, 4, 4, 3, 5, 4, 2. Найдите среднее, моду и медиану.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Действуйте последовательно: сначала упорядочьте ряд, затем найдите среднее (сумма/10), моду (самое частое значение) и медиану (среднее 5-го и 6-го чисел).</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>9. В спортивной секции 8 человек. Их возраст: 12, 13, 12, 14, 15, 12, 14, 13. Найдите среднее арифметическое, моду и медиану.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Не забывайте упорядочивать данные для медианы. Среднее и мода вычисляются без этого шага.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>10. В таблице приведены данные о количестве клиентов за неделю: 12, 18, 10, 15, 20, 10, 12. Найдите моду и медиану.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Посчитайте частоту каждого значения для моды. Для медианы сначала упорядочьте ряд (7 чисел — медиана одна, посередине).</div>
+                </details>
+            </div>
+
+            <!-- Задачи 11-15 -->
+            <div class="task-item">
+                <p>11. В магазине продали за день 15 пакетов молока. Цены (в рублях): 60, 70, 65, 70, 80, 60, 75, 70, 65, 70, 80, 60, 70, 75, 70. Найдите среднее и моду.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Для среднего суммируйте все цены и разделите на количество пакетов (15). Для моды определите самую частую цену.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>12. Для данных задачи 11 найдите медиану.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Упорядочьте 15 цен по возрастанию. Медиана — 8-е число (так как 15 нечётное, это ровно середина).</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>13. На соревнованиях спортсмены получили оценки: 7, 8, 6, 9, 7, 8, 10, 7, 9, 6, 7. Найдите все три характеристики (среднее, моду, медиану).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Данных 11 — нечётное. Медиана — 6-е число упорядоченного ряда. Среднее — сумма/11. Мода — самая частая оценка.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>14. Ежедневно в течение 10 дней температура была: 20, 22, 21, 23, 22, 20, 24, 22, 23, 21. Найдите медиану и размах.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Для медианы: упорядочьте, найдите среднее 5-го и 6-го чисел. Размах — разность между максимумом и минимумом.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>15. В группе 12 студентов. Их баллы за экзамен: 70, 85, 90, 75, 80, 85, 90, 95, 80, 75, 85, 80. Найдите среднее, моду, медиану.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Упорядочьте данные. Медиана — между 6-м и 7-м числами. Мода — самое частое значение. Среднее — сумма/12.</div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
+    <a href="combinatorics.html" class="back-link">← Назад к разделу</a>
+</div>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+</body>
+</html>

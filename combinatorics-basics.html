@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Основные понятия комбинаторики — справочник</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(46, 204, 113, 0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #1abc9c; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #1abc9c; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); transition: background 0.3s; }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; transition: color 0.3s; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 18000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 16px; }
+        .formula-card { background: var(--formula-bg); border-left: 5px solid var(--accent); padding: 14px 10px; border-radius: 16px; text-align: center; transition: background 0.3s; }
+        .formula-card p { font-size: 1.05rem; font-weight: 600; color: var(--text); margin: 0; line-height: 1.6; transition: color 0.3s; }
+        .formula-card .small-text { font-size: 0.85rem; font-weight: normal; margin-top: 6px; color: var(--text-secondary); }
+
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); text-align: left; transition: background 0.3s, color 0.3s; }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; transition: color 0.3s; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); transition: color 0.3s; }
+        .example .formula-highlight { color: var(--formula-color); font-weight: 600; transition: color 0.3s; }
+
+        .task-item { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid var(--accent); }
+        .task-item p { margin: 0 0 10px 0; font-weight: 600; color: var(--text); }
+        details.spoiler { background: var(--example-bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+        details.spoiler > summary { padding: 8px 14px; font-size: 0.9rem; font-weight: 600; color: var(--accent); cursor: pointer; list-style: none; user-select: none; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        details.spoiler > summary::-webkit-details-marker { display: none; }
+        details.spoiler > summary::before { content: "▶"; font-size: 0.7rem; transition: transform 0.2s; }
+        details.spoiler[open] > summary::before { transform: rotate(90deg); }
+        details.spoiler > summary:hover { background: rgba(26,188,156,0.1); }
+        details.spoiler > .spoiler-content { padding: 10px 14px; font-size: 0.9rem; color: var(--text-secondary); border-top: 1px solid var(--border); line-height: 1.5; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+
+        .important { background: var(--info-bg); border-left: 4px solid var(--formula-color); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+        .important strong { color: var(--formula-color); transition: color 0.3s; }
+
+        /* Треугольник Паскаля */
+        .pascal-container { overflow-x: auto; margin: 15px 0; padding-bottom: 10px; display: flex; flex-direction: column; align-items: center; }
+        .formulas-above { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 20px; width: 100%; }
+        .formula-above-box { background: var(--info-bg); padding: 12px 16px; border-radius: 14px; border: 1px solid var(--border); text-align: center; flex: 1; min-width: 200px; }
+
+        .pascal-triangle { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 400px; }
+        .pascal-row { display: flex; justify-content: center; gap: 4px; }
+        .pascal-cell { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--formula-bg); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text); border: 1px solid var(--border); transition: all 0.2s; }
+        .pascal-cell:hover { transform: scale(1.1); }
+
+        /* Цвета для коэффициентов (Улучшенная видимость) */
+        .hl-square {
+            background: #8b5cf6;
+            border-color: #7c3aed;
+            color: #ffffff;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+        }
+        .hl-cube {
+            background: #f97316;
+            border-color: #ea580c;
+            color: #ffffff;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+        }
+        .hl-binom {
+            background: #1abc9c;
+            border-color: #16a085;
+            color: #ffffff;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(26, 188, 156, 0.4);
+        }
+
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #16a085; }
+
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+            .formula-grid { grid-template-columns: 1fr; }
+            .formula-card p { font-size: 0.95rem; }
+            .task-item { padding: 12px 14px; }
+            .pascal-cell { width: 24px; height: 24px; font-size: 0.7rem; }
+            .formulas-above { flex-direction: column; gap: 10px; }
+            .formula-above-box { width: 100%; }
+        }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <h1>Основные понятия комбинаторики</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">! Зачем нужна комбинаторика</span>
+            <span class="sub-title">как посчитать количество вариантов, не перебирая их вручную</span>
+        </div>
+        <div class="section-content">
+            <p>Представьте, что у вас есть 3 рубашки и 2 пары брюк. Сколько разных нарядов можно составить? Можно просто перебрать: (рубашка 1, брюки 1), (рубашка 1, брюки 2) и так далее. Но что, если рубашек 10, а брюк 15? Перебирать вручную долго. Здесь на помощь приходит <strong>комбинаторика</strong> — раздел математики, который изучает способы подсчёта комбинаций.</p>
+            <div class="important">
+                <strong>Главная идея:</strong> комбинаторика отвечает на вопрос <strong>«Сколькими способами?»</strong> — и делает это с помощью формул, а не перебора.
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРАВИЛА УМНОЖЕНИЯ И СЛОЖЕНИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Правило умножения и сложения</span>
+            <span class="sub-title">фундамент всех комбинаторных задач</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>Правило умножения:</strong> Если объект A можно выбрать \(m\) способами, а объект B — \(n\) способами (независимо от A), то пару (A, B) можно выбрать \(m \cdot n\) способами.
+            </div>
+            <div class="formula-block">
+                <strong>Правило сложения:</strong> Если объект A можно выбрать \(m\) способами, а объект B — \(n\) способами, причём эти способы <strong>не пересекаются</strong>, то выбор «или A, или B» можно сделать \(m + n\) способами.
+            </div>
+
+            <div class="example">
+                <strong>Пример:</strong> В кафе есть 3 вида супа и 4 вида второго блюда. Сколько разных обедов из супа и второго можно составить?<br><br>
+                <span class="step">Решение:</span> Используем правило умножения: \(3 \cdot 4 = 12\) обедов.<br>
+                <span class="result">Ответ: 12 вариантов.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФАКТОРИАЛ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Факториал</span>
+            <span class="sub-title">произведение всех чисел от 1 до n</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block" style="text-align: center;">
+                $$ n! = 1 \cdot 2 \cdot 3 \cdot \ldots \cdot n $$
+            </div>
+            <p>Факториал обозначается восклицательным знаком. По определению \(0! = 1\) и \(1! = 1\).</p>
+            <div class="formula-grid">
+                <div class="formula-card">
+                    <p>\(3!\)</p>
+                    <div class="small-text">\(1 \cdot 2 \cdot 3 = 6\)</div>
+                </div>
+                <div class="formula-card">
+                    <p>\(4!\)</p>
+                    <div class="small-text">\(1 \cdot 2 \cdot 3 \cdot 4 = 24\)</div>
+                </div>
+                <div class="formula-card">
+                    <p>\(5!\)</p>
+                    <div class="small-text">\(1 \cdot 2 \cdot 3 \cdot 4 \cdot 5 = 120\)</div>
+                </div>
+            </div>
+            <div class="important">
+                <strong>Важно:</strong> факториал растёт очень быстро. \(10! = 3\,628\,800\), а \(20!\) — это уже астрономическое число (больше 2 квинтиллионов).
+            </div>
+        </div>
+    </div>
+
+    <!-- ОСНОВНЫЕ ФОРМУЛЫ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Перестановки, размещения, сочетания</span>
+            <span class="sub-title">три кита комбинаторики</span>
+        </div>
+        <div class="section-content">
+            <p>Все задачи комбинаторики сводятся к трём основным типам соединений. Разница между ними — в том, <strong>важен ли порядок</strong> элементов и <strong>используем ли мы все элементы</strong> или только часть.</p>
+
+            <div class="formula-grid">
+                <div class="formula-card" style="border-left-color: #fbbf24;">
+                    <p><strong>Перестановки</strong></p>
+                    <div class="small-text" style="margin-bottom: 8px;">Порядок важен. Используем ВСЕ элементы.</div>
+                    <div style="font-size: 1.2rem; color: var(--formula-color);">\(P_n = n!\)</div>
+                </div>
+                <div class="formula-card" style="border-left-color: #60a5fa;">
+                    <p><strong>Размещения</strong></p>
+                    <div class="small-text" style="margin-bottom: 8px;">Порядок важен. Используем ЧАСТЬ элементов.</div>
+                    <div style="font-size: 1.2rem; color: #60a5fa;">\(A_n^k = \dfrac{n!}{(n-k)!}\)</div>
+                </div>
+                <div class="formula-card" style="border-left-color: #f472b6;">
+                    <p><strong>Сочетания</strong></p>
+                    <div class="small-text" style="margin-bottom: 8px;">Порядок НЕ важен. Используем ЧАСТЬ элементов.</div>
+                    <div style="font-size: 1.2rem; color: #f472b6;">\(C_n^k = \dfrac{n!}{k!(n-k)!}\)</div>
+                </div>
+            </div>
+
+            <div class="important">
+                <strong>Как запомнить:</strong><br>
+                • <strong>Перестановки</strong> — переставляем ВСЁ (например, сколькими способами расставить 5 книг на полке).<br>
+                • <strong>Размещения</strong> — выбираем ЧАСТЬ и ставим на РАЗНЫЕ места (например, выбрать 3 человек из 10 на 3 разные должности).<br>
+                • <strong>Сочетания</strong> — выбираем ЧАСТЬ, но порядок не важен (например, выбрать 3 человек из 10 в команду).
+            </div>
+        </div>
+    </div>
+
+    <!-- ТРЕУГОЛЬНИК ПАСКАЛЯ (ОБНОВЛЕННЫЙ) -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Треугольник Паскаля</span>
+            <span class="sub-title">визуальная таблица коэффициентов</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Треугольник Паскаля</strong> — это бесконечная таблица чисел, где каждое число является суммой двух чисел над ним. Края треугольника всегда равны 1.</p>
+
+            <!-- Формулы над треугольником -->
+            <div class="formulas-above">
+                <div class="formula-above-box" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05);">
+                    <div style="font-weight:700; color:var(--text); margin-bottom:8px; font-size:0.9rem;">Квадрат суммы и разности (2-я степень)</div>
+                    <div style="color:#8b5cf6; margin:4px 0; font-weight: 500;">\((a+b)^2 = \mathbf{1}a^2 + \mathbf{2}ab + \mathbf{1}b^2\)</div>
+                    <div style="color:#8b5cf6; margin:4px 0; font-weight: 500;">\((a-b)^2 = \mathbf{1}a^2 - \mathbf{2}ab + \mathbf{1}b^2\)</div>
+                    <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px;">Коэффициенты: <strong>1, 2, 1</strong> (2-я строка)</div>
+                </div>
+                <div class="formula-above-box" style="border-left: 4px solid #f97316; background: rgba(249, 115, 22, 0.05);">
+                    <div style="font-weight:700; color:var(--text); margin-bottom:8px; font-size:0.9rem;">Куб суммы и разности (3-я степень)</div>
+                    <div style="color:#f97316; margin:4px 0; font-weight: 500;">\((a+b)^3 = \mathbf{1}a^3 + \mathbf{3}a^2b + \mathbf{3}ab^2 + \mathbf{1}b^3\)</div>
+                    <div style="color:#f97316; margin:4px 0; font-weight: 500;">\((a-b)^3 = \mathbf{1}a^3 - \mathbf{3}a^2b + \mathbf{3}ab^2 - \mathbf{1}b^3\)</div>
+                    <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px;">Коэффициенты: <strong>1, 3, 3, 1</strong> (3-я строка)</div>
+                </div>
+            </div>
+
+            <!-- Треугольник -->
+            <div class="pascal-container">
+                <div class="pascal-triangle">
+                    <!-- 0-я строка -->
+                    <div class="pascal-row"><div class="pascal-cell">1</div></div>
+                    <!-- 1-я строка -->
+                    <div class="pascal-row"><div class="pascal-cell">1</div><div class="pascal-cell">1</div></div>
+                    <!-- 2-я строка (квадрат) -->
+                    <div class="pascal-row">
+                        <div class="pascal-cell hl-square">1</div>
+                        <div class="pascal-cell hl-square">2</div>
+                        <div class="pascal-cell hl-square">1</div>
+                    </div>
+                    <!-- 3-я строка (куб) -->
+                    <div class="pascal-row">
+                        <div class="pascal-cell hl-cube">1</div>
+                        <div class="pascal-cell hl-cube">3</div>
+                        <div class="pascal-cell hl-cube">3</div>
+                        <div class="pascal-cell hl-cube">1</div>
+                    </div>
+                    <!-- 4-я строка -->
+                    <div class="pascal-row"><div class="pascal-cell">1</div><div class="pascal-cell">4</div><div class="pascal-cell">6</div><div class="pascal-cell">4</div><div class="pascal-cell">1</div></div>
+                    <!-- 5-я строка -->
+                    <div class="pascal-row"><div class="pascal-cell">1</div><div class="pascal-cell">5</div><div class="pascal-cell">10</div><div class="pascal-cell">10</div><div class="pascal-cell">5</div><div class="pascal-cell">1</div></div>
+                    <!-- 6-я строка -->
+                    <div class="pascal-row"><div class="pascal-cell">1</div><div class="pascal-cell">6</div><div class="pascal-cell">15</div><div class="pascal-cell">20</div><div class="pascal-cell">15</div><div class="pascal-cell">6</div><div class="pascal-cell">1</div></div>
+                    <!-- 7-я строка -->
+                    <div class="pascal-row"><div class="pascal-cell">1</div><div class="pascal-cell">7</div><div class="pascal-cell">21</div><div class="pascal-cell">35</div><div class="pascal-cell">35</div><div class="pascal-cell">21</div><div class="pascal-cell">7</div><div class="pascal-cell">1</div></div>
+                    <!-- 8-я строка -->
+                    <div class="pascal-row"><div class="pascal-cell">1</div><div class="pascal-cell">8</div><div class="pascal-cell">28</div><div class="pascal-cell">56</div><div class="pascal-cell">70</div><div class="pascal-cell">56</div><div class="pascal-cell">28</div><div class="pascal-cell">8</div><div class="pascal-cell">1</div></div>
+                    <!-- 9-я строка -->
+                    <div class="pascal-row"><div class="pascal-cell">1</div><div class="pascal-cell">9</div><div class="pascal-cell">36</div><div class="pascal-cell">84</div><div class="pascal-cell">126</div><div class="pascal-cell">126</div><div class="pascal-cell">84</div><div class="pascal-cell">36</div><div class="pascal-cell">9</div><div class="pascal-cell">1</div></div>
+                    <!-- 10-я строка -->
+                    <div class="pascal-row">
+                        <div class="pascal-cell" style="color:var(--formula-color);">1</div>
+                        <div class="pascal-cell" style="color:var(--formula-color);">10</div>
+                        <div class="pascal-cell" style="color:var(--formula-color);">45</div>
+                        <div class="pascal-cell" style="color:var(--formula-color);">120</div>
+                        <div class="pascal-cell" style="color:var(--formula-color);">210</div>
+                        <div class="pascal-cell" style="color:var(--formula-color);">252</div>
+                        <div class="pascal-cell" style="color:var(--formula-color);">210</div>
+                        <div class="pascal-cell" style="color:var(--formula-color);">120</div>
+                        <div class="pascal-cell" style="color:var(--formula-color);">45</div>
+                        <div class="pascal-cell" style="color:var(--formula-color);">10</div>
+                        <div class="pascal-cell" style="color:var(--formula-color);">1</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="important">
+                <strong>Как это читать:</strong> числа во 2-й строке треугольника (1, 2, 1) — это коэффициенты в формуле квадрата суммы/разности. Числа в 3-й строке (1, 3, 3, 1) — коэффициенты для куба. И так далее. В общем случае числа в \(n\)-й строке — это коэффициенты для \((a+b)^n\).
+            </div>
+        </div>
+    </div>
+
+    <!-- БИНОМ НЬЮТОНА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Бином Ньютона</span>
+            <span class="sub-title">формула для раскрытия скобок (a+b)^n</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block" style="text-align: center;">
+                $$ (a+b)^n = C_n^0 a^n + C_n^1 a^{n-1}b + C_n^2 a^{n-2}b^2 + \dots + C_n^n b^n $$
+            </div>
+            <p>Коэффициенты \(C_n^k\) берутся из треугольника Паскаля (это \(n\)-я строка).</p>
+
+            <div class="example">
+                <strong>Пример 1.</strong> Раскрыть \((x + 2)^4\).<br><br>
+                <span class="step">Шаг 1. Берём коэффициенты из 4-й строки треугольника Паскаля:</span> 1, 4, 6, 4, 1.<br>
+                <span class="step">Шаг 2. Записываем разложение:</span><br>
+                \((x+2)^4 = 1 \cdot x^4 + 4 \cdot x^3 \cdot 2 + 6 \cdot x^2 \cdot 2^2 + 4 \cdot x \cdot 2^3 + 1 \cdot 2^4\)<br>
+                <span class="step">Шаг 3. Считаем:</span><br>
+                \(x^4 + 8x^3 + 24x^2 + 32x + 16\).<br>
+                <span class="result">Ответ: \(x^4 + 8x^3 + 24x^2 + 32x + 16\).</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2.</strong> Раскрыть \((2a - b)^3\).<br><br>
+                <span class="step">Шаг 1. Коэффициенты из 3-й строки:</span> 1, 3, 3, 1.<br>
+                <span class="step">Шаг 2. Учитываем минус перед \(b\):</span><br>
+                \((2a - b)^3 = 1 \cdot (2a)^3 + 3 \cdot (2a)^2 \cdot (-b) + 3 \cdot (2a) \cdot (-b)^2 + 1 \cdot (-b)^3\)<br>
+                <span class="step">Шаг 3. Считаем:</span><br>
+                \(8a^3 - 12a^2b + 6ab^2 - b^3\).<br>
+                <span class="result">Ответ: \(8a^3 - 12a^2b + 6ab^2 - b^3\).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЗАДАЧИ ДЛЯ САМОСТОЯТЕЛЬНОГО РЕШЕНИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Задачи для самостоятельного решения</span>
+            <span class="sub-title">15 задач с подсказками</span>
+        </div>
+        <div class="section-content">
+            <div class="important" style="margin-bottom: 16px;">
+                <strong>Как работать с подсказками:</strong> откройте подсказку, только если не получается решить. В ней нет прямого ответа, но есть направление мысли.
+            </div>
+
+            <!-- Задачи 1-3 (Правила) -->
+            <div class="task-item">
+                <p>1. В меню столовой 4 вида первых блюд, 5 видов вторых и 3 вида напитков. Сколько разных вариантов обеда (первое + второе + напиток) можно составить?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Выбираем три независимых элемента: блюдо из первой группы, из второй и из третьей. Подумайте, как связаны количества вариантов на каждом шаге.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>2. У Пети 3 разные ручки и 2 разных карандаша. Сколькими способами он может выбрать либо одну ручку, либо один карандаш?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Обратите внимание на слово «либо». Петя берёт только один предмет, а не пару. Способы выбрать ручку и выбрать карандаш никак не пересекаются.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>3. Сколько существует двузначных чисел, в которых первая цифра — нечётная, а вторая — чётная?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Первая цифра числа не может быть нулём. Разбейте задачу на два шага: сначала выберите первую цифру, затем независимо от неё — вторую.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 4-8 (Перестановки/Размещения/Сочетания) -->
+            <div class="task-item">
+                <p>4. Сколькими способами можно расставить 6 разных учебников на книжной полке?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Вам нужно расставить все 6 книг. Подумайте: важен ли порядок, в котором они стоят? Каждая новая перестановка — это новый вариант.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>5. Сколькими способами 5 человек могут встать в очередь в столовую?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">В очереди важно, кто стоит первым, кто вторым и т.д. Все 5 человек участвуют. Сколько вариантов выбрать первого, затем второго и так далее?</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>6. В соревнованиях участвуют 7 спортсменов. Сколькими способами могут распределиться золотая, серебряная и бронзовая медали?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Медали разного достоинства — значит, порядок (кто на каком месте) имеет значение. Но выбираем мы только 3 человек из 7.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>7. В группе 12 студентов. Сколькими способами можно выбрать 3 студента для участия в олимпиаде (все роли одинаковые)?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Выбираем трёх студентов из двенадцати. Если поменять их местами в списке, команда останется той же самой. Порядок не имеет значения.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>8. Сколькими способами можно выбрать из 8 человек двух: одного для роли капитана, а другого — для роли вратаря?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Капитан и вратарь — это две разные роли. Выбрать Иванова капитаном, а Петрова вратарём — это не то же самое, что наоборот. Порядок назначения важен.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 9-12 (Бином Ньютона) -->
+            <div class="task-item">
+                <p>9. Раскройте скобки с помощью бинома Ньютона: \((a+b)^5\).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Вам нужна 5-я строка треугольника Паскаля. Коэффициенты: 1, 5, 10, 10, 5, 1. Подставьте их по формуле \((a+b)^n\).</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>10. Раскройте скобки: \((x+1)^6\).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Возьмите коэффициенты из 6-й строки треугольника Паскаля. Не забудьте, что \(1^k = 1\), поэтому в разложении будут только степени \(x\).</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>11. Раскройте скобки: \((2x - 3)^4\).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Коэффициенты из 4-й строки. Следите за знаком: нечётные степени \(-3\) дают минус. Сначала возводите \(2x\) и \(-3\) в степень, потом умножайте на коэффициент.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>12. Раскройте скобки: \((3a - 2b)^8\). <strong>(Задание повышенной сложности)</strong></p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Вам понадобится 8-я строка треугольника Паскаля. Коэффициенты: 1, 8, 28, 56, 70, 56, 28, 8, 1. Следите за знаками: степени \((-2b)\) с нечётным показателем дают минус.</div>
+                </details>
+                <div class="answer-block" style="display:none;">
+                    <strong>Ответ (для проверки):</strong><br>
+                    \(6561a^8 - 34992a^7b + 81648a^6b^2 - 108864a^5b^3 + 90720a^4b^4 - 48384a^3b^5 + 16128a^2b^6 - 3072ab^7 + 256b^8\).
+                </div>
+            </div>
+
+            <!-- Задачи 13-15 (Продвинутые) -->
+            <div class="task-item">
+                <p>13. Используя треугольник Паскаля, найдите сумму чисел в 9-й строке (считая с 0-й).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сумма чисел в строке с номером \(n\) равна \(2^n\). Просто подставьте \(n = 9\) и возведите 2 в 9-ю степень.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>14. Найдите \(C_6^3\) с помощью треугольника Паскаля.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Число \(C_n^k\) находится в \(n\)-й строке на позиции \(k\) (считая с нуля). Найдите 6-ю строку и третье число (0, 1, 2, 3).</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>15. Бросают 4 монеты. Сколькими способами могут выпасть ровно 2 орла?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Это задача на сочетания. Из 4 бросков нужно выбрать 2, в которых выпадет орёл. Искомое число — \(C_4^2\). Его можно найти в треугольнике Паскаля.</div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ШПАРГАЛКА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Шпаргалка</span>
+            <span class="sub-title">всё самое главное в одном блоке</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>1.</strong> Правило умножения: \(m \cdot n\) способов.<br><br>
+                <strong>2.</strong> Правило сложения: \(m + n\) способов (если не пересекаются).<br><br>
+                <strong>3.</strong> Факториал: \(n! = 1 \cdot 2 \cdot \ldots \cdot n\), причём \(0! = 1\).<br><br>
+                <strong>4.</strong> Перестановки (порядок важен, все элементы): \(P_n = n!\).<br><br>
+                <strong>5.</strong> Размещения (порядок важен, часть элементов): \(A_n^k = \dfrac{n!}{(n-k)!}\).<br><br>
+                <strong>6.</strong> Сочетания (порядок не важен, часть элементов): \(C_n^k = \dfrac{n!}{k!(n-k)!}\).<br><br>
+                <strong>7.</strong> Бином Ньютона: \((a+b)^n = \sum_{k=0}^n C_n^k a^{n-k} b^k\).<br><br>
+                <strong>8.</strong> Строка \(n\) треугольника Паскаля: \(C_n^0, C_n^1, \ldots, C_n^n\).
+            </div>
+        </div>
+    </div>
+
+    <a href="combinatorics.html" class="back-link">← Назад к разделу</a>
+</div>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+</body>
+</html>

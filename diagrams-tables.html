@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Таблицы и диаграммы — справочник</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(46, 204, 113, 0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #1abc9c; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #1abc9c; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); transition: background 0.3s; }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; transition: color 0.3s; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 14000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 16px; }
+        .formula-card { background: var(--formula-bg); border-left: 5px solid var(--accent); padding: 14px 10px; border-radius: 16px; text-align: center; transition: background 0.3s; }
+        .formula-card p { font-size: 1.05rem; font-weight: 600; color: var(--text); margin: 0; line-height: 1.6; transition: color 0.3s; }
+        .formula-card .small-text { font-size: 0.85rem; font-weight: normal; margin-top: 6px; color: var(--text-secondary); }
+
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); text-align: left; transition: background 0.3s, color 0.3s; }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; transition: color 0.3s; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); transition: color 0.3s; }
+        .example .formula-highlight { color: var(--formula-color); font-weight: 600; transition: color 0.3s; }
+
+        .task-item { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid var(--accent); }
+        .task-item p { margin: 0 0 10px 0; font-weight: 600; color: var(--text); }
+        details.spoiler { background: var(--example-bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+        details.spoiler > summary { padding: 8px 14px; font-size: 0.9rem; font-weight: 600; color: var(--accent); cursor: pointer; list-style: none; user-select: none; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        details.spoiler > summary::-webkit-details-marker { display: none; }
+        details.spoiler > summary::before { content: "▶"; font-size: 0.7rem; transition: transform 0.2s; }
+        details.spoiler[open] > summary::before { transform: rotate(90deg); }
+        details.spoiler > summary:hover { background: rgba(26,188,156,0.1); }
+        details.spoiler > .spoiler-content { padding: 10px 14px; font-size: 0.9rem; color: var(--text-secondary); border-top: 1px solid var(--border); line-height: 1.5; }
+
+        .data-table { width: 100%; border-collapse: collapse; margin: 12px 0; background: var(--formula-bg); border-radius: 12px; overflow: hidden; }
+        .data-table th, .data-table td { padding: 8px 10px; text-align: center; font-size: 0.9rem; border: 1px solid var(--border); color: var(--text); }
+        .data-table th { background: var(--special-border); color: white; font-weight: 600; }
+        .data-table tr:nth-child(even) td { background: var(--example-bg); }
+
+        /* Стили для визуализаций */
+        .viz-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 15px 0; }
+        .viz-box { background: var(--formula-bg); padding: 15px; border-radius: 14px; border: 1px solid var(--border); text-align: center; flex: 1; min-width: 250px; }
+        .viz-box h4 { color: var(--text); margin-bottom: 10px; font-size: 0.95rem; }
+
+        /* Столбчатая диаграмма (CSS) */
+        .bar-chart { display: flex; align-items: flex-end; justify-content: space-around; height: 150px; border-bottom: 2px solid var(--text-secondary); padding-bottom: 5px; margin-top: 10px; }
+        .bar { width: 30px; background-color: var(--accent); border-radius: 4px 4px 0 0; display: flex; align-items: flex-end; justify-content: center; color: white; font-size: 0.8rem; padding-bottom: 5px; transition: height 0.5s; }
+        .bar-labels { display: flex; justify-content: space-around; margin-top: 5px; font-size: 0.85rem; color: var(--text-secondary); }
+
+        /* Круговая диаграмма (Conic Gradient) */
+        .pie-chart { width: 140px; height: 140px; border-radius: 50%; margin: 10px auto; display: flex; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .pie-legend { display: flex; flex-direction: column; gap: 5px; font-size: 0.85rem; color: var(--text-secondary); text-align: left; margin-top: 10px; align-items: center; }
+        .pie-legend span { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); text-align: justify; transition: color 0.3s; }
+
+        .important { background: var(--info-bg); border-left: 4px solid var(--formula-color); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); text-align: justify; transition: background 0.3s, color 0.3s; }
+        .important strong { color: var(--formula-color); transition: color 0.3s; }
+
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #16a085; }
+
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+            .formula-grid { grid-template-columns: 1fr; }
+            .formula-card p { font-size: 0.95rem; }
+            .task-item { padding: 12px 14px; }
+            .data-table th, .data-table td { padding: 6px 8px; font-size: 0.8rem; }
+            .viz-container { flex-direction: column; }
+        }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+</head>
+<body>
+<div class="container">
+    <h1>Составление таблиц и диаграмм</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📈 Зачем визуализировать данные</span>
+            <span class="sub-title">от скучных чисел к наглядной картинке</span>
+        </div>
+        <div class="section-content">
+            <p>Когда данных много, смотреть на список чисел неудобно. Глаз человека мгновенно считывает <strong>картинку</strong>, но с трудом анализирует столбики цифр. Поэтому данные превращают в <strong>таблицы</strong> (для точности) и <strong>диаграммы</strong> (для наглядности).</p>
+            <div class="important">
+                <strong>Главная идея:</strong> таблица отвечает на вопрос <em>«Сколько именно?»</em>, а диаграмма — на вопрос <em>«Как это выглядит в целом?»</em>. Работает связка: сначала собираем данные в таблицу, потом рисуем по ней диаграмму.
+            </div>
+        </div>
+    </div>
+
+    <!-- ТАБЛИЦЫ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Таблицы частот</span>
+            <span class="sub-title">упорядочивание данных</span>
+        </div>
+        <div class="section-content">
+            <p>Вместо того чтобы перечислять все значения подряд (например, оценки за контрольную), их группируют. Получается таблица, где для каждого значения указано, сколько раз оно встретилось (его <strong>частота</strong>).</p>
+
+            <div class="example">
+                <strong>Пример.</strong> Оценки за контрольную: 3, 4, 5, 3, 4, 4, 5, 2, 4, 3.<br><br>
+                <span class="step">Шаг 1. Считаем частоты:</span>
+                <table class="data-table">
+                    <thead>
+                    <tr><th>Оценка</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr><td><strong>Частота</strong></td><td>1</td><td>3</td><td>4</td><td>2</td></tr>
+                    </tbody>
+                </table>
+                <span class="step">Шаг 2. Проверяем:</span> сумма частот = 1+3+4+2 = 10 (всего оценок).<br>
+                <span class="result">Ответ: таблица частот построена.</span>
+            </div>
+            <div class="important">
+                <strong>Полезно знать:</strong> сумма всех частот всегда равна общему количеству данных.
+            </div>
+        </div>
+    </div>
+
+    <!-- СТОЛБЧАТАЯ ДИАГРАММА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Столбчатая диаграмма</span>
+            <span class="sub-title">сравниваем высоту столбиков</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Столбчатая диаграмма (гистограмма)</strong> — это прямоугольники, высота которых соответствует частоте. Она хороша, когда нужно сравнить, чего больше, а чего меньше.</p>
+
+            <div class="viz-container">
+                <div class="viz-box">
+                    <h4>Оценки за контрольную</h4>
+                    <div class="bar-chart">
+                        <div class="bar" style="height: 25%;" title="2">1</div>
+                        <div class="bar" style="height: 75%; background-color: #60a5fa;" title="3">3</div>
+                        <div class="bar" style="height: 100%;" title="4">4</div>
+                        <div class="bar" style="height: 50%; background-color: #60a5fa;" title="5">2</div>
+                    </div>
+                    <div class="bar-labels">
+                        <span>2</span><span>3</span><span>4</span><span>5</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="important">
+                <strong>Правила построения:</strong><br>
+                1. По горизонтали (ось X) — то, что сравниваем (оценки, дни, категории).<br>
+                2. По вертикали (ось Y) — числовые значения (частоты, суммы).<br>
+                3. Все столбики должны быть одинаковой ширины, а расстояние между ними — одинаковым.
+            </div>
+        </div>
+    </div>
+
+    <!-- КРУГОВАЯ ДИАГРАММА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Круговая диаграмма</span>
+            <span class="sub-title">смотрим на доли целого</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Круговая диаграмма</strong> — это круг, разбитый на сектора. Она хороша, когда нужно показать, какую <strong>долю</strong> от целого составляет каждая часть (например, бюджет семьи, структура продаж).</p>
+            <p>Весь круг — это 100% или 360°. Каждая часть занимает угол, пропорциональный своей доле.</p>
+
+            <div class="example">
+                <strong>Пример.</strong> Как перевести данные в углы для круговой диаграммы (оценки 2,3,4,5; частоты 1,3,4,2; всего 10).<br><br>
+                <span class="step">Шаг 1. Находим долю каждой оценки:</span><br>
+                Доля «2»: \(1/10 = 0{,}1\); Доля «3»: \(3/10 = 0{,}3\); Доля «4»: \(4/10 = 0{,}4\); Доля «5»: \(2/10 = 0{,}2\).<br><br>
+                <span class="step">Шаг 2. Переводим доли в градусы (умножаем на 360°):</span><br>
+                «2»: \(0{,}1 \cdot 360 = 36^\circ\);<br>
+                «3»: \(0{,}3 \cdot 360 = 108^\circ\);<br>
+                «4»: \(0{,}4 \cdot 360 = 144^\circ\);<br>
+                «5»: \(0{,}2 \cdot 360 = 72^\circ\).<br><br>
+                <span class="step">Проверка:</span> \(36+108+144+72 = 360^\circ\).<br>
+                <span class="result">Ответ: углы секторов: 36°, 108°, 144°, 72°.</span>
+            </div>
+
+            <div class="viz-container">
+                <div class="viz-box">
+                    <h4>Доли оценок</h4>
+                    <!-- Условная визуализация круговой диаграммы через conic-gradient -->
+                    <div class="pie-chart" style="background: conic-gradient(
+                        #f87171 0deg 36deg,
+                        #60a5fa 36deg 144deg,
+                        #1abc9c 144deg 288deg,
+                        #fbbf24 288deg 360deg
+                    );"></div>
+                    <div class="pie-legend">
+                        <div><span style="background:#f87171;"></span> Оценка 2 (10%)</div>
+                        <div><span style="background:#60a5fa;"></span> Оценка 3 (30%)</div>
+                        <div><span style="background:#1abc9c;"></span> Оценка 4 (40%)</div>
+                        <div><span style="background:#fbbf24;"></span> Оценка 5 (20%)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЗАДАЧИ ДЛЯ САМОСТОЯТЕЛЬНОГО РЕШЕНИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">Задачи для самостоятельного решения</span>
+            <span class="sub-title">15 задач с подсказками</span>
+        </div>
+        <div class="section-content">
+            <div class="important" style="margin-bottom: 16px;">
+                <strong>Как работать с подсказками:</strong> откройте подсказку, только если не получается решить. В ней нет прямого ответа, но есть направление мысли.
+            </div>
+
+            <!-- Задачи 1-5 (Таблицы) -->
+            <div class="task-item">
+                <p>1. В классе провели опрос: какой вид спорта любят ученики. Ответы: футбол, баскетбол, футбол, плавание, футбол, баскетбол, теннис, футбол, плавание, баскетбол. Составьте таблицу частот.</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Посчитайте, сколько раз встречается каждый вид спорта в списке. Это и будут ваши частоты. В таблице должно быть 4 столбца (по числу видов спорта).</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>2. В таблице частот указаны дни недели и количество проданных пирожков: Пн — 20, Вт — 25, Ср — 15, Чт — 30, Пт — 40. Сколько всего пирожков продали за неделю?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сумма всех частот — это общее количество проданных пирожков. Сложите все числа из второго столбца.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>3. Дана таблица: Оценка — 2, 3, 4, 5. Частота — 1, 4, 10, 5. Найдите моду (самую частую оценку).</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Мода — это значение с самой большой частотой. Посмотрите на второй столбец и найдите максимальное число.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>4. В таблице: Цвет — красный, синий, зелёный. Частота — 12, 8, 5. Сколько всего предметов было в выборке?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Общее количество данных — это сумма всех частот. Сложите 12, 8 и 5.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>5. В таблице: Месяц — Январь, Февраль, Март. Осадки (мм) — 40, 30, 50. Постройте мысленно столбчатую диаграмму. Какой месяц будет самым высоким столбиком?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Высота столбика соответствует числу осадков. Найдите наибольшее число в третьем столбце.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 6-10 (Столбчатые) -->
+            <div class="task-item">
+                <p>6. За неделю в магазине продали: Пн — 10, Вт — 15, Ср — 12, Чт — 18, Пт — 20. В какой день продажи были максимальными?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Вам нужно найти день, соответствующий самому большому числу в списке. Это и будет вершина самого высокого столбика.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>7. На диаграмме (мысленно) высота столбика для «Яблок» — 5 клеток, для «Груш» — 3 клетки. На сколько столбик яблок выше столбика груш?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Высота измеряется в клетках. Вам нужно найти разность между высотой первого и второго столбика.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>8. В таблице: Товар А — 30 шт., Товар Б — 20 шт., Товар В — 50 шт. Постройте столбчатую диаграмму. Во сколько раз столбик товара В выше столбика товара Б?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Чтобы узнать, во сколько раз один столбик выше другого, разделите большее значение на меньшее.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>9. На столбчатой диаграмме показано количество учеников в классах: 7А — 25, 7Б — 28, 7В — 22. Сколько всего учеников в трёх классах?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Суммируйте значения, соответствующие высотам всех трёх столбиков.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>10. В таблице: Январь — 100, Февраль — 120, Март — 90. Постройте столбчатую диаграмму. Во сколько раз февральский столбик выше мартовского?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Разделите значение для февраля на значение для марта.</div>
+                </details>
+            </div>
+
+            <!-- Задачи 11-15 (Круговые) -->
+            <div class="task-item">
+                <p>11. В корзине 10 яблок, 20 груш и 30 слив. Какой сектор будет самым большим на круговой диаграмме?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сектор тем больше, чем больше значение. Найдите самый крупный вид фруктов по количеству.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>12. Всего 100 голосов. Голоса распределились: Кандидат А — 40, Кандидат Б — 35, Кандидат В — 25. Сколько градусов будет занимать сектор кандидата А на круговой диаграмме?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Весь круг — это 360°. Сначала найдите долю кандидата А (разделите его голоса на 100), а затем умножьте на 360°.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>13. На круговой диаграмме 50% занимает сектор «Спорт», 25% — «Кино», 25% — «Музыка». Какой угол у сектора «Спорт»?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">50% — это половина круга. Половина от 360° — это и будет искомый угол.</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>14. В школе 1200 учеников. На диаграмме показано: 40% — младшие классы, 35% — средние, 25% — старшие. Сколько учеников в младших классах?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">40% — это 40 сотых от общего числа. Умножьте 1200 на 0,4 (или 40 и разделите на 100).</div>
+                </details>
+            </div>
+
+            <div class="task-item">
+                <p>15. На диаграмме: «Футбол» — 144°, «Баскетбол» — 72°, «Волейбол» — 144°. Какая доля (в процентах) у баскетбола?</p>
+                <details class="spoiler">
+                    <summary>Подсказка</summary>
+                    <div class="spoiler-content">Сначала найдите долю угла от 360° (разделите 72 на 360). Затем переведите эту долю в проценты, умножив на 100.</div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
+    <a href="combinatorics.html" class="back-link">← Назад к разделу</a>
+</div>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+</body>
+</html>
