@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -59,7 +59,7 @@
         .templates { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
         .tpl-btn { padding: 5px 10px; background: var(--btn-bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text); cursor: pointer; font-size: 0.7rem; font-family: monospace; }
 
-        .graph-container { position: relative; width: 100%; height: 400px; margin: 16px 0 8px; background: var(--result-bg); border-radius: 20px; overflow: hidden; }
+        .graph-container { position: relative; width: 100%; height: 65vh; min-height: 400px; max-height: 800px; margin: 16px 0 8px; background: var(--result-bg); border-radius: 20px; overflow: hidden; }
         .graph-container:fullscreen { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; border-radius: 0; background: #0a0f16; }
         .graph-container:fullscreen canvas { width: 100vw; height: 100vh; border-radius: 0; }
 
@@ -69,7 +69,6 @@
         .fullscreen-btn { position: absolute; bottom: 15px; right: 15px; width: 44px; height: 44px; border-radius: 50%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 20; color: white; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
         .fullscreen-btn:hover { background: var(--accent); transform: scale(1.05); }
 
-        /* ===== КНОПКИ ПОД ГРАФИКОМ ===== */
         .graph-controls-bottom {
             display: flex;
             justify-content: center;
@@ -122,7 +121,7 @@
         .info-panel { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
         .intersections { flex: 1; background: var(--input-bg); border-radius: 16px; padding: 8px 12px; }
         .intersections h4 { font-size: 0.65rem; margin-bottom: 6px; color: var(--text-secondary); }
-        .intersections p { font-size: 0.7rem; color: var(--text); font-family: monospace; word-break: break-word; }
+        .intersections p { font-size: 1rem; font-weight: 600; color: var(--text); font-family: monospace; word-break: break-word; line-height: 1.4; }
 
         .value-table { flex: 1; background: var(--input-bg); border-radius: 16px; padding: 8px 12px; overflow-x: auto; }
         .value-table h4 { font-size: 0.65rem; margin-bottom: 6px; color: var(--text-secondary); }
@@ -135,14 +134,146 @@
         .back-link { display: inline-block; margin-top: 16px; padding: 8px 20px; background: var(--accent); color: white; text-decoration: none; border-radius: 40px; font-weight: 600; font-size: 0.85rem; text-align: center; }
 
         @media (max-width: 700px) {
-            .graph-container { height: 320px; }
+            /* Компактные нижние блоки */
+            .info-panel { flex-direction: row; gap: 8px; margin-top: 8px; }
+            .intersections, .value-table { flex: 1 1 calc(50% - 8px); min-width: 0; padding: 6px 8px; border-radius: 12px; }
+            .intersections h4, .value-table h4 { font-size: 0.6rem; margin-bottom: 4px; }
+            .intersections p { font-size: 0.9rem; line-height: 1.2; }
+            .value-table th, .value-table td { padding: 2px 3px; font-size: 0.6rem; }
+            .value-table table { font-size: 0.65rem; }
+            /* Уменьшаем кнопки под графиком */
+            .graph-controls-bottom { gap: 6px; margin-bottom: 8px; }
+            .graph-controls-bottom button { padding: 8px 12px; font-size: 0.85rem; min-width: 40px; }
+            .graph-controls-bottom .reset-btn { padding: 8px 14px; font-size: 0.8rem; }
+            /* */
+
+            .graph-container { height: 50vh; min-height: 300px; }
             .btn-group { flex: 1; }
             .btn { padding: 8px; font-size: 0.75rem; }
             .value-table th, .value-table td { padding: 3px 4px; font-size: 0.65rem; }
             .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
             .graph-controls-bottom button { padding: 10px 16px; font-size: 0.9rem; min-width: 48px; }
         }
-    </style>
+
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+.section-title {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important;
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important;
+}
+
+.section-title:hover {
+    background: linear-gradient(90deg,
+        var(--special-border, #3b82f6) 0%,
+        rgba(13, 148, 136, 0.15) 30%,
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg,
+        var(--special-border, #3b82f6) 0%,
+        rgba(13, 148, 136, 0.25) 30%,
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+.section-title::before {
+    display: none !important;
+}
+
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+a.back-link, .back-link {
+    display: table !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 20px !important;
+    margin-bottom: 10px !important;
+    text-align: center !important;
+    float: none !important;
+}</style>
     <script src="libs/algebrite/algebrite.min.js"></script>
     <script>
         MathJax = {
@@ -160,7 +291,7 @@
         <div class="sub">y = f(x) — введите функцию</div>
 
         <div class="input-row">
-            <input type="text" id="functionInput" placeholder="sin(x), x^2, x^3-3*x, 1/x" value="x^3-3*x" oninput="updatePreview()">
+            <input type="text" id="functionInput" placeholder="sin(x), x^2, x^3-3*x, 1/x, log_2(x)" value="x^3-3*x" oninput="updatePreview()">
             <div class="btn-group">
                 <button class="btn" onclick="plotGraph()">Построить</button>
                 <button class="btn btn-secondary" id="toggleDerivBtn" onclick="toggleDerivative()">f'</button>
@@ -176,6 +307,8 @@
             <button class="tpl-btn" onclick="setFunc('x^3-3*x')">x³-3x</button>
             <button class="tpl-btn" onclick="setFunc('1/x')">1/x</button>
             <button class="tpl-btn" onclick="setFunc('ln(x)')">ln(x)</button>
+            <button class="tpl-btn" onclick="setFunc('log_2(x)')">log₂(x)</button>
+            <button class="tpl-btn" onclick="setFunc('log_10(x)')">log₁₀(x)</button>
             <button class="tpl-btn" onclick="setFunc('tan(x)')">tan(x)</button>
         </div>
 
@@ -189,7 +322,6 @@
             <button class="fullscreen-btn" id="fullscreenBtn" title="Во весь экран">⛶</button>
         </div>
 
-        <!-- ★ НОВЫЕ КНОПКИ ПОД ГРАФИКОМ -->
         <div class="graph-controls-bottom">
             <button onclick="zoomIn()" title="Приблизить">＋</button>
             <button onclick="zoomOut()" title="Отдалить">−</button>
@@ -298,22 +430,63 @@
             return parseFloat(num.toFixed(3)).toString();
         }
 
+        // ★ ПОЛНОСТЬЮ ПЕРЕПИСАННЫЙ И НАДЕЖНЫЙ ПАРСЕР
         function evaluateFunction(func, x) {
             if (!func) return NaN;
             try {
-                let expr = func.replace(/\^/g, '**');
+                let expr = func;
+
+                // 1. Заменяем степени на **
+                expr = expr.replace(/\^/g, '**');
+
+                // 2. Скрываем известные функции от неявного умножения
+                expr = expr.replace(/log_(\d+(?:\.\d+)?)/g, '__LOG_$1__');
+                expr = expr.replace(/log/g, '__LOG__');
+                expr = expr.replace(/ln/g, '__LN__');
+                expr = expr.replace(/sin/g, '__SIN__');
+                expr = expr.replace(/cos/g, '__COS__');
+                expr = expr.replace(/tan/g, '__TAN__');
+                expr = expr.replace(/tg/g, '__TG__');
+                expr = expr.replace(/sqrt/g, '__SQRT__');
+
+                // 3. Неявное умножение (безопасно для скрытых функций)
                 expr = expr.replace(/(\d)([a-zA-Z])/g, '$1*$2');
+                expr = expr.replace(/([a-zA-Z0-9])(\()/g, '$1*$2');
+
+                // 4. Обработка логарифмов с основанием
+                let guard = 0;
+                while (/__LOG_\d+(?:\.\d+)?__/.test(expr) && guard++ < 20) {
+                    expr = expr.replace(/__LOG_(\d+(?:\.\d+)?)__\(([^()]*(?:\([^()]*\)[^()]*)*)\)/g, function(match, base, arg) {
+                        return '(Math.log(' + arg + ') / Math.log(' + base + '))';
+                    });
+                }
+
+                // 5. Обработка обычного log(x) как десятичного
+                guard = 0;
+                while (/__LOG__/.test(expr) && guard++ < 20) {
+                    expr = expr.replace(/__LOG__\(([^()]*(?:\([^()]*\)[^()]*)*)\)/g, 'Math.log10($1)');
+                }
+
+                // 6. Обработка ln(x)
+                guard = 0;
+                while (/__LN__/.test(expr) && guard++ < 20) {
+                    expr = expr.replace(/__LN__\(([^()]*(?:\([^()]*\)[^()]*)*)\)/g, 'Math.log($1)');
+                }
+
+                // 7. Восстанавливаем остальные функции
+                expr = expr.replace(/__SIN__/g, 'Math.sin');
+                expr = expr.replace(/__COS__/g, 'Math.cos');
+                expr = expr.replace(/__TAN__/g, 'Math.tan');
+                expr = expr.replace(/__TG__/g, 'Math.tan');
+                expr = expr.replace(/__SQRT__/g, 'Math.sqrt');
                 expr = expr.replace(/pi/gi, 'Math.PI');
                 expr = expr.replace(/exp\(/g, 'Math.exp(');
-                expr = expr.replace(/sin\(/g, 'Math.sin(');
-                expr = expr.replace(/cos\(/g, 'Math.cos(');
-                expr = expr.replace(/tan\(/g, 'Math.tan(');
-                expr = expr.replace(/tg\(/g, 'Math.tan(');
-                expr = expr.replace(/ln\(/g, 'Math.log(');
-                expr = expr.replace(/sqrt\(/g, 'Math.sqrt(');
+
                 const fn = new Function('x', 'return ' + expr);
                 const result = fn(x);
-                return isFinite(result) ? result : NaN;
+
+                // Отсекаем бесконечности (например, log(0) или 1/0)
+                return (isFinite(result) && !isNaN(result)) ? result : NaN;
             } catch (e) {
                 return NaN;
             }
@@ -322,7 +495,7 @@
         function computeDerivative(func) {
             if (typeof Algebrite === 'undefined') return null;
             try {
-                let cleaned = func.replace(/\^/g, '^');
+                let cleaned = func.replace(/log_(\d+)\(/g, 'log($1, ');
                 let deriv = Algebrite.derivative(cleaned, 'x').toString();
                 deriv = deriv.replace(/\*\*/g, '^');
                 deriv = deriv.replace(/pi/gi, 'pi');
@@ -405,17 +578,33 @@
             ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--graph-color').trim() || '#1abc9c';
             ctx.lineWidth = 2.5;
             let firstPoint = true;
+            let prevCanvasY = null;
 
             for (let px = 0; px <= width; px++) {
                 let x = viewXMin + (px / width) * (viewXMax - viewXMin);
                 let y = evaluateFunction(currentFunc, x);
+
                 if (!isNaN(y) && isFinite(y)) {
                     let canvasY = toCanvasY(y);
-                    if (canvasY >= -100 && canvasY <= height + 100) {
+                    // Ограничиваем отрисовку по Y, чтобы асимптоты логарифмов не рисовали сплошную линию
+                    if (canvasY >= -height && canvasY <= height * 2) {
+                        // Защита от разрывов: если скачок слишком большой, начинаем новую линию
+                        if (prevCanvasY !== null && Math.abs(canvasY - prevCanvasY) > height * 0.8) {
+                            firstPoint = true;
+                        }
+
                         if (firstPoint) { ctx.moveTo(px, canvasY); firstPoint = false; }
                         else { ctx.lineTo(px, canvasY); }
-                    } else { firstPoint = true; }
-                } else { firstPoint = true; }
+
+                        prevCanvasY = canvasY;
+                    } else {
+                        firstPoint = true;
+                        prevCanvasY = null;
+                    }
+                } else {
+                    firstPoint = true;
+                    prevCanvasY = null;
+                }
             }
             ctx.stroke();
 
@@ -425,17 +614,28 @@
                 ctx.lineWidth = 2;
                 ctx.setLineDash([8, 5]);
                 firstPoint = true;
+                prevCanvasY = null;
 
                 for (let px = 0; px <= width; px++) {
                     let x = viewXMin + (px / width) * (viewXMax - viewXMin);
                     let y = evaluateFunction(currentDerivative, x);
                     if (!isNaN(y) && isFinite(y)) {
                         let canvasY = toCanvasY(y);
-                        if (canvasY >= -100 && canvasY <= height + 100) {
+                        if (canvasY >= -height && canvasY <= height * 2) {
+                            if (prevCanvasY !== null && Math.abs(canvasY - prevCanvasY) > height * 0.8) {
+                                firstPoint = true;
+                            }
                             if (firstPoint) { ctx.moveTo(px, canvasY); firstPoint = false; }
                             else { ctx.lineTo(px, canvasY); }
-                        } else { firstPoint = true; }
-                    } else { firstPoint = true; }
+                            prevCanvasY = canvasY;
+                        } else {
+                            firstPoint = true;
+                            prevCanvasY = null;
+                        }
+                    } else {
+                        firstPoint = true;
+                        prevCanvasY = null;
+                    }
                 }
                 ctx.stroke();
                 ctx.setLineDash([]);
@@ -491,15 +691,48 @@
 
         function updateValueTable() {
             const isTrig = isTrigonometric(currentFunc);
-            let xValues;
-            if (isTrig) xValues = [-Math.PI, -Math.PI / 2, 0, Math.PI / 2, Math.PI];
-            else xValues = [-3, -2, -1, -0.5, 0, 0.5, 1, 2, 3];
+            // Набор точек-кандидатов
+            let xCandidates;
+            if (isTrig) {
+                xCandidates = [-Math.PI, -Math.PI / 2, -Math.PI / 4, 0, Math.PI / 4, Math.PI / 2, Math.PI];
+            } else {
+                xCandidates = [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3];
+            }
+
+            // Оставляем только те x, где y (если конечное) имеет не более 1 знака после запятой
+            let filtered = [];
+            for (let x of xCandidates) {
+                let y = evaluateFunction(currentFunc, x);
+                if (!isNaN(y) && isFinite(y)) {
+                    // Округляем до 1 знака
+                    let yRound = Math.round(y * 10) / 10;
+                    // Проверяем, что исходное значение практически совпадает с округленным (допуск)
+                    if (Math.abs(y - yRound) < 0.01) {
+                        filtered.push({ x: x, y: yRound });
+                    }
+                }
+            }
+
+            // Если подходящих точек слишком мало (меньше 4) — добавляем "красивые" из стандартного набора,
+            // даже если значение не совсем круглое (например, для ln(x))
+            if (filtered.length < 4) {
+                let fallbackX = isTrig ? [-Math.PI, 0, Math.PI] : [-2, -1, 0, 1, 2];
+                for (let x of fallbackX) {
+                    if (filtered.find(f => Math.abs(f.x - x) < 1e-6)) continue;
+                    let y = evaluateFunction(currentFunc, x);
+                    if (!isNaN(y) && isFinite(y)) {
+                        filtered.push({ x: x, y: Math.round(y * 100) / 100 }); // тут можно 2 знака для красоты
+                    }
+                }
+            }
+
+            // Сортируем по x
+            filtered.sort((a, b) => a.x - b.x);
 
             let html = '<table><tr><th>x</th><th>f(x)</th></tr>';
-            for (let x of xValues) {
-                let y = evaluateFunction(currentFunc, x);
-                let xLabel = isTrig ? formatXLabel(x, true, 1) : (Math.abs(x - Math.round(x)) < 0.01 ? Math.round(x).toString() : x.toFixed(2));
-                let yStr = (!isNaN(y) && isFinite(y)) ? formatNumber(y) : '—';
+            for (let item of filtered) {
+                let xLabel = isTrig ? formatXLabel(item.x, true, 1) : (Math.abs(item.x - Math.round(item.x)) < 0.01 ? Math.round(item.x).toString() : item.x.toFixed(1));
+                let yStr = (Math.abs(item.y - Math.round(item.y)) < 0.01) ? Math.round(item.y).toString() : item.y.toFixed(1);
                 html += '<tr><td style="font-weight:600;">' + xLabel + '</td><td>' + yStr + '</td></tr>';
             }
             html += '</table>';
@@ -512,6 +745,7 @@
             if (func) {
                 let formatted = func.replace(/\*/g, '·');
                 formatted = formatted.replace(/\bpi\b/g, '\\pi');
+                formatted = formatted.replace(/log_(\d+(?:\.\d+)?)\(([^)]+)\)/g, '\\log_{$1}($2)');
                 previewDiv.innerHTML = '\\( f(x) = ' + formatted + ' \\)';
             } else {
                 previewDiv.innerHTML = '\\( f(x) = ? \\)';
@@ -524,7 +758,6 @@
             if (!funcInput) { showError('Введите функцию'); return; }
 
             currentFunc = funcInput;
-
             const deriv = computeDerivative(currentFunc);
             currentDerivative = deriv || null;
 
@@ -564,7 +797,6 @@
             plotGraph();
         }
 
-        // ====== ЗУМ ======
         function zoomIn() {
             const cx = (viewXMin + viewXMax) / 2;
             const cy = (viewYMin + viewYMax) / 2;
@@ -611,7 +843,7 @@
             let container = document.querySelector('.graph-container');
             if (!container || !canvas) return;
             width = container.clientWidth;
-            height = Math.max(300, width * 0.56);
+            height = container.clientHeight;
             canvas.width = width;
             canvas.height = height;
             drawGraph();
@@ -702,7 +934,6 @@
             plotGraph();
         }
 
-        // ====== ЭКСПОРТ В WINDOW ======
         window.updatePreview = updatePreview;
         window.plotGraph = plotGraph;
         window.toggleDerivative = toggleDerivative;
@@ -730,3 +961,4 @@
 <script src="theme.js"></script>
 </body>
 </html>
+

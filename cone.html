@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -456,7 +456,128 @@
             .task-given-find { flex-direction: column; gap: 6px; }
         }
 
-        </style>
+        
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+
+/* ===== Карточки в 3D-файлах (тень, парение, градиент) ===== */
+.task-block, .def-card, .note-box, .formula-block, .task-condition, .task-given-find {
+    position: relative;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--task-bg, var(--info-bg));
+    margin-bottom: 16px;
+}
+
+/* Градиентная полоска слева для карточек */
+.task-block::before, .def-card::before, .note-box::before, .formula-block::before, .task-condition::before, .task-given-find::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, 
+        var(--special-border, #ec489a) 0%, 
+        #0d9488 100%);
+    border-radius: 16px 0 0 16px;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .task-block:hover, .def-card:hover, .note-box:hover, .formula-block:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+}
+
+/* ===== Фикс заголовков (убираем старые конфликты) ===== */
+.section-title {
+    position: relative !important;
+    z-index: 1 !important;
+    margin: 0 !important;
+    padding: 8px 12px !important; /* Отступ для текста */
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем старое свечение */
+}
+
+/* Аккуратная градиентная заливка при наведении (без вылезания) */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #ec489a) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #ec489a) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем его, чтобы не мешал */
+.section-title::before {
+    display: none !important;
+}
+
+/* Возвращаем стрелку вправо */
+.section-title::after {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+
+/* Центрирование заголовков (если нужно) */
+.section-title {
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
     <script>
         MathJax = {
             tex: {
@@ -468,16 +589,12 @@
         };
     </script>
     <script src="mathjax/es5/tex-chtml.js" async></script>
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
-            }
-        }
-    </script>
-</head>
+    </head>
 <body>
+<script src="./three/build/three.min.js"></script>
+<script src="./three/examples/js/controls/OrbitControls.js"></script>
+<script src="./three/examples/js/renderers/CSS2DRenderer.js"></script>
+
 <div class="container">
     <h1>△ Конус</h1>
 
@@ -787,9 +904,6 @@
 
     // ========== ОСНОВНАЯ 3D МОДЕЛЬ ==========
     (async function() {
-        const THREE = await import('three');
-        const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
-        const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
 
         const canvasElem = document.getElementById('cone-canvas');
         const containerElem = document.getElementById('cone-container');
@@ -805,7 +919,7 @@
 
         const renderer = new THREE.WebGLRenderer({ canvas: canvasElem, alpha: true, antialias: true });
 
-        const labelRenderer = new CSS2DRenderer();
+        const labelRenderer = new THREE.CSS2DRenderer();
         labelRenderer.domElement.style.position = 'absolute';
         labelRenderer.domElement.style.top = '0px';
         labelRenderer.domElement.style.left = '0px';
@@ -969,7 +1083,7 @@
                 div.style.border = '1px solid ' + color;
                 div.style.backdropFilter = 'blur(4px)';
                 div.style.pointerEvents = 'none';
-                const label = new CSS2DObject(div);
+                const label = new THREE.CSS2DObject(div);
                 label.position.copy(pos);
                 coneGroup.add(label);
             }
@@ -998,7 +1112,7 @@
         sliderR.addEventListener('input', updateModel);
         sliderH.addEventListener('input', updateModel);
 
-        const controls = new OrbitControls(camera, renderer.domElement);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.06;
         controls.target.set(0, 0, 0);
@@ -1041,9 +1155,6 @@
 
         // ===== ЗАДАЧИ: 3D-СЦЕНЫ =====
         async function initTaskScenes() {
-            const THREE2 = await import('three');
-            const { OrbitControls: OrbitControls2 } = await import('three/addons/controls/OrbitControls.js');
-            const { CSS2DRenderer: CSS2DRenderer2, CSS2DObject: CSS2DObject2 } = await import('three/addons/renderers/CSS2DRenderer.js');
 
             const taskConfigs = [
                 { containerId: 'task1-container', canvasId: 'task1-canvas',
@@ -1059,15 +1170,15 @@
                 const canvas = document.getElementById(cfg.canvasId);
                 if (!container || !canvas) continue;
 
-                const scene = new THREE2.Scene();
+                const scene = new THREE.Scene();
                 scene.background = null;
 
-                const camera = new THREE2.PerspectiveCamera(40, 1, 0.1, 100);
+                const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
                 camera.position.set(3.5, 2.5, 4.5);
 
-                const renderer = new THREE2.WebGLRenderer({ canvas, alpha: true, antialias: true });
+                const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
 
-                const labelRenderer2 = new CSS2DRenderer2();
+                const labelRenderer2 = new THREE.CSS2DRenderer();
                 labelRenderer2.domElement.style.position = 'absolute';
                 labelRenderer2.domElement.style.top = '0px';
                 labelRenderer2.domElement.style.left = '0px';
@@ -1075,16 +1186,16 @@
                 container.style.position = 'relative';
                 container.appendChild(labelRenderer2.domElement);
 
-                const amb = new THREE2.AmbientLight(0x40486c, 0.6);
+                const amb = new THREE.AmbientLight(0x40486c, 0.6);
                 scene.add(amb);
-                const key = new THREE2.DirectionalLight(0xfff5e0, 1.2);
+                const key = new THREE.DirectionalLight(0xfff5e0, 1.2);
                 key.position.set(2, 5, 2);
                 scene.add(key);
-                const fill = new THREE2.PointLight(0xccaa77, 0.5);
+                const fill = new THREE.PointLight(0xccaa77, 0.5);
                 fill.position.set(-1.5, 2, 2);
                 scene.add(fill);
 
-                const controls = new OrbitControls2(camera, renderer.domElement);
+                const controls = new THREE.OrbitControls(camera, renderer.domElement);
                 controls.enableDamping = true;
                 controls.dampingFactor = 0.06;
                 controls.autoRotate = true;
@@ -1094,10 +1205,10 @@
                 controls.target.set(0, 0, 0);
                 controls.maxPolarAngle = Math.PI / 2;
 
-                const group = new THREE2.Group();
+                const group = new THREE.Group();
                 scene.add(group);
 
-                cfg.setup(scene, group, THREE2, CSS2DRenderer2, CSS2DObject2);
+                cfg.setup(scene, group, THREE, THREE.CSS2DRenderer, THREE.CSS2DObject);
 
                 function updateSize() {
                     const rect = container.getBoundingClientRect();
@@ -1226,7 +1337,7 @@
                 div.style.border = '1px solid ' + color;
                 div.style.backdropFilter = 'blur(4px)';
                 div.style.pointerEvents = 'none';
-                const label = new CSS2DObject(div);
+                const label = new THREE.CSS2DObject(div);
                 label.position.copy(pos);
                 group.add(label);
             }
@@ -1325,7 +1436,7 @@ for (let i = 0; i <= numPoints; i++) {
                 div.style.border = '1px solid ' + color;
                 div.style.backdropFilter = 'blur(4px)';
                 div.style.pointerEvents = 'none';
-                const label = new CSS2DObject(div);
+                const label = new THREE.CSS2DObject(div);
                 label.position.copy(pos);
                 group.add(label);
             }
@@ -1380,7 +1491,7 @@ for (let i = 0; i <= numPoints; i++) {
                 div.style.border = '1px solid ' + color;
                 div.style.backdropFilter = 'blur(4px)';
                 div.style.pointerEvents = 'none';
-                const label = new CSS2DObject(div);
+                const label = new THREE.CSS2DObject(div);
                 label.position.copy(pos);
                 group.add(label);
             }
@@ -1490,7 +1601,7 @@ for (let i = 0; i <= numPoints; i++) {
                 div.style.border = '1px solid ' + color;
                 div.style.backdropFilter = 'blur(4px)';
                 div.style.pointerEvents = 'none';
-                const label = new CSS2DObject(div);
+                const label = new THREE.CSS2DObject(div);
                 label.position.copy(pos);
                 group.add(label);
             }
@@ -1523,3 +1634,43 @@ for (let i = 0; i <= numPoints; i++) {
 <script src="theme.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

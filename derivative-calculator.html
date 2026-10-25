@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -151,13 +151,45 @@
         .history-block .label { font-weight: 600; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         .history-block .label .clear-history { color: var(--text-secondary); font-size: 0.7rem; cursor: pointer; padding: 2px 10px; border-radius: 12px; border: 1px solid var(--border); transition: all 0.15s; }
         .history-block .label .clear-history:hover { background: #f87171; color: white; border-color: #f87171; }
-        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: var(--text); cursor: pointer; transition: background 0.15s; }
-        .history-item:hover { background: var(--preview-bg); margin: 0 -8px; padding: 6px 8px; border-radius: 6px; }
+
+        /* ===== ИСПРАВЛЕНИЕ ВЫРАВНИВАНИЯ ИСТОРИИ ===== */
+        .history-item {
+            display: flex;
+            justify-content: center; /* Центрируем содержимое */
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: background 0.15s;
+            gap: 12px; /* Отступ между формулой и результатом */
+            flex-wrap: wrap; /* Для мобильных */
+        }
+        .history-item:hover { background: var(--preview-bg); border-radius: 6px; }
         .history-item:last-child { border-bottom: none; }
-        .history-item .h-func { color: var(--text-secondary); font-size: 0.85rem; }
-        .history-item .h-result { color: var(--special-border); font-weight: 600; font-size: 0.85rem; }
+
+        .history-item .h-func {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .history-item .h-result {
+            color: var(--special-border);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-align: center;
+        }
         .history-item .h-result mjx-container { font-size: 0.85em !important; color: var(--special-border) !important; }
-        .history-item .h-clear { color: var(--text-secondary); font-size: 0.7rem; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
+
+        .history-item .h-clear {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
         .history-item .h-clear:hover { background: #f87171; color: white; }
 
         .back-link { display: inline-block; margin-top: 16px; padding: 10px 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 40px; color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
@@ -182,7 +214,32 @@
             .history-item .h-func { font-size: 0.75rem; }
             .history-item .h-result { font-size: 0.75rem; }
         }
-    </style>
+
+        /* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+        button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+        [class*="btn"], [class*="button"] {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none;
+        }
+        a, select, option, input, textarea, .back-link, .contact-link {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            outline: none;
+        }
+        select:focus, a:focus, input:focus, textarea:focus { outline: none; }
+    
+/* ===== Центрирование кнопки Назад ===== */
+.back-link {
+    display: table !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 20px !important;
+    margin-bottom: 10px !important;
+    text-align: center !important;
+}</style>
 
     <!-- ===== MATHJAX ===== -->
     <script>
@@ -232,6 +289,7 @@
                 <option value="sin(x)+cos(x)">sin(x) + cos(x)</option>
                 <option value="x*sin(x)">x·sin(x)</option>
                 <option value="e^x*sin(x)">eˣ·sin(x)</option>
+                <option value="sqrt(x)">√x</option>
             </select>
         </div>
         <div class="input-group" style="flex:0 0 auto; margin-bottom:0;">
@@ -349,8 +407,7 @@
             return e;
         }
 
-        // Преобразование к LaTeX для MathJax.
-        // ★ Здесь добавлена замена pi → \pi, чтобы «пи» отображалось символом.
+        // ★ ИСПРАВЛЕНО: Преобразование sqrt(...) в \sqrt{...} и pi в \pi
         function toSchoolDisplay(expr) {
             let e = expr;
             e = e.replace(/tan\(/g, '\\tg(');
@@ -361,9 +418,9 @@
             e = e.replace(/sin\(x\)\^2/g, '(\\sin(x))^2');
             e = e.replace(/cos\(([^)]+)\)\^2/g, '(\\cos($1))^2');
             e = e.replace(/sin\(([^)]+)\)\^2/g, '(\\sin($1))^2');
-            // ★ π: заменяем все вхождения pi, за которыми не идёт буква
+            // ★ Обработка квадратного корня
+            e = e.replace(/sqrt\(([^)]+)\)/g, '\\sqrt{$1}');
             e = e.replace(/\bpi\b/g, '\\pi');
-            // на случай pi2 или pi_x — оставляем как есть, тут уже нечего ловить
             return e;
         }
 
@@ -424,6 +481,7 @@
                 let resultDisplay = h.result ? toSchoolDisplay(h.result) : '';
                 const pointDisplay = h.point ? toSchoolDisplay(h.point) : '';
                 const label = formatDerivativeLabel(h.order);
+                // ★ Обернул в еще один div для центрирования
                 html += `
                     <div class="history-item" onclick="loadHistory(${idx})">
                         <span class="h-func">\\( f${label}(${funcDisplay})${pointDisplay ? ' \\text{ при } ' + pointDisplay : ''} \\)</span>
@@ -518,7 +576,8 @@
                 let display = funcStr;
                 display = display.replace(/\*/g, '\\cdot ');
                 display = display.replace(/\bpi\b/g, '\\pi');
-                display = display.replace(/sqrt\(/g, '\\sqrt{');
+                // ★ Теперь sqrt превращается в красивый корень
+                display = display.replace(/sqrt\(([^)]+)\)/g, '\\sqrt{$1}');
                 display = display.replace(/sin\(/g, '\\sin(');
                 display = display.replace(/cos\(/g, '\\cos(');
                 display = display.replace(/tg\(/g, '\\tg(');
@@ -604,7 +663,7 @@
                 if (displayDerivative === '0') {
                     resultText = '$$ f' + label + '(x) = 0 $$';
                 } else {
-                    // ★ Здесь pi превращается в \pi — отобразится символом π
+                    // ★ Здесь pi и sqrt превращаются в \pi и \sqrt{}
                     const displayFormatted = toSchoolDisplay(displayDerivative);
                     resultText = '$$ f' + label + '(x) = ' + displayFormatted + ' $$';
                 }
@@ -618,7 +677,6 @@
                         const scope = { x: pointCompiled.evaluate() };
                         const value = derivativeNode.evaluate(scope);
                         const displayValue = math.format(value, 14);
-                        // ★ В точке тоже показываем pi → π
                         const pointDisplay = toSchoolDisplay(pointStr);
                         resultPoint.innerHTML = '$$ f' + label + '(' + pointDisplay + ') = ' + displayValue + ' $$';
                         pointValue = displayValue;

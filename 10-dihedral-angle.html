@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -16,12 +16,13 @@
             --special-border: #a855f7;
             --canvas-bg: #1a2d3c;
             --theorem-bg: #1a2d3c;
-            --accent: #1abc9c;
             --warning-bg: rgba(251,191,36,0.15);
             --warning-border: #fbbf24;
             --danger-color: #f87171;
             --result-color: #4ade80;
-            --formula-color: #fbbf24;
+            --input-bg: #2c5a77;
+            --task-bg: #1e3545;
+            --task-border: #a855f7;
         }
 
         :root.light-mode {
@@ -33,16 +34,17 @@
             --special-border: #a855f7;
             --canvas-bg: #eef2f8;
             --theorem-bg: #fefce8;
-            --accent: #1abc9c;
             --warning-bg: #fffbeb;
             --warning-border: #f59e0b;
             --danger-color: #dc2626;
             --result-color: #059669;
-            --formula-color: #b45309;
+            --input-bg: #e2e8f0;
+            --task-bg: #f8fafc;
+            --task-border: #a855f7;
         }
 
         body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); padding: 8px; }
-        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; }.theme-toggle:hover { transform: scale(1.1); }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; }
 
         h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
         .section { margin-bottom: 12px; }
@@ -66,6 +68,11 @@
 
         .notation { font-weight: 700; background: rgba(168, 85, 247, 0.2); padding: 2px 8px; border-radius: 30px; display: inline-block; margin: 4px 4px 4px 0; color: var(--text); }
 
+        .model-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center; }
+        .model-tab { padding: 8px 20px; border-radius: 20px; background: var(--card-bg); color: var(--text-secondary); border: 1px solid var(--border); cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s; }
+        .model-tab:hover { background: var(--special-border); color: white; border-color: var(--special-border); }
+        .model-tab.active { background: var(--special-border); color: white; border-color: var(--special-border); }
+
         .model-container {
             text-align: center;
             margin: 16px 0;
@@ -77,7 +84,15 @@
             width: 100%;
             aspect-ratio: 16 / 9;
             min-height: 380px;
+            display: none;
         }
+        .model-container.active { display: block; }
+        .task-content .model-container {
+            display: block !important;
+            min-height: 320px;
+            aspect-ratio: 16 / 9;
+        }
+
         .model-canvas {
             display: block;
             width: 100%;
@@ -121,27 +136,125 @@
         .back-link { display: inline-block; margin: 20px 0 10px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: transform 0.2s; }
         .back-link:hover { transform: scale(1.02); }
 
+        .task-block { background: var(--task-bg); border-radius: 18px; padding: 16px 18px; margin: 16px 0; border-left: 4px solid var(--task-border); border: 1px solid var(--border); transition: background 0.3s,border 0.3s; }
+        .task-block .task-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+        .task-block .task-condition { font-size: 0.95rem; color: var(--text); line-height: 1.8; padding: 10px 14px; background: var(--card-bg); border-radius: 12px; margin-bottom: 12px; }
+        .task-block .task-condition strong { color: var(--special-border); }
+        .show-solution-btn { background: var(--special-border); color: white; border: none; padding: 8px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 10px;}
+        .show-solution-btn:hover { transform: scale(1.03); opacity: 0.9; }
+        .task-solution { display: none; margin-top: 12px; }
+        .task-solution.open { display: block; }
+        .task-solution .step { padding: 10px 16px; margin: 8px 0; background: var(--card-bg); border-radius: 10px; border-left: 3px solid var(--special-border); font-size: 0.95rem; color: var(--text); line-height: 1.8; overflow-x: auto; }
+        .task-solution .answer { padding: 12px 18px; background: var(--special-border); color: white; border-radius: 12px; font-weight: 700; font-size: 1.15rem; text-align: center; margin-top: 10px; }
+
+        .steps-panel {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 10px 0 4px;
+        }
+        .step-btn {
+            min-width: 42px;
+            height: 42px;
+            padding: 0 14px;
+            border-radius: 12px;
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            border: 1.5px solid var(--border);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .step-btn:hover { border-color: var(--special-border); color: var(--text); }
+        .step-btn.active { background: var(--special-border); border-color: var(--special-border); color: white; }
+        .step-btn.reset { background: transparent; color: var(--text-secondary); border-style: dashed; }
+
         @media (max-width: 700px) {
             .model-container { min-height: 280px; }
             .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
+            .step-btn { min-width: 38px; height: 38px; padding: 0 10px; font-size: 0.9rem; }
         }
+
+button, .btn, [class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+a, select, option, input, textarea { outline: none; }
+
+.section-title {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important;
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    box-shadow: none !important;
+}
+.section-title:hover { background: linear-gradient(90deg, var(--special-border) 0%, rgba(13,148,136,0.15) 30%, rgba(13,148,136,0.05) 100%) !important; }
+.section-title::before { display: none !important; }
+.section-title::after { position: absolute !important; right: 16px !important; top: 50% !important; transform: translateY(-50%) !important; margin: 0 !important; }
+.section.collapsed .section-title::after { transform: translateY(-50%) rotate(-90deg) !important; }
+
+.example, .formula-block, .theorem-text, .important, .task-block, .task-condition {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    margin-bottom: 16px !important;
+}
+.theorem-text, .important, .task-block, .task-condition { background-color: #162a38; }
+:root.light-mode .theorem-text,
+:root.light-mode .important,
+:root.light-mode .task-block,
+:root.light-mode .task-condition { background-color: #f8fafc !important; color: #1a2a3f !important; }
+:root.light-mode .important strong,
+:root.light-mode .theorem-text strong { color: #b45309 !important; }
+
+a.back-link, .back-link {
+    display: table !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+    float: none !important;
+}
     </style>
-    <script>MathJax={tex:{inlineMath:[['$','$']]}};</script>
-    <script src="mathjax/es5/tex-chtml.js" async></script>
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                macros: { tg: '\\operatorname{tg}', ctg: '\\operatorname{ctg}', arctg: '\\operatorname{arctg}' }
             }
-        }
+        };
     </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
 </head>
 <body>
+<script src="./three/build/three.min.js"></script>
+<script src="./three/examples/js/controls/OrbitControls.js"></script>
+<script src="./three/examples/js/renderers/CSS2DRenderer.js"></script>
+
 <div class="container">
     <h1>📐 Двугранный угол</h1>
 
-    <!-- ===== ВСТУПЛЕНИЕ ===== -->
+    <!-- ВСТУПЛЕНИЕ -->
     <div class="section">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Что здесь изучаем</div>
         <div class="section-content">
@@ -150,19 +263,34 @@
             <div class="important">
                 <strong>💡 Главная идея:</strong> двугранный угол измеряется своим <strong>линейным углом</strong> — плоским углом между двумя лучами, лежащими в гранях и перпендикулярными ребру. Все линейные углы одного двугранного угла <strong>равны</strong> — поэтому можно выбирать любой.
             </div>
-            <p>💡 3D-модель: вращайте пальем, увеличивайте, чтобы рассмотреть все элементы.</p>
+            <p>💡 3D-модель: вращайте пальцем, увеличивайте, чтобы рассмотреть все элементы.</p>
         </div>
     </div>
 
-    <!-- 3D-модель -->
+    <!-- 3D-МОДЕЛЬ -->
     <div class="section collapsed">
         <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Двугранный угол (3D-модель)</div>
         <div class="section-content">
-            <div class="model-container" id="dihedral-container">
-                <canvas id="dihedral-canvas" class="model-canvas"></canvas>
-                <button class="fullscreen-btn" id="dihedral-fullscreen" title="Во весь экран">⛶</button>
+            <div class="model-tabs">
+                <div class="model-tab active" data-model="triangular" onclick="switchModel('triangular')">🔺 Треугольные грани</div>
+                <div class="model-tab" data-model="square" onclick="switchModel('square')">⬛ Квадратные грани</div>
             </div>
-            <div class="subtitle">Двугранный угол с ребром AB и гранями (ABD) и (ABE). ∠DABE. Линейный угол: ∠DCE.</div>
+            <div id="model-triangular" class="model-container active">
+                <canvas id="triangular-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="triangular-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div id="subtitle-triangular" class="subtitle active">Двугранный угол с ребром AB и гранями (ABD) и (ABE). ∠DABE. Линейный угол: ∠DCE.</div>
+            <div id="model-square" class="model-container">
+                <canvas id="square-canvas" class="model-canvas"></canvas>
+                <div id="angle-overlay-status" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; padding: 8px 16px; border-radius: 12px; font-weight: bold; font-size: 1rem; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); display: none; z-index: 10;">Двугранного угла нет</div>
+                <button class="fullscreen-btn" id="square-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div id="subtitle-square" class="subtitle" style="display:none;">Двугранный угол с ребром AB и гранями-квадратами (ABD) и (ABE).</div>
+            <div id="angle-controls-square" style="display:none; margin-top: 15px; padding: 12px; background: var(--input-bg); border-radius: 12px; border: 1px solid var(--border); text-align: center;">
+                <label style="color: var(--text); font-size: 0.95rem; font-weight: 600;">Угол между плоскостями: <span id="angle-value" style="color: var(--special-border); font-size: 1.1rem;">90°</span></label>
+                <input type="range" id="angle-slider" min="0" max="180" value="90" step="1" style="width: 100%; max-width: 300px; margin-top: 10px; accent-color: var(--special-border); cursor: pointer;">
+                <div id="angle-status-text" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">Угол прямой (90°). Это двугранный угол.</div>
+            </div>
         </div>
     </div>
 
@@ -230,88 +358,176 @@
         </div>
     </div>
 
+    <!-- ЗАДАЧИ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📝 Задачи на двугранный угол</div>
+        <div class="section-content">
+
+            <div class="model-tabs" style="margin-bottom: 20px;">
+                <div class="model-tab active" data-task="proof" onclick="switchTask('proof')">🔺 На доказательство</div>
+                <div class="model-tab" data-task="find" onclick="switchTask('find')">📐 На нахождение</div>
+                <div class="model-tab" data-task="build" onclick="switchTask('build')">📏 На построение</div>
+            </div>
+
+            <!-- ЗАДАЧА 1 -->
+            <div id="task-proof" class="task-content active">
+                <div class="task-block">
+                    <div class="task-title">📘 Задача 1. Доказательство перпендикулярности прямой и плоскости сечения</div>
+                    <div class="task-condition">
+                        <strong>Условие:</strong> В тетраэдре \(ABCD\) ребро \(AD\) перпендикулярно плоскости \(ABC\). Точка \(E\) — основание высоты из \(A\) на ребро \(BC\) (т.е. \(AE \perp BC\), \(E \in BC\)). Докажите, что \(DE \perp BC\).
+                    </div>
+                    <div class="model-container" id="task-proof-canvas">
+                        <canvas id="task-proof-canvas-el" class="model-canvas"></canvas>
+                    </div>
+                    <div class="steps-panel" id="steps-proof">
+                        <button class="step-btn reset" data-step="0">✕</button>
+                        <button class="step-btn active" data-step="1">1</button>
+                        <button class="step-btn" data-step="2">2</button>
+                        <button class="step-btn" data-step="3">3</button>
+                        <button class="step-btn" data-step="4">4</button>
+                    </div>
+                    <button class="show-solution-btn" onclick="toggleSolution('sol-task1')">📖 Показать решение</button>
+                    <div id="sol-task1" class="task-solution">
+                        <div class="step"><strong>Дано:</strong> \(AD \perp (ABC)\), \(AE \perp BC\), \(E \in BC\).<br><strong>Доказать:</strong> \(DE \perp BC\).</div>
+                        <div class="step"><strong>Шаг 1.</strong> Так как \(AD \perp (ABC)\), отрезок \(AD\) — перпендикуляр к плоскости \(ABC\), опущенный из точки \(D\). Значит, \(AE\) — проекция наклонной \(DE\) на плоскость \(ABC\).</div>
+                        <div class="step"><strong>Шаг 2.</strong> По условию \(AE \perp BC\), то есть прямая \(BC\) перпендикулярна проекции \(AE\).</div>
+                        <div class="step"><strong>Шаг 3 (ТТП).</strong> По теореме о трёх перпендикулярах: если прямая в плоскости (\(BC\)) перпендикулярна проекции наклонной (\(AE\)), то она перпендикулярна и самой наклонной (\(DE\)). Следовательно, \(DE \perp BC\).</div>
+                        <div class="step"><strong>Шаг 4.</strong> Угол \(\angle DEB = 90^\circ\) — это линейный угол двугранного угла при ребре \(BC\).</div>
+                        <div class="answer">✅ Ч.т.д. (через теорему о трёх перпендикулярах)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЗАДАЧА 2 -->
+            <div id="task-find" class="task-content" style="display:none;">
+                <div class="task-block">
+                    <div class="task-title">📘 Задача 2. Нахождение угла между плоскостями</div>
+                    <div class="task-condition">
+                        <strong>Условие:</strong> В кубе \(ABCDA_1B_1C_1D_1\) найдите двугранный угол между плоскостями \(ACD_1\) и \(ABC\).
+                    </div>
+                    <div class="model-container" id="task-find-canvas">
+                        <canvas id="task-find-canvas-el" class="model-canvas"></canvas>
+                    </div>
+                    <div class="steps-panel" id="steps-find">
+                        <button class="step-btn reset" data-step="0">✕</button>
+                        <button class="step-btn active" data-step="1">1</button>
+                        <button class="step-btn" data-step="2">2</button>
+                        <button class="step-btn" data-step="3">3</button>
+                        <button class="step-btn" data-step="4">4</button>
+                    </div>
+                    <button class="show-solution-btn" onclick="toggleSolution('sol-task2')">📖 Показать решение</button>
+                    <div id="sol-task2" class="task-solution">
+                        <div class="step"><strong>Шаг 1.</strong> Плоскость \(ABC\) — основание куба. Плоскость \(ACD_1\) проходит через диагональ \(AC\) и вершину \(D_1\).</div>
+                        <div class="step"><strong>Шаг 2.</strong> Проведем перпендикуляры из \(D_1\) и \(D\) к линии пересечения \(AC\). Они попадут в одну точку \(O\) (середину \(AC\)).</div>
+                        <div class="step"><strong>Шаг 3.</strong> Угол \(D_1OD\) — искомый линейный угол. В треугольнике \(D_1OD\) угол \(D_1DO\) равен 90° (т.к. \(D_1D \perp (ABC)\)).</div>
+                        <div class="step"><strong>Шаг 4.</strong> Пусть ребро куба равно 1. Тогда \(D_1D = 1\), \(DO = \frac{\sqrt{2}}{2}\). \(\tg(\angle D_1OD) = \sqrt{2}\).</div>
+                        <div class="answer">✅ Ответ: \(\angle D_1OD = \arctg(\sqrt{2}) \approx 54.7^\circ\).</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЗАДАЧА 3 -->
+            <div id="task-build" class="task-content" style="display:none;">
+                <div class="task-block">
+                    <div class="task-title">📘 Задача 3. Построение линейного угла</div>
+                    <div class="task-condition">
+                        <strong>Условие:</strong> Постройте линейный угол двугранного угла, образованного плоскостями \(PAB\) и \(ABC\) в правильной четырехугольной пирамиде \(PABCD\), где \(P\) — вершина, \(ABCD\) — основание.
+                    </div>
+                    <div class="model-container" id="task-build-canvas">
+                        <canvas id="task-build-canvas-el" class="model-canvas"></canvas>
+                    </div>
+                    <div class="steps-panel" id="steps-build">
+                        <button class="step-btn reset" data-step="0">✕</button>
+                        <button class="step-btn active" data-step="1">1</button>
+                        <button class="step-btn" data-step="2">2</button>
+                        <button class="step-btn" data-step="3">3</button>
+                        <button class="step-btn" data-step="4">4</button>
+                    </div>
+                    <button class="show-solution-btn" onclick="toggleSolution('sol-task3')">📖 Показать решение</button>
+                    <div id="sol-task3" class="task-solution">
+                        <div class="step"><strong>Шаг 1.</strong> Найдем линию пересечения плоскостей. Это прямая \(AB\).</div>
+                        <div class="step"><strong>Шаг 2.</strong> В плоскости \(ABC\) проведем \(OH \perp AB\), где \(O\) — центр основания.</div>
+                        <div class="step"><strong>Шаг 3.</strong> В плоскости \(PAB\) проведем \(PH \perp AB\) (апофема).</div>
+                        <div class="step"><strong>Шаг 4.</strong> Тогда угол \(PHO\) — искомый линейный угол двугранного угла при основании пирамиды.</div>
+                        <div class="answer">✅ Построен \(\angle PHO\).</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <a href="stereo.html" class="back-link">← Назад к меню</a>
 </div>
 
 <script>
-    let quality3D = 'high';
-    if (window.Android && window.Android.getQuality3D) {
-        quality3D = window.Android.getQuality3D();
-    } else {
-        const saved = localStorage.getItem('quality3d');
-        if (saved) quality3D = saved;
-    }
-
-    const qualitySettings = {
-        low:    { segments: 24, opacity: 1.0,  transparent: false },
-        medium: { segments: 48, opacity: 0.65, transparent: true },
-        high:   { segments: 96, opacity: 0.55, transparent: true }
-    };
-
-    const settings = qualitySettings[quality3D] || qualitySettings.high;
-
-    function toggleTheme() {
-        const html = document.documentElement;
-        const btn = document.getElementById('themeBtn');
-        if (html.classList.contains('light-mode')) {
-            html.classList.remove('light-mode');
-            localStorage.setItem('mathTheme', 'dark');
-            btn.textContent = '🌙';
-        } else {
-            html.classList.add('light-mode');
-            localStorage.setItem('mathTheme', 'light');
-            btn.textContent = '☀️';
-        }
-        if (window.MathJax) MathJax.typesetPromise();
-    }
     (function initTheme() {
         if (localStorage.getItem('mathTheme') === 'light') {
             document.documentElement.classList.add('light-mode');
-            const btn = document.getElementById('themeBtn');
-            if (btn) btn.textContent = '☀️';
         }
     })();
 
+    function switchModel(model) {
+        document.querySelectorAll('.model-tab[data-model]').forEach(tab => tab.classList.toggle('active', tab.dataset.model === model));
+        document.querySelectorAll('.model-container').forEach(cont => {
+            if (cont.id.startsWith('model-')) cont.classList.toggle('active', cont.id === 'model-' + model);
+        });
+        document.querySelectorAll('.subtitle').forEach(sub => {
+            if (sub.id.startsWith('subtitle-')) {
+                sub.classList.toggle('active', sub.id === 'subtitle-' + model);
+                sub.style.display = (sub.id === 'subtitle-' + model) ? 'block' : 'none';
+            }
+        });
+        const controls = document.getElementById('angle-controls-square');
+        if (controls) controls.style.display = (model === 'square') ? 'block' : 'none';
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+    }
+
+    window.switchTask = function(task) {
+        document.querySelectorAll('[data-task]').forEach(tab => tab.classList.toggle('active', tab.dataset.task === task));
+        document.querySelectorAll('.task-content').forEach(cont => {
+            cont.classList.toggle('active', cont.id === 'task-' + task);
+            cont.style.display = (cont.id === 'task-' + task) ? 'block' : 'none';
+        });
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+    };
+
+    function toggleSolution(id) {
+        const el = document.getElementById(id);
+        const btn = el.previousElementSibling;
+        if (el.classList.contains('open')) { el.classList.remove('open'); btn.textContent = '📖 Показать решение'; }
+        else { el.classList.add('open'); btn.textContent = '📕 Скрыть решение'; }
+    }
+
     (async function() {
-        const THREE = await import('three');
-        const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
-        const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
 
         function makeLabel(text, color, position, fontSize = '0.85rem') {
             const sizeNum = parseFloat(fontSize);
             const biggerSize = (sizeNum * 1.15).toFixed(2) + 'rem';
-
             const div = document.createElement('div');
             div.textContent = text;
             div.style.color = color;
             div.style.fontSize = biggerSize;
             div.style.fontWeight = '900';
             div.style.fontFamily = "'JetBrains Mono', monospace";
-            div.style.letterSpacing = '0.02em';
-            div.style.background = 'transparent';
-            div.style.padding = '0';
-            div.style.border = 'none';
-            div.style.whiteSpace = 'nowrap';
+            div.style.background = 'rgba(10, 15, 26, 0.7)';
+            div.style.padding = '0px 6px';
+            div.style.borderRadius = '10px';
+            div.style.border = '1px solid ' + color;
+            div.style.backdropFilter = 'blur(4px)';
             div.style.pointerEvents = 'none';
-            div.style.webkitTextStroke = '1.5px #000';
-            div.style.paintOrder = 'stroke fill';
-            div.style.textShadow = '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 0 0 #000, -1px 0 0 #000';
-            const label = new CSS2DObject(div);
+            div.style.whiteSpace = 'nowrap';
+            const label = new THREE.CSS2DObject(div);
             label.position.copy(position);
             return label;
         }
 
-        // ТОЛСТАЯ ЛИНИЯ — с renderOrder и depthWrite:false, чтобы быть ПОВЕРХ прозрачных плоскостей
         function addThickLine(scene, start, end, color, thickness = 0.012, renderOrder = 10) {
             const mainGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
-            const mainMat = new THREE.LineBasicMaterial({
-                color, transparent: true, opacity: 1,
-                depthTest: true, depthWrite: false
-            });
+            const mainMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 1, depthTest: true, depthWrite: false });
             const mainLine = new THREE.Line(mainGeo, mainMat);
             mainLine.renderOrder = renderOrder;
             scene.add(mainLine);
-
             const dir = end.clone().sub(start);
             if (dir.length() < 0.001) return;
             dir.normalize();
@@ -322,227 +538,673 @@
             const perp2 = new THREE.Vector3().crossVectors(dir, perp1).normalize().multiplyScalar(thickness);
             [perp1, perp1.clone().negate(), perp2, perp2.clone().negate()].forEach(off => {
                 const geo = new THREE.BufferGeometry().setFromPoints([start.clone().add(off), end.clone().add(off)]);
-                const m = new THREE.LineBasicMaterial({
-                    color, transparent: true, opacity: 0.7,
-                    depthTest: true, depthWrite: false
-                });
+                const m = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.7, depthTest: true, depthWrite: false });
                 const line = new THREE.Line(geo, m);
                 line.renderOrder = renderOrder;
                 scene.add(line);
             });
         }
 
-        // ПОЛУПРОЗРАЧНАЯ ГРАНЬ — с низким renderOrder, чтобы рисовалась ДО прямых
         function createFace(scene, p1, p2, p3, color, opacity = 0.25) {
             const geo = new THREE.BufferGeometry();
-            const v = new Float32Array([
-                p1.x, p1.y, p1.z,
-                p2.x, p2.y, p2.z,
-                p3.x, p3.y, p3.z
-            ]);
+            const v = new Float32Array([p1.x,p1.y,p1.z, p2.x,p2.y,p2.z, p3.x,p3.y,p3.z]);
             geo.setAttribute('position', new THREE.BufferAttribute(v, 3));
             geo.computeVertexNormals();
-            const mat = new THREE.MeshBasicMaterial({
-                color, side: THREE.DoubleSide,
-                transparent: true, opacity,
-                depthWrite: false
-            });
+            const mat = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, transparent: true, opacity, depthWrite: false });
             const mesh = new THREE.Mesh(geo, mat);
-            mesh.renderOrder = 1;  // ниже, чем у прямых
+            mesh.renderOrder = 1;
             scene.add(mesh);
             return mesh;
         }
 
-        const container = document.getElementById('dihedral-container');
-        const canvas = document.getElementById('dihedral-canvas');
-        if (!container || !canvas) return;
+        // ===== ОСНОВНЫЕ СЦЕНЫ =====
+        function createScene(containerId, canvasId, fullscreenId, buildFunction) {
+            const container = document.getElementById(containerId);
+            const canvas = document.getElementById(canvasId);
+            if (!container || !canvas) return;
 
-        const scene = new THREE.Scene();
-        scene.background = null;
-        scene.fog = null;
+            const scene = new THREE.Scene();
+            scene.background = null;
+            const width = container.clientWidth || 800;
+            const height = container.clientHeight || 450;
 
-        const width = container.clientWidth;
-        const height = container.clientHeight;
+            const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            camera.position.set(4, 3, 5);
+            camera.lookAt(0, 0.2, 0);
 
-        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-        camera.position.set(4, 3, 5);
-        camera.lookAt(0, 0.2, 0);
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            renderer.setSize(width, height);
 
-        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-        renderer.setSize(width, height);
+            const labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.left = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            container.appendChild(labelRenderer.domElement);
 
-        const labelRenderer = new CSS2DRenderer();
-        labelRenderer.domElement.style.position = 'absolute';
-        labelRenderer.domElement.style.top = '0px';
-        labelRenderer.domElement.style.left = '0px';
-        labelRenderer.domElement.style.pointerEvents = 'none';
-        container.style.position = 'relative';
-        container.appendChild(labelRenderer.domElement);
-
-        function updateSize() {
-            const rect = container.getBoundingClientRect();
-            let w = rect.width, h = rect.height;
-            if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
-                w = window.innerWidth;
-                h = window.innerHeight;
-            }
-            if (w < 10) w = 800;
-            if (h < 10) h = 450;
-            canvas.style.width = `${w}px`;
-            canvas.style.height = `${h}px`;
-            canvas.width = w;
-            canvas.height = h;
-            renderer.setSize(w, h);
-            labelRenderer.setSize(w, h);
-            camera.aspect = w / h;
-            camera.updateProjectionMatrix();
-        }
-
-        function forceResizeScene() {
-            canvas.style.width = '';
-            canvas.style.height = '';
-            setTimeout(() => { updateSize(); requestAnimationFrame(() => updateSize()); }, 30);
-        }
-
-        const resizeObserver = new ResizeObserver(() => updateSize());
-        resizeObserver.observe(container);
-        setTimeout(updateSize, 100);
-
-        scene.add(new THREE.AmbientLight(0x40486c, 0.6));
-        const keyLight = new THREE.DirectionalLight(0xfff5e0, 1.2);
-        keyLight.position.set(2, 5, 2); scene.add(keyLight);
-        const fillLight = new THREE.PointLight(0xccaa77, 0.55);
-        fillLight.position.set(-1.5, 2, 2); scene.add(fillLight);
-        const rimLight = new THREE.PointLight(0x88aaff, 0.5);
-        rimLight.position.set(1, 2, -3); scene.add(rimLight);
-        const bottomLight = new THREE.PointLight(0x6699cc, 0.35);
-        bottomLight.position.set(0, -1.2, 0); scene.add(bottomLight);
-
-        const gridHelper = new THREE.GridHelper(6, 16, 0x5f7f9e, 0x2c4258);
-        gridHelper.position.y = -1.5;
-        gridHelper.material.transparent = true;
-        gridHelper.material.opacity = 0.2;
-        scene.add(gridHelper);
-
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.06;
-        controls.autoRotate = false;
-        controls.enableZoom = true;
-        controls.enablePan = true;
-        controls.rotateSpeed = 1.0;
-        controls.target.set(0, 0.2, 0);
-
-        // ===== ТОЧКИ ДВУГРАННОГО УГЛА =====
-        const pointA = new THREE.Vector3(-1.0, 0, 0);
-        const pointB = new THREE.Vector3(1.0, 0, 0);
-        const pointC = new THREE.Vector3(0.15, 0, 0);
-        const pointD = new THREE.Vector3(0.15, 0.9, 0.75);
-        const pointE = new THREE.Vector3(0.15, 0.8, -0.65);
-
-        // ===== ГРАНИ (полупрозрачные, поверх — линии) =====
-        createFace(scene, pointA, pointB, pointD, 0x3b82f6, 0.22);  // грань α (ABD)
-        createFace(scene, pointA, pointB, pointE, 0xa855f7, 0.22);  // грань β (ABE)
-
-        // ===== РЁБРА ГРАНЕЙ (обводки) =====
-        // Грань α
-        addThickLine(scene, pointA, pointB, 0x60a5fa, 0.012);
-        addThickLine(scene, pointB, pointD, 0x60a5fa, 0.012);
-        addThickLine(scene, pointD, pointA, 0x60a5fa, 0.012);
-        // Грань β
-        addThickLine(scene, pointA, pointB, 0xc084fc, 0.012);
-        addThickLine(scene, pointB, pointE, 0xc084fc, 0.012);
-        addThickLine(scene, pointE, pointA, 0xc084fc, 0.012);
-
-        // ===== РЕБРО AB (поверх обеих граней) =====
-        addThickLine(scene, pointA, pointB, 0xfde047, 0.014, 20);
-
-        // ===== ЛУЧИ ЛИНЕЙНОГО УГЛА (поверх граней, чтобы были видны) =====
-        addThickLine(scene, pointC, pointD, 0xf87171, 0.013, 25);
-        addThickLine(scene, pointC, pointE, 0x34d399, 0.013, 25);
-
-        // ===== ДУГА ЛИНЕЙНОГО УГЛА DCE =====
-        const CD = pointD.clone().sub(pointC);
-        const CE = pointE.clone().sub(pointC);
-        const dirD = CD.clone().normalize();
-        const dirE = CE.clone().normalize();
-        const angleDCE = Math.acos(Math.max(-1, Math.min(1, dirD.dot(dirE))));
-        const arcPts = [];
-        const axis = new THREE.Vector3(1, 0, 0);
-        const radius = 0.3;
-        const startDir = dirD.clone().applyAxisAngle(axis, -80 * Math.PI / 180);
-        for (let i = 0; i <= 24; i++) {
-            const a = (i / 24) * angleDCE;
-            const v = startDir.clone().applyAxisAngle(axis, a).multiplyScalar(radius);
-            arcPts.push(pointC.clone().add(v));
-        }
-        const arcGeo = new THREE.BufferGeometry().setFromPoints(arcPts);
-        const arcLine = new THREE.Line(arcGeo, new THREE.LineBasicMaterial({
-            color: 0xfde047, depthTest: true, depthWrite: false
-        }));
-        arcLine.renderOrder = 30;
-        scene.add(arcLine);
-
-        // ===== ТОЧКИ =====
-        const createSphere = (pos, color, emissive, order = 15) => {
-            const s = new THREE.Mesh(new THREE.SphereGeometry(0.05, 20, 20),
-                new THREE.MeshStandardMaterial({
-                    color, emissive,
-                    depthTest: true, depthWrite: false
-                }));
-            s.position.copy(pos);
-            s.renderOrder = order;
-            scene.add(s);
-        };
-        createSphere(pointA, 0xfde047, 0x442200);
-        createSphere(pointB, 0xfde047, 0x442200);
-        createSphere(pointC, 0xfde047, 0x442200);
-        createSphere(pointD, 0xf87171, 0x441100);
-        createSphere(pointE, 0x34d399, 0x064e3b);
-
-        // ===== ПОДПИСИ =====
-        scene.add(makeLabel('A', '#fde047', pointA.clone().add(new THREE.Vector3(-0.15, -0.1, 0.12)), '0.85rem'));
-        scene.add(makeLabel('B', '#fde047', pointB.clone().add(new THREE.Vector3(0.1, -0.1, 0.12)), '0.85rem'));
-        scene.add(makeLabel('C', '#fde047', pointC.clone().add(new THREE.Vector3(0, -0.12, 0.1)), '0.85rem'));
-        scene.add(makeLabel('D', '#f87171', pointD.clone().add(new THREE.Vector3(0.1, 0.1, 0.1)), '0.85rem'));
-        scene.add(makeLabel('E', '#34d399', pointE.clone().add(new THREE.Vector3(0.1, 0.1, -0.1)), '0.85rem'));
-        scene.add(makeLabel('ребро AB', '#fde047', new THREE.Vector3(0, 0.25, 0.5), '0.75rem'));
-        scene.add(makeLabel('грань ABD', '#60a5fa', new THREE.Vector3(-0.3, 0.65, 0.85), '0.75rem'));
-        scene.add(makeLabel('грань ABE', '#c084fc', new THREE.Vector3(0.35, 0.65, -0.75), '0.75rem'));
-        scene.add(makeLabel('CD ⟂ AB', '#f87171', new THREE.Vector3(0.05, 0.6, 0.55), '0.7rem'));
-        scene.add(makeLabel('CE ⟂ AB', '#34d399', new THREE.Vector3(0.05, 0.55, -0.45), '0.7rem'));
-        scene.add(makeLabel('∠DCE', '#fde047', new THREE.Vector3(0.2, 0.4, 0.1), '0.8rem'));
-
-        const fullscreenBtn = document.getElementById('dihedral-fullscreen');
-        if (fullscreenBtn) {
-            async function toggleFullscreen() {
-                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                    try { await container.requestFullscreen(); fullscreenBtn.textContent = '✖'; } catch(err) {}
-                } else {
-                    if (document.exitFullscreen) await document.exitFullscreen();
-                    else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
-                    fullscreenBtn.textContent = '⛶';
-                    forceResizeScene();
-                }
-            }
-            fullscreenBtn.addEventListener('click', toggleFullscreen);
-            document.addEventListener('fullscreenchange', () => {
+            function updateSize() {
+                const rect = container.getBoundingClientRect();
+                let w = rect.width, h = rect.height;
                 if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
-                    fullscreenBtn.textContent = '✖'; updateSize();
-                } else {
-                    fullscreenBtn.textContent = '⛶'; forceResizeScene();
+                    w = window.innerWidth; h = window.innerHeight;
                 }
-            });
+                if (w < 10) w = 800; if (h < 10) h = 450;
+                canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
+                canvas.width = w; canvas.height = h;
+                renderer.setSize(w, h); labelRenderer.setSize(w, h);
+                camera.aspect = w / h; camera.updateProjectionMatrix();
+            }
+            const resizeObserver = new ResizeObserver(() => updateSize());
+            resizeObserver.observe(container);
+            setTimeout(updateSize, 100);
+
+            scene.add(new THREE.AmbientLight(0x40486c, 0.6));
+            const keyLight = new THREE.DirectionalLight(0xfff5e0, 1.2);
+            keyLight.position.set(2, 5, 2); scene.add(keyLight);
+
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.06;
+            controls.target.set(0, 0.2, 0);
+
+            buildFunction(scene, THREE, labelRenderer, camera, makeLabel, addThickLine, createFace);
+
+            const fullscreenBtn = document.getElementById(fullscreenId);
+            if (fullscreenBtn) {
+                async function toggleFullscreen() {
+                    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                        try { await container.requestFullscreen(); fullscreenBtn.textContent = '✖'; } catch(err) {}
+                    } else {
+                        if (document.exitFullscreen) await document.exitFullscreen();
+                        fullscreenBtn.textContent = '⛶';
+                    }
+                    setTimeout(updateSize, 50);
+                }
+                fullscreenBtn.addEventListener('click', toggleFullscreen);
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
+            }
+            animate();
         }
 
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-            labelRenderer.render(scene, camera);
+        // ===== ОСНОВНАЯ МОДЕЛЬ 1 (треугольные грани) =====
+        createScene('model-triangular', 'triangular-canvas', 'triangular-fullscreen',
+            (scene, THREE, labelRenderer, camera, makeLabel, addThickLine, createFace) => {
+            const pointA = new THREE.Vector3(-1.0, 0, 0);
+            const pointB = new THREE.Vector3(1.0, 0, 0);
+            const pointC = new THREE.Vector3(0.15, 0, 0);
+            const pointD = new THREE.Vector3(0.15, 0.9, 0.75);
+            const pointE = new THREE.Vector3(0.15, 0.8, -0.65);
+
+            createFace(scene, pointA, pointB, pointD, 0x3b82f6, 0.22);
+            createFace(scene, pointA, pointB, pointE, 0xa855f7, 0.22);
+
+            addThickLine(scene, pointA, pointB, 0x60a5fa, 0.012);
+            addThickLine(scene, pointB, pointD, 0x60a5fa, 0.012);
+            addThickLine(scene, pointD, pointA, 0x60a5fa, 0.012);
+            addThickLine(scene, pointA, pointB, 0xc084fc, 0.012);
+            addThickLine(scene, pointB, pointE, 0xc084fc, 0.012);
+            addThickLine(scene, pointE, pointA, 0xc084fc, 0.012);
+            addThickLine(scene, pointA, pointB, 0xfde047, 0.014, 20);
+            addThickLine(scene, pointC, pointD, 0xf87171, 0.013, 25);
+            addThickLine(scene, pointC, pointE, 0x34d399, 0.013, 25);
+
+            const createSphere = (pos, color, emissive) => {
+                const s = new THREE.Mesh(new THREE.SphereGeometry(0.05, 20, 20),
+                    new THREE.MeshStandardMaterial({ color, emissive, depthTest: true, depthWrite: false }));
+                s.position.copy(pos); s.renderOrder = 15; scene.add(s);
+            };
+            createSphere(pointA, 0xfde047, 0x442200);
+            createSphere(pointB, 0xfde047, 0x442200);
+            createSphere(pointC, 0xfde047, 0x442200);
+            createSphere(pointD, 0xf87171, 0x441100);
+            createSphere(pointE, 0x34d399, 0x064e3b);
+
+            scene.add(makeLabel('A', '#fde047', pointA.clone().add(new THREE.Vector3(-0.15, -0.1, 0.12)), '0.85rem'));
+            scene.add(makeLabel('B', '#fde047', pointB.clone().add(new THREE.Vector3(0.1, -0.1, 0.12)), '0.85rem'));
+            scene.add(makeLabel('C', '#fde047', pointC.clone().add(new THREE.Vector3(0, -0.12, 0.1)), '0.85rem'));
+            scene.add(makeLabel('D', '#f87171', pointD.clone().add(new THREE.Vector3(0.1, 0.1, 0.1)), '0.85rem'));
+            scene.add(makeLabel('E', '#34d399', pointE.clone().add(new THREE.Vector3(0.1, 0.1, -0.1)), '0.85rem'));
+
+            const addCallout = (text, color, startPos, endPos, textPos) => {
+                const geo = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
+                const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.6 }));
+                scene.add(line);
+                scene.add(makeLabel(text, color, textPos, '0.75rem'));
+            };
+            addCallout('ребро AB', '#fde047', new THREE.Vector3(0,0,0), new THREE.Vector3(-0.5,-0.4,0.5), new THREE.Vector3(-0.6,-0.5,0.6));
+            addCallout('грань ABD', '#60a5fa', new THREE.Vector3(-0.3,0.3,0.3), new THREE.Vector3(-1.2,0.8,0.8), new THREE.Vector3(-1.4,0.9,0.9));
+            addCallout('грань ABE', '#c084fc', new THREE.Vector3(0.3,0.3,-0.3), new THREE.Vector3(1.2,0.8,-0.8), new THREE.Vector3(1.4,0.9,-0.9));
+            scene.add(makeLabel('CD ⟂ AB', '#f87171', new THREE.Vector3(0.05, 0.6, 0.55), '0.7rem'));
+            scene.add(makeLabel('CE ⟂ AB', '#34d399', new THREE.Vector3(0.05, 0.55, -0.45), '0.7rem'));
+            scene.add(makeLabel('∠DCE', '#8ba5b8', new THREE.Vector3(0.2, 0.4, 0.1), '0.8rem'));
+        });
+
+        // ===== ОСНОВНАЯ МОДЕЛЬ 2 (квадратные грани) =====
+        createScene('model-square', 'square-canvas', 'square-fullscreen',
+            (scene, THREE, labelRenderer, camera, makeLabel, addThickLine) => {
+            const A = new THREE.Vector3(-1, 0, 0);
+            const B = new THREE.Vector3(1, 0, 0);
+            const C = new THREE.Vector3(0, 0, 0);
+            const rotatingGroup = new THREE.Group();
+            scene.add(rotatingGroup);
+
+            const face1 = new THREE.Mesh(new THREE.PlaneGeometry(2, 1.5), new THREE.MeshPhysicalMaterial({ color: 0x3b82f6, side: THREE.DoubleSide, transparent: true, opacity: 0.25, depthWrite: false }));
+            face1.rotation.x = -Math.PI / 2; face1.position.set(0, 0, 0.75); face1.renderOrder = 1; scene.add(face1);
+
+            addThickLine(scene, A, B, 0x60a5fa, 0.015, 10);
+            addThickLine(scene, B, new THREE.Vector3(1,0,1.5), 0x60a5fa, 0.015, 10);
+            addThickLine(scene, new THREE.Vector3(1,0,1.5), new THREE.Vector3(-1,0,1.5), 0x60a5fa, 0.015, 10);
+            addThickLine(scene, new THREE.Vector3(-1,0,1.5), A, 0x60a5fa, 0.015, 10);
+            scene.add(makeLabel('грань ABD', '#60a5fa', new THREE.Vector3(0, -0.2, 1.0), '0.8rem'));
+
+            const face2 = new THREE.Mesh(new THREE.PlaneGeometry(2, 1.5), new THREE.MeshPhysicalMaterial({ color: 0xa855f7, side: THREE.DoubleSide, transparent: true, opacity: 0.25, depthWrite: false }));
+            face2.position.set(0, 0.75, 0); face2.renderOrder = 1; rotatingGroup.add(face2);
+
+            const borderPoints = [new THREE.Vector3(-1,0,0), new THREE.Vector3(1,0,0), new THREE.Vector3(1,1.5,0), new THREE.Vector3(-1,1.5,0), new THREE.Vector3(-1,0,0)];
+            rotatingGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(borderPoints), new THREE.LineBasicMaterial({ color: 0xc084fc })));
+            rotatingGroup.add(makeLabel('грань ABE', '#c084fc', new THREE.Vector3(0, 1.2, 0.2), '0.8rem'));
+
+            addThickLine(scene, A, B, 0xfde047, 0.018, 20);
+            const ptE = new THREE.Vector3(0, 0, 1.5);
+            const ptD_local = new THREE.Vector3(0, 1.5, 0);
+            rotatingGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), ptD_local]), new THREE.LineBasicMaterial({ color: 0xf87171 })));
+            const sphereD = new THREE.Mesh(new THREE.SphereGeometry(0.06, 20, 20), new THREE.MeshStandardMaterial({ color: 0xf87171, emissive: 0x441100 }));
+            sphereD.position.copy(ptD_local); rotatingGroup.add(sphereD);
+            rotatingGroup.add(makeLabel('D', '#f87171', ptD_local.clone().add(new THREE.Vector3(0.15, 0.15, 0.15)), '0.85rem'));
+
+            addThickLine(scene, C, ptE, 0x34d399, 0.015, 25);
+
+            const arcLine = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 0x8ba5b8, transparent: true, opacity: 0.9, depthTest: true, depthWrite: false }));
+            arcLine.renderOrder = 30; scene.add(arcLine);
+
+            const createSphere = (pos, color, emissive) => {
+                const s = new THREE.Mesh(new THREE.SphereGeometry(0.06, 20, 20), new THREE.MeshStandardMaterial({ color, emissive, depthTest: true, depthWrite: false }));
+                s.position.copy(pos); s.renderOrder = 15; scene.add(s);
+            };
+            createSphere(A, 0xfde047, 0x442200);
+            createSphere(B, 0xfde047, 0x442200);
+            createSphere(C, 0xfde047, 0x442200);
+            createSphere(ptE, 0x34d399, 0x064e3b);
+            scene.add(makeLabel('A', '#fde047', A.clone().add(new THREE.Vector3(-0.15,-0.15,0.15)), '0.85rem'));
+            scene.add(makeLabel('B', '#fde047', B.clone().add(new THREE.Vector3(0.15,-0.15,0.15)), '0.85rem'));
+            scene.add(makeLabel('C', '#fde047', C.clone().add(new THREE.Vector3(0.15,-0.15,-0.15)), '0.85rem'));
+            scene.add(makeLabel('E', '#34d399', ptE.clone().add(new THREE.Vector3(0.15,0.15,0.15)), '0.85rem'));
+
+            const slider = document.getElementById('angle-slider');
+            const angleValDisplay = document.getElementById('angle-value');
+            const overlayStatus = document.getElementById('angle-overlay-status');
+            const angleStatusText = document.getElementById('angle-status-text');
+
+            function updateAngle() {
+                const angleDeg = parseInt(slider.value, 10);
+                const angleRad = angleDeg * Math.PI / 180;
+                angleValDisplay.textContent = angleDeg + '°';
+                if (angleStatusText) {
+                    if (angleDeg === 0 || angleDeg === 180) angleStatusText.textContent = 'Плоскости совпадают. Двугранного угла нет.';
+                    else if (angleDeg < 90) angleStatusText.textContent = 'Угол острый (' + angleDeg + '°).';
+                    else if (angleDeg === 90) angleStatusText.textContent = 'Угол прямой (90°).';
+                    else angleStatusText.textContent = 'Угол тупой (' + angleDeg + '°).';
+                }
+                let rotationX = angleDeg <= 90 ? (Math.PI/2) - angleRad : -((angleRad) - (Math.PI/2));
+                rotatingGroup.rotation.x = rotationX;
+                overlayStatus.style.display = (angleDeg === 0 || angleDeg === 180) ? 'block' : 'none';
+                const arcPts = [];
+                const radiusArc = 0.8;
+                const startVec = new THREE.Vector3(0,0,1);
+                const endVec = new THREE.Vector3(0, Math.cos(rotationX), Math.sin(rotationX));
+                const theta = Math.acos(Math.max(-1, Math.min(1, startVec.dot(endVec))));
+                for (let i = 0; i <= 24; i++) {
+                    const t = i / 24; const angle = t * theta;
+                    arcPts.push(new THREE.Vector3(0, Math.sin(angle)*radiusArc, Math.cos(angle)*radiusArc));
+                }
+                arcLine.geometry.dispose();
+                arcLine.geometry = new THREE.BufferGeometry().setFromPoints(arcPts);
+            }
+            slider.addEventListener('input', updateAngle);
+            updateAngle();
+        });
+
+        // ===== ПОШАГОВАЯ СЦЕНА =====
+        function createStepTaskScene(containerId, canvasId, stepsPanelId, buildGroups) {
+            const container = document.getElementById(containerId);
+            const canvas = document.getElementById(canvasId);
+            const panel = document.getElementById(stepsPanelId);
+            if (!container || !canvas) return;
+
+            const scene = new THREE.Scene();
+            scene.background = null;
+            const width = container.clientWidth || 400;
+            const height = container.clientHeight || 300;
+
+            const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            camera.position.set(4, 3.5, 5);
+            camera.lookAt(0, 0.6, 0);
+
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.left = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            container.appendChild(labelRenderer.domElement);
+
+            function updateSize() {
+                const rect = container.getBoundingClientRect();
+                let w = rect.width, h = rect.height;
+                if (w < 10) w = 400; if (h < 10) h = 300;
+                renderer.setSize(w, h); labelRenderer.setSize(w, h);
+                camera.aspect = w / h; camera.updateProjectionMatrix();
+            }
+            const resizeObserver = new ResizeObserver(() => updateSize());
+            resizeObserver.observe(container);
+            setTimeout(updateSize, 100);
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+            const keyLight = new THREE.DirectionalLight(0xffffff, 1);
+            keyLight.position.set(2, 5, 2); scene.add(keyLight);
+
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.06;
+            controls.target.set(0, 0.6, 0);
+            controls.minDistance = 2;
+            controls.maxDistance = 20;
+
+            const groups = buildGroups(scene, THREE, labelRenderer, camera, makeLabel, addThickLine);
+
+            let currentStep = 1;
+            function applyVisibility() {
+                for (let i = 0; i < groups.length; i++) {
+                    if (groups[i]) groups[i].visible = (i <= currentStep);
+                }
+                if (panel) {
+                    panel.querySelectorAll('.step-btn').forEach(btn => {
+                        const s = parseInt(btn.dataset.step, 10);
+                        btn.classList.toggle('active', s === currentStep);
+                    });
+                }
+            }
+            if (panel) {
+                panel.querySelectorAll('.step-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        currentStep = parseInt(btn.dataset.step, 10);
+                        applyVisibility();
+                    });
+                });
+            }
+            applyVisibility();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
+            }
+            animate();
         }
-        animate();
-        window.addEventListener('resize', () => forceResizeScene());
+
+        // =============== ЗАДАЧА 1: ТЕТРАЭДР, ТТП ===============
+        createStepTaskScene('task-proof-canvas', 'task-proof-canvas-el', 'steps-proof',
+            (scene, THREE, labelRenderer, camera, makeLabel, addThickLine) => {
+                const groups = [new THREE.Group()];
+
+                const A = new THREE.Vector3(-1.2, 0,  0.8);
+                const B = new THREE.Vector3( 1.2, 0,  0.8);
+                const C = new THREE.Vector3( 0.0, 0, -1.0);
+                const D = new THREE.Vector3(A.x, 2.2, A.z);
+                const BC = B.clone().sub(C);
+                const tE = A.clone().sub(C).dot(BC) / BC.lengthSq();
+                const E = C.clone().add(BC.clone().multiplyScalar(tE));
+
+                const edgeColor = 0x8ba5b8, edgeHighlight = 0x60a5fa, baseColor = 0x3b82f6, sideColor = 0x64748b, lineAD = 0xf87171;
+
+                const mkSphere = (pos, color, emissive, r=0.06) => {
+                    const sp = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 20), new THREE.MeshStandardMaterial({ color, emissive, depthTest: true, depthWrite: false }));
+                    sp.position.copy(pos); sp.renderOrder = 15; return sp;
+                };
+                const mkLine = (start, end, color, thickness = 0.014, renderOrder = 10) => {
+                    const g = new THREE.Group();
+                    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([start, end]), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 1, depthTest: true, depthWrite: false })));
+                    const dir = end.clone().sub(start);
+                    if (dir.length() > 0.001) {
+                        dir.normalize();
+                        const up = new THREE.Vector3(0, 1, 0);
+                        let perp1 = new THREE.Vector3().crossVectors(dir, up);
+                        if (perp1.length() < 0.001) perp1 = new THREE.Vector3(1, 0, 0);
+                        perp1.normalize().multiplyScalar(thickness);
+                        const perp2 = new THREE.Vector3().crossVectors(dir, perp1).normalize().multiplyScalar(thickness);
+                        [perp1, perp1.clone().negate(), perp2, perp2.clone().negate()].forEach(off => {
+                            const geo = new THREE.BufferGeometry().setFromPoints([start.clone().add(off), end.clone().add(off)]);
+                            g.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.7, depthTest: true, depthWrite: false })));
+                        });
+                    }
+                    return g;
+                };
+                const dashed = (a, b, color, dashLen = 0.12) => {
+                    const total = a.distanceTo(b);
+                    const dir = b.clone().sub(a).normalize();
+                    const grp = new THREE.Group();
+                    let d = 0;
+                    while (d < total) {
+                        const d2 = Math.min(d + dashLen, total);
+                        const s = a.clone().add(dir.clone().multiplyScalar(d));
+                        const e = a.clone().add(dir.clone().multiplyScalar(d2));
+                        grp.add(mkLine(s, e, color, 0.012, 25));
+                        d = d2 + dashLen;
+                    }
+                    return grp;
+                };
+
+                // ===== Шаг 1: тетраэдр ABCD + подписи A,B,C,D + AD ⟂ (ABC) =====
+                const g1 = new THREE.Group();
+                {
+                    const geoBase = new THREE.BufferGeometry().setFromPoints([A, B, C]);
+                    geoBase.computeVertexNormals();
+                    g1.add(new THREE.Mesh(geoBase, new THREE.MeshBasicMaterial({ color: baseColor, side: THREE.DoubleSide, transparent: true, opacity: 0.22, depthWrite: false })));
+                    const geoSide = new THREE.BufferGeometry().setFromPoints([A, C, D]);
+                    geoSide.computeVertexNormals();
+                    g1.add(new THREE.Mesh(geoSide, new THREE.MeshBasicMaterial({ color: sideColor, side: THREE.DoubleSide, transparent: true, opacity: 0.32, depthWrite: false })));
+                    g1.add(mkLine(A, B, edgeColor, 0.014));
+                    g1.add(mkLine(B, C, edgeColor, 0.014));
+                    g1.add(mkLine(C, A, edgeColor, 0.014));
+                    g1.add(mkLine(A, D, lineAD, 0.026));
+                    g1.add(mkLine(B, D, edgeHighlight, 0.018));
+                    g1.add(mkLine(C, D, edgeHighlight, 0.018));
+                    const sA = 0.22;
+                    const dirAB = B.clone().sub(A).normalize();
+                    const dirY = new THREE.Vector3(0, 1, 0);
+                    const p1 = A.clone().add(dirAB.clone().multiplyScalar(sA));
+                    const p2 = p1.clone().add(dirY.clone().multiplyScalar(sA));
+                    const p3 = A.clone().add(dirY.clone().multiplyScalar(sA));
+                    g1.add(mkLine(p1, p2, 0xfde047, 0.008, 40));
+                    g1.add(mkLine(p2, p3, 0xfde047, 0.008, 40));
+                    g1.add(mkSphere(A, 0xfde047, 0x442200));
+                    g1.add(mkSphere(B, 0xfde047, 0x442200));
+                    g1.add(mkSphere(C, 0xfde047, 0x442200));
+                    g1.add(mkSphere(D, 0xf87171, 0x441100));
+                    g1.add(makeLabel('A', '#fde047', A.clone().add(new THREE.Vector3(-0.18, -0.12,  0.18)), '0.85rem'));
+                    g1.add(makeLabel('B', '#fde047', B.clone().add(new THREE.Vector3( 0.18, -0.12,  0.18)), '0.85rem'));
+                    g1.add(makeLabel('C', '#fde047', C.clone().add(new THREE.Vector3( 0.00, -0.12, -0.20)), '0.85rem'));
+                    g1.add(makeLabel('D', '#f87171', D.clone().add(new THREE.Vector3( 0.18,  0.18,  0.18)), '0.85rem'));
+                    g1.add(makeLabel('AD ⟂ (ABC)', '#f87171', new THREE.Vector3(-1.3, 1.7, 0.4), '0.7rem'));
+                }
+                scene.add(g1); groups.push(g1);
+
+                // ===== Шаг 2: E + AE ⟂ BC =====
+                const g2 = new THREE.Group();
+                {
+                    g2.add(mkSphere(E, 0xfbbf24, 0x552200, 0.055));
+                    g2.add(makeLabel('E', '#fbbf24', E.clone().add(new THREE.Vector3(0.15, 0.15, -0.15)), '0.85rem'));
+                    g2.add(dashed(A, E, 0xfbbf24));
+                    g2.add(makeLabel('AE ⟂ BC', '#fbbf24', A.clone().lerp(E, 0.5).add(new THREE.Vector3(0.25, 0.35, 0)), '0.7rem'));
+                }
+                scene.add(g2); groups.push(g2);
+
+                // ===== Шаг 3: DE ⟂ BC =====
+                const g3 = new THREE.Group();
+                {
+                    g3.add(dashed(D, E, 0x34d399));
+                    g3.add(makeLabel('DE ⟂ BC', '#34d399', D.clone().lerp(E, 0.5).add(new THREE.Vector3(0.25, 0.1, -0.4)), '0.7rem'));
+                }
+                scene.add(g3); groups.push(g3);
+
+                // ===== Шаг 4: ∠DEB = 90° =====
+                const g4 = new THREE.Group();
+                {
+                    const dirED = D.clone().sub(E).normalize();
+                    const dirEB = B.clone().sub(E).normalize();
+                    const angle = Math.acos(Math.max(-1, Math.min(1, dirED.dot(dirEB))));
+                    const axis = new THREE.Vector3().crossVectors(dirED, dirEB).normalize();
+                    if (axis.length() < 0.001) axis.set(1,0,0);
+                    const arcPts = [];
+                    const radius = 0.35;
+                    for (let i = 0; i <= 24; i++) {
+                        const t = i / 24 * angle;
+                        const v = dirED.clone().applyAxisAngle(axis, t).multiplyScalar(radius);
+                        arcPts.push(E.clone().add(v));
+                    }
+                    const arcLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(arcPts), new THREE.LineBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.95 }));
+                    arcLine.renderOrder = 30;
+                    g4.add(arcLine);
+                    g4.add(makeLabel('∠DEB = 90°', '#fde047', E.clone().add(new THREE.Vector3(0.35, 0.25, -0.35)), '0.8rem'));
+                }
+                scene.add(g4); groups.push(g4);
+
+                return groups;
+            });
+
+        // =============== ЗАДАЧА 2: КУБ ===============
+        createStepTaskScene('task-find-canvas', 'task-find-canvas-el', 'steps-find',
+            (scene, THREE, labelRenderer, camera, makeLabel, addThickLine) => {
+                const groups = [new THREE.Group()];
+                const s = 1.5;
+                const A  = new THREE.Vector3(-s, 0, -s);
+                const B  = new THREE.Vector3( s, 0, -s);
+                const C  = new THREE.Vector3( s, 0,  s);
+                const D  = new THREE.Vector3(-s, 0,  s);
+                const A1 = new THREE.Vector3(-s, s*2, -s);
+                const B1 = new THREE.Vector3( s, s*2, -s);
+                const C1 = new THREE.Vector3( s, s*2,  s);
+                const D1 = new THREE.Vector3(-s, s*2,  s);
+                const O  = new THREE.Vector3(0, 0, 0);
+
+                const edgeColor = 0x8ba5b8, edgeHighlight = 0x60a5fa, sliceColor = 0x3b82f6, lineAC = 0xfde047, lineDO = 0x34d399, lineD1O = 0xf87171;
+
+                const mkSphere = (pos, color, emissive, r=0.06) => {
+                    const sp = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 20), new THREE.MeshStandardMaterial({ color, emissive, depthTest: true, depthWrite: false }));
+                    sp.position.copy(pos); sp.renderOrder = 15; return sp;
+                };
+                const mkLine = (start, end, color, thickness = 0.012, renderOrder = 10) => {
+                    const g = new THREE.Group();
+                    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([start, end]), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 1, depthTest: true, depthWrite: false })));
+                    const dir = end.clone().sub(start);
+                    if (dir.length() > 0.001) {
+                        dir.normalize();
+                        const up = new THREE.Vector3(0, 1, 0);
+                        let perp1 = new THREE.Vector3().crossVectors(dir, up);
+                        if (perp1.length() < 0.001) perp1 = new THREE.Vector3(1, 0, 0);
+                        perp1.normalize().multiplyScalar(thickness);
+                        const perp2 = new THREE.Vector3().crossVectors(dir, perp1).normalize().multiplyScalar(thickness);
+                        [perp1, perp1.clone().negate(), perp2, perp2.clone().negate()].forEach(off => {
+                            const geo = new THREE.BufferGeometry().setFromPoints([start.clone().add(off), end.clone().add(off)]);
+                            g.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.7, depthTest: true, depthWrite: false })));
+                        });
+                    }
+                    return g;
+                };
+
+                // Шаг 1: куб + все 8 подписей
+                const g1 = new THREE.Group();
+                [[A,B],[B,C],[C,D],[D,A],[A1,B1],[B1,C1],[C1,D1],[D1,A1],[A,A1],[B,B1],[C,C1],[D,D1]].forEach(([p,q]) => g1.add(mkLine(p, q, edgeColor, 0.012)));
+                g1.add(mkSphere(A, 0xfde047, 0x442200));
+                g1.add(mkSphere(B, 0xfde047, 0x442200));
+                g1.add(mkSphere(C, 0xfde047, 0x442200));
+                g1.add(mkSphere(D, 0xfde047, 0x442200));
+                g1.add(mkSphere(A1, 0xfde047, 0x442200));
+                g1.add(mkSphere(B1, 0xfde047, 0x442200));
+                g1.add(mkSphere(C1, 0xfde047, 0x442200));
+                g1.add(mkSphere(D1, 0xfde047, 0x442200));
+                g1.add(makeLabel('A',  '#fde047', A.clone().add(new THREE.Vector3(-0.18, -0.12, -0.18)), '0.85rem'));
+                g1.add(makeLabel('B',  '#fde047', B.clone().add(new THREE.Vector3( 0.18, -0.12, -0.18)), '0.85rem'));
+                g1.add(makeLabel('C',  '#fde047', C.clone().add(new THREE.Vector3( 0.18, -0.12,  0.18)), '0.85rem'));
+                g1.add(makeLabel('D',  '#fde047', D.clone().add(new THREE.Vector3(-0.18, -0.12,  0.18)), '0.85rem'));
+                g1.add(makeLabel('A₁', '#fde047', A1.clone().add(new THREE.Vector3(-0.18, 0.12, -0.18)), '0.85rem'));
+                g1.add(makeLabel('B₁', '#fde047', B1.clone().add(new THREE.Vector3( 0.18, 0.12, -0.18)), '0.85rem'));
+                g1.add(makeLabel('C₁', '#fde047', C1.clone().add(new THREE.Vector3( 0.18, 0.12,  0.18)), '0.85rem'));
+                g1.add(makeLabel('D₁', '#fde047', D1.clone().add(new THREE.Vector3(-0.18, 0.12,  0.18)), '0.85rem'));
+                scene.add(g1); groups.push(g1);
+
+                // Шаг 2: плоскость ACD₁ + AC + подпись (ACD₁)
+                const g2 = new THREE.Group();
+                g2.add(mkLine(A, C, lineAC, 0.03));
+                const geoSlice = new THREE.BufferGeometry().setFromPoints([A, C, D1]);
+                geoSlice.computeVertexNormals();
+                const sliceMesh = new THREE.Mesh(geoSlice, new THREE.MeshBasicMaterial({ color: sliceColor, side: THREE.DoubleSide, transparent: true, opacity: 0.35, depthWrite: false }));
+                sliceMesh.renderOrder = 1;
+                g2.add(sliceMesh);
+                g2.add(mkLine(C, D1, edgeHighlight, 0.02));
+                g2.add(mkLine(D1, A, edgeHighlight, 0.02));
+                g2.add(makeLabel('(ACD₁)', '#60a5fa', new THREE.Vector3(0, s*0.9, s*0.5), '0.75rem'));
+                scene.add(g2); groups.push(g2);
+
+                // Шаг 3: O + DO + D₁O
+                const g3 = new THREE.Group();
+                g3.add(mkLine(O, D, lineDO, 0.022));
+                g3.add(mkLine(O, D1, lineD1O, 0.022));
+                g3.add(mkSphere(O, 0xfde047, 0x442200));
+                g3.add(makeLabel('O', '#fde047', O.clone().add(new THREE.Vector3(0.15, -0.1, 0.15)), '0.85rem'));
+                g3.add(makeLabel('DO ⟂ AC', '#34d399', D.clone().lerp(O, 0.5).add(new THREE.Vector3(0, 0.2, 0.1)), '0.7rem'));
+                g3.add(makeLabel('D₁O ⟂ AC', '#f87171', D1.clone().lerp(O, 0.5).add(new THREE.Vector3(0, 0.2, 0.1)), '0.7rem'));
+                scene.add(g3); groups.push(g3);
+
+                // Шаг 4: ∠D₁OD
+                const g4 = new THREE.Group();
+                {
+                    const dirOD = D.clone().sub(O).normalize();
+                    const dirOD1 = D1.clone().sub(O).normalize();
+                    const angle = Math.acos(Math.max(-1, Math.min(1, dirOD.dot(dirOD1))));
+                    const axis = new THREE.Vector3().crossVectors(dirOD, dirOD1).normalize();
+                    if (axis.length() < 0.001) axis.set(1,0,0);
+                    const arcPts = [];
+                    const radius = 0.5;
+                    for (let i = 0; i <= 24; i++) {
+                        const t = i / 24 * angle;
+                        const v = dirOD.clone().applyAxisAngle(axis, t).multiplyScalar(radius);
+                        arcPts.push(O.clone().add(v));
+                    }
+                    const arcLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(arcPts), new THREE.LineBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.95 }));
+                    arcLine.renderOrder = 30;
+                    g4.add(arcLine);
+                    g4.add(makeLabel('∠D₁OD', '#fde047', O.clone().add(new THREE.Vector3(0.35, 0.4, 0.35)), '0.8rem'));
+                }
+                scene.add(g4); groups.push(g4);
+
+                return groups;
+            });
+
+        // =============== ЗАДАЧА 3: ПИРАМИДА ===============
+        createStepTaskScene('task-build-canvas', 'task-build-canvas-el', 'steps-build',
+            (scene, THREE, labelRenderer, camera, makeLabel, addThickLine) => {
+                const groups = [new THREE.Group()];
+                const s = 1.5;
+                const h = 2.5;
+                const A = new THREE.Vector3(-s, 0, -s);
+                const B = new THREE.Vector3( s, 0, -s);
+                const C = new THREE.Vector3( s, 0,  s);
+                const D = new THREE.Vector3(-s, 0,  s);
+                const P = new THREE.Vector3( 0, h,  0);
+                const O = new THREE.Vector3(0, 0, 0);
+                const H = new THREE.Vector3(0, 0, -s);
+
+                const edgeColor = 0x8ba5b8, edgeHighlight = 0x60a5fa, baseColor = 0x3b82f6, lineOH = 0x34d399, linePH = 0xf87171;
+
+                const mkSphere = (pos, color, emissive, r=0.06) => {
+                    const sp = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 20), new THREE.MeshStandardMaterial({ color, emissive, depthTest: true, depthWrite: false }));
+                    sp.position.copy(pos); sp.renderOrder = 15; return sp;
+                };
+                const mkLine = (start, end, color, thickness = 0.014, renderOrder = 10) => {
+                    const g = new THREE.Group();
+                    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([start, end]), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 1, depthTest: true, depthWrite: false })));
+                    const dir = end.clone().sub(start);
+                    if (dir.length() > 0.001) {
+                        dir.normalize();
+                        const up = new THREE.Vector3(0, 1, 0);
+                        let perp1 = new THREE.Vector3().crossVectors(dir, up);
+                        if (perp1.length() < 0.001) perp1 = new THREE.Vector3(1, 0, 0);
+                        perp1.normalize().multiplyScalar(thickness);
+                        const perp2 = new THREE.Vector3().crossVectors(dir, perp1).normalize().multiplyScalar(thickness);
+                        [perp1, perp1.clone().negate(), perp2, perp2.clone().negate()].forEach(off => {
+                            const geo = new THREE.BufferGeometry().setFromPoints([start.clone().add(off), end.clone().add(off)]);
+                            g.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.7, depthTest: true, depthWrite: false })));
+                        });
+                    }
+                    return g;
+                };
+
+                // Шаг 1: пирамида + подписи A,B,C,D,P
+                const g1 = new THREE.Group();
+                {
+                    const geoBase = new THREE.BufferGeometry().setFromPoints([A, B, C, D]);
+                    geoBase.computeVertexNormals();
+                    g1.add(new THREE.Mesh(geoBase, new THREE.MeshBasicMaterial({ color: baseColor, side: THREE.DoubleSide, transparent: true, opacity: 0.2, depthWrite: false })));
+                    [[P,A,B],[P,B,C],[P,C,D],[P,D,A]].forEach(tri => {
+                        const geo = new THREE.BufferGeometry().setFromPoints(tri);
+                        geo.computeVertexNormals();
+                        g1.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x3b82f6, side: THREE.DoubleSide, transparent: true, opacity: 0.1, depthWrite: false })));
+                    });
+                    g1.add(mkLine(A, B, edgeHighlight, 0.018));
+                    g1.add(mkLine(B, C, edgeColor, 0.014));
+                    g1.add(mkLine(C, D, edgeColor, 0.014));
+                    g1.add(mkLine(D, A, edgeColor, 0.014));
+                    g1.add(mkLine(P, A, edgeHighlight, 0.018));
+                    g1.add(mkLine(P, B, edgeHighlight, 0.018));
+                    g1.add(mkLine(P, C, edgeColor, 0.014));
+                    g1.add(mkLine(P, D, edgeColor, 0.014));
+                    g1.add(mkSphere(A, 0xfde047, 0x442200));
+                    g1.add(mkSphere(B, 0xfde047, 0x442200));
+                    g1.add(mkSphere(C, 0xfde047, 0x442200));
+                    g1.add(mkSphere(D, 0xfde047, 0x442200));
+                    g1.add(mkSphere(P, 0xf87171, 0x441100));
+                    g1.add(makeLabel('A', '#fde047', A.clone().add(new THREE.Vector3(-0.18, -0.12, -0.18)), '0.85rem'));
+                    g1.add(makeLabel('B', '#fde047', B.clone().add(new THREE.Vector3( 0.18, -0.12, -0.18)), '0.85rem'));
+                    g1.add(makeLabel('C', '#fde047', C.clone().add(new THREE.Vector3( 0.18, -0.12,  0.18)), '0.85rem'));
+                    g1.add(makeLabel('D', '#fde047', D.clone().add(new THREE.Vector3(-0.18, -0.12,  0.18)), '0.85rem'));
+                    g1.add(makeLabel('P', '#f87171', P.clone().add(new THREE.Vector3( 0.15,  0.18,  0.15)), '0.85rem'));
+                }
+                scene.add(g1); groups.push(g1);
+
+                // Шаг 2: AB выделено + O + подпись AB — ребро
+                const g2 = new THREE.Group();
+                g2.add(mkLine(A, B, 0xfde047, 0.03, 25));
+                g2.add(mkSphere(O, 0xfde047, 0x442200, 0.05));
+                g2.add(makeLabel('O', '#fde047', O.clone().add(new THREE.Vector3(0.15, -0.1, 0.15)), '0.85rem'));
+                g2.add(makeLabel('AB — ребро', '#fde047', A.clone().lerp(B, 0.5).add(new THREE.Vector3(0, 0.1, 0.25)), '0.75rem'));
+                scene.add(g2); groups.push(g2);
+
+                // Шаг 3: H + OH ⟂ AB
+                const g3 = new THREE.Group();
+                g3.add(mkLine(O, H, lineOH, 0.022, 25));
+                g3.add(mkSphere(H, 0x34d399, 0x064e3b, 0.055));
+                g3.add(makeLabel('H', '#34d399', H.clone().add(new THREE.Vector3(0.18, -0.12, -0.20)), '0.85rem'));
+                g3.add(makeLabel('OH ⟂ AB', '#34d399', O.clone().lerp(H, 0.5).add(new THREE.Vector3(0.15, 0.2, 0.1)), '0.7rem'));
+                scene.add(g3); groups.push(g3);
+
+                // Шаг 4: PH ⟂ AB + ∠PHO
+                const g4 = new THREE.Group();
+                g4.add(mkLine(P, H, linePH, 0.022, 25));
+                g4.add(makeLabel('PH ⟂ AB', '#f87171', P.clone().lerp(H, 0.5).add(new THREE.Vector3(0.25, 0, 0.1)), '0.7rem'));
+                {
+                    const dirHP = P.clone().sub(H).normalize();
+                    const dirHO = O.clone().sub(H).normalize();
+                    const angle = Math.acos(Math.max(-1, Math.min(1, dirHP.dot(dirHO))));
+                    const axis = new THREE.Vector3().crossVectors(dirHP, dirHO).normalize();
+                    if (axis.length() < 0.001) axis.set(0, 1, 0);
+                    const arcPts = [];
+                    const radius = 0.35;
+                    for (let i = 0; i <= 24; i++) {
+                        const t = i / 24 * angle;
+                        const v = dirHP.clone().applyAxisAngle(axis, t).multiplyScalar(radius);
+                        arcPts.push(H.clone().add(v));
+                    }
+                    const arcLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(arcPts), new THREE.LineBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.95 }));
+                    arcLine.renderOrder = 30;
+                    g4.add(arcLine);
+                    g4.add(makeLabel('∠PHO', '#fde047', H.clone().add(new THREE.Vector3(0.3, 0.35, 0.15)), '0.8rem'));
+                }
+                scene.add(g4); groups.push(g4);
+
+                return groups;
+            });
+
     })();
 </script>
 

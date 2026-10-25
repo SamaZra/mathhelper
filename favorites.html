@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -170,7 +170,285 @@
             .favorite-icon { width: 40px; height: 40px; font-size: 24px; }
             .favorite-item { padding: 12px 16px; }
         }
-    </style>
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}/* ===== АНИМАЦИЯ ИКОНОК В ИЗБРАННОМ ===== */
+/* Настройка подложки по умолчанию */
+.favorite-icon {
+    font-size: 28px; /* Чуть уменьшим, чтобы влезало в подложку */
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg); /* Или rgba(255,255,255,0.05) для темной */
+    border-radius: 16px;
+    color: var(--icon-color, var(--text));
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+/* Настройка при наведении на карточку */
+.favorite-item:hover .favorite-icon {
+    background: var(--accent) !important; /* Зеленая подложка */
+    transform: scale(1.05) rotate(-5deg);
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+}
+
+/* Внутренний span для самого эмодзи */
+.favorite-icon > span {
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+/* При наведении делаем эмодзи белым */
+.favorite-item:hover .favorite-icon > span {
+    color: #ffffff !important;
+    filter: brightness(0) invert(1) !important; /* Для цветных эмодзи */
+}
+/* ===== ОЖИВЛЕНИЕ СТРАНИЦЫ ИЗБРАННОГО ===== */
+
+/* 1. Каскадное появление карточек */
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.favorite-item {
+    animation: slideInUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    /* Плавная тень при наведении (парение) */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    border: 1px solid transparent; /* Подготовка к подсветке */
+}
+
+/* Задержка для каждой следующей карточки (до 10 штук) */
+.favorite-item:nth-child(1) { animation-delay: 0.05s; }
+.favorite-item:nth-child(2) { animation-delay: 0.10s; }
+.favorite-item:nth-child(3) { animation-delay: 0.15s; }
+.favorite-item:nth-child(4) { animation-delay: 0.20s; }
+.favorite-item:nth-child(5) { animation-delay: 0.25s; }
+.favorite-item:nth-child(6) { animation-delay: 0.30s; }
+.favorite-item:nth-child(7) { animation-delay: 0.35s; }
+.favorite-item:nth-child(8) { animation-delay: 0.40s; }
+.favorite-item:nth-child(9) { animation-delay: 0.45s; }
+.favorite-item:nth-child(10) { animation-delay: 0.50s; }
+
+/* 2. Улучшенное парение карточки */
+.favorite-item:hover {
+    transform: translateY(-3px) translateX(4px) !important; /* Приподнимаем и сдвигаем */
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important; /* Увеличиваем тень */
+    border-color: var(--border) !important;
+}
+
+/* 3. Кнопка "Очистить всё" (опасное действие) */
+.clear-all-btn {
+    transition: all 0.3s ease !important;
+}
+.clear-all-btn:hover {
+    background: #ef4444 !important; /* Красный цвет */
+    color: white !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+    transform: translateY(-2px);
+}
+
+/* 4. Оживляем "Пустой экран" */
+.empty-icon {
+    animation: floatEmpty 3s ease-in-out infinite;
+    display: inline-block !important;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+}
+
+@keyframes floatEmpty {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Кнопка "В меню" на пустом экране */
+.empty-btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 12px 24px;
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+}
+.empty-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(26, 188, 156, 0.4);
+}
+/* ===== ПАРЕНИЕ БЛОКА "ИЗБРАННОЕ" ===== */
+.content-card {
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important; /* Мягкая тень по умолчанию */
+}
+
+.content-card:hover {
+    transform: translateY(-6px) !important; /* Приподнимаем весь блок */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important; /* Усиливаем тень */
+    border-color: var(--accent) !important; /* Рамка подсвечивается зеленым */
+}
+/* ===== ПАРЕНИЕ ЗАГОЛОВКА "ИЗБРАННОЕ" ===== */
+@keyframes floatHeader {
+    0% { transform: translateY(0); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    50% { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(26, 188, 156, 0.15); }
+    100% { transform: translateY(0); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+}
+
+.header {
+    /* Запускаем анимацию, 4 секунды, бесконечно, плавно */
+    animation: floatHeader 4s ease-in-out infinite !important;
+    transition: all 0.3s ease;
+}
+
+/* При наведении мышкой (на ПК) анимация замирает и блок подсвечивается */
+.header:hover {
+    animation-play-state: paused !important;
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: 0 20px 40px rgba(26, 188, 156, 0.25) !important;
+    border-color: var(--accent) !important;
+}
+</style>
 </head>
 <body>
 <div class="container">
@@ -324,8 +602,8 @@
         { "url": "probability-professional.html", "title": "Вероятность в профессиональных задачах", "icon": "⌘", "category": "Вероятность" },
         { "url": "random-variables.html", "title": "Дискретная случайная величина", "icon": "∑", "category": "Статистика" },
         { "url": "math-statistics.html", "title": "Задачи математической статистики", "icon": "x̄", "category": "Статистика" },
-        { "url": "diagrams-tables.html", "title": "Составление таблиц и диаграмм", "icon": "⊞", "category": "Статистика" }
-
+        { "url": "diagrams-tables.html", "title": "Составление таблиц и диаграмм", "icon": "⊞", "category": "Статистика" },
+,
         // Инструменты
         { url: "calculator.html", title: "Калькулятор", category: "Инструменты", icon: "🖩", desc: "Обычный, инженерный" },
         { url: "quadratic.html", title: "Калькулятор квадратных уравнений", category: "Инструменты", icon: "📐", desc: "Решение" },
@@ -383,6 +661,7 @@
                 <div class="empty-icon">⭐</div>
                 <p>У вас пока нет избранных страниц</p>
                 <p>Нажмите на звёздочку ★ в правом верхнем углу любой страницы</p>
+                <a href="index.html" class="empty-btn">Перейти в меню</a>
             </div>`;
             return;
         }
@@ -392,7 +671,7 @@
             const safeUrl = url.replace(/'/g, "\\'");
             return `
                 <div class="favorite-item" onclick="window.location.href='${url}'">
-                    <div class="favorite-icon">${info.icon}</div>
+                    <div class="favorite-icon"><span>${info.icon}</span></div>
                     <div class="favorite-content">
                         <div class="favorite-title">${info.title}</div>
                         <div class="favorite-category">${info.category}</div>
@@ -419,3 +698,42 @@
 <script src="theme.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
