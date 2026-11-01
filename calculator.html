@@ -6,6 +6,106 @@
     <title>Калькулятор</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+                /* Стили для кнопки инструкции */
+        .instruction-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            border-radius: 30px;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.08s ease, background 0.15s ease, box-shadow 0.08s ease;
+            box-shadow: 0 3px 0 var(--shadow-base);
+        }
+        .instruction-btn:hover { background: var(--btn-hover); }
+        .instruction-btn:active { transform: translateY(2px) scale(0.98); box-shadow: 0 1px 0 var(--shadow-base); }
+
+        /* Модальное окно */
+        .instruction-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .instruction-modal.show { display: flex; }
+                .instruction-content {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: var(--text);
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+
+            /* Скрываем полосу прокрутки, оставляя саму возможность скролла */
+            scrollbar-width: none; /* Для Firefox */
+            -ms-overflow-style: none; /* Для IE и Edge */
+        }
+        .instruction-content::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none; /* Для Chrome, Safari, Opera */
+        }
+        .instruction-content h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+        }
+        .instruction-content h3 {
+            font-size: 1rem;
+            margin: 16px 0 8px;
+            color: var(--text);
+        }
+        .instruction-content p, .instruction-content li {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .instruction-content code {
+            background: var(--btn-bg);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-family: monospace;
+            color: var(--accent);
+            font-size: 0.85rem;
+        }
+        .instruction-content ul {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+        .instruction-content li {
+            margin-bottom: 6px;
+        }
+        .close-instruction {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--accent-strong);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+        }
+        .close-instruction:hover { background: var(--accent-strong); }
+        .close-instruction:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--accent-strong); }
         :root {
             --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
             --accent: #1abc9c; --accent-strong: #16a085; --border: rgba(46, 204, 113, 0.1);
@@ -101,6 +201,54 @@
         button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear, [class*="btn"], [class*="button"] { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-appearance: none; appearance: none; outline: none; }
         a, select, option, input, textarea, .back-link, .contact-link { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; outline: none; }
         select:focus, a:focus, input:focus, textarea:focus { outline: none; }
+                button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear, [class*="btn"], [class*="button"] { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-appearance: none; appearance: none; outline: none; }
+        a, select, option, input, textarea, .back-link, .contact-link { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; outline: none; }
+        select:focus, a:focus, input:focus, textarea:focus { outline: none; }
+
+        /* 👇 ВСТАВИТЬ ВОТ СЮДА 👇 */
+        /* ===== ФИКС ДЛЯ КНОПКИ ТЕМЫ ===== */
+        #themeBtn {
+            position: fixed !important;
+            top: 12px !important;
+            right: 12px !important;
+            width: 44px !important;
+            height: 44px !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            border-radius: 50% !important;
+            z-index: 1000 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 26px !important;
+            cursor: pointer !important;
+            transform: none !important;
+        }
+        #themeBtn:hover { transform: scale(1.15) !important; background: transparent !important; }
+        #themeBtn:active { transform: scale(0.95) !important; box-shadow: none !important; }
+        /* 👆 КОНЕЦ ВСТАВКИ 👆 */
+
+    </style>
+    <style id="ripple-effect-only">
+        /* Ripple-эффект при нажатии (появление волны) для кнопок */
+        .ripple-host {
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+            transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes rippleAnim {
+            to { transform: scale(2.5); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -130,9 +278,76 @@
             <button class="mode-btn" onclick="setMode('programmer', event)">Программист</button>
         </div>
 
+        <!-- Кнопка инструкции -->
+        <button class="instruction-btn" onclick="toggleInstruction()">📖 Инструкция по работе</button>
+
+        <!-- Модальное окно инструкции -->
+        <div class="instruction-modal" id="instructionModal">
+            <div class="instruction-content">
+                <h2>📖 Как пользоваться калькулятором</h2>
+
+                <h3>1. Режимы работы</h3>
+                <p><strong>Обычный:</strong> базовые арифметические операции (сложение, вычитание, умножение, деление, проценты).</p>
+                <p><strong>Инженерный:</strong> тригонометрические функции, логарифмы, корни, степени, факториал, константы (π, e).</p>
+                <p><strong>Программист:</strong> работа с системами счисления (HEX, DEC, BIN) и побитовые операции (AND, OR, XOR, NOT, сдвиги).</p>
+
+                <h3>2. Как вводить функции (Инженерный режим)</h3>
+                <ul>
+                    <li><strong>sin, cos, tg</strong> — нажмите кнопку, затем введите угол в градусах (если включен режим <strong>Deg</strong>) или радианах (режим <strong>Rad</strong>). Пример: <code>sin(30)</code>.</li>
+                    <li><strong>ln</strong> — натуральный логарифм (по основанию e). Пример: <code>ln(10)</code>.</li>
+                    <li><strong>lg</strong> — десятичный логарифм (по основанию 10). Пример: <code>lg(100) = 2</code>.</li>
+                    <li><strong>logₐ</strong> — логарифм по произвольному основанию. Нажмите кнопку, в открывшемся окне введите <strong>основание</strong> (например, 2) и <strong>число</strong> (например, 8), затем нажмите «Вычислить». Пример: <code>log_2(8) = 3</code>.</li>
+                    <li><strong>√</strong> — квадратный корень. Пример: <code>√(16) = 4</code>.</li>
+                    <li><strong>x²</strong> — возведение в квадрат (добавляет <code>^2</code> к текущему числу).</li>
+                    <li><strong>1/x</strong> — обратное число (1 делить на x).</li>
+                    <li><strong>|x|</strong> — модуль числа.</li>
+                    <li><strong>!</strong> — факториал числа (только для целых неотрицательных чисел).</li>
+                    <li><strong>π</strong> — число Пи (3.14159...).</li>
+                    <li><strong>e</strong> — число Эйлера (2.71828...).</li>
+                    <li><strong>mod</strong> — остаток от деления. Пример: <code>10 mod 3 = 1</code>.</li>
+                    <li><strong>^</strong> — возведение в степень. Пример: <code>2^3 = 8</code>.</li>
+                </ul>
+
+                <h3>3. Работа с градусами и радианами</h3>
+                <p>Переключатель <strong>Deg / Rad</strong> в верхней части влияет на тригонометрические функции (sin, cos, tg). Убедитесь, что выбрана правильная единица измерения угла.</p>
+
+                <!-- ВОТ ЭТОТ НОВЫЙ БЛОК -->
+                <h3>💡 Совет по тригонометрии</h3>
+                <p>Для сложных вычислений синусов, косинусов, тангенсов и котангенсов (а также обратных функций), особенно с углами в градусах, минутах и секундах, <strong>рекомендуем использовать специальный инструмент «Таблица Брадиса»</strong>. Он покажет не только десятичное значение, но и точный ответ в виде дроби с корнями, а также переведет угол в радианы.</p>
+
+                <h3>4. История вычислений</h3>
+                <p>Все успешные вычисления сохраняются в истории. Нажмите на любую строку истории, чтобы восстановить выражение и результат.</p>
+
+                <h3>5. Клавиатура</h3>
+                <p>Вы можете вводить цифры и операторы с клавиатуры. <strong>Enter</strong> — вычислить, <strong>Escape</strong> — очистить, <strong>Backspace</strong> — удалить последний символ.</p>
+
+                <button class="close-instruction" onclick="toggleInstruction()">Закрыть</button>
+            </div>
+        </div>
         <div class="buttons" id="buttons"></div>
     </div>
+    <!-- Модальное окно для логарифма по основанию -->
+    <div class="instruction-modal" id="logModal">
+        <div class="instruction-content" style="max-width: 400px;">
+            <h2 style="color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 8px; margin-bottom: 16px;">Логарифм по основанию</h2>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px;">Введите основание и число, чтобы вычислить логарифм.</p>
 
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 0.85rem; color: var(--text); margin-bottom: 4px;">Основание (например, 2):</label>
+                <input type="number" id="logBaseInput" value="2" step="any" min="0.01" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--btn-border); background: var(--btn-bg); color: var(--text); font-size: 1rem;">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 0.85rem; color: var(--text); margin-bottom: 4px;">Число (например, 8):</label>
+                <input type="number" id="logNumInput" value="8" step="any" min="0.01" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--btn-border); background: var(--btn-bg); color: var(--text); font-size: 1rem;">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button onclick="calculateLog()" style="flex: 1; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 30px; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 3px 0 var(--accent-strong);">Вычислить</button>
+                <button onclick="closeLogModal()" style="flex: 1; padding: 12px; background: var(--btn-bg); color: var(--text); border: 1px solid var(--btn-border); border-radius: 30px; font-weight: 600; font-size: 1rem; cursor: pointer;">Отмена</button>
+            </div>
+        </div>
+    </div>
     <a href="index.html" class="back-link">← Назад в меню</a>
 </div>
 
@@ -206,9 +421,9 @@
         '0', '.', '+/-', '+', '%'
     ];
 
-    const engineerButtons = [
+        const engineerButtons = [
         'sin', 'cos', 'tg', '^', 'C',
-        'ln', 'log', 'logₐ', '√', '(',
+        'ln', 'lg', 'logₐ', '√', '(',
         '7', '8', '9', '/', ')',
         '4', '5', '6', '*', '⌫',
         '1', '2', '3', '+', '-',
@@ -250,43 +465,53 @@
     }
 
     // --- ПОДГОТОВКА ВЫРАЖЕНИЯ (теперь понимает √) ---
-    function prepareForEval(expr) {
-        // 1. log_10(...)
-        let processed = expr.replace(/log_(\d+(?:[.,]\d+)?)\(([^)]+)\)/g, function(match, base, arg) {
+               function prepareForEval(expr) {
+        // 0. Заменяем русские "пи" и символ π на PI
+        let processed = expr.replace(/пи/g, 'PI').replace(/π/g, 'PI');
+
+        // 1. Обработка логарифмов
+        processed = processed.replace(/log_(\d+(?:[.,]\d+)?)\(([^)]+)\)/g, function(match, base, arg) {
             let cleanArg = arg.replace(/,/g, '.');
             let cleanBase = base.replace(/,/g, '.');
             return `(Math.log(${cleanArg}) / Math.log(${cleanBase}))`;
         });
 
-        // 2. ln(...)
+        processed = processed.replace(/lg\(([^)]+)\)/g, function(match, arg) {
+            return `Math.log10(${arg.replace(/,/g, '.')})`;
+        });
+
         processed = processed.replace(/ln\(([^)]+)\)/g, function(match, arg) {
             return `Math.log(${arg.replace(/,/g, '.')})`;
         });
 
-        // 3. Корень √ заменяем на sqrt
+        // 2. Корень и запятые
         processed = processed.replace(/√/g, 'sqrt');
-
-        // 4. Запятые -> точки
         processed = processed.replace(/,/g, '.');
 
-        // 5. Стандартные замены
+        // 3. Базовые замены
         let evalExpr = processed
             .replace(/×/g, '*')
             .replace(/÷/g, '/')
             .replace(/\bmod\b/g, ' % ')
             .replace(/\^/g, '**')
-            .replace(/sin\(/g, 'Math.sin(')
-            .replace(/cos\(/g, 'Math.cos(')
-            .replace(/tg\(/g, 'Math.tan(')
             .replace(/sqrt\(/g, 'Math.sqrt(')
             .replace(/abs\(/g, 'Math.abs(')
             .replace(/PI/g, Math.PI)
             .replace(/E/g, Math.E);
 
+        // 4. ВАЖНО: Сначала заменяем tg и tan на Math.tan, sin на Math.sin, cos на Math.cos
+        evalExpr = evalExpr
+            .replace(/tg\(/g, 'Math.tan(')
+            .replace(/tan\(/g, 'Math.tan(')
+            .replace(/sin\(/g, 'Math.sin(')
+            .replace(/cos\(/g, 'Math.cos(');
+
+        // 5. Теперь обрабатываем градусы/радианы
         if (angleUnit === 'deg') {
-            evalExpr = evalExpr.replace(/Math\.sin\(([^)]+)\)/g, 'Math.sin($1 * Math.PI / 180)');
-            evalExpr = evalExpr.replace(/Math\.cos\(([^)]+)\)/g, 'Math.cos($1 * Math.PI / 180)');
-            evalExpr = evalExpr.replace(/Math\.tan\(([^)]+)\)/g, 'Math.tan($1 * Math.PI / 180)');
+            evalExpr = evalExpr
+                .replace(/Math\.sin\(([^)]+)\)/g, 'Math.sin(($1) * Math.PI / 180)')
+                .replace(/Math\.cos\(([^)]+)\)/g, 'Math.cos(($1) * Math.PI / 180)')
+                .replace(/Math\.tan\(([^)]+)\)/g, 'Math.tan(($1) * Math.PI / 180)');
         }
 
         return evalExpr;
@@ -337,13 +562,14 @@
             } else if (btn === 'ln') {
                 button.onclick = () => addFunction('ln');
                 button.classList.add('btn-func');
-            } else if (btn === 'log') {
-                button.onclick = () => addFunction('log_10');
+            } else if (btn === 'lg') {
+                button.onclick = () => addFunction('lg');
                 button.classList.add('btn-func');
+                button.title = 'Десятичный логарифм (по основанию 10)';
             } else if (btn === 'logₐ') {
-                button.onclick = () => addFunction('log_');
+                button.onclick = openLogModal;
                 button.classList.add('btn-func');
-                button.title = 'Логарифм по основанию: введите основание, затем число. Например, log_5(25) = 2';
+                button.title = 'Логарифм по произвольному основанию';
             } else if (btn === '√') {
                 button.onclick = () => addFunction('√');
                 button.classList.add('btn-func');
@@ -501,10 +727,34 @@
     function evaluateExpression() {
         try {
             let calcResult = eval(prepareForEval(expression));
+
+            // Проверка на деление на ноль или ошибки вычислений
+            if (calcResult === Infinity || calcResult === -Infinity || isNaN(calcResult)) {
+                result = 'Ошибка';
+                return;
+            }
+
+            // Защита от огромных чисел (например, tan(90) в градусах)
+            if (Math.abs(calcResult) > 1e15) {
+                result = 'Ошибка (∞)';
+                return;
+            }
+
+            // Округляем до 10 знаков после запятой, чтобы убрать "хвосты" (как у 1.7320508075...)
+            // Но только если число не целое
+            if (!Number.isInteger(calcResult)) {
+                calcResult = parseFloat(calcResult.toFixed(10));
+            }
+
             result = calcResult.toString();
+
         } catch (e) {
-            if (expression && !isNaN(expression)) result = expression;
-            else result = '?';
+            // Если выражение недописано (например, просто "sin("), выводим ?
+            if (expression && !isNaN(expression)) {
+                result = expression;
+            } else {
+                result = '?';
+            }
         }
     }
 
@@ -568,9 +818,59 @@
         if (e.key === '(') addOperator('(');
         if (e.key === ')') addOperator(')');
     });
+        // ==== ИНСТРУКЦИЯ ====
+    function toggleInstruction() {
+        const modal = document.getElementById('instructionModal');
+        if (modal) {
+            modal.classList.toggle('show');
+        }
+    }
+    // ===== ЛОГАРИФМ ПО ОСНОВАНИЮ =====
+function openLogModal() {
+    const modal = document.getElementById('logModal');
+    if (!modal) return;
+    // Если в поле ввода уже есть число, подставим его как число для логарифма
+    const currentExpr = document.getElementById('expression').textContent;
+    if (currentExpr && !isNaN(parseFloat(currentExpr))) {
+        document.getElementById('logNumInput').value = currentExpr;
+    }
+    modal.classList.add('show');
+    document.getElementById('logBaseInput').focus();
+}
+
+function closeLogModal() {
+    const modal = document.getElementById('logModal');
+    if (modal) modal.classList.remove('show');
+}
+
+function calculateLog() {
+    const baseVal = parseFloat(document.getElementById('logBaseInput').value);
+    const numVal = parseFloat(document.getElementById('logNumInput').value);
+
+    if (isNaN(baseVal) || baseVal <= 0 || baseVal === 1) {
+        alert('Основание логарифма должно быть положительным и не равным 1.');
+        return;
+    }
+    if (isNaN(numVal) || numVal <= 0) {
+        alert('Число для логарифма должно быть положительным.');
+        return;
+    }
+
+    const resultVal = Math.log(numVal) / Math.log(baseVal);
+    expression = `log_${baseVal}(${numVal})`;
+    result = resultVal.toString();
+    updateDisplay();
+    closeLogModal();
+}
 </script>
 
 <script src="favorites.js"></script>
 <script src="theme.js"></script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
 </body>
 </html>
+
+
+
+

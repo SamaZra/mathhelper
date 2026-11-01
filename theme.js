@@ -75,7 +75,7 @@
     window.__themeRefreshAll = window.__themeRefreshAll || function () {};
 })();
 
-// ===== ГЛОБАЛЬНЫЕ СТИЛИ ДЛЯ ВСЕХ ЭМОДЗИ (ПОВОРОТ И ЗЕЛЕНАЯ ПОДСВЕТКА) =====
+// ===== ГЛОБАЛЬНЫЕ СТИЛИ ДЛЯ ВСЕХ ЭМОДЗИ (ПОВОРОТ И СИНЯЯ ПОДСВЕТКА ПОД ФИЗИКУ) =====
 (function() {
     var style = document.createElement('style');
     style.type = 'text/css';
@@ -83,13 +83,14 @@
         .submenu-icon, .menu-icon, .group-icon, .section-icon, .toc-icon, .theme-icon {
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex; align-items: center; justify-content: center;
+            transform-origin: center;
         }
         a:hover .submenu-icon, a:hover .menu-icon, .submenu-item:hover .submenu-icon,
         .menu-item:hover .menu-icon, .group-header:hover .group-icon, .section-title:hover .section-icon,
         .toc-item:hover .toc-icon {
             transform: scale(1.15) rotate(-8deg);
             color: var(--accent) !important;
-            text-shadow: 0 0 8px rgba(26, 188, 156, 0.5);
+            text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
         }
         a:hover span[class*="icon"], a:hover div[class*="icon"] {
             color: var(--accent) !important;
@@ -123,7 +124,7 @@
     if (window.location.pathname.includes('test')) return;
     var bar = document.createElement('div');
     bar.id = 'reading-progress-bar';
-    bar.style.cssText = `position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, #0d9488, #1abc9c); z-index: 9999; transition: width 0.1s ease-out; box-shadow: 0 0 10px rgba(26,188,156,0.5);`;
+    bar.style.cssText = `position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, #0d9488, #3b82f6); z-index: 9999; transition: width 0.1s ease-out; box-shadow: 0 0 10px rgba(59,130,246,0.5);`;
     document.body.appendChild(bar);
     window.addEventListener('scroll', function() {
         var scrollTop = window.scrollY;
@@ -140,8 +141,8 @@
     style.type = 'text/css';
     style.textContent = `
         .fixed-timer .bar-fill, .timer-bar-fill, .time-bar-fill {
-            background: #1abc9c !important;
-            box-shadow: 0 0 8px rgba(26, 188, 156, 0.6) !important;
+            background: #3b82f6 !important;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.6) !important;
             border-radius: 10px;
             transition: width 0.3s ease !important;
         }
@@ -152,3 +153,4 @@
     `;
     document.head.appendChild(style);
 })();
+

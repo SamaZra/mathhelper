@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -47,7 +47,7 @@
         h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
         .section { margin-bottom: 12px; }
         .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
-        .section-title:hover { opacity: 0.8; }
+        .section-title:hover { opacity: 0.25; }
         .section-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); }
         .section.collapsed .section-title::after { transform: rotate(-90deg); }
         .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
@@ -298,7 +298,94 @@ a.back-link, .back-link {
 </style>
     <script>MathJax={tex:{inlineMath:[['$','$']]}};</script>
     <script src="mathjax/es5/tex-chtml.js" async></script>
-    </head>
+    <style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
 <body>
 <script src="./three/build/three.min.js"></script>
 <script src="./three/examples/js/controls/OrbitControls.js"></script>
@@ -426,10 +513,12 @@ a.back-link, .back-link {
         if (saved) quality3D = saved;
     }
 
+    window.quality3D = quality3D;
+
     const qualitySettings = {
         low:    { segments: 24, opacity: 1.0,  transparent: false },
-        medium: { segments: 48, opacity: 0.65, transparent: true },
-        high:   { segments: 96, opacity: 0.55, transparent: true }
+        medium: { segments: 48, opacity: 0.25, transparent: true },
+        high:   { segments: 96, opacity: 0.25, transparent: true }
     };
 
     const settings = qualitySettings[quality3D] || qualitySettings.high;
@@ -482,11 +571,28 @@ a.back-link, .back-link {
             return label;
         }
 
-        function addThickLine(scene, start, end, color, thickness = 0.012) {
-            const mainGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
-            const mainMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 1 });
-            scene.add(new THREE.Line(mainGeo, mainMat));
+                function addThickLine(scene, start, end, color, thickness = 0.012) {
+            // 1. Призрачная линия (видна только там, где не перекрыта плоскостью)
+            const ghostGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+            const ghostMat = new THREE.LineBasicMaterial({
+                color, transparent: true, opacity: 0.3,
+                depthTest: true, depthWrite: false
+            });
+            const ghostLine = new THREE.Line(ghostGeo, ghostMat);
+            ghostLine.renderOrder = 20;
+            scene.add(ghostLine);
 
+            // 2. Основная линия (видна всегда, поверх всего)
+            const mainGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+            const mainMat = new THREE.LineBasicMaterial({
+                color, transparent: true, opacity: 1,
+                depthTest: false, depthWrite: false
+            });
+            const mainLine = new THREE.Line(mainGeo, mainMat);
+            mainLine.renderOrder = 100;
+            scene.add(mainLine);
+
+            // 3. Утолщение (тоже поверх всего)
             const dir = end.clone().sub(start);
             if (dir.length() < 0.001) return;
             dir.normalize();
@@ -497,8 +603,13 @@ a.back-link, .back-link {
             const perp2 = new THREE.Vector3().crossVectors(dir, perp1).normalize().multiplyScalar(thickness);
             [perp1, perp1.clone().negate(), perp2, perp2.clone().negate()].forEach(off => {
                 const geo = new THREE.BufferGeometry().setFromPoints([start.clone().add(off), end.clone().add(off)]);
-                const m = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.7 });
-                scene.add(new THREE.Line(geo, m));
+                const m = new THREE.LineBasicMaterial({
+                    color, transparent: true, opacity: 0.7,
+                    depthTest: false, depthWrite: false
+                });
+                const line = new THREE.Line(geo, m);
+                line.renderOrder = 100;
+                scene.add(line);
             });
         }
 
@@ -524,6 +635,22 @@ a.back-link, .back-link {
             camera.lookAt(0, 0, 0);
 
             const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+
+        // ===== Настройка качества 3D (Вставлено скриптом) =====
+        if (typeof window.quality3D !== 'undefined') {
+            if (window.quality3D === 'low') {
+                renderer.setPixelRatio(0.75);
+                renderer.shadowMap.enabled = false;
+                renderer.antialias = false;
+            } else if (window.quality3D === 'medium') {
+                renderer.setPixelRatio(1);
+            } else {
+                renderer.setPixelRatio(window.devicePixelRatio || 1);
+            }
+        }
+        // ======================================================
+
+        
             renderer.setSize(width, height);
 
             const labelRenderer = new THREE.CSS2DRenderer();
@@ -821,8 +948,89 @@ a.back-link, .back-link {
 
 <script src="favorites.js"></script>
 <script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
