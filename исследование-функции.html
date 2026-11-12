@@ -1,0 +1,1147 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Исследование функции с помощью производной</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    :root {
+        --bg: #1a2d3c;
+        --card-bg: #1e3545;
+        --text: #ffffff;
+        --text-secondary: #8ba5b8;
+        --accent: #1abc9c;
+        --border: rgba(46, 204, 113, 0.1);
+        --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+        --info-border: #2c7cb6;
+        --example-bg: #162a38;
+        --step-color: #a78bfa;
+        --result-color: #34d399;
+        --explain-color: #34d399;
+        --info-bg: #1a4a5a;
+        --special-border: #2c7cb6;
+        --canvas-bg: #1a2d3c;
+    }
+
+    :root.light-mode {
+        --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+        --card-bg: white;
+        --text: #1a2a3f;
+        --text-secondary: #5a7a94;
+        --accent: #1abc9c;
+        --border: #eff3f8;
+        --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+        --info-border: #2c7cb6;
+        --example-bg: #f8fafc;
+        --step-color: #7c3aed;
+        --result-color: #059669;
+        --explain-color: #059669;
+        --info-bg: #e8f0fe;
+        --special-border: #2c7cb6;
+        --canvas-bg: #eef2f8;
+    }
+
+    body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+    .container{max-width:1000px;margin:0 auto;position:relative;}
+
+    /* ===== КНОПКИ — как в делении многочленов ===== */
+.theme-toggle:hover{transform:scale(1.1);}.favorite-btn:hover{transform:scale(1.1);}
+    .favorite-btn.active{color:#facc15;}
+
+    .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+    h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+    .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+    .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+    .section{margin-bottom:14px;}
+    .section-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;border-left:4px solid var(--info-border);padding-left:12px;text-align:center;cursor:pointer;user-select:none;}
+    .section-title:hover{opacity:0.8;}
+    .section-title .main-title{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;color:var(--text);}
+    .section-title .sub-title{font-size:0.85rem;color:var(--text-secondary);font-weight:400;font-style:italic;margin-top:2px;}
+    .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+    .section.collapsed .section-title::after{transform:rotate(-90deg);}
+    .section-content{max-height:10000px;overflow:hidden;transition:max-height 0.4s ease;}
+    .section.collapsed .section-content{max-height:0;}
+
+    .definition-block{background:var(--info-bg);border-left:4px solid var(--info-border);padding:16px 20px;border-radius:16px;margin:12px 0;}
+    .definition-block p{font-size:1rem;line-height:1.5;color:var(--text);}
+    .definition-block p strong{color:var(--text);}
+    .definition-block ul{padding-left:20px;margin:6px 0;font-size:0.95rem;line-height:1.5;color:var(--text);}
+    .definition-block ul li{margin:2px 0;}
+
+    .formula-block{background:var(--bg);padding:14px 18px;border-radius:16px;font-size:0.95rem;margin:10px 0;border-left:5px solid var(--special-border);word-break:break-word;overflow-x:visible;line-height:2.2;color:var(--text);}
+    .example{background:var(--example-bg);padding:16px 20px;border-radius:14px;margin-top:10px;border-left:5px solid var(--special-border);font-size:0.95rem;line-height:2.0;color:var(--text);word-break:break-word;overflow-x:visible;}
+    .example .step{font-weight:700;color:var(--step-color);margin-top:10px;margin-bottom:2px;display:block;}
+    .example .result{margin-top:10px;font-weight:600;color:var(--result-color);display:block;}
+    .example .explain{color:var(--explain-color);font-style:italic;margin:4px 0 8px 16px;border-left:2px solid var(--explain-color);padding-left:12px;display:block;}
+    .example .formula-line{display:block;margin:4px 0;word-break:break-word;}
+    .example .star{color:#fbbf24;font-size:1.2rem;margin-right:4px;}
+    .example-no-border{background:var(--example-bg);padding:16px 20px;border-radius:14px;margin-top:10px;font-size:0.95rem;line-height:2.0;color:var(--text);word-break:break-word;overflow-x:visible;}
+    .example-no-border .step{font-weight:700;color:var(--step-color);margin-top:10px;margin-bottom:2px;display:block;}
+    .example-no-border .result{margin-top:10px;font-weight:600;color:var(--result-color);display:block;}
+    .example-no-border .explain{color:var(--explain-color);font-style:italic;margin:4px 0 8px 16px;border-left:2px solid var(--explain-color);padding-left:12px;display:block;}
+    .example-no-border .formula-line{display:block;margin:4px 0;word-break:break-word;}
+    .example-no-border .star{color:#fbbf24;font-size:1.2rem;margin-right:4px;}
+    p{margin:8px 0;font-size:0.95rem;line-height:1.6;color:var(--text);}
+    .important{background:var(--info-bg);border-left:4px solid #fbbf24;border-radius:14px;padding:12px 16px;margin:12px 0;color:var(--text);}
+    .important strong{color:#fbbf24;}
+
+    .back-link{display:inline-block;margin:16px 0 8px;padding:10px 20px;background:var(--special-border);color:white;text-decoration:none;font-weight:bold;border-radius:20px;font-size:0.95rem;transition:background 0.2s;}
+    .back-link:hover{background:#1a6b8a;}
+    mjx-container{font-size:1em !important;overflow-x:visible !important;max-width:100% !important;}
+
+    .convex-up{color:#34d399;font-weight:700;}
+    .convex-down{color:#f87171;font-weight:700;}
+    .asymptote-vertical{color:#f87171;font-weight:700;}
+    .asymptote-horizontal{color:#34d399;font-weight:700;}
+    .asymptote-oblique{color:#fbbf24;font-weight:700;}
+
+    /* ===== КАНВАС — как в рабочем файле ===== */
+    .graph-container{text-align:center;margin:12px 0;background:var(--canvas-bg);border-radius:16px;padding:8px;display:block;transition:background 0.2s;}
+    .graph-container canvas{max-width:100%;height:auto;border-radius:12px;display:inline-block;background:var(--canvas-bg);transition:background 0.2s;width:100%;}
+    .graph-label{font-size:0.85rem;color:var(--text-secondary);text-align:center;margin-top:4px;font-style:italic;}
+
+    /* ===== ТАБЛИЦА ОШИБОК ===== */
+    .table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:10px 0;border-radius:12px;}
+    .error-table{width:100%;border-collapse:collapse;font-size:0.9rem;border-radius:12px;overflow:hidden;min-width:640px;}
+    .error-table th{background:var(--special-border);color:#fff;padding:10px 12px;text-align:left;font-weight:700;}
+    .error-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;background:var(--card-bg);}
+    .error-table tr:nth-child(even) td{background:var(--example-bg);}
+    .error-table tr:last-child td{border-bottom:none;}
+    .error-table .wrong{color:#f87171;font-weight:700;}
+    .error-table .right{color:#34d399;font-weight:700;}
+
+    @media (max-width:700px){body{padding:20px 14px 36px;}.content-card{padding:14px 16px;}.section-title{font-size:1rem;}.definition-block p{font-size:0.95rem;}.example{padding:12px 14px;font-size:0.9rem;}.example-no-border{padding:12px 14px;font-size:0.9rem;}.formula-block{padding:12px 14px;font-size:0.9rem;}mjx-container{font-size:0.9em !important;}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+    .header{animation:fadeInUp 0.4s ease-out;}
+    .content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+  
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+
+  <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true
+        },
+        options: { skipHtmlTypes: 'script', ignoreHtmlClass: 'no-mathjax' },
+        chtml: { scale: 1.0, displayAlign: 'center' },
+        startup: {
+            pageReady: () => {
+                return MathJax.startup.defaultPageReady().then(() => {
+                    setTimeout(drawAllGraphs, 400);
+                });
+            }
+        }
+    };
+  </script>
+  <script src="mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h1>📐 Исследование функции с помощью производной</h1><div class="subtitle">Алгоритм · Примеры · Графики</div></div>
+  <div class="content-card">
+
+    <!-- ===== ЖИВОЕ ВСТУПЛЕНИЕ ===== -->
+    <div class="section">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">📖 Зачем исследовать функцию</span>
+        <span class="sub-title">от трамплинов до прибыли компании</span>
+      </div>
+      <div class="section-content">
+        <p>Представь трамплин для лыжников: сначала подъём, потом спуск, потом снова подъём. <strong>Вершина</strong> трамплина — это максимум, <strong>низина</strong> — минимум. А ещё есть места, где <strong>меняется выпуклость</strong> — как перегиб дороги.</p>
+        <p>Производная — это «универсальный компас», который показывает, куда движется функция: вверх, вниз или меняет направление. А вторая производная подсказывает, как именно кривая выгибается.</p>
+        <div class="important">
+          <strong>💡 Главная идея:</strong> полное исследование функции — это последовательность из 9 шагов, где каждый шаг опирается на предыдущий: ОДЗ → производная → критические точки → знаки → экстремумы → вторая производная → асимптоты → точки пересечения → график.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== АЛГОРИТМ ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">📖 Алгоритм исследования функции</span>
+        <span class="sub-title">9 шагов от ОДЗ до графика</span>
+      </div>
+      <div class="section-content">
+        <div class="example">
+          <span class="step">1️⃣ Найти область определения \(D(f)\)</span>
+          Исключаем точки, где знаменатель равен нулю, подкоренное выражение отрицательно.
+
+          <span class="step">2️⃣ Найти производную \(f'(x)\)</span>
+          Используем таблицу производных и правила дифференцирования.
+
+          <span class="step">3️⃣ Найти критические точки: \(f'(x) = 0\) или не существует</span>
+          Решаем уравнение, находим точки, принадлежащие области определения.
+
+          <span class="step">4️⃣ Определить промежутки возрастания и убывания</span>
+          Метод интервалов: если \(f'(x) > 0\) — возрастает, если \(f'(x) < 0\) — убывает.
+
+          <span class="step">5️⃣ Найти точки экстремума и значения функции в них</span>
+          Смена знака с «+» на «−» — максимум, с «−» на «+» — минимум.
+
+          <span class="step">6️⃣ Найти вторую производную \(f''(x)\)</span>
+          Определить промежутки выпуклости и точки перегиба.
+
+          <span class="step">7️⃣ Найти асимптоты</span>
+          Вертикальные — через ОДЗ, горизонтальные и наклонные — по степеням.
+
+          <span class="step">8️⃣ Найти точки пересечения с осями координат</span>
+          С осью \(Oy\): \(x = 0\). С осью \(Ox\): \(f(x) = 0\).
+
+          <span class="step">9️⃣ Построить график функции</span>
+          На основе полученных данных строим эскиз графика.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ОБЛАСТЬ ОПРЕДЕЛЕНИЯ ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">📌 Область определения \(D(f)\)</span>
+        <span class="sub-title">справочник по типовым случаям</span>
+      </div>
+      <div class="section-content">
+        <div class="formula-block">
+          🔹 <strong>Многочлены</strong> — \(D(f) = \mathbb{R}\)<br>
+          Пример: \(f(x) = x^3 - 3x\) → \(D = (-\infty; +\infty)\)
+
+          🔹 <strong>Дроби</strong> \(\frac{P(x)}{Q(x)}\) → \(Q(x) \neq 0\)<br>
+          Пример: \(f(x) = \frac{1}{x}\) → \(x \neq 0\) → \(D = (-\infty; 0) \cup (0; +\infty)\)
+
+          🔹 <strong>Корни чётной степени</strong> \(\sqrt[2n]{g(x)}\) → \(g(x) \ge 0\)<br>
+          Пример: \(f(x) = \sqrt{x}\) → \(x \ge 0\) → \(D = [0; +\infty)\)
+
+          🔹 <strong>Логарифмы</strong> \(\log_a g(x)\) → \(g(x) > 0\)<br>
+          Пример: \(f(x) = \ln x\) → \(x > 0\) → \(D = (0; +\infty)\)
+
+          🔹 <strong>Тригонометрические</strong> — \(\sin x, \cos x\) → \(\mathbb{R}\); \(\tan x\) → \(x \neq \frac{\pi}{2} + \pi k\)<br>
+          Пример: \(f(x) = \tan x\) → \(x \neq \frac{\pi}{2} + \pi k\)
+
+          🔹 <strong>Комбинации</strong> — пересечение областей всех частей<br>
+          Пример: \(f(x) = \frac{\sqrt{x}}{x-1}\) → \(x \ge 0\), \(x \neq 1\) → \(D = [0; 1) \cup (1; +\infty)\)
+
+          🔹 <strong>Показательные</strong> \(a^x\) → \(D(f) = \mathbb{R}\) (\(a > 0, a \neq 1\))<br>
+          Пример: \(f(x) = 2^x\) → \(D = \mathbb{R}\)
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 1 ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">📖 Пример 1: \(f(x) = x^3 - 3x\)</span>
+        <span class="sub-title">многочлен: максимум, минимум, перегиб</span>
+      </div>
+      <div class="section-content">
+        <div class="example-no-border">
+          <span class="step">🔹 1. Область определения \(D(f)\)</span>
+          <div class="formula-line">\(f(x) = x^3 - 3x\) — это многочлен.</div>
+          <div class="explain">💡 Многочлен определён при любом значении \(x\).</div>
+          <div class="formula-line">\(D(f) = \mathbb{R} = (-\infty; +\infty)\)</div>
+
+          <span class="step">🔹 2. Производная \(f'(x)\)</span>
+          <div class="formula-line">\(f'(x) = 3x^2 - 3 = 3(x-1)(x+1)\)</div>
+
+          <span class="step">🔹 3. Критические точки: \(f'(x) = 0\)</span>
+          <div class="formula-line">\(x = -1\) и \(x = 1\)</div>
+
+          <span class="step">🔹 4. Метод интервалов</span>
+          <div class="formula-line">На \((-\infty; -1)\): \(f'(x) > 0\) → <strong>возрастает</strong></div>
+          <div class="formula-line">На \((-1; 1)\): \(f'(x) < 0\) → <strong>убывает</strong></div>
+          <div class="formula-line">На \((1; +\infty)\): \(f'(x) > 0\) → <strong>возрастает</strong></div>
+
+          <span class="step">🔹 5. Точки экстремума</span>
+          <div class="formula-line">\(x = -1\): \(+ \to -\) → <strong>максимум</strong>, \(f(-1) = 2\)</div>
+          <div class="formula-line">\(x = 1\): \(- \to +\) → <strong>минимум</strong>, \(f(1) = -2\)</div>
+
+          <span class="step">🔹 6. Вторая производная \(f''(x)\)</span>
+          <div class="formula-line">\(f''(x) = 6x\), \(f''(x) = 0\) при \(x = 0\)</div>
+          <div class="formula-line">На \((-\infty; 0)\): \(f''(x) < 0\) → <span class="convex-down">выпукла вверх</span> (∩)</div>
+          <div class="formula-line">На \((0; +\infty)\): \(f''(x) > 0\) → <span class="convex-up">выпукла вниз</span> (∪)</div>
+          <div class="formula-line">Точка перегиба: \((0; 0)\)</div>
+
+          <span class="step">🔹 7. Асимптоты</span>
+          <div class="formula-line">У многочлена асимптот нет.</div>
+
+          <span class="step">🔹 8. Точки пересечения с осями</span>
+          <div class="formula-line">С \(Oy\): \((0; 0)\)</div>
+          <div class="formula-line">С \(Ox\): \(x(x^2 - 3) = 0\) → \((-\sqrt{3}; 0)\), \((0; 0)\), \((\sqrt{3}; 0)\)</div>
+
+          <span class="step">🔹 9. График</span>
+          <div class="graph-container">
+            <canvas id="graph1" width="500" height="320"></canvas>
+            <div class="graph-label">
+              🔴 Максимум \((-1; 2)\) &nbsp;·&nbsp; 🟢 Минимум \((1; -2)\) &nbsp;·&nbsp; 🟡 Точка перегиба \((0; 0)\)
+            </div>
+          </div>
+
+          <span class="result">✅ Ответ: максимум \((-1; 2)\), минимум \((1; -2)\), точка перегиба \((0; 0)\)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 2 ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">📖 Пример 2: \(f(x) = x + \frac{1}{x}\)</span>
+        <span class="sub-title">дробно-рациональная + асимптоты</span>
+      </div>
+      <div class="section-content">
+        <div class="example-no-border">
+          <span class="step">🔹 1. Область определения \(D(f)\)</span>
+          <div class="formula-line">\(x \neq 0\) → \(D(f) = (-\infty; 0) \cup (0; +\infty)\)</div>
+
+          <span class="step">🔹 2. Производная \(f'(x)\)</span>
+          <div class="formula-line">\(f'(x) = 1 - \frac{1}{x^2} = \frac{(x-1)(x+1)}{x^2}\)</div>
+
+          <span class="step">🔹 3. Критические точки</span>
+          <div class="formula-line">\(x = \pm 1\) (точка \(x = 0\) не входит в ОДЗ)</div>
+
+          <span class="step">🔹 4. Метод интервалов</span>
+          <div class="formula-line">На \((-\infty; -1)\): \(f'(x) > 0\) → <strong>возрастает</strong></div>
+          <div class="formula-line">На \((-1; 0)\): \(f'(x) < 0\) → <strong>убывает</strong></div>
+          <div class="formula-line">На \((0; 1)\): \(f'(x) < 0\) → <strong>убывает</strong></div>
+          <div class="formula-line">На \((1; +\infty)\): \(f'(x) > 0\) → <strong>возрастает</strong></div>
+
+          <span class="step">🔹 5. Точки экстремума</span>
+          <div class="formula-line">\(x = -1\): максимум, \(f(-1) = -2\)</div>
+          <div class="formula-line">\(x = 1\): минимум, \(f(1) = 2\)</div>
+
+          <span class="step">🔹 6. Вторая производная \(f''(x)\)</span>
+          <div class="formula-line">\(f''(x) = \frac{2}{x^3}\)</div>
+          <div class="formula-line">На \((-\infty; 0)\): \(f''(x) < 0\) → <span class="convex-down">выпукла вверх</span></div>
+          <div class="formula-line">На \((0; +\infty)\): \(f''(x) > 0\) → <span class="convex-up">выпукла вниз</span></div>
+
+          <span class="step">🔹 7. Асимптоты</span>
+          <div class="formula-line">\(x = 0\) — <span class="asymptote-vertical">вертикальная асимптота</span></div>
+          <div class="formula-line">\(y = x\) — <span class="asymptote-oblique">наклонная асимптота</span></div>
+
+          <span class="step">🔹 8. Точки пересечения с осями</span>
+          <div class="formula-line">Нет пересечений с осями</div>
+
+          <span class="step">🔹 9. График</span>
+          <div class="graph-container">
+            <canvas id="graph2" width="500" height="320"></canvas>
+            <div class="graph-label">
+              🔴 Максимум \((-1; -2)\) &nbsp;·&nbsp; 🟢 Минимум \((1; 2)\) &nbsp;·&nbsp; ⚫ Асимптоты \(x = 0\), \(y = x\)
+            </div>
+          </div>
+
+          <span class="result">✅ Ответ: максимум \((-1; -2)\), минимум \((1; 2)\), асимптоты \(x = 0\), \(y = x\)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 3 ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">📖 Пример 3: \(f(x) = \sin x\)</span>
+        <span class="sub-title">периодическая функция</span>
+      </div>
+      <div class="section-content">
+        <div class="example-no-border">
+          <span class="step">🔹 1. Область определения \(D(f)\)</span>
+          <div class="formula-line">\(D(f) = \mathbb{R}\)</div>
+
+          <span class="step">🔹 2. Производная \(f'(x)\)</span>
+          <div class="formula-line">\(f'(x) = \cos x\)</div>
+
+          <span class="step">🔹 3. Критические точки</span>
+          <div class="formula-line">\(x = \frac{\pi}{2} + \pi k,\ k \in \mathbb{Z}\)</div>
+
+          <span class="step">🔹 4. Метод интервалов (на \([-\pi; \pi]\))</span>
+          <div class="formula-line">На \((-\pi; -\frac{\pi}{2})\): \(\cos x < 0\) → убывает</div>
+          <div class="formula-line">На \((-\frac{\pi}{2}; \frac{\pi}{2})\): \(\cos x > 0\) → возрастает</div>
+          <div class="formula-line">На \((\frac{\pi}{2}; \pi)\): \(\cos x < 0\) → убывает</div>
+
+          <span class="step">🔹 5. Точки экстремума</span>
+          <div class="formula-line">\(x = -\frac{\pi}{2}\): минимум, \(y = -1\)</div>
+          <div class="formula-line">\(x = \frac{\pi}{2}\): максимум, \(y = 1\)</div>
+
+          <span class="step">🔹 6. Вторая производная \(f''(x)\)</span>
+          <div class="formula-line">\(f''(x) = -\sin x\), точки перегиба \((\pi k; 0)\)</div>
+
+          <span class="step">🔹 7. Асимптоты</span>
+          <div class="formula-line">Асимптот нет</div>
+
+          <span class="step">🔹 8. Точки пересечения с осями</span>
+          <div class="formula-line">\((0; 0)\), \((\pi k; 0)\)</div>
+
+          <span class="step">🔹 9. График</span>
+          <div class="graph-container">
+            <canvas id="graph3" width="500" height="320"></canvas>
+            <div class="graph-label">
+              🔴 Максимум \((\frac{\pi}{2}; 1)\) &nbsp;·&nbsp; 🟢 Минимум \((-\frac{\pi}{2}; -1)\) &nbsp;·&nbsp; 🟡 Точки перегиба \((\pi k; 0)\)
+            </div>
+          </div>
+
+          <span class="result">✅ Ответ: максимумы \((\frac{\pi}{2} + 2\pi k; 1)\), минимумы \((-\frac{\pi}{2} + 2\pi k; -1)\), точки перегиба \((\pi k; 0)\)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 4 ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">⚠️ Пример 4: \(f(x) = x^3\)</span>
+        <span class="sub-title">экстремума нет, есть точка перегиба</span>
+      </div>
+      <div class="section-content">
+        <div class="example-no-border">
+          <div class="explain">⚠️ ВАЖНО! Если производная равна нулю в точке, это НЕ ОБЯЗАТЕЛЬНО означает экстремум!</div>
+
+          <span class="step">🔹 1. ОДЗ</span>
+          <div class="formula-line">\(D(f) = \mathbb{R}\)</div>
+
+          <span class="step">🔹 2. Производная \(f'(x) = 3x^2\)</span>
+
+          <span class="step">🔹 3. Критические точки: \(x = 0\)</span>
+
+          <span class="step">🔹 4. Метод интервалов</span>
+          <div class="formula-line">На \((-\infty; 0)\): \(f'(x) > 0\) → возрастает</div>
+          <div class="formula-line">На \((0; +\infty)\): \(f'(x) > 0\) → возрастает</div>
+
+          <span class="step">🔹 5. Точки экстремума</span>
+          <div class="formula-line">Знак не меняется → <strong>экстремума нет</strong></div>
+
+          <span class="step">🔹 6. Вторая производная</span>
+          <div class="formula-line">\(f''(x) = 6x\), знак меняется → точка перегиба \((0; 0)\)</div>
+
+          <span class="step">🔹 9. График</span>
+          <div class="graph-container">
+            <canvas id="graph4" width="500" height="320"></canvas>
+            <div class="graph-label">
+              🟡 Точка перегиба \((0; 0)\) &nbsp;·&nbsp; ⚠️ Экстремумов нет
+            </div>
+          </div>
+
+          <span class="result">✅ Ответ: экстремумов нет, \(x = 0\) — точка перегиба</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 5 ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">⭐ Пример 5: задача с параметром (ЕГЭ)</span>
+        <span class="sub-title">при каких \(a\) функция возрастает всюду</span>
+      </div>
+      <div class="section-content">
+        <div class="example-no-border">
+          <span class="star">⭐</span> <strong>Условие:</strong> при каких \(a\) функция \(f(x) = x^3 - 3ax^2 + 3x\) возрастает на всей области определения?<br><br>
+
+          <span class="step">🔹 1. ОДЗ и производная</span>
+          <div class="formula-line">\(D(f) = \mathbb{R}\), \(f'(x) = 3(x^2 - 2ax + 1)\)</div>
+
+          <span class="step">🔹 2. Условие возрастания</span>
+          <div class="formula-line">\(x^2 - 2ax + 1 \ge 0\) при всех \(x\)</div>
+
+          <span class="step">🔹 3. Дискриминант</span>
+          <div class="formula-line">\(D = 4(a^2 - 1) \le 0\) → \(-1 \le a \le 1\)</div>
+
+          <span class="result">✅ Ответ: \(a \in [-1; 1]\)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 6 ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">📖 Пример 6: \(f(x) = x^3 - 3x^2\)</span>
+        <span class="sub-title">полное исследование с выпуклостью</span>
+      </div>
+      <div class="section-content">
+        <div class="example-no-border">
+          <span class="step">🔹 1. ОДЗ</span>
+          <div class="formula-line">\(D(f) = \mathbb{R}\)</div>
+
+          <span class="step">🔹 2. Производная</span>
+          <div class="formula-line">\(f'(x) = 3x(x - 2)\)</div>
+
+          <span class="step">🔹 3. Критические точки</span>
+          <div class="formula-line">\(x = 0\) и \(x = 2\)</div>
+
+          <span class="step">🔹 4. Метод интервалов</span>
+          <div class="formula-line">На \((-\infty; 0)\): \(f'(x) > 0\) → возрастает</div>
+          <div class="formula-line">На \((0; 2)\): \(f'(x) < 0\) → убывает</div>
+          <div class="formula-line">На \((2; +\infty)\): \(f'(x) > 0\) → возрастает</div>
+
+          <span class="step">🔹 5. Точки экстремума</span>
+          <div class="formula-line">\(x = 0\): максимум \((0; 0)\)</div>
+          <div class="formula-line">\(x = 2\): минимум \((2; -4)\)</div>
+
+          <span class="step">🔹 6. Вторая производная</span>
+          <div class="formula-line">\(f''(x) = 6(x - 1)\), точка перегиба \((1; -2)\)</div>
+
+          <span class="step">🔹 7. Асимптоты</span>
+          <div class="formula-line">У многочлена асимптот нет.</div>
+
+          <span class="step">🔹 8. Точки пересечения с осями</span>
+          <div class="formula-line">\((0; 0)\), \((3; 0)\)</div>
+
+          <span class="step">🔹 9. График</span>
+          <div class="graph-container">
+            <canvas id="graph6" width="500" height="320"></canvas>
+            <div class="graph-label">
+              🔴 Максимум \((0; 0)\) &nbsp;·&nbsp; 🟢 Минимум \((2; -4)\) &nbsp;·&nbsp; 🟡 Точка перегиба \((1; -2)\)
+            </div>
+          </div>
+
+          <span class="result">✅ Ответ: максимум \((0; 0)\), минимум \((2; -4)\), точка перегиба \((1; -2)\)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ПРИМЕР 7 ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">📖 Пример 7: \(f(x) = \frac{x^2}{x-1}\)</span>
+        <span class="sub-title">полное исследование с асимптотами</span>
+      </div>
+      <div class="section-content">
+        <div class="example-no-border">
+          <span class="step">🔹 1. ОДЗ</span>
+          <div class="formula-line">\(x \neq 1\) → \(D(f) = (-\infty; 1) \cup (1; +\infty)\)</div>
+
+          <span class="step">🔹 2. Производная</span>
+          <div class="formula-line">\(f'(x) = \frac{x(x-2)}{(x-1)^2}\)</div>
+
+          <span class="step">🔹 3. Критические точки</span>
+          <div class="formula-line">\(x = 0\) и \(x = 2\)</div>
+
+          <span class="step">🔹 4. Метод интервалов</span>
+          <div class="formula-line">На \((-\infty; 0)\): \(f'(x) > 0\) → возрастает</div>
+          <div class="formula-line">На \((0; 1)\): \(f'(x) < 0\) → убывает</div>
+          <div class="formula-line">На \((1; 2)\): \(f'(x) < 0\) → убывает</div>
+          <div class="formula-line">На \((2; +\infty)\): \(f'(x) > 0\) → возрастает</div>
+
+          <span class="step">🔹 5. Точки экстремума</span>
+          <div class="formula-line">\(x = 0\): максимум \((0; 0)\)</div>
+          <div class="formula-line">\(x = 2\): минимум \((2; 4)\)</div>
+
+          <span class="step">🔹 6. Вторая производная</span>
+          <div class="formula-line">\(f''(x) = \frac{2}{(x-1)^3}\) → перегибов нет</div>
+
+          <span class="step">🔹 7. Асимптоты</span>
+          <div class="formula-line">\(x = 1\) — <span class="asymptote-vertical">вертикальная</span></div>
+          <div class="formula-line">\(y = x + 1\) — <span class="asymptote-oblique">наклонная</span></div>
+
+          <span class="step">🔹 8. Точки пересечения с осями</span>
+          <div class="formula-line">\((0; 0)\) — единственная</div>
+
+          <span class="step">🔹 9. График</span>
+          <div class="graph-container">
+            <canvas id="graph7" width="500" height="320"></canvas>
+            <div class="graph-label">
+              🔴 Максимум \((0; 0)\) &nbsp;·&nbsp; 🟢 Минимум \((2; 4)\) &nbsp;·&nbsp; ⚫ Асимптоты \(x = 1\), \(y = x+1\)
+            </div>
+          </div>
+
+          <span class="result">✅ Ответ: максимум \((0; 0)\), минимум \((2; 4)\), асимптоты \(x = 1\), \(y = x+1\)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ТИПИЧНЫЕ ОШИБКИ ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">⚠️ Типичные ошибки</span>
+        <span class="sub-title">что чаще всего путают</span>
+      </div>
+      <div class="section-content">
+        <div class="table-scroll">
+          <table class="error-table">
+            <thead>
+            <tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td class="wrong">Считают, что если \(f'(x_0)=0\), то это экстремум</td>
+              <td>Производная может не менять знак (пример: \(y=x^3\), \(x=0\) — перегиб).</td>
+              <td class="right">Проверять смену знака</td>
+            </tr>
+            <tr>
+              <td class="wrong">Забывают про ОДЗ при поиске критических точек</td>
+              <td>Точки разрыва не входят в ОДЗ и не могут быть экстремумами.</td>
+              <td class="right">Сначала ОДЗ, потом критические точки</td>
+            </tr>
+            <tr>
+              <td class="wrong">Путают выпуклость вверх и вниз</td>
+              <td>\(f''(x) < 0\) — выпукла вверх (∩), \(f''(x) > 0\) — выпукла вниз (∪).</td>
+              <td class="right">Запомнить: минус — «грустная» ∩</td>
+            </tr>
+            <tr>
+              <td class="wrong">Ищут асимптоты у многочленов</td>
+              <td>Многочлены не имеют асимптот.</td>
+              <td class="right">Асимптоты — только у дробей и функций с корнем</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== СВОДКА ===== -->
+    <div class="section collapsed">
+      <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+        <span class="main-title">📊 Сводная таблица</span>
+      </div>
+      <div class="section-content">
+        <div class="formula-block">
+          <strong>1.</strong> ОДЗ → исключаем точки разрыва.<br><br>
+          <strong>2.</strong> \(f'(x) > 0\) → возрастает; \(f'(x) < 0\) → убывает.<br><br>
+          <strong>3.</strong> Экстремум — только при смене знака \(f'(x)\).<br><br>
+          <strong>4.</strong> \(f''(x) < 0\) → выпукла вверх (∩); \(f''(x) > 0\) → выпукла вниз (∪).<br><br>
+          <strong>5.</strong> Асимптоты — только у дробей и функций с корнем.<br><br>
+          <strong>6.</strong> В ответе указывать и точку, и значение: \((x_{\max}; f(x_{\max}))\).
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <a href="index.html" class="back-link">← Назад к главному меню</a>
+</div>
+
+<script>
+  // ===== РИСОВАНИЕ ГРАФИКОВ (как в рабочем файле) =====
+  function drawGraph(canvasId, func, xMin, xMax, yMin, yMax, points) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height;
+      const pad = 40;
+      const pw = w - 2 * pad, ph = h - 2 * pad;
+
+      function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+      function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+      const isLight = document.documentElement.classList.contains('light-mode');
+      ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+      ctx.lineWidth = 0.6;
+      for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
+          if (x === 0) continue;
+          const sx = toX(x);
+          ctx.beginPath();
+          ctx.moveTo(sx, pad);
+          ctx.lineTo(sx, h - pad);
+          ctx.stroke();
+          ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+          ctx.font = '10px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          ctx.fillText(x, sx, h - pad + 4);
+      }
+      for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y++) {
+          if (y === 0) continue;
+          const sy = toY(y);
+          ctx.beginPath();
+          ctx.moveTo(pad, sy);
+          ctx.lineTo(w - pad, sy);
+          ctx.stroke();
+          ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+          ctx.font = '10px sans-serif';
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(y, pad - 8, sy);
+      }
+
+      ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+      ctx.lineWidth = 1.8;
+      const ox = toY(0), oy = toX(0);
+      if (ox >= pad && ox <= h - pad) {
+          ctx.beginPath();
+          ctx.moveTo(pad, ox);
+          ctx.lineTo(w - pad, ox);
+          ctx.stroke();
+      }
+      if (oy >= pad && oy <= w - pad) {
+          ctx.beginPath();
+          ctx.moveTo(oy, pad);
+          ctx.lineTo(oy, h - pad);
+          ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#a78bfa';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      let first = true;
+      const step = (xMax - xMin) / 600;
+      for (let x = xMin + 0.01; x <= xMax; x += step) {
+          let y;
+          try { y = func(x); } catch (e) { first = true; continue; }
+          if (y === null || y === undefined || isNaN(y) || !isFinite(y) || y < yMin - 1 || y > yMax + 1) {
+              first = true;
+              continue;
+          }
+          const sx = toX(x), sy = toY(y);
+          if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+      }
+      ctx.stroke();
+
+      if (points) {
+          points.forEach(p => {
+              const sx = toX(p.x), sy = toY(p.y);
+              ctx.fillStyle = p.color || '#fbbf24';
+              ctx.beginPath();
+              ctx.arc(sx, sy, 6, 0, 2 * Math.PI);
+              ctx.fill();
+              ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.arc(sx, sy, 6, 0, 2 * Math.PI);
+              ctx.stroke();
+              if (p.label) {
+                  ctx.fillStyle = p.color || '#fbbf24';
+                  ctx.font = 'bold 11px sans-serif';
+                  ctx.textAlign = p.align || 'left';
+                  ctx.textBaseline = 'bottom';
+                  ctx.fillText(p.label, sx + (p.align === 'right' ? -10 : 10), sy - 6);
+              }
+          });
+      }
+
+      if (points) {
+          points.forEach(p => {
+              if (p.asymptote === 'vertical') {
+                  ctx.strokeStyle = '#f87171';
+                  ctx.lineWidth = 1.5;
+                  ctx.setLineDash([6, 4]);
+                  const ax = toX(p.x);
+                  ctx.beginPath();
+                  ctx.moveTo(ax, pad);
+                  ctx.lineTo(ax, h - pad);
+                  ctx.stroke();
+                  ctx.setLineDash([]);
+                  ctx.fillStyle = '#f87171';
+                  ctx.font = 'bold 11px sans-serif';
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'bottom';
+                  ctx.fillText('x = ' + p.x, ax, pad - 4);
+              }
+              if (p.asymptote === 'horizontal') {
+                  ctx.strokeStyle = '#34d399';
+                  ctx.lineWidth = 1.5;
+                  ctx.setLineDash([6, 4]);
+                  const ay = toY(p.y);
+                  ctx.beginPath();
+                  ctx.moveTo(pad, ay);
+                  ctx.lineTo(w - pad, ay);
+                  ctx.stroke();
+                  ctx.setLineDash([]);
+                  ctx.fillStyle = '#34d399';
+                  ctx.font = 'bold 11px sans-serif';
+                  ctx.textAlign = 'right';
+                  ctx.textBaseline = 'bottom';
+                  ctx.fillText('y = ' + p.y, w - pad - 4, ay - 4);
+              }
+              if (p.asymptote === 'oblique') {
+                  ctx.strokeStyle = '#fbbf24';
+                  ctx.lineWidth = 1.5;
+                  ctx.setLineDash([6, 4]);
+                  const k = p.k || 1, b = p.b || 0;
+                  const x1 = xMin, y1 = k * x1 + b;
+                  const x2 = xMax, y2 = k * x2 + b;
+                  if (y1 >= yMin && y1 <= yMax) {
+                      ctx.beginPath();
+                      ctx.moveTo(toX(x1), toY(y1));
+                      ctx.lineTo(toX(x2), toY(y2));
+                      ctx.stroke();
+                  }
+                  ctx.setLineDash([]);
+                  ctx.fillStyle = '#fbbf24';
+                  ctx.font = 'bold 11px sans-serif';
+                  ctx.textAlign = 'left';
+                  ctx.textBaseline = 'bottom';
+                  const label = 'y = ' + (k === 1 ? 'x' : k + 'x') + (b > 0 ? ' + ' + b : b < 0 ? ' - ' + Math.abs(b) : '');
+                  ctx.fillText(label, toX(1) + 10, toY(k * 1 + b) - 6);
+              }
+          });
+      }
+  }
+
+  function drawAllGraphs() {
+      drawGraph('graph1', x => x*x*x - 3*x, -3, 3, -3, 3, [
+          { x: -1, y: 2, color: '#ff6b6b', label: 'max' },
+          { x: 1, y: -2, color: '#34d399', label: 'min' },
+          { x: 0, y: 0, color: '#fbbf24', label: 'перегиб' }
+      ]);
+      drawGraph('graph2', x => x + 1/x, -4, 4, -5, 5, [
+          { x: -1, y: -2, color: '#ff6b6b', label: 'max' },
+          { x: 1, y: 2, color: '#34d399', label: 'min' },
+          { x: 0, y: 0, asymptote: 'vertical' },
+          { x: 0, y: 0, asymptote: 'oblique', k: 1, b: 0 }
+      ]);
+      drawGraph('graph3', x => Math.sin(x), -4, 4, -1.8, 1.8, [
+          { x: -Math.PI/2, y: -1, color: '#34d399', label: 'min', align: 'right' },
+          { x: Math.PI/2, y: 1, color: '#ff6b6b', label: 'max' },
+          { x: 0, y: 0, color: '#fbbf24', label: 'перегиб' },
+          { x: -Math.PI, y: 0, color: '#fbbf24', label: '', align: 'right' },
+          { x: Math.PI, y: 0, color: '#fbbf24', label: '' }
+      ]);
+      drawGraph('graph4', x => x*x*x, -2.5, 2.5, -6, 6, [
+          { x: 0, y: 0, color: '#fbbf24', label: 'перегиб' }
+      ]);
+      drawGraph('graph6', x => x*x*x - 3*x*x, -1.5, 4, -5, 2, [
+          { x: 0, y: 0, color: '#ff6b6b', label: 'max' },
+          { x: 2, y: -4, color: '#34d399', label: 'min' },
+          { x: 1, y: -2, color: '#fbbf24', label: 'перегиб' },
+          { x: 3, y: 0, color: '#8ba5b8', label: '' }
+      ]);
+      drawGraph('graph7', x => (x*x)/(x-1), -3, 5, -6, 10, [
+          { x: 0, y: 0, color: '#ff6b6b', label: 'max' },
+          { x: 2, y: 4, color: '#34d399', label: 'min' },
+          { x: 1, y: 0, asymptote: 'vertical' },
+          { x: 0, y: 0, asymptote: 'oblique', k: 1, b: 1 }
+      ]);
+  }
+
+  window.addEventListener('load', function() {
+      if (typeof updateFavoriteBtn === 'function') updateFavoriteBtn();
+      setTimeout(drawAllGraphs, 400);
+  });
+</script>
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

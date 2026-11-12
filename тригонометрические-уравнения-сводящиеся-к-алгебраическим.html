@@ -1,0 +1,700 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тригонометрические уравнения, сводящиеся к алгебраическим — 10-11 класс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #3b82f6; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #3b82f6; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.4rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; line-height: 1.3; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 12000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #2563eb; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.15rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
+        .danger-block { background: var(--example-bg); border-left: 5px solid var(--danger-color); border-radius: 14px; padding: 14px 18px; margin: 10px 0; color: var(--text); }
+        .danger-block strong { color: var(--danger-color); }
+        .danger-block ol { padding-left: 22px; margin: 8px 0; font-size: 0.95rem; line-height: 1.7; }
+
+        .nav-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; justify-content: center; }
+        .nav-links a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); font-size: 0.9rem; padding: 4px 0; }
+        .nav-links a:hover { opacity: 0.8; }
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true,
+                   macros: { tg: '\\mathop{\\mathrm{tg}}', ctg: '\\mathop{\\mathrm{ctg}}', arctg: '\\mathop{\\mathrm{arctg}}' } },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Тригонометрические уравнения, сводящиеся к алгебраическим</h1>
+
+    <!-- 1. ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Идея: тригонометрию — в алгебру</span>
+        </div>
+        <div class="section-content">
+            <p>Многие тригонометрические уравнения выглядят сложно, но стоит сделать <strong>замену переменной</strong> — и они превращаются в знакомые квадратные, кубические, дробно-рациональные. Например:</p>
+            <div class="formula-block">
+                $\sin^2 x + \sin x - 2 = 0$ &nbsp;&nbsp;→&nbsp;&nbsp; замена $t = \sin x$, получаем $t^2 + t - 2 = 0$<br>
+                $2\cos^2 x - 3\cos x + 1 = 0$ &nbsp;&nbsp;→&nbsp;&nbsp; $2t^2 - 3t + 1 = 0$<br>
+                $\tg^2 x - 4\tg x + 3 = 0$ &nbsp;&nbsp;→&nbsp;&nbsp; $t^2 - 4t + 3 = 0$
+            </div>
+            <p>После нахождения корней $t$ нужно вернуться к $x$ — решить простейшие тригонометрические уравнения.</p>
+            <div class="important">
+                <strong>💡 Главная идея:</strong> любое уравнение, в котором <strong>одна и та же тригонометрическая функция</strong> встречается несколько раз (например, $\sin x$ и $\sin^2 x$), можно свести к алгебраическому заменой $t = \sin x$.
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ЗАМЕНА t = sin x / cos x -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Замена $t = \sin x$ или $t = \cos x$</span>
+            <span class="sub-title">квадратные уравнения относительно синуса или косинуса</span>
+        </div>
+        <div class="section-content">
+            <div class="important">
+                <strong>💡 Ограничение:</strong> после замены пишем $t \in [-1; 1]$, потому что синус и косинус не выходят за эти границы. Корни вне отрезка — отбрасываем.
+            </div>
+
+            <div class="example">
+                <strong>Пример 1.</strong> $2\sin^2 x - 3\sin x + 1 = 0$.<br><br>
+                <span class="step">Шаг 1. Замена.</span> $t = \sin x$, $t \in [-1; 1]$. Уравнение: $2t^2 - 3t + 1 = 0$.<br>
+                <span class="step">Шаг 2. Решаем.</span> $D = 9 - 8 = 1$, $t_1 = 1$, $t_2 = \dfrac{1}{2}$. Оба в $[-1; 1]$ — подходят.<br>
+                <span class="step">Шаг 3. Обратная замена.</span>
+                $\sin x = 1 \Rightarrow x = \dfrac{\pi}{2} + 2\pi n$.<br>
+                $\sin x = \dfrac{1}{2} \Rightarrow x = \dfrac{\pi}{6} + 2\pi n$ или $x = \dfrac{5\pi}{6} + 2\pi n$.<br>
+                <span class="result">Ответ: $x = \dfrac{\pi}{2} + 2\pi n$; $x = \dfrac{\pi}{6} + 2\pi n$; $x = \dfrac{5\pi}{6} + 2\pi n$, $n \in \mathbb{Z}$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2.</strong> $2\cos^2 x + \cos x - 1 = 0$.<br><br>
+                <span class="step">Шаг 1. Замена.</span> $t = \cos x$, $t \in [-1; 1]$. $2t^2 + t - 1 = 0$.<br>
+                <span class="step">Шаг 2. Решаем.</span> $D = 1 + 8 = 9$, $t_1 = \dfrac{1}{2}$, $t_2 = -1$. Оба в $[-1; 1]$.<br>
+                <span class="step">Шаг 3. Обратная замена.</span>
+                $\cos x = \dfrac{1}{2} \Rightarrow x = \pm\dfrac{\pi}{3} + 2\pi n$.<br>
+                $\cos x = -1 \Rightarrow x = \pi + 2\pi n$.<br>
+                <div class="hint">💡 Формула для $\cos x = -1$ — частный случай, записывается коротко.</div>
+                <span class="result">Ответ: $x = \pm\dfrac{\pi}{3} + 2\pi n$; $x = \pi + 2\pi n$, $n \in \mathbb{Z}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ЗАМЕНА t = tg x / ctg x -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Замена $t = \tg x$ или $t = \ctg x$</span>
+        </div>
+        <div class="section-content">
+            <div class="important">
+                <strong>💡 Ограничение:</strong> для $\tg$ и $\ctg$ $t \in \mathbb{R}$ — без ограничений. Но нужно следить за ОДЗ самого тангенса: $\cos x \neq 0$.
+            </div>
+
+            <div class="example">
+                <strong>Пример 3.</strong> $\tg^2 x - 4\tg x + 3 = 0$.<br><br>
+                <span class="step">Шаг 1. ОДЗ.</span> $\cos x \neq 0$, то есть $x \neq \dfrac{\pi}{2} + \pi n$.<br>
+                <span class="step">Шаг 2. Замена.</span> $t = \tg x$, $t \in \mathbb{R}$. $t^2 - 4t + 3 = 0$.<br>
+                <span class="step">Шаг 3. Корни.</span> $t_1 = 1$, $t_2 = 3$.<br>
+                <span class="step">Шаг 4. Обратная замена.</span>
+                $\tg x = 1 \Rightarrow x = \dfrac{\pi}{4} + \pi n$.<br>
+                $\tg x = 3 \Rightarrow x = \arctg 3 + \pi n$.<br>
+                <div class="hint">💡 $\arctg 3$ не табличное, но ответ в виде $\arctg 3$ — вполне законный.</div>
+                <span class="result">Ответ: $x = \dfrac{\pi}{4} + \pi n$; $x = \arctg 3 + \pi n$, $n \in \mathbb{Z}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. ЗАМЕНА t = sin x ± cos x -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Замена $t = \sin x \pm \cos x$</span>
+            <span class="sub-title">когда есть $\sin x + \cos x$ и $\sin x \cos x$</span>
+        </div>
+        <div class="section-content">
+            <p>Используем соотношение: $(\sin x + \cos x)^2 = 1 + 2\sin x \cos x$. Отсюда $\sin x \cos x = \dfrac{t^2 - 1}{2}$, где $t = \sin x + \cos x$.</p>
+
+            <div class="example">
+                <strong>Пример 4.</strong> $\sin x + \cos x + \sin x \cos x = 1$.<br><br>
+                <span class="step">Шаг 1. Замена.</span> $t = \sin x + \cos x$, $t \in [-\sqrt{2}; \sqrt{2}]$. Тогда $\sin x \cos x = \dfrac{t^2 - 1}{2}$.<br>
+                <span class="step">Шаг 2. Подставляем.</span>
+                $t + \dfrac{t^2 - 1}{2} = 1 \Rightarrow 2t + t^2 - 1 = 2 \Rightarrow t^2 + 2t - 3 = 0$.<br>
+                <span class="step">Шаг 3. Корни.</span> $t_1 = 1$, $t_2 = -3$. Второй не входит в $[-\sqrt{2}; \sqrt{2}]$ — отбрасываем.<br>
+                <span class="step">Шаг 4. Обратная замена.</span>
+                $\sin x + \cos x = 1$.<br>
+                Способ: $\sin x + \cos x = \sqrt{2}\sin\left(x + \dfrac{\pi}{4}\right) = 1 \Rightarrow \sin\left(x + \dfrac{\pi}{4}\right) = \dfrac{\sqrt{2}}{2}$.<br>
+                $x + \dfrac{\pi}{4} = \dfrac{\pi}{4} + 2\pi n$ или $x + \dfrac{\pi}{4} = \dfrac{3\pi}{4} + 2\pi n$.<br>
+                $x = 2\pi n$ или $x = \dfrac{\pi}{2} + 2\pi n$.<br>
+                <span class="result">Ответ: $x = 2\pi n$; $x = \dfrac{\pi}{2} + 2\pi n$, $n \in \mathbb{Z}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. ОДНОРОДНЫЕ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Однородные уравнения</span>
+            <span class="sub-title">$a\sin x + b\cos x = 0$ и $a\sin^2 x + b\sin x\cos x + c\cos^2 x = 0$</span>
+        </div>
+        <div class="section-content">
+            <p><strong>1-й степени.</strong> Вид: $a\sin x + b\cos x = 0$. Делим на $\cos x \neq 0$, получаем линейное относительно $\tg x$.</p>
+
+            <div class="example">
+                <strong>Пример 5.</strong> $\sin x + \cos x = 0$.<br><br>
+                <span class="step">Шаг 1. Делим на $\cos x$.</span>
+                $\tg x + 1 = 0 \Rightarrow \tg x = -1$.<br>
+                <div class="hint">💡 Перед делением проверяем: если $\cos x = 0$, то $\sin x = \pm 1$ — подстановка даёт $\pm 1 \neq 0$. Значит, $\cos x \neq 0$ для всех решений.</div>
+                <span class="step">Шаг 2. Решаем.</span>
+                $x = -\dfrac{\pi}{4} + \pi n$.<br>
+                <span class="result">Ответ: $x = -\dfrac{\pi}{4} + \pi n$, $n \in \mathbb{Z}$.</span>
+            </div>
+
+            <p style="margin-top:16px;"><strong>2-й степени.</strong> Вид: $a\sin^2 x + b\sin x\cos x + c\cos^2 x = 0$. Делим на $\cos^2 x \neq 0$, получаем квадратное относительно $\tg x$.</p>
+
+            <div class="example">
+                <strong>Пример 6.</strong> $\sin^2 x - 3\sin x\cos x + 2\cos^2 x = 0$.<br><br>
+                <span class="step">Шаг 1. Делим на $\cos^2 x$.</span>
+                $\tg^2 x - 3\tg x + 2 = 0$.<br>
+                <span class="step">Шаг 2. Замена $t = \tg x$.</span>
+                $t^2 - 3t + 2 = 0 \Rightarrow t_1 = 1$, $t_2 = 2$.<br>
+                <span class="step">Шаг 3. Обратная замена.</span>
+                $\tg x = 1 \Rightarrow x = \dfrac{\pi}{4} + \pi n$.<br>
+                $\tg x = 2 \Rightarrow x = \arctg 2 + \pi n$.<br>
+                <span class="result">Ответ: $x = \dfrac{\pi}{4} + \pi n$; $x = \arctg 2 + \pi n$, $n \in \mathbb{Z}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. a sin x + b cos x = c -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Уравнения вида $a\sin x + b\cos x = c$</span>
+            <span class="sub-title">метод вспомогательного аргумента</span>
+        </div>
+        <div class="section-content">
+            <p>Идея: свернуть $a\sin x + b\cos x$ в одну функцию вида $R\sin(x + \varphi)$.</p>
+            <div class="formula-block">
+                $a\sin x + b\cos x = R\sin(x + \varphi)$,<br>
+                где $R = \sqrt{a^2 + b^2}$, $\cos\varphi = \dfrac{a}{R}$, $\sin\varphi = \dfrac{b}{R}$.
+            </div>
+            <div class="important">
+                <strong>💡 Когда решений нет:</strong> если $|c| > \sqrt{a^2 + b^2}$ — уравнение решений не имеет, потому что $R\sin(\ldots) \in [-R; R]$.
+            </div>
+
+            <div class="example">
+                <strong>Пример 7.</strong> $\sin x + \sqrt{3}\cos x = 1$.<br><br>
+                <span class="step">Шаг 1. Находим $R$ и $\varphi$.</span>
+                $R = \sqrt{1 + 3} = 2$. Так как $\cos\varphi = \dfrac{1}{2}$, $\sin\varphi = \dfrac{\sqrt{3}}{2}$, то $\varphi = \dfrac{\pi}{3}$.<br>
+                $\sin x + \sqrt{3}\cos x = 2\sin\left(x + \dfrac{\pi}{3}\right)$.<br>
+                <span class="step">Шаг 2. Решаем.</span>
+                $2\sin\left(x + \dfrac{\pi}{3}\right) = 1 \Rightarrow \sin\left(x + \dfrac{\pi}{3}\right) = \dfrac{1}{2}$.<br>
+                $x + \dfrac{\pi}{3} = \dfrac{\pi}{6} + 2\pi n \Rightarrow x = -\dfrac{\pi}{6} + 2\pi n$.<br>
+                $x + \dfrac{\pi}{3} = \dfrac{5\pi}{6} + 2\pi n \Rightarrow x = \dfrac{\pi}{2} + 2\pi n$.<br>
+                <span class="result">Ответ: $x = -\dfrac{\pi}{6} + 2\pi n$; $x = \dfrac{\pi}{2} + 2\pi n$, $n \in \mathbb{Z}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. УНИВЕРСАЛЬНАЯ ПОДСТАНОВКА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Универсальная подстановка $t = \tg\dfrac{x}{2}$</span>
+            <span class="sub-title">когда ничего другое не работает</span>
+        </div>
+        <div class="section-content">
+            <p>Универсальная подстановка позволяет свести <strong>любое</strong> уравнение с $\sin x$ и $\cos x$ к дробно-рациональному относительно $t$.</p>
+
+            <div class="formula-block">
+                $\sin x = \dfrac{2t}{1 + t^2}$, &nbsp; $\cos x = \dfrac{1 - t^2}{1 + t^2}$, &nbsp; $\tg x = \dfrac{2t}{1 - t^2}$.
+            </div>
+
+            <div class="danger-block">
+                <strong>⚠️ ВАЖНО: проверка потери корня!</strong><br><br>
+                При замене $t = \tg\dfrac{x}{2}$ мы теряем точки, где $\tg\dfrac{x}{2}$ не определён: $x = \pi + 2\pi n$.<br><br>
+                <strong>Алгоритм:</strong>
+                <ol>
+                    <li>Подставь $x = \pi + 2\pi n$ в <strong>исходное</strong> уравнение.</li>
+                    <li>Если равенство выполняется — это корень, запомни его и добавь в финальный ответ.</li>
+                    <li>Если не выполняется — потери нет, делай замену.</li>
+                </ol>
+                <strong>Запомни:</strong> всегда проверяй $x = \pi + 2\pi n$ <em>перед</em> заменой!
+            </div>
+
+            <div class="example">
+                <strong>Пример 8 (без потери корня).</strong> $6\cos x - 5\sin x = 7$.<br><br>
+                <span class="step">Шаг 1. Проверка.</span>
+                При $x = \pi + 2\pi n$: $\cos = -1$, $\sin = 0$. Тогда $6 \cdot (-1) - 0 = -6 \neq 7$. Корень не подходит, потери нет.<br>
+                <span class="step">Шаг 2. Замена $t = \tg\dfrac{x}{2}$.</span>
+                $6 \cdot \dfrac{1 - t^2}{1 + t^2} - 5 \cdot \dfrac{2t}{1 + t^2} = 7$.<br>
+                $6(1 - t^2) - 10t = 7(1 + t^2)$.<br>
+                $6 - 6t^2 - 10t = 7 + 7t^2$.<br>
+                $-13t^2 - 10t - 1 = 0 \Rightarrow 13t^2 + 10t + 1 = 0$.<br>
+                <span class="step">Шаг 3. Корни.</span>
+                $D = 100 - 52 = 48 = 16 \cdot 3$, $t_{1,2} = \dfrac{-10 \pm 4\sqrt{3}}{26} = \dfrac{-5 \pm 2\sqrt{3}}{13}$.<br>
+                <span class="step">Шаг 4. Обратная замена.</span>
+                $\tg\dfrac{x}{2} = \dfrac{-5 \pm 2\sqrt{3}}{13} \Rightarrow x = 2\arctg\left(\dfrac{-5 \pm 2\sqrt{3}}{13}\right) + 2\pi n$.<br>
+                <span class="result">Ответ: $x = 2\arctg\left(\dfrac{-5 \pm 2\sqrt{3}}{13}\right) + 2\pi n$, $n \in \mathbb{Z}$.</span>
+            </div>
+
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 9 (с потерей корня!).</strong> $\sin x = 0$.<br><br>
+                <span class="step">Шаг 1. Проверка.</span>
+                При $x = \pi + 2\pi n$: $\sin(\pi + 2\pi n) = 0$. <strong>Подходит!</strong> Запоминаем корень $x = \pi + 2\pi n$.<br>
+                <span class="step">Шаг 2. Замена.</span>
+                $\dfrac{2t}{1 + t^2} = 0 \Rightarrow t = 0$.<br>
+                <span class="step">Шаг 3. Обратная замена.</span>
+                $\tg\dfrac{x}{2} = 0 \Rightarrow x = 2\pi n$.<br>
+                <span class="step">Шаг 4. Объединяем.</span>
+                Из замены: $x = 2\pi n$. Из проверки: $x = \pi + 2\pi n$. Объединяем: $x = \pi n$.<br>
+                <div class="hint">💡 Без проверки мы бы потеряли половину корней.</div>
+                <span class="result">Ответ: $x = \pi n$, $n \in \mathbb{Z}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. СВОДНАЯ ТАБЛИЦА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📋 Сводная таблица методов</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>1. Замена $t = \sin x$ или $t = \cos x$</strong><br>
+                Ограничение: $t \in [-1; 1]$. Применяем, когда есть одна и та же функция в разных степенях.<br><br>
+                <strong>2. Замена $t = \tg x$ или $t = \ctg x$</strong><br>
+                $t \in \mathbb{R}$. Следим за ОДЗ: $\cos x \neq 0$ или $\sin x \neq 0$.<br><br>
+                <strong>3. Замена $t = \sin x \pm \cos x$</strong><br>
+                $t \in [-\sqrt{2}; \sqrt{2}]$, $\sin x \cos x = \dfrac{t^2 \mp 1}{2}$.<br><br>
+                <strong>4. Однородные</strong><br>
+                Делим на $\cos x$ (1-я степень) или $\cos^2 x$ (2-я степень), получаем уравнение относительно $\tg x$.<br><br>
+                <strong>5. $a\sin x + b\cos x = c$</strong><br>
+                Метод вспомогательного аргумента: $R = \sqrt{a^2 + b^2}$. Если $|c| > R$ — решений нет.<br><br>
+                <strong>6. Универсальная подстановка $t = \tg\dfrac{x}{2}$</strong><br>
+                $\sin x = \dfrac{2t}{1+t^2}$, $\cos x = \dfrac{1-t^2}{1+t^2}$.<br>
+                ⚠️ Перед заменой проверяем $x = \pi + 2\pi n$!
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-links">
+        <a href="простейшие тригонометрические уравнения.html">📐 Простейшие уравнения</a>
+        <a href="тригонометрические-неравенства.html">📐 Неравенства</a>
+    </div>
+
+    <a href="trigonometry.html" class="back-link">← Назад к тригонометрии</a>
+</div>
+
+<script>
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
+        }
+    })();
+
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

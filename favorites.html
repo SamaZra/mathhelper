@@ -1,0 +1,243 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Избранное — Математический справочник</title>
+    <meta name="theme-color" content="#1abc9c">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --accent: #1abc9c; --accent-hover: #16a085; --border: rgba(26, 188, 156, 0.15);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38); --menu-card-bg: #1e3545;
+            --menu-item-bg: #1e3545; --menu-item-hover: #233e50; --card-shadow: rgba(0,0,0,0.2);
+        }
+        :root.light-mode {
+            --bg: #f0f4fa; --card-bg: #ffffff; --text: #1a2a3f; --text-secondary: #5a7a94;
+            --accent: #1abc9c; --accent-hover: #16a085; --border: #d0d8e0;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc); --menu-card-bg: white;
+            --menu-item-bg: white; --menu-item-hover: #f0f4fa; --card-shadow: rgba(0,0,0,0.08);
+        }
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(1200px 600px at 85% -10%, rgba(26,188,156,0.10), transparent 60%), var(--bg);
+            min-height: 100vh; color: var(--text); padding: 32px 20px 96px; transition: background 0.3s;
+        }
+        .container { max-width: 720px; margin: 0 auto; position: relative; }
+        .header {
+            text-align: center; margin-bottom: 20px; padding: 32px 24px 26px;
+            background: var(--header-bg); border-radius: 40px;
+            box-shadow: 0 8px 24px var(--card-shadow); border: 1px solid var(--border);
+        }
+        h1 { font-size: 1.6rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+        .subtitle { color: var(--text-secondary); font-size: 0.85rem; }
+        .content-card {
+            background: var(--menu-card-bg); border-radius: 32px; border: 1px solid var(--border);
+            box-shadow: 0 20px 40px -12px var(--card-shadow); padding: 20px; transition: background 0.3s;
+        }
+        .fav-search {
+            display: flex; align-items: center; gap: 10px; background: var(--menu-item-hover);
+            border: 1.5px solid var(--border); border-radius: 999px; padding: 8px 16px;
+            margin-bottom: 16px; transition: border-color 0.25s, box-shadow 0.25s;
+        }
+        .fav-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(26,188,156,0.15); }
+        .fav-search .icon { color: var(--text-secondary); font-size: 18px; }
+        .fav-search input {
+            flex: 1; background: transparent; border: none; outline: none;
+            font-size: 0.95rem; color: var(--text); padding: 6px 0;
+        }
+        .fav-search .clear {
+            background: transparent; border: none; cursor: pointer; color: var(--text-secondary);
+            font-size: 16px; padding: 4px 6px; border-radius: 50%; display: none;
+        }
+        .fav-search .clear.show { display: inline-flex; }
+        .fav-search .clear:hover { color: var(--accent); background: rgba(26,188,156,0.12); }
+        .favorites-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .favorites-count { background: var(--accent); padding: 6px 14px; border-radius: 999px; color: #fff; font-size: 0.8rem; font-weight: 700; }
+        .clear-all-btn {
+            background: var(--menu-item-bg); border: 1px solid var(--border); padding: 8px 16px;
+            border-radius: 999px; color: var(--text-secondary); cursor: pointer; font-size: 0.8rem; font-weight: 600;
+        }
+        .clear-all-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+        .favorites-list { display: flex; flex-direction: column; gap: 14px; }
+        .fav-group { display: flex; flex-direction: column; gap: 8px; }
+        .fav-group-title {
+            display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-secondary); padding: 4px 4px 2px;
+        }
+        .fav-group-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+        .fav-group-title .badge {
+            margin-left: auto; background: var(--menu-item-hover); color: var(--text-secondary);
+            font-size: 0.65rem; font-weight: 700; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border);
+        }
+        .favorite-item {
+            display: flex; align-items: center; padding: 14px 18px; background: var(--menu-item-bg);
+            border-radius: 18px; border: 1.5px solid transparent; text-decoration: none; color: var(--text);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); gap: 14px; cursor: pointer;
+        }
+        .favorite-item:hover { border-color: var(--accent); box-shadow: 0 6px 18px -8px rgba(26,188,156,0.35); transform: translateX(4px); }
+        .favorite-content { flex: 1; }
+        .favorite-title { font-size: 0.98rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .favorite-desc { font-size: 0.72rem; color: var(--text-secondary); }
+        .remove-fav {
+            background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-secondary);
+            padding: 8px 10px; border-radius: 12px;
+        }
+        .remove-fav:hover { color: #ef4444; background: rgba(239,68,68,0.12); transform: scale(1.08); }
+        .empty-state { text-align: center; padding: 56px 20px; color: var(--text-secondary); }
+        .empty-state .empty-icon { font-size: 56px; margin-bottom: 14px; display: block; }
+        .empty-state p { margin-bottom: 10px; font-size: 0.9rem; }
+        .back-link-wrapper { display: flex; justify-content: center; margin: 24px 0 8px; }
+        .back-link {
+            display: inline-block; padding: 10px 24px; background: var(--accent); color: #fff;
+            text-decoration: none; border-radius: 999px; font-weight: 600; font-size: 0.9rem;
+        }
+        .back-link:hover { background: var(--accent-hover); }
+        
+        .bottom-nav {
+            position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+            display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+            background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+            border: 1px solid var(--border); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45);
+            z-index: 900; transition: background 0.3s, transform 0.3s ease, opacity 0.3s ease;
+        }
+        :root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+        .bottom-nav.nav-hidden { transform: translate(-50%, 120%); opacity: 0; pointer-events: none; }
+        .bottom-nav a, .bottom-nav button {
+            display: flex; align-items: center; justify-content: center;
+            width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent;
+            color: var(--text-secondary); cursor: pointer; text-decoration: none;
+        }
+        .bottom-nav a:hover, .bottom-nav button:hover { background: rgba(26,188,156,0.15); color: var(--accent); }
+        .bottom-nav a[href="favorites.html"].active { background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important; }
+        .ripple-host { position: relative !important; overflow: hidden !important; }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(26,188,156,0.35); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 0; }
+        @keyframes rippleAnim { to { transform: scale(2.5); opacity: 0; } }
+    </style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>⭐ Избранное</h1>
+        <div class="subtitle">Ваши сохранённые страницы</div>
+    </div>
+    <div class="content-card">
+        <div class="fav-search">
+            <span class="icon">⌕</span>
+            <input type="text" id="favSearchInput" placeholder="Поиск по избранному..." autocomplete="off">
+            <button class="clear" id="favSearchClear" type="button">✖</button>
+        </div>
+        <div class="favorites-header">
+            <span class="favorites-count" id="favCount">0</span>
+            <button class="clear-all-btn" onclick="window.clearAllFavorites()">Очистить всё</button>
+        </div>
+        <div class="favorites-list" id="favoritesList"></div>
+    </div>
+    <div class="back-link-wrapper">
+        <a href="index.html" class="back-link">← Назад в меню</a>
+    </div>
+</div>
+
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg>
+    </a>
+    <button type="button" title="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay();">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    </button>
+    <a href="favorites.html" title="Избранное" class="active">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/></svg>
+    </a>
+    <button type="button" title="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+</nav>
+<script src="math-data.js"></script>
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<script src="search-overlay.js"></script>
+<script>
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    window.addEventListener('scroll', function(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < 8) return;
+        if (y > lastY && y > 80) nav.classList.add('nav-hidden');
+        else nav.classList.remove('nav-hidden');
+        lastY = y;
+    }, { passive: true });
+})();
+</script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+

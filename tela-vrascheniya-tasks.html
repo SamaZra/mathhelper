@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Профессиональные задачи: Тела вращения</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #3b82f6; --example-bg: #162a38; --canvas-bg: #0f1a24;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --result-color: #4ade80; --danger-color: #f87171;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #3b82f6; --example-bg: #f8fafc;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --result-color: #059669; --danger-color: #dc2626;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding: 8px 40px; cursor: pointer; user-select: none; text-align: center; position: relative; border-radius: 0 12px 12px 0; transition: background 0.3s; }
+        .section-title:hover { background: linear-gradient(90deg, var(--special-border) 0%, rgba(59, 130, 246, 0.15) 30%, rgba(59, 130, 246, 0.05) 100%); }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+        .section.collapsed .section-title .main-title::after { transform: translateY(-50%) rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 4px; }
+        .section-content { max-height: 30000px; overflow: hidden; transition: max-height 0.5s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .sub-accordion { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+        .sub-accordion-title { background: var(--info-bg); padding: 12px 16px; cursor: pointer; user-select: none; transition: background 0.2s; display: flex; flex-direction: column; gap: 4px; }
+        .sub-accordion-title:hover { background: rgba(59, 130, 246, 0.1); }
+        .sub-accordion-title .title-main { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: 700; color: var(--text); }
+        .sub-accordion-title .title-main::after { content: "▼"; font-size: 0.8rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .sub-accordion.collapsed .sub-accordion-title .title-main::after { transform: rotate(-90deg); }
+        .sub-accordion-title .title-sub { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+
+        .sub-accordion-content { padding: 16px; background: var(--card-bg); max-height: 25000px; transition: max-height 0.4s ease; }
+        .sub-accordion.collapsed .sub-accordion-content { max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+
+        .formula-block, .example, .important {
+            position: relative; border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: none !important; padding-left: 20px !important; padding: 16px 20px;
+            background-color: var(--example-bg); margin-bottom: 16px; color: var(--text);
+            font-size: 0.95rem; line-height: 1.8;
+        }
+        .formula-block::before, .example::before, .important::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+            background: linear-gradient(180deg, var(--special-border) 0%, #0d9488 100%);
+            border-radius: 16px 0 0 16px; z-index: 1;
+        }
+        @media (hover: hover) {
+            .example:hover, .formula-block:hover, .important:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+        }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+
+        .spoiler-btn { display: inline-block; margin-top: 10px; padding: 8px 16px; background: var(--info-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.2s, color 0.2s; }
+        .spoiler-btn:hover { background: var(--special-border); color: #fff; }
+        .spoiler-content { display: none; margin-top: 12px; padding: 12px 16px; background: var(--card-bg); border-radius: 8px; border: 1px dashed var(--border); animation: fadeIn 0.3s ease; }
+        .spoiler-content.solution { border-left: 4px solid var(--result-color); background: rgba(74, 222, 128, 0.05); }
+        .spoiler-content.hint { border-left: 4px solid var(--warning-border); background: var(--warning-bg); }
+
+        .back-link { display: table !important; margin: 20px auto 10px auto; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; text-align: center; }
+        .back-link:hover { background: #2563eb; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .bottom-nav { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px; background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900; transition: background 0.3s, border 0.3s, transform 0.3s; }
+        :root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+        .bottom-nav a, .bottom-nav button { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .bottom-nav a:hover, .bottom-nav button:hover { background: rgba(59,130,246,0.15); color: var(--accent); transform: translateY(-2px) scale(1.08); }
+        .bottom-nav.nav-hidden { transform: translate(-50%, 120%); opacity: 0; pointer-events: none; }
+        .ripple-host { position: relative !important; overflow: hidden !important; }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(59, 130, 246, 0.35); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 0; }
+        @keyframes rippleAnim { to { transform: scale(2.5); opacity: 0; } }
+    </style>
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] },
+            startup: { typeset: true }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise();
+                }
+            }, 100);
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Профессиональные задачи: Тела вращения</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Зачем это нужно в профессии?</span>
+        </div>
+        <div class="section-content">
+            <p>Цилиндры, конусы и шары — это не только геометрические фигуры из учебника. На производстве это цистерны для топлива, валы и подшипники, конические переходы трубопроводов, шаровые краны и бетонные опоры. Ошибка в расчёте объёма — это либо перелив топлива (авария), либо нехватка металла (брак), либо перегрузка крана.</p>
+            <p>В этом практикуме — реальные производственные ситуации. В каждой задаче есть числа, плотности, коэффициенты запаса и проверка на аварийные режимы.</p>
+            <div class="important">
+                <strong>💡 Как пользоваться:</strong><br>
+                Выберите свою специальность ниже. В каждой — 4 задачи с подробным разбором и 7 задач для самостоятельной работы (с подсказками). Считайте так, как будто вы уже на объекте.
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЭРЭО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚡ ЭРЭО (Электрика)</span>
+            <span class="sub-title">Кабельные барабаны, изоляторы, массы проводов и цистерны масла</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>На подстанцию привезли медный кабель на деревянном барабане. Барабан имеет форму цилиндра с внешним диаметром 1,4 м и шириной (высотой) 0,9 м. Внутри барабана находится деревянная втулка (полый цилиндр) диаметром 0,6 м. Кабель намотан плотно, заполняя всё пространство между втулкой и внешним краем. Плотность меди 8,9 т/м³. Кран на площадке рассчитан на подъём максимум 10 тонн. Определите массу кабеля и скажите, сможет ли кран поднять барабан (массой деревянной тары можно пренебречь)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Находим объём внешнего цилиндра.</strong> \(R_{внеш} = 1{,}4 / 2 = 0{,}7\) м. \(V_{внеш} = \pi R^2 h = 3{,}14 \cdot 0{,}7^2 \cdot 0{,}9 = 3{,}14 \cdot 0{,}49 \cdot 0{,}9 \approx 1{,}3847\) м³.</p>
+                            <p><strong>Шаг 2. Находим объём внутренней втулки.</strong> \(R_{внутр} = 0{,}6 / 2 = 0{,}3\) м. \(V_{внутр} = 3{,}14 \cdot 0{,}3^2 \cdot 0{,}9 = 3{,}14 \cdot 0{,}09 \cdot 0{,}9 \approx 0{,}2543\) м³.</p>
+                            <p><strong>Шаг 3. Объём кабеля (разница объёмов).</strong> \(V_{кабеля} = 1{,}3847 - 0{,}2543 = 1{,}1304\) м³.</p>
+                            <p><strong>Шаг 4. Масса меди.</strong> \(m = V \cdot \rho = 1{,}1304 \cdot 8{,}9 = 10{,}060\) тонн.</p>
+                            <p><strong>Ответ:</strong> Масса кабеля ~10,06 т. Кран на 10 тонн не выдержит (перегруз на 60 кг).</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Для высоковольтной линии устанавливают фарфоровый изолятор, имеющий форму усечённого конуса. Радиус нижнего основания 14 см, радиус верхнего — 7 см, высота изолятора 30 см. Плотность фарфора 2,4 г/см³. Рассчитайте массу изолятора. Крепёжный кронштейн по паспорту выдерживает не более 12 кг. Выдержит ли кронштейн этот изолятор? Если нет, на сколько процентов превышен лимит?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Формула объёма усечённого конуса.</strong> \(V = \frac{1}{3}\pi h (R^2 + Rr + r^2)\).</p>
+                            <p><strong>Шаг 2. Подставляем значения.</strong> \(V = \frac{1}{3} \cdot 3{,}14 \cdot 30 \cdot (14^2 + 14\cdot7 + 7^2) = 31{,}4 \cdot (196 + 98 + 49) = 31{,}4 \cdot 343 = 10770{,}2\) см³.</p>
+                            <p><strong>Шаг 3. Масса изолятора.</strong> \(m = V \cdot \rho = 10770{,}2 \cdot 2{,}4 = 25848{,}48\) г \(\approx 25{,}85\) кг.</p>
+                            <p><strong>Шаг 4. Сравниваем с лимитом.</strong> Масса 25,85 кг превышает лимит 12 кг. Перегруз: \(25{,}85 - 12 = 13{,}85\) кг.</p>
+                            <p><strong>Шаг 5. Процент превышения.</strong> \((13{,}85 / 12) \cdot 100\% \approx 115{,}4\%\).</p>
+                            <p><strong>Ответ:</strong> Кронштейн не выдержит. Лимит превышен более чем в 2 раза.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Электрику нужно покрасить 80 металлических шаровых молниеприёмников. Диаметр каждого шара 25 см. Расход краски — 130 г на 1 м². Краска продаётся в банках по 2,8 кг. Сколько банок нужно купить, чтобы покрыть все 80 шаров в два слоя? (Площадь поверхности шара \(S = 4\pi R^2\)).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Радиус шара.</strong> \(R = 12{,}5\) см = \(0{,}125\) м.</p>
+                            <p><strong>Шаг 2. Площадь одного шара.</strong> \(S = 4 \cdot 3{,}14 \cdot 0{,}125^2 = 4 \cdot 3{,}14 \cdot 0{,}015625 = 0{,}19625\) м².</p>
+                            <p><strong>Шаг 3. Площадь 80 шаров.</strong> \(80 \cdot 0{,}19625 = 15{,}7\) м².</p>
+                            <p><strong>Шаг 4. На два слоя.</strong> \(15{,}7 \cdot 2 = 31{,}4\) м².</p>
+                            <p><strong>Шаг 5. Необходимая масса краски.</strong> \(31{,}4 \cdot 130 = 4082\) г = 4,082 кг.</p>
+                            <p><strong>Шаг 6. Количество банок.</strong> \(4{,}082 / 2{,}8 = 1{,}458\). Округляем в большую сторону.</p>
+                            <p><strong>Ответ:</strong> Потребуется 2 банки краски.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Для заземления используются стальные стержни в форме цилиндра. Длина каждого стержня 2,5 м, диаметр 18 мм. Плотность стали 7,8 г/см³. Мастеру нужно закупить 60 таких стержней. Грузоподъемность его прицепа — 250 кг. Сможет ли он увезти весь заказ за один рейс?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Переводим в сантиметры.</strong> Длина \(h = 250\) см. Радиус \(R = 1{,}8 / 2 = 0{,}9\) см.</p>
+                            <p><strong>Шаг 2. Объём одного стержня.</strong> \(V = \pi R^2 h = 3{,}14 \cdot 0{,}9^2 \cdot 250 = 3{,}14 \cdot 0{,}81 \cdot 250 = 635{,}85\) см³.</p>
+                            <p><strong>Шаг 3. Масса одного.</strong> \(m = 635{,}85 \cdot 7{,}8 = 4959{,}63\) г \(\approx 4{,}96\) кг.</p>
+                            <p><strong>Шаг 4. Общая масса 60 штук.</strong> \(60 \cdot 4{,}96 = 297{,}6\) кг.</p>
+                            <p><strong>Ответ:</strong> Общая масса 297,6 кг. Это превышает грузоподъемность прицепа (250 кг). Увезти за один рейс не получится.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Бак для трансформаторного масла.</strong> Цилиндрический бак: внешний диаметр 1,5 м, высота 2 м, толщина стенок 10 мм. Плотность масла 0,9 т/м³. Сколько тонн масла вместит бак, если заполнить его на 85%?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Внутренний радиус \(R = 0{,}75 - 0{,}01 = 0{,}74\) м. Внутренний объём \(V = 3{,}14 \cdot 0{,}74^2 \cdot 2 = 3{,}438\) м³. 85% от объёма: \(2{,}922\) м³. Масса \(= 2{,}922 \cdot 0{,}9 = 2{,}63\) т.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Вес шаровой опоры.</strong> Шаровой молниеприёмник из стали (плотность 7,8 г/см³) имеет диаметр 28 см. Внутри он полый, толщина стенки 2 см. Какова его реальная масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Внешний радиус 14 см, внутренний 12 см. Объём металла: \(V = \frac{4}{3} \cdot 3{,}14 \cdot (14^3 - 12^3) = 4{,}187 \cdot (2744 - 1728) = 4254\) см³. Масса \(= 4254 \cdot 7{,}8 = 33181\) г \(\approx 33{,}2\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Покраска изоляторов.</strong> 40 фарфоровых изоляторов (усечённый конус: \(R=10\) см, \(r=5\) см, образующая 13 см). Покрасить только боковую поверхность. Норма расхода 180 г/м². Хватит ли 0,5 кг краски?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(S_{бок} = \pi(R+r)l = 3{,}14 \cdot 15 \cdot 13 = 612{,}3\) см² \(= 0{,}06123\) м². На 40 шт: \(2{,}449\) м². Расход \(= 2{,}449 \cdot 180 = 440{,}8\) г. 0,5 кг хватит.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём провода.</strong> Медный провод (плотность 8,9 г/см³) имеет диаметр 6 мм и длину 150 м. Какова его масса в килограммах?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 0{,}3\) см, \(h = 15000\) см. \(V = 3{,}14 \cdot 0{,}09 \cdot 15000 = 4239\) см³. Масса \(= 4239 \cdot 8{,}9 = 37727\) г \(\approx 37{,}7\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Усечённый конус.</strong> Изолятор: нижний радиус 12 см, верхний 6 см, высота 25 см. Плотность 2,3 г/см³. Масса в кг?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = \frac{1}{3} \cdot 3{,}14 \cdot 25 \cdot (144+72+36) = 26{,}167 \cdot 252 = 6594\) см³. Масса \(= 6594 \cdot 2{,}3 = 15166{,}2\) г \(\approx 15{,}2\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Цистерна с маслом.</strong> Цилиндрическая цистерна: \(R=1\) м, длина \(L=3\) м. Заполнена на 60%. Плотность масла 0,85 т/м³. Сколько тонн масла в цистерне?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V_{полный} = 3{,}14 \cdot 1 \cdot 3 = 9{,}42\) м³. 60% \(= 5{,}652\) м³. Масса \(= 5{,}652 \cdot 0{,}85 = 4{,}8\) т.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Шаровой резервуар.</strong> Сферическая ёмкость диаметром 2,5 м. Толщина стенки 5 мм. Плотность стали 7,8 т/м³. Масса пустой ёмкости?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Внешний радиус 1,25 м, внутренний 1,245 м. Объём металла: \(V = \frac{4}{3} \cdot 3{,}14 \cdot (1{,}25^3 - 1{,}245^3) = 4{,}187 \cdot (1{,}953 - 1{,}929) = 0{,}1005\) м³. Масса \(= 0{,}1005 \cdot 7{,}8 = 0{,}784\) т = 784 кг.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТОА / АВТОМЕХАНИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚗 ТОА / Автомеханик</span>
+            <span class="sub-title">Валы, цилиндры двигателя, шаровые опоры и топливные баки</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>При капитальном ремонте двигателя расточили цилиндр. Его диаметр увеличился с 80 мм до 82 мм, а высота (ход поршня) осталась 90 мм. На сколько кубических сантиметров увеличился рабочий объём одного цилиндра? Если в двигателе 4 цилиндра, каков общий прирост объёма?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Начальный объём.</strong> \(R_1 = 4\) см, \(h = 9\) см. \(V_1 = 3{,}14 \cdot 4^2 \cdot 9 = 3{,}14 \cdot 16 \cdot 9 = 452{,}16\) см³.</p>
+                            <p><strong>Шаг 2. Конечный объём.</strong> \(R_2 = 4{,}1\) см. \(V_2 = 3{,}14 \cdot 4{,}1^2 \cdot 9 = 3{,}14 \cdot 16{,}81 \cdot 9 = 475{,}05\) см³.</p>
+                            <p><strong>Шаг 3. Прирост на 1 цилиндр.</strong> \(\Delta V = 475{,}05 - 452{,}16 = 22{,}89\) см³.</p>
+                            <p><strong>Шаг 4. Прирост на 4 цилиндра.</strong> \(22{,}89 \cdot 4 = 91{,}56\) см³.</p>
+                            <p><strong>Ответ:</strong> Объём вырос на 22,89 см³ на цилиндр и на 91,56 см³ в сумме.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>На автомобиле установлен цилиндрический топливный бак. Его диаметр 0,6 м, длина 1,2 м. Заправщик заливает 250 литров дизеля. Какая доля бака (в процентах) окажется заполненной?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём бака в литрах.</strong> \(R = 0{,}3\) м. \(V = 3{,}14 \cdot 0{,}3^2 \cdot 1{,}2 = 3{,}14 \cdot 0{,}09 \cdot 1{,}2 = 0{,}33912\) м³ = 339,12 л.</p>
+                            <p><strong>Шаг 2. Доля заполнения.</strong> \((250 / 339{,}12) \cdot 100\% \approx 73{,}7\%\).</p>
+                            <p><strong>Ответ:</strong> Бак заполнится примерно на 73,7%.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Шаровая опора подвески представляет собой стальной шар диаметром 40 мм на цилиндрическом пальце. Плотность стали 7,8 г/см³. Шар изнашивается, и его диаметр уменьшается до 38 мм. На сколько граммов уменьшилась масса шара (считать только массу самого шара)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём нового шара.</strong> \(R_1 = 2\) см. \(V_1 = \frac{4}{3} \cdot 3{,}14 \cdot 2^3 = 33{,}49\) см³.</p>
+                            <p><strong>Шаг 2. Объём изношенного.</strong> \(R_2 = 1{,}9\) см. \(V_2 = \frac{4}{3} \cdot 3{,}14 \cdot 1{,}9^3 = \frac{4}{3} \cdot 3{,}14 \cdot 6{,}859 \approx 28{,}72\) см³.</p>
+                            <p><strong>Шаг 3. Убыль объёма.</strong> \(\Delta V = 33{,}49 - 28{,}72 = 4{,}77\) см³.</p>
+                            <p><strong>Шаг 4. Убыль массы.</strong> \(\Delta m = 4{,}77 \cdot 7{,}8 = 37{,}2\) г.</p>
+                            <p><strong>Ответ:</strong> Масса уменьшилась на 37,2 г.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Для балансировки колеса используют свинцовые грузики. Один грузик имеет форму усечённого конуса с радиусами оснований 2 см и 1 см и высотой 1,5 см. Плотность свинца 11,3 г/см³. Сколько таких грузиков понадобится, если для балансировки нужно навесить 100 граммов свинца?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём грузика.</strong> \(V = \frac{1}{3} \cdot 3{,}14 \cdot 1{,}5 \cdot (2^2 + 2\cdot1 + 1^2) = 1{,}57 \cdot 7 = 10{,}99\) см³.</p>
+                            <p><strong>Шаг 2. Масса одного.</strong> \(m = 10{,}99 \cdot 11{,}3 = 124{,}2\) г.</p>
+                            <p><strong>Шаг 3. Количество.</strong> \(100 / 124{,}2 = 0{,}8\). Значит, одного грузика более чем достаточно (с избытком).</p>
+                            <p><strong>Ответ:</strong> Хватит 1 грузика.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Объём цилиндра.</strong> Цилиндр двигателя: диаметр 90 мм, ход поршня 100 мм. Какой объём в литрах?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 4{,}5\) см, \(h = 10\) см. \(V = 3{,}14 \cdot 20{,}25 \cdot 10 = 635{,}85\) см³ = 0,636 л.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Масса вала.</strong> Стальной вал (цилиндр): диаметр 60 мм, длина 1,2 м. Плотность 7,8 г/см³. Масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 3\) см, \(h = 120\) см. \(V = 3{,}14 \cdot 9 \cdot 120 = 3391{,}2\) см³. Масса = \(3391{,}2 \cdot 7{,}8 = 26451\) г \(\approx 26{,}5\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Бак.</strong> Бак цилиндрический: диаметр 0,8 м, высота 1 м. Хватит ли 500 л топлива?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 0{,}4\) м. \(V = 3{,}14 \cdot 0{,}16 \cdot 1 = 0{,}5024\) м³ = 502,4 л. Хватит (с запасом 2,4 л).</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Шарик.</strong> Шарик диаметром 10 мм из стали (7,8 г/см³). Масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 0{,}5\) см. \(V = \frac{4}{3} \cdot 3{,}14 \cdot 0{,}125 = 0{,}523\) см³. Масса = \(0{,}523 \cdot 7{,}8 = 4{,}08\) г.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Покраска бака.</strong> Бак (цилиндр) диаметр 1 м, высота 2 м. Покрасить только боковую поверхность. Расход 200 г/м². Сколько краски?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(S_{бок} = 2 \cdot 3{,}14 \cdot 0{,}5 \cdot 2 = 6{,}28\) м². Краски = \(6{,}28 \cdot 200 = 1256\) г = 1,26 кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Усечённый конус.</strong> Деталь: \(R=10\) см, \(r=5\) см, \(h=12\) см. Объём в литрах?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = \frac{1}{3} \cdot 3{,}14 \cdot 12 \cdot (100+50+25) = 12{,}56 \cdot 175 = 2198\) см³ = 2,198 л.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Шар в кубе.</strong> Шар диаметром 10 см вписан в куб. Каков объём шара?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 5\) см. \(V = \frac{4}{3} \cdot 3{,}14 \cdot 125 = 523{,}3\) см³.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚙️ ТМ (Технология машиностроения)</span>
+            <span class="sub-title">Валы, заготовки, отливки и расчёт массы деталей</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Токарю нужно выточить стальной вал цилиндрической формы. Длина вала 800 мм, диаметр 60 мм. Плотность стали 7,8 г/см³. Рассчитайте массу готового вала. Если норматив брака для станка — детали тяжелее 20 кг, не превысит ли вал этот порог?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Переводим в см.</strong> Длина 80 см, радиус \(R = 3\) см.</p>
+                            <p><strong>Шаг 2. Объём.</strong> \(V = \pi R^2 h = 3{,}14 \cdot 3^2 \cdot 80 = 3{,}14 \cdot 9 \cdot 80 = 2260{,}8\) см³.</p>
+                            <p><strong>Шаг 3. Масса.</strong> \(m = 2260{,}8 \cdot 7{,}8 = 17634{,}24\) г \(\approx 17{,}6\) кг.</p>
+                            <p><strong>Ответ:</strong> Масса вала 17,6 кг. Порог 20 кг не превышен.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>В литейном цехе отливают деталь в форме усечённого конуса. Нижний радиус 15 см, верхний радиус 8 см, высота 20 см. Плотность чугуна 7,2 г/см³. При литье в форму заливают металл с запасом 8% на усадку и литники. Сколько килограммов чугуна нужно расплавить для одной детали?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём чистой детали.</strong> \(V = \frac{1}{3} \cdot 3{,}14 \cdot 20 \cdot (15^2 + 15\cdot8 + 8^2) = 20{,}93 \cdot (225 + 120 + 64) = 20{,}93 \cdot 409 \approx 8560\) см³.</p>
+                            <p><strong>Шаг 2. С учётом запаса 8%.</strong> \(V_{общ} = 8560 \cdot 1{,}08 = 9244{,}8\) см³.</p>
+                            <p><strong>Шаг 3. Масса.</strong> \(m = 9244{,}8 \cdot 7{,}2 = 66562{,}56\) г \(\approx 66{,}6\) кг.</p>
+                            <p><strong>Ответ:</strong> Нужно расплавить 66,6 кг чугуна.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Технологу нужно изготовить сферический подшипник (шар) диаметром 50 мм. Заготовка — стальной пруток диаметром 60 мм. Какая длина прутка потребуется, чтобы выточить один шар без отходов (по объёму)? Объём шара \(V = \frac{4}{3}\pi R^3\).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём шара.</strong> \(R = 2{,}5\) см. \(V_{шара} = \frac{4}{3} \cdot 3{,}14 \cdot 2{,}5^3 = 4{,}187 \cdot 15{,}625 = 65{,}42\) см³.</p>
+                            <p><strong>Шаг 2. Объём цилиндра-заготовки.</strong> Радиус прутка \(R = 3\) см. Объём \(V_{цил} = \pi R^2 h = 3{,}14 \cdot 9 \cdot h = 28{,}26 \cdot h\).</p>
+                            <p><strong>Шаг 3. Приравниваем объёмы.</strong> \(28{,}26 \cdot h = 65{,}42 \Rightarrow h = 65{,}42 / 28{,}26 \approx 2{,}31\) см = 23,1 мм.</p>
+                            <p><strong>Ответ:</strong> Потребуется 23,1 мм прутка.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Для галтовочного барабана нужно изготовить цилиндрический барабан из стали. Диаметр 400 мм, длина 500 мм, толщина стенки 10 мм. Плотность стали 7,8 г/см³. Найдите массу барабана. (Барабан считать полым цилиндром без крышек).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Внешний объём.</strong> \(R_{внеш} = 20\) см, \(h = 50\) см. \(V_{внеш} = 3{,}14 \cdot 20^2 \cdot 50 = 62800\) см³.</p>
+                            <p><strong>Шаг 2. Внутренний объём.</strong> \(R_{внутр} = 20 - 1 = 19\) см. \(V_{внутр} = 3{,}14 \cdot 19^2 \cdot 50 = 56677\) см³.</p>
+                            <p><strong>Шаг 3. Объём металла.</strong> \(V_{металл} = 62800 - 56677 = 6123\) см³.</p>
+                            <p><strong>Шаг 4. Масса.</strong> \(m = 6123 \cdot 7{,}8 = 47759{,}4\) г \(\approx 47{,}8\) кг.</p>
+                            <p><strong>Ответ:</strong> Масса барабана 47,8 кг.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Масса вала.</strong> Вал: диаметр 40 мм, длина 1,5 м. Плотность 7,8 г/см³. Масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 2\) см, \(h = 150\) см. \(V = 3{,}14 \cdot 4 \cdot 150 = 1884\) см³. Масса = \(1884 \cdot 7{,}8 = 14695{,}2\) г \(\approx 14{,}7\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Шарик для подшипника.</strong> Диаметр 20 мм, плотность 7,8 г/см³. Масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 1\) см. \(V = \frac{4}{3} \cdot 3{,}14 \cdot 1 = 4{,}187\) см³. Масса = \(4{,}187 \cdot 7{,}8 = 32{,}66\) г.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Усечённый конус.</strong> Деталь: \(R=12\) см, \(r=6\) см, \(h=15\) см. Объём?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = \frac{1}{3} \cdot 3{,}14 \cdot 15 \cdot (144+72+36) = 15{,}7 \cdot 252 = 3956{,}4\) см³.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Цилиндр.</strong> Диаметр 50 мм, высота 80 мм. Объём в см³?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 2{,}5\) см, \(h = 8\) см. \(V = 3{,}14 \cdot 6{,}25 \cdot 8 = 157\) см³.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Покраска детали.</strong> Шар диаметром 30 см. Норма 150 г/м². Сколько краски?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 0{,}15\) м. \(S = 4 \cdot 3{,}14 \cdot 0{,}0225 = 0{,}2826\) м². Краски = \(0{,}2826 \cdot 150 = 42{,}39\) г.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Труба.</strong> Труба: внешний диаметр 100 мм, внутренний 90 мм, длина 2 м. Объём металла в см³?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R_{внеш} = 5\) см, \(R_{внутр} = 4{,}5\) см, \(h = 200\) см. \(V_{внеш} = 3{,}14 \cdot 25 \cdot 200 = 15700\), \(V_{внутр} = 3{,}14 \cdot 20{,}25 \cdot 200 = 12717\). \(V_{металл} = 15700 - 12717 = 2983\) см³.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Конус.</strong> Деталь-конус: радиус 10 см, высота 20 см. Объём?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = \frac{1}{3} \cdot 3{,}14 \cdot 100 \cdot 20 = 2093\) см³.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ИМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">💻 ИМ (Информационные системы)</span>
+            <span class="sub-title">3D-модели сфер, цилиндров и валов, память и полигоны</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию в IT-сфере.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Разработчик создаёт 3D-модель шаровой ёмкости для игры. Диаметр сферы 4 м. В движке сфера аппроксимируется полигонами. Каждый 1 м² поверхности сферы требует 500 полигонов. Если каждый полигон весит 64 байта, сколько мегабайт (МБ) займёт модель сферы? (Площадь сферы \(S = 4\pi R^2\), 1 МБ = 1024×1024 байт)</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Площадь поверхности сферы.</strong> \(R = 2\) м. \(S = 4 \cdot 3{,}14 \cdot 2^2 = 50{,}24\) м².</p>
+                            <p><strong>Шаг 2. Количество полигонов.</strong> \(50{,}24 \cdot 500 = 25120\) полигонов.</p>
+                            <p><strong>Шаг 3. Объём в байтах.</strong> \(25120 \cdot 64 = 1607680\) байт.</p>
+                            <p><strong>Шаг 4. В МБ.</strong> \(1607680 / (1024 \cdot 1024) \approx 1{,}53\) МБ.</p>
+                            <p><strong>Ответ:</strong> Модель займёт около 1,53 МБ.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>В 3D-редакторе цилиндрическая колонна (диаметр 2 м, высота 8 м) должна быть покрыта текстурой. Если 1 м² текстуры весит 1,2 МБ, а нужно покрыть только боковую поверхность (без торцов), сколько МБ памяти потребуется? (\(S_{бок} = 2\pi R h\)).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Радиус.</strong> \(R = 1\) м.</p>
+                            <p><strong>Шаг 2. Площадь боковой поверхности.</strong> \(S_{бок} = 2 \cdot 3{,}14 \cdot 1 \cdot 8 = 50{,}24\) м².</p>
+                            <p><strong>Шаг 3. Вес текстуры.</strong> \(50{,}24 \cdot 1{,}2 = 60{,}288\) МБ.</p>
+                            <p><strong>Ответ:</strong> Потребуется 60,29 МБ.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Для симулятора физики нужно рассчитать объём воды в цилиндрической бочке. Диаметр бочки 2 м, высота 3 м. Бочка заполнена на 80%. Если плотность воды 1000 кг/м³, какая масса воды в бочке?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём полной бочки.</strong> \(R = 1\) м. \(V = 3{,}14 \cdot 1^2 \cdot 3 = 9{,}42\) м³.</p>
+                            <p><strong>Шаг 2. Объём воды (80%).</strong> \(9{,}42 \cdot 0{,}8 = 7{,}536\) м³.</p>
+                            <p><strong>Шаг 3. Масса.</strong> \(7{,}536 \cdot 1000 = 7536\) кг.</p>
+                            <p><strong>Ответ:</strong> Масса воды 7536 кг (7,5 тонны).</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>3D-модель конической крыши башни имеет радиус основания 6 м и высоту 10 м. Для расчёта освещения нужно знать площадь боковой поверхности (без основания). \(S_{бок} = \pi R l\), где \(l\) — образующая. Найдите площадь и определите, хватит ли 150 МБ памяти для текстуры, если 1 м² весит 2 МБ.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Образующая конуса.</strong> \(l = \sqrt{R^2 + h^2} = \sqrt{6^2 + 10^2} = \sqrt{36 + 100} = \sqrt{136} \approx 11{,}66\) м.</p>
+                            <p><strong>Шаг 2. Площадь боковой поверхности.</strong> \(S = 3{,}14 \cdot 6 \cdot 11{,}66 \approx 219{,}67\) м².</p>
+                            <p><strong>Шаг 3. Вес текстуры.</strong> \(219{,}67 \cdot 2 = 439{,}34\) МБ.</p>
+                            <p><strong>Ответ:</strong> Площадь 219,67 м². Текстура займёт 439,34 МБ, что больше 150 МБ. Памяти не хватит.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Сфера.</strong> Радиус 3 м. Текстура 500 полигонов на 1 м². Всего полигонов?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(S = 4 \cdot 3{,}14 \cdot 9 = 113{,}04\) м². Полигонов \(113{,}04 \cdot 500 = 56520\).</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Цилиндр.</strong> \(R = 0{,}5\) м, \(h = 2\) м. Вес текстуры на боковую поверхность (1 м² = 1,5 МБ)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(S_{бок} = 2 \cdot 3{,}14 \cdot 0{,}5 \cdot 2 = 6{,}28\) м². Память \(6{,}28 \cdot 1{,}5 = 9{,}42\) МБ.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Коническая модель.</strong> \(R = 4\) м, \(h = 3\) м. Площадь боковой поверхности?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(l = \sqrt{16+9} = 5\) м. \(S = 3{,}14 \cdot 4 \cdot 5 = 62{,}8\) м².</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Бак.</strong> \(R = 1{,}5\) м, \(h = 4\) м. Объём? Сколько литров воды влезет (на 90%)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = 3{,}14 \cdot 2{,}25 \cdot 4 = 28{,}26\) м³. 90% = 25,434 м³ = 25434 л.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Шар в 3D.</strong> Шар диаметром 2 м. Сколько нужно полигонов, если 300 полигонов на 1 м²?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 1\) м. \(S = 4 \cdot 3{,}14 \cdot 1 = 12{,}56\) м². Полигонов \(12{,}56 \cdot 300 = 3768\).</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём усечённого конуса в 3D.</strong> \(R=2\) м, \(r=1\) м, \(h=3\) м. Объём?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = \frac{1}{3} \cdot 3{,}14 \cdot 3 \cdot (4+2+1) = 3{,}14 \cdot 7 = 21{,}98\) м³.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Скорость рендера.</strong> Сцена из 100 сфер (диаметр 1 м). Если 200 полигонов на 1 м², а движок рендерит 10000 полигонов/с, сколько времени займёт рендер?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(S_{1} = 4 \cdot 3{,}14 \cdot 0{,}25 = 3{,}14\) м². 100 сфер: 314 м². Полигонов: \(314 \cdot 200 = 62800\). Время: \(62800 / 10000 = 6{,}28\) с.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРЩИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔥 Сварщик</span>
+            <span class="sub-title">Сварка труб, конические переходы и масса наплавки</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Сварщик варит стык двух стальных труб. Внешний диаметр трубы 200 мм, толщина стенки 6 мм. Шов выполняется снаружи по всему периметру. Сечение шва — прямоугольник (валик) шириной 10 мм и высотой 3 мм. Плотность наплавленного металла 7,8 г/см³. Найдите массу наплавленного металла на один стык.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Длина шва (периметр трубы по внешнему диаметру).</strong> \(L = \pi D = 3{,}14 \cdot 200 = 628\) мм = \(62{,}8\) см.</p>
+                            <p><strong>Шаг 2. Площадь сечения шва.</strong> \(S = 10 \text{ мм} \cdot 3 \text{ мм} = 30\) мм² = \(0{,}3\) см².</p>
+                            <p><strong>Шаг 3. Объём наплавки.</strong> \(V = 0{,}3 \cdot 62{,}8 = 18{,}84\) см³.</p>
+                            <p><strong>Шаг 4. Масса.</strong> \(m = 18{,}84 \cdot 7{,}8 = 146{,}95\) г.</p>
+                            <p><strong>Ответ:</strong> Масса наплавки ~147 г.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Нужно сварить конический переход между двумя цилиндрическими обечайками. Переход — это усечённый конус. Радиусы оснований 30 см и 15 см, высота 40 см. Переход изготавливается из стального листа толщиной 4 мм. Плотность стали 7,8 г/см³. Рассчитайте массу металла, необходимого для изготовления этого перехода (только боковая поверхность). Площадь боковой поверхности усечённого конуса \(S = \pi (R+r)l\), где \(l\) — образующая.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Образующая.</strong> \(l = \sqrt{(R-r)^2 + h^2} = \sqrt{(30-15)^2 + 40^2} = \sqrt{225 + 1600} = \sqrt{1825} \approx 42{,}72\) см.</p>
+                            <p><strong>Шаг 2. Площадь боковой поверхности.</strong> \(S = 3{,}14 \cdot (30+15) \cdot 42{,}72 = 3{,}14 \cdot 45 \cdot 42{,}72 \approx 6036{,}3\) см².</p>
+                            <p><strong>Шаг 3. Объём металла.</strong> Толщина 4 мм = 0,4 см. \(V = S \cdot 0{,}4 = 2414{,}5\) см³.</p>
+                            <p><strong>Шаг 4. Масса.</strong> \(m = 2414{,}5 \cdot 7{,}8 = 18833\) г \(\approx 18{,}8\) кг.</p>
+                            <p><strong>Ответ:</strong> Потребуется 18,8 кг стали.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>При сварке двух цилиндрических ёмкостей (диаметры по 1,2 м) нужно приварить сферическое днище. Днище — полусфера радиусом 0,6 м. Толщина стенки 10 мм. Плотность стали 7,8 г/см³. Какова масса этого днища?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Площадь поверхности полусферы.</strong> \(S_{полусферы} = 2\pi R^2 = 2 \cdot 3{,}14 \cdot 0{,}6^2 = 2{,}2608\) м² = 22608 см².</p>
+                            <p><strong>Шаг 2. Объём металла.</strong> Толщина 1 см. \(V = 22608 \cdot 1 = 22608\) см³.</p>
+                            <p><strong>Шаг 3. Масса.</strong> \(m = 22608 \cdot 7{,}8 = 176342{,}4\) г \(\approx 176{,}3\) кг.</p>
+                            <p><strong>Ответ:</strong> Масса днища 176,3 кг.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Сварщик заваривает отверстие в шаровой ёмкости. Диаметр ёмкости 1 м. Отверстие имеет форму круга диаметром 50 мм, глубиной 5 мм (упрощённо считаем цилиндром). Сколько граммов электродов нужно, если коэффициент расхода 1,5, а плотность наплавки 7,8 г/см³?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём отверстия.</strong> \(R = 2{,}5\) см, \(h = 0{,}5\) см. \(V = \pi R^2 h = 3{,}14 \cdot 6{,}25 \cdot 0{,}5 = 9{,}8125\) см³.</p>
+                            <p><strong>Шаг 2. Масса наплавки.</strong> \(m = 9{,}8125 \cdot 7{,}8 = 76{,}5375\) г.</p>
+                            <p><strong>Шаг 3. Масса электродов.</strong> \(76{,}5375 \cdot 1{,}5 = 114{,}8\) г.</p>
+                            <p><strong>Ответ:</strong> Потребуется 114,8 г электродов.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Шов на трубе.</strong> Труба диаметром 100 мм. Шов: 8 мм × 2 мм. Длина шва — периметр. Объём?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(L = 3{,}14 \cdot 10 = 31{,}4\) см. \(S = 0{,}16\) см². \(V = 31{,}4 \cdot 0{,}16 = 5{,}024\) см³.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Масса шва.</strong> Объём 20 см³, плотность 7,8 г/см³. Масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(m = 20 \cdot 7{,}8 = 156\) г.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Конический переход.</strong> \(R=20\) см, \(r=10\) см, \(l=15\) см. Площадь боковой поверхности?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(S = 3{,}14 \cdot (20+10) \cdot 15 = 3{,}14 \cdot 450 = 1413\) см².</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём полусферы.</strong> Радиус 30 см. Объём полусферы?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = \frac{2}{3} \pi R^3 = \frac{2}{3} \cdot 3{,}14 \cdot 27000 = 56520\) см³.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Масса трубы.</strong> Труба: внешний радиус 10 см, внутренний 9 см, длина 100 см. Плотность 7,8. Масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = 3{,}14 \cdot (100-81) \cdot 100 = 3{,}14 \cdot 19 \cdot 100 = 5966\) см³. Масса \(5966 \cdot 7{,}8 = 46534{,}8\) г \(\approx 46{,}5\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Шаровой резервуар.</strong> Диаметр 3 м. Объём в литрах?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 1{,}5\) м. \(V = \frac{4}{3} \cdot 3{,}14 \cdot 3{,}375 = 14{,}13\) м³ = 14130 л.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Электроды.</strong> Наплавка 50 см³. Коэффициент 1,6. Сколько граммов электродов нужно?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Масса наплавки \(50 \cdot 7{,}8 = 390\) г. Электродов \(390 \cdot 1{,}6 = 624\) г.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРОЧНОЕ ПРОИЗВОДСТВО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🏭 Сварочное производство</span>
+            <span class="sub-title">Партии цилиндрических деталей, раскрой и экономика</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Завод получил заказ на партию из 500 цилиндрических втулок. Внешний диаметр втулки 40 мм, внутренний 30 мм, длина 60 мм. Плотность материала 7,8 г/см³. Какая общая масса металла уйдёт на партию, если отходы при обработке составляют 12% от массы готовых деталей?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём одной втулки (полый цилиндр).</strong> \(R_{внеш} = 2\) см, \(R_{внутр} = 1{,}5\) см, \(h = 6\) см. \(V_{внеш} = 3{,}14 \cdot 4 \cdot 6 = 75{,}36\) см³. \(V_{внутр} = 3{,}14 \cdot 2{,}25 \cdot 6 = 42{,}39\) см³. \(V_{детали} = 75{,}36 - 42{,}39 = 32{,}97\) см³.</p>
+                            <p><strong>Шаг 2. Масса одной.</strong> \(m = 32{,}97 \cdot 7{,}8 = 257{,}166\) г.</p>
+                            <p><strong>Шаг 3. Масса партии (без отходов).</strong> \(500 \cdot 257{,}166 = 128583\) г = 128,58 кг.</p>
+                            <p><strong>Шаг 4. С учётом 12% отходов.</strong> \(128{,}58 \cdot 1{,}12 = 144{,}01\) кг.</p>
+                            <p><strong>Ответ:</strong> Потребуется 144 кг металла.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Нужно изготовить 100 конических деталей. Каждая — конус с радиусом основания 8 см и высотой 15 см. Плотность сплава 8,2 г/см³. Расход металла на 1 деталь с учётом литников 1,1. Найдите общую массу заготовок, которую нужно закупить.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём одного конуса.</strong> \(V = \frac{1}{3} \cdot 3{,}14 \cdot 8^2 \cdot 15 = \frac{1}{3} \cdot 3{,}14 \cdot 64 \cdot 15 = 1004{,}8\) см³.</p>
+                            <p><strong>Шаг 2. Масса одного (без запаса).</strong> \(1004{,}8 \cdot 8{,}2 = 8239{,}36\) г.</p>
+                            <p><strong>Шаг 3. С запасом.</strong> \(8239{,}36 \cdot 1{,}1 = 9063{,}3\) г на 1 деталь.</p>
+                            <p><strong>Шаг 4. На 100 деталей.</strong> \(9063{,}3 \cdot 100 = 906330\) г = 906,3 кг.</p>
+                            <p><strong>Ответ:</strong> Нужно закупить 906,3 кг металла.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Технологу нужно узнать, сколько шаров диаметром 20 мм можно отлить из 5 кг расплава. Плотность сплава 7,5 г/см³.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём одного шара.</strong> \(R = 1\) см. \(V = \frac{4}{3} \cdot 3{,}14 \cdot 1 = 4{,}187\) см³.</p>
+                            <p><strong>Шаг 2. Масса одного шара.</strong> \(m = 4{,}187 \cdot 7{,}5 = 31{,}4\) г.</p>
+                            <p><strong>Шаг 3. Количество.</strong> \(5000 / 31{,}4 = 159{,}2\).</p>
+                            <p><strong>Ответ:</strong> Получится 159 шаров.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Цилиндрическая деталь длиной 1 м и диаметром 50 мм весит 15,4 кг. Найдите плотность материала, из которого она изготовлена. (Используйте \(\pi = 3{,}14\)).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём цилиндра.</strong> \(R = 2{,}5\) см, \(h = 100\) см. \(V = 3{,}14 \cdot 6{,}25 \cdot 100 = 1962{,}5\) см³.</p>
+                            <p><strong>Шаг 2. Плотность.</strong> \(\rho = m / V = 15400 / 1962{,}5 \approx 7{,}85\) г/см³.</p>
+                            <p><strong>Ответ:</strong> Плотность 7,85 г/см³ (близко к стали).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Партия цилиндров.</strong> 200 деталей. Каждая: \(R=3\) см, \(h=10\) см. Плотность 7,8 г/см³. Масса партии?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V_{1} = 3{,}14 \cdot 9 \cdot 10 = 282{,}6\) см³. \(m_1 = 282{,}6 \cdot 7{,}8 = 2204{,}28\) г. На 200: 440856 г \(\approx 441\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Конусы.</strong> 50 деталей. \(R=4\) см, \(h=9\) см. Плотность 2,7 г/см³ (алюминий). Масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V_1 = \frac{1}{3} \cdot 3{,}14 \cdot 16 \cdot 9 = 150{,}72\) см³. \(m_1 = 150{,}72 \cdot 2{,}7 = 406{,}94\) г. На 50: 20347 г \(\approx 20{,}3\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Шары.</strong> 1000 шаров диаметром 10 мм. Плотность 7,8 г/см³. Общая масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 0{,}5\) см. \(V = \frac{4}{3} \cdot 3{,}14 \cdot 0{,}125 = 0{,}523\) см³. \(m_1 = 4{,}08\) г. На 1000: 4080 г = 4,08 кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Усечённый конус.</strong> \(R=10\), \(r=5\), \(h=12\) см. Плотность 7,8. Масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = \frac{1}{3} \cdot 3{,}14 \cdot 12 \cdot (100+50+25) = 2198\) см³. \(m = 2198 \cdot 7{,}8 = 17144{,}4\) г \(\approx 17{,}1\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Раскрой листа на цилиндры.</strong> Лист 2×1 м. На 1 цилиндр (боковую поверхность) нужно 0,2 м². Сколько цилиндров?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь листа 2 м². \(2 / 0{,}2 = 10\) цилиндров.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Труба.</strong> Внешний \(R=5\) см, внутренний \(r=4\) см, длина 50 см. Объём металла?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = 3{,}14 \cdot (25-16) \cdot 50 = 3{,}14 \cdot 9 \cdot 50 = 1413\) см³.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Бак.</strong> \(R=1\) м, \(h=2{,}5\) м. Сколько литров?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = 3{,}14 \cdot 1 \cdot 2{,}5 = 7{,}85\) м³ = 7850 л.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЛОГИСТЫ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚚 Логисты</span>
+            <span class="sub-title">Цистерны, бочки и расчёт перевозки жидкостей</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Цистерна для перевозки молока имеет форму цилиндра с диаметром 2 м и длиной 6 м. Плотность молока 1030 кг/м³. Найдите максимальную массу груза, которую можно перевезти в этой цистерне. Если максимальная грузоподъемность шасси — 25 тонн, будет ли перегруз?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём цистерны.</strong> \(R = 1\) м. \(V = \pi R^2 h = 3{,}14 \cdot 1^2 \cdot 6 = 18{,}84\) м³.</p>
+                            <p><strong>Шаг 2. Масса молока.</strong> \(m = V \cdot \rho = 18{,}84 \cdot 1030 = 19405{,}2\) кг \(\approx 19{,}4\) тонны.</p>
+                            <p><strong>Ответ:</strong> Масса груза 19,4 т. Перегруза нет (19,4 &lt; 25).</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Логист рассчитывает перевозку сыпучего груза (плотность 1,4 т/м³). Есть два варианта тары: цилиндрическая бочка (диаметр 0,8 м, высота 1 м) и коническая ёмкость (радиус основания 0,6 м, высота 1,2 м). Какая из ёмкостей вместит больше груза по массе, и на сколько?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём бочки.</strong> \(R = 0{,}4\) м. \(V_1 = 3{,}14 \cdot 0{,}16 \cdot 1 = 0{,}5024\) м³. Масса \(m_1 = 0{,}5024 \cdot 1{,}4 = 0{,}703\) т.</p>
+                            <p><strong>Шаг 2. Объём конуса.</strong> \(V_2 = \frac{1}{3} \cdot 3{,}14 \cdot 0{,}6^2 \cdot 1{,}2 = \frac{1}{3} \cdot 3{,}14 \cdot 0{,}36 \cdot 1{,}2 = 0{,}452\) м³. Масса \(m_2 = 0{,}452 \cdot 1{,}4 = 0{,}633\) т.</p>
+                            <p><strong>Шаг 3. Разница.</strong> \(0{,}703 - 0{,}633 = 0{,}07\) т = 70 кг.</p>
+                            <p><strong>Ответ:</strong> Бочка вмещает больше на 70 кг.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>На складе есть сыпучий груз, который нужно перевезти в цилиндрических контейнерах. Объём одного контейнера 2 м³. Всего 50 м³ груза. Плотность груза 0,9 т/м³. Сколько контейнеров нужно, если каждый весит (тара) 100 кг, а грузоподъемность машины 15 тонн (учитывая вес груза и тары)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Количество контейнеров.</strong> \(50 / 2 = 25\) контейнеров.</p>
+                            <p><strong>Шаг 2. Масса груза.</strong> \(50 \cdot 0{,}9 = 45\) тонн.</p>
+                            <p><strong>Шаг 3. Масса тары.</strong> \(25 \cdot 0{,}1 = 2{,}5\) тонны.</p>
+                            <p><strong>Шаг 4. Общая масса.</strong> \(45 + 2{,}5 = 47{,}5\) тонн.</p>
+                            <p><strong>Ответ:</strong> 25 контейнеров. Общая масса 47,5 т, что превышает грузоподъемность машины 15 т. Потребуется несколько рейсов (47,5 / 15 = 3,17, значит 4 рейса).</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Для перевозки жидкости используется сферическая цистерна диаметром 3 м. Логист хочет узнать, на сколько километров хватит этого объёма, если расход жидкости 15 литров на 100 км (например, для полива).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём сферы.</strong> \(R = 1{,}5\) м. \(V = \frac{4}{3} \cdot 3{,}14 \cdot 1{,}5^3 = \frac{4}{3} \cdot 3{,}14 \cdot 3{,}375 = 14{,}13\) м³.</p>
+                            <p><strong>Шаг 2. В литрах.</strong> 14,13 м³ = 14130 л.</p>
+                            <p><strong>Шаг 3. Путь.</strong> \((14130 / 15) \cdot 100 = 942 \cdot 100 = 94200\) км.</p>
+                            <p><strong>Ответ:</strong> Хватит на 94200 км.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Бочка.</strong> \(R=0{,}5\) м, \(h=1{,}2\) м. Сколько литров воды?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = 3{,}14 \cdot 0{,}25 \cdot 1{,}2 = 0{,}942\) м³ = 942 л.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Цистерна.</strong> \(R=1{,}2\) м, \(h=5\) м. Масса при плотности 0,8 т/м³?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = 3{,}14 \cdot 1{,}44 \cdot 5 = 22{,}608\) м³. \(m = 22{,}608 \cdot 0{,}8 = 18{,}09\) т.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Сфера.</strong> Диаметр 2 м. Объём в литрах?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(R = 1\) м. \(V = \frac{4}{3} \cdot 3{,}14 \cdot 1 = 4{,}187\) м³ = 4187 л.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Конус.</strong> \(R=1{,}5\) м, \(h=3\) м. Объём в литрах?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = \frac{1}{3} \cdot 3{,}14 \cdot 2{,}25 \cdot 3 = 7{,}065\) м³ = 7065 л.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Усечённый конус.</strong> \(R=2\) м, \(r=1\) м, \(h=4\) м. Объём в м³?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = \frac{1}{3} \cdot 3{,}14 \cdot 4 \cdot (4+2+1) = 4{,}187 \cdot 7 = 29{,}31\) м³.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Рейсы.</strong> 100 м³ груза. Бочка 2 м³. Сколько рейсов?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(100 / 2 = 50\) рейсов.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Масса.</strong> Объём 10 м³, плотность 1,2 т/м³. Масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(m = 10 \cdot 1{,}2 = 12\) т.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="solids.html" class="back-link">Назад к разделу «Тела вращения»</a>
+</div>
+
+<script>
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
+
+    function toggleSpoiler(button) {
+        const content = button.nextElementSibling;
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            button.textContent = button.textContent.includes('Подсказка') ? '💡 Подсказка' : 'Показать решение';
+        } else {
+            content.style.display = 'block';
+            button.textContent = button.textContent.includes('Подсказка') ? 'Скрыть подсказку' : 'Скрыть решение';
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([content]).catch(function (err) {
+                    console.log('MathJax error: ', err.message);
+                });
+            }
+        }
+    }
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+
+<script id="bottom-nav-autohide-script">
+    (function(){
+        var nav = document.querySelector('.bottom-nav');
+        if (!nav) return;
+        var lastY = window.scrollY;
+        var threshold = 8;
+        var ticking = false;
+        function onScroll(){
+            var y = window.scrollY;
+            if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+            if (y > lastY && y > 80) {
+                nav.classList.add('nav-hidden');
+            } else {
+                nav.classList.remove('nav-hidden');
+            }
+            lastY = y;
+            ticking = false;
+        }
+        window.addEventListener('scroll', function(){
+            if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+        }, { passive: true });
+    })();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+    (function() {
+        var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+        els.forEach(function(el) {
+            if (el.dataset.rippleBound) return;
+            el.dataset.rippleBound = '1';
+            el.classList.add('ripple-host');
+            el.addEventListener('pointerdown', function(e) {
+                var rect = el.getBoundingClientRect();
+                var size = Math.max(rect.width, rect.height);
+                var r = document.createElement('span');
+                r.className = 'ripple';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                el.appendChild(r);
+                setTimeout(function(){ r.remove(); }, 650);
+            });
+        });
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Профессиональные задачи: Логарифмы</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(139,92,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #8b5cf6; --example-bg: #162a38; --canvas-bg: #0f1a24;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --result-color: #4ade80; --danger-color: #f87171;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #8b5cf6; --example-bg: #f8fafc;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --result-color: #059669; --danger-color: #dc2626;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+
+        h3 { color: var(--text) !important; font-size: 1.1rem; margin: 15px 0 10px 0; display: flex; align-items: center; gap: 8px; }
+
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding: 8px 40px; cursor: pointer; user-select: none; text-align: center; position: relative; border-radius: 0 12px 12px 0; transition: background 0.3s; }
+        .section-title:hover { background: linear-gradient(90deg, var(--special-border) 0%, rgba(139, 92, 246, 0.15) 30%, rgba(139, 92, 246, 0.05) 100%); }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+        .section.collapsed .section-title .main-title::after { transform: translateY(-50%) rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 4px; }
+        .section-content { max-height: 30000px; overflow: hidden; transition: max-height 0.5s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        /* Вложенные аккордеоны */
+        .sub-accordion { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+        .sub-accordion-title { background: var(--info-bg); padding: 12px 16px; cursor: pointer; user-select: none; transition: background 0.2s; display: flex; flex-direction: column; gap: 4px; }
+        .sub-accordion-title:hover { background: rgba(139, 92, 246, 0.1); }
+        .sub-accordion-title .title-main { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: 700; color: var(--text); }
+        .sub-accordion-title .title-main::after { content: "▼"; font-size: 0.8rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .sub-accordion.collapsed .sub-accordion-title .title-main::after { transform: rotate(-90deg); }
+        .sub-accordion-title .title-sub { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+
+        .sub-accordion-content { padding: 16px; background: var(--card-bg); max-height: 25000px; transition: max-height 0.4s ease; }
+        .sub-accordion.collapsed .sub-accordion-content { max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+
+        .formula-block, .example, .important {
+            position: relative; border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: none !important; padding-left: 20px !important; padding: 16px 20px;
+            background-color: var(--example-bg); margin-bottom: 16px; color: var(--text);
+            font-size: 0.95rem; line-height: 1.8;
+        }
+        .formula-block::before, .example::before, .important::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+            background: linear-gradient(180deg, var(--special-border) 0%, #0d9488 100%);
+            border-radius: 16px 0 0 16px; z-index: 1;
+        }
+        @media (hover: hover) {
+            .example:hover, .formula-block:hover, .important:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+        }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+
+        .spoiler-btn { display: inline-block; margin-top: 10px; padding: 8px 16px; background: var(--info-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.2s, color 0.2s; }
+        .spoiler-btn:hover { background: var(--special-border); color: #fff; }
+        .spoiler-content { display: none; margin-top: 12px; padding: 12px 16px; background: var(--card-bg); border-radius: 8px; border: 1px dashed var(--border); animation: fadeIn 0.3s ease; }
+        .spoiler-content.solution { border-left: 4px solid var(--result-color); background: rgba(74, 222, 128, 0.05); }
+        .spoiler-content.hint { border-left: 4px solid var(--warning-border); background: var(--warning-bg); }
+
+        .back-link { display: table !important; margin: 20px auto 10px auto; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; text-align: center; }
+        .back-link:hover { background: #7c3aed; }
+
+        .task-tag { display: inline-block; font-size: 0.8rem; font-weight: 700; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; text-transform: uppercase; }
+        .tag-sol { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .tag-self { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+
+    <!-- Надежное подключение MathJax -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+            startup: {
+                typeset: true
+            }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise();
+                }
+            }, 100);
+        });
+    </script>
+
+    <style id="bottom-nav-base">
+        .bottom-nav { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px; background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900; transition: background 0.3s, border 0.3s, transform 0.3s; }
+        :root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+        .bottom-nav a, .bottom-nav button { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .bottom-nav a:hover, .bottom-nav button:hover { background: rgba(139,92,246,0.15); color: var(--accent); transform: translateY(-2px) scale(1.08); }
+        .bottom-nav.nav-hidden { transform: translate(-50%, 120%); opacity: 0; pointer-events: none; }
+        .ripple-host { position: relative !important; overflow: hidden !important; }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(139, 92, 246, 0.35); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 0; }
+        @keyframes rippleAnim { to { transform: scale(2.5); opacity: 0; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Профессиональные задачи: Логарифмы</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Зачем это нужно в профессии?</span>
+        </div>
+        <div class="section-content">
+            <p>Логарифмы кажутся абстракцией, пока не столкнёшься с ними на практике. Но вот вы настраиваете фильтр в усилителе, и уровень сигнала падает не в 2 раза, а в 10<sup>3</sup> раз — это логарифмическая шкала в децибелах. Или измеряете кислотность раствора на производстве, и pH — это тоже логарифм. Или оптимизируете алгоритм и считаете, во сколько раз вырастет время при удвоении данных — снова логарифмы.</p>
+            <p>В каждой профессии есть свои ситуации, где без логарифмов никуда: от расчёта уровня шума до подбора контейнера с нужным объёмом. В этом практикуме мы собрали такие задачи. Где-то решение нужно принять быстро, чтобы не сгорело оборудование, где-то — чтобы не переплатить за лишний материал.</p>
+            <div class="important">
+                <strong>💡 Как пользоваться:</strong><br>
+                Выберите свою специальность ниже. В каждой — 4 задачи с подробным разбором (показано, как считаются шаги) и 8 задач для самостоятельной работы (с подсказками). Считайте так, как будто вы уже на смене: от ваших цифр зависит, примут ли шов, выдержит ли кабель и не уйдёт ли партия в брак.
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЭРЭО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚡ ЭРЭО (Электрика)</span>
+            <span class="sub-title">Эксплуатация электрооборудования</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>На линии связи произошло затухание сигнала. Дежурному электрику нужно рассчитать затухание в децибелах по формуле \( L = 10 \lg\left(\frac{P_1}{P_2}\right) \). Известно, что мощность сигнала упала с \( P_1 = 100 \) мВт до \( P_2 = 1 \) мВт. Если затухание превышает 15 дБ, сигнал не дойдёт до следующей подстанции, и нужно искать обрыв.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Подставляем значения.</strong> \( L = 10 \lg\left(\frac{100}{1}\right) = 10 \lg(100) \).</p>
+                            <p><strong>Шаг 2. Вычисляем логарифм.</strong> \( \lg(100) = \log_{10}(100) = 2 \) (так как \( 10^2 = 100 \)).</p>
+                            <p><strong>Шаг 3. Умножаем.</strong> \( L = 10 \cdot 2 = 20 \) дБ.</p>
+                            <p><strong>Ответ:</strong> 20 дБ. Это больше 15 дБ — сигнал не дойдёт, нужно искать обрыв.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При проверке изоляции кабеля используется логарифмическая шкала. Электрику нужно найти рабочее напряжение из уравнения \( \log_3(x) = 4 \), где \( x \) — предельное напряжение в киловольтах. Если \( x < 80 \) кВ, кабель придётся заменить.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. По определению логарифма.</strong> \( \log_3(x) = 4 \Leftrightarrow 3^4 = x \).</p>
+                            <p><strong>Шаг 2. Вычисляем степень.</strong> \( 3^4 = 81 \).</p>
+                            <p><strong>Ответ:</strong> \( x = 81 \) кВ. Это больше 80, кабель менять не нужно.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Уровень помех в сети не должен превышать определённого порога. При каком \( x \) выполняется условие \( \log_2(x) < 5 \), где \( x \) — допустимый уровень помех? Если \( x \ge 32 \), сеть будет работать нестабильно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. ОДЗ логарифма.</strong> \( x > 0 \).</p>
+                            <p><strong>Шаг 2. Основание 2 > 1, функция возрастает, знак сохраняется.</strong> \( \log_2(x) < \log_2(2^5) \Rightarrow x < 32 \).</p>
+                            <p><strong>Шаг 3. Учитываем ОДЗ.</strong> \( 0 < x < 32 \).</p>
+                            <p><strong>Ответ:</strong> \( x \in (0; 32) \). Сеть работает стабильно.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Для расчёта параметров цепи используется выражение \( \log_2(8x) - \log_2(x) \). Упростите его, чтобы подставить в итоговую формулу расчёта затухания.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Свойство разности логарифмов.</strong> \( \log_2(8x) - \log_2(x) = \log_2\left(\frac{8x}{x}\right) \).</p>
+                            <p><strong>Шаг 2. Сокращаем.</strong> \( \log_2(8) \).</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> \( \log_2(8) = 3 \).</p>
+                            <p><strong>Ответ:</strong> 3.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Уровень сигнала.</strong> При измерении уровня сигнала на выходе усилителя электрик использует формулу \( L = 10 \lg(P) \). Найдите \( L \), если \( P = 1000 \). Если \( L > 25 \) дБ, усилитель нужно проверять.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \lg(1000) = \log_{10}(1000) = 3 \). \( L = 30 \) дБ.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Настройка реле.</strong> Для настройки реле нужно найти \( x \) из уравнения \( \log_2(x) = 6 \). Если \( x \) окажется больше 100, реле сгорит.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">По определению: \( 2^6 = x \). \( x = 64 \). Меньше 100, реле выдержит.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Сумма логарифмов.</strong> В расчёте используется сумма \( \lg(10) + \lg(100) \). Вычислите её, чтобы подставить в формулу и проверить баланс мощности.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \lg(10) = 1 \), \( \lg(100) = 2 \). Сумма = 3.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Сравнение значений.</strong> Сравните значения: \( \log_2(4) \) и \( \log_2(8) \). Какое из них больше, и насколько? Это нужно, чтобы оценить, во сколько раз упадёт сигнал.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Основание 2 > 1, функция возрастает. \( \log_2(8) \) больше на 1.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Затухание сигнала.</strong> При измерении уровня сигнала в линии связи электрик заметил, что мощность упала с 1000 мВт до 10 мВт. Рассчитайте затухание сигнала \( L \) (в дБ) по формуле \( L = 10 \lg\left(\frac{P_1}{P_2}\right) \).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Подставьте \( P_1 = 1000 \) и \( P_2 = 10 \). Логарифм отношения: \( \lg(100) = 2 \). \( L = 20 \) дБ.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Фильтр помех.</strong> Для настройки фильтра помех нужно решить уравнение \( \lg(x) + \lg(2) = 2 \). Найдите \( x \), чтобы выставить порог срабатывания.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Сумма логарифмов: \( \lg(2x) = 2 \). Значит, \( 2x = 10^2 = 100 \). \( x = 50 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Сопротивление изоляции.</strong> Сопротивление изоляции кабеля со временем падает по закону \( R(t) = R_0 \cdot 2^{-t/T} \), где \( T \) — период полураспада. Электрику нужно найти время \( t \), если известно, что сопротивление упало в 32 раза (\( R(t) = \frac{R_0}{32} \)), а \( T = 10 \) лет.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Сократите \( R_0 \): \( 2^{-t/10} = 2^{-5} \). Значит, \( t/10 = 5 \). \( t = 50 \) лет.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт параметров цепи.</strong> При расчёте параметров цепи электрик получил уравнение \( \log_2(x-1) + \log_2(x+1) = 3 \). Найдите \( x \), чтобы проверить, не выйдет ли из строя оборудование.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Сумма логарифмов: \( \log_2((x-1)(x+1)) = 3 \). Значит, \( x^2 - 1 = 2^3 = 8 \). \( x^2 = 9 \), \( x = 3 \) (так как \( x > 1 \)).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТОА / АВТОМЕХАНИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚗 ТОА / Автомеханик</span>
+            <span class="sub-title">Техническое обслуживание автомобилей</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>Клиент пригнал подержанный автомобиль и просит подтвердить, что объём двигателя соответствует документам. В ПТС указано 45 литров. Механик проводит замеры и получает значение по формуле \( V = 10^3 \cdot (2 \cdot 10^{-1})^2 \). Рассчитайте фактический объём и скажите клиенту, соответствует ли он документам.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Раскрываем скобки.</strong> По правилу \((ab)^n = a^n b^n\) возводим в квадрат каждый множитель: \((2 \cdot 10^{-1})^2 = 2^2 \cdot (10^{-1})^2\).</p>
+                            <p><strong>Шаг 2. Вычисляем степени.</strong> \(2^2 = 4\). По правилу \((a^m)^n = a^{m \cdot n}\) получаем \((10^{-1})^2 = 10^{-2}\). Итог: \(4 \cdot 10^{-2}\).</p>
+                            <p><strong>Шаг 3. Умножаем на 10 в третьей степени.</strong> \(10^3 \cdot 4 \cdot 10^{-2}\). Сначала перемножим степени с основанием 10: \(10^3 \cdot 10^{-2} = 10^{3-2} = 10^1 = 10\).</p>
+                            <p><strong>Шаг 4. Умножаем на 4.</strong> \(4 \cdot 10 = 40\).</p>
+                            <p><strong>Ответ:</strong> 40 л. Не соответствует (на 5 л меньше).</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Водитель жалуется, что машина стала хуже тормозить. Механик выезжает на полигон и замеряет: при замедлении 4 м/с² тормозной путь составил 50 м. Найдите скорость, с которой двигался автомобиль до торможения (формула \( S = \frac{v^2}{2a} \)). Если скорость больше 25 м/с, нужно проверять тормозные колодки.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Подставляем известные значения.</strong> \(50 = \frac{v^2}{2 \cdot 4}\).</p>
+                            <p><strong>Шаг 2. Упрощаем знаменатель.</strong> \(2 \cdot 4 = 8\). Получаем \(50 = \frac{v^2}{8}\).</p>
+                            <p><strong>Шаг 3. Выражаем \(v^2\).</strong> Умножаем обе части на 8: \(v^2 = 50 \cdot 8 = 400\).</p>
+                            <p><strong>Шаг 4. Извлекаем корень.</strong> Скорость не может быть отрицательной, поэтому берём только положительный корень: \(v = \sqrt{400} = 20\).</p>
+                            <p><strong>Ответ:</strong> 20 м/с. Меньше 25 — колодки в норме.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Владелец загрузил в машину в 4 раза больше груза, но поехал в 2 раза медленнее, чтобы не перегружать тормоза. Механик должен оценить, как изменилась кинетическая энергия \( E = \frac{mv^2}{2} \), чтобы понять, справится ли тормозная система.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Записываем новые параметры.</strong> Новая масса: \(m_{new} = 4m\). Новая скорость: \(v_{new} = \frac{v}{2}\).</p>
+                            <p><strong>Шаг 2. Подставляем в формулу энергии.</strong> \(E_{new} = \frac{(4m) \cdot (\frac{v}{2})^2}{2}\).</p>
+                            <p><strong>Шаг 3. Возводим скорость в квадрат.</strong> По правилу \((\frac{a}{b})^n = \frac{a^n}{b^n}\) получаем: \((\frac{v}{2})^2 = \frac{v^2}{4}\).</p>
+                            <p><strong>Шаг 4. Упрощаем выражение.</strong> \(E_{new} = \frac{4m \cdot \frac{v^2}{4}}{2}\). Четвёрки в числителе сокращаются: \(E_{new} = \frac{mv^2}{2}\).</p>
+                            <p><strong>Вывод:</strong> Энергия не изменилась. Увеличение массы в 4 раза компенсировалось уменьшением скорости в 2 раза (что снижает энергию в 4 раза).</p>
+                            <p><strong>Ответ:</strong> Не изменится.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При регулировке карбюратора механик использует коэффициент, который вычисляется по формуле \( \frac{6^4 \cdot 6^{-1}}{6^2} \). Упростите выражение, чтобы подставить его в таблицу настроек.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Упрощаем числитель.</strong> При умножении степеней показатели складываются: \(6^4 \cdot 6^{-1} = 6^{4 + (-1)} = 6^3\).</p>
+                            <p><strong>Шаг 2. Выполняем деление.</strong> При делении показатели вычитаются: \(\frac{6^3}{6^2} = 6^{3-2} = 6^1 = 6\).</p>
+                            <p><strong>Ответ:</strong> 6.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Проверка давления в цилиндре.</strong> При диагностике двигателя механик записывает показания прибора в виде \( \frac{3^4 \cdot 3^{-2}}{3^0} \). Приведите значение к обычному числу, чтобы сравнить с нормой (норма — 9).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Сложите степени в числителе. Помните, что \(3^0 = 1\).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Подбор поршня.</strong> Для замены поршня нужно знать объём камеры сгорания. Он вычисляется как \( x^3 = 64 \) см³. Найдите \( x \), чтобы выбрать деталь из каталога.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Какое число в кубе равно 64?</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Работа с паспортом.</strong> В технической документации завода указано значение 0.001. Переведите его в степень числа 10, чтобы занести в электронный протокол диагностики.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Вспомните, что \(10^{-3} = 1/1000\).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт остатка топлива.</strong> Бортовой компьютер показывает расход \( Q = \frac{100 \cdot V}{S} \). Водитель проехал 500 км и потратил 8 л на 100 км. Найдите объём \( V \), чтобы понять, сколько топлива он израсходовал на самом деле.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 8 = \frac{100 \cdot V}{500} \). Упростите дробь и выразите \( V \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Последствия расточки.</strong> При капитальном ремонте двигателя радиус цилиндра \( r \) увеличили в 2 раза, а высоту \( h \) уменьшили в 4 раза. Объём \( V = \pi r^2 h \). Как изменится объём — нужно ли заказывать новые поршни?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Квадрат радиуса даст 4, умножьте на 1/4.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Тюнинг двигателя.</strong> Механик после доработки увеличил работу двигателя в 6 раз, но время выполнения сократил в 2 раза. Мощность \( N = \frac{A}{t} \). Во сколько раз выросла мощность?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Деление на дробь: \( 6 / (1/2) = 12 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт нагрузки на генератор.</strong> При проверке генератора механик получает поправочный коэффициент \( 2^{-3} \cdot 2^5 \). Вычислите его, чтобы выставить реле-регулятор.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Сложите показатели: \( -3 + 5 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Балансировка колеса.</strong> При балансировке колеса сила \( F = \frac{mv^2}{R} \). Найдите скорость \( v \), если \( F = 100 \) Н, \( m = 2 \) кг, \( R = 8 \) м. Если скорость больше 25 м/с, нужно менять подшипник.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 100 = \frac{2 \cdot v^2}{8} \). Выразите \( v^2 \).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚙️ ТМ (Технология машиностроения)</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>В цех привезли новую партию стальных заготовок. Мастеру нужно знать массу каждой заготовки, чтобы настроить станок и не превысить допустимую нагрузку на стол. В накладной указана формула для расчёта: \( m = 10^4 \cdot (5 \cdot 10^{-2})^2 \) граммов. Рассчитайте массу одной заготовки, чтобы выставить параметры обработки и не сломать оборудование.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Возводим в квадрат скобку.</strong> \((5 \cdot 10^{-2})^2 = 5^2 \cdot (10^{-2})^2\).</p>
+                            <p><strong>Шаг 2. Считаем степени.</strong> \(5^2 = 25\). По правилу \((a^m)^n = a^{m \cdot n}\): \((10^{-2})^2 = 10^{-4}\). Получаем \(25 \cdot 10^{-4}\).</p>
+                            <p><strong>Шаг 3. Умножаем на \(10^4\).</strong> \(10^4 \cdot 25 \cdot 10^{-4} = 25 \cdot 10^{4-4} = 25 \cdot 10^0 = 25\).</p>
+                            <p><strong>Ответ:</strong> 25 г. Масса в норме, станок выдержит.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>По чертежу требуется изготовить кубическую деталь с объёмом 125 см³. Снабженец должен заказать заготовку, но ему нужна длина ребра. Технолог знает, что объём куба \( V = a^3 \). Найдите ребро \( a \), чтобы оформить заявку на металл и не ошибиться с размерами.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Записываем уравнение.</strong> \(a^3 = 125\).</p>
+                            <p><strong>Шаг 2. Извлекаем кубический корень.</strong> Так как длина — положительная величина, \(a = \sqrt[3]{125}\).</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> \(5 \cdot 5 \cdot 5 = 125\). Значит, \(a = 5\).</p>
+                            <p><strong>Ответ:</strong> 5 см. Заявку можно оформлять.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Инженер подбирает подшипник для нового узла. Ему нужно понять, как изменится площадь поверхности шара \( S = 4\pi R^2 \), если радиус увеличить в 3 раза (взять подшипник большего размера). От этого зависит расход смазки и нагрев узла. Во сколько раз вырастет площадь, и стоит ли закладывать это в смету?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Записываем новую площадь.</strong> \(S_{new} = 4\pi (3R)^2\).</p>
+                            <p><strong>Шаг 2. Возводим в квадрат.</strong> По правилу \((ab)^n = a^n b^n\): \((3R)^2 = 3^2 \cdot R^2 = 9R^2\).</p>
+                            <p><strong>Шаг 3. Подставляем обратно.</strong> \(S_{new} = 4\pi \cdot 9R^2 = 9 \cdot (4\pi R^2)\).</p>
+                            <p><strong>Ответ:</strong> Площадь вырастет в 9 раз. Смазки потребуется больше, это нужно учесть в смете.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Мастер получил деталь на проверку. В расчёте прочности используется коэффициент, который задан выражением \( \frac{4^3 \cdot 4^{-1}}{4^2} \). Чтобы подставить его в итоговую формулу и дать заключение о годности детали, упростите это выражение.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Числитель.</strong> \(4^3 \cdot 4^{-1} = 4^{3-1} = 4^2\).</p>
+                            <p><strong>Шаг 2. Деление.</strong> \(\frac{4^2}{4^2} = 4^{2-2} = 4^0\).</p>
+                            <p><strong>Шаг 3. Нулевая степень.</strong> Любое число в нулевой степени равно 1: \(4^0 = 1\).</p>
+                            <p><strong>Ответ:</strong> Коэффициент равен 1, деталь годна.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Проверка нагрузки на балку.</strong> При проектировании металлоконструкции инженер рассчитывает коэффициент нагрузки. В ходе расчётов он получил выражение \( (2^3)^2 \cdot 2^{-4} \). Упростите его, чтобы подставить в итоговую формулу и определить, выдержит ли балка вес оборудования.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Сначала возведите степень в степень: \( 2^6 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт площади сечения.</strong> Для заказа металлопроката технологу нужно знать площадь поперечного сечения детали. При проектировании получено уравнение \( 2x^2 = 72 \), где \( x \) — искомая сторона сечения в см. Найдите \( x \), чтобы оформить заявку.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Разделите на 2: \( x^2 = 36 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Работа с чертежом.</strong> В чертеже указан допуск на размер детали, равный 0.01 мм. Инженеру нужно перевести это значение в степень 10 для записи в электронную систему контроля качества (АСУ ТП).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 10^{-2} \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт толщины листа.</strong> На склад поступил стальной лист, масса которого 780 г, плотность стали 7.8 г/см³, а площадь 100 см². Технологу нужно найти толщину листа \( h \) из формулы \( m = \rho S h \), чтобы убедиться, что поставщик не занизил толщину.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 780 = 7.8 \cdot 100 \cdot h \). Упростите и выразите \( h \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Оценка прочности после закалки.</strong> После термообработки прочность балки на изгиб пропорциональна кубу её толщины \( h^3 \). Инженер увеличил толщину в 2 раза. Во сколько раз вырастет прочность конструкции? Это нужно, чтобы определить, можно ли сэкономить на материале.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Возведите 2 в третью степень: \( 2^3 = 8 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт объёма после обработки.</strong> При токарной обработке вала радиус \( R \) увеличили в 2 раза, а высоту \( H \) уменьшили в 8 раз. Объём вала \( V = \pi R^2 H \). Как изменится объём заготовки, и нужно ли корректировать норму расхода металла?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 2^2 = 4 \). Затем \( 4 / 8 = 0.5 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Проверка режима резания.</strong> Мастер проверяет расчётный коэффициент для режима резания, который вычисляется по формуле \( \frac{7^5 \cdot 7^{-2}}{7^3} \). Упростите выражение, чтобы убедиться, что режим выбран верно и не приведёт к поломке резца.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">В числителе \( 7^3 \). В знаменателе тоже \( 7^3 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт силы резания.</strong> При обработке детали на станке мощность резания \( N = \frac{Pv}{1000} \). Мастеру нужно найти силу резания \( P \), если мощность станка \( N = 4 \) кВт, а скорость резания \( v = 2 \) м/с. Это необходимо, чтобы подобрать резец, который выдержит нагрузку.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 4 = \frac{P \cdot 2}{1000} \Rightarrow P = 2000 \).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ИМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">💻 ИМ (Информационные системы)</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>Программист компании оптимизирует алгоритм сортировки для нового сервиса. Время его работы описывается формулой \( N = \frac{(2^4)^3}{2^5} \). Заказчик требует, чтобы время обработки не превышало 100 мс. Упростите выражение и определите, укладывается ли алгоритм в лимит (если \( N > 100 \), нужно переписывать код, иначе сервис будет тормозить).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Раскрываем степень в степени.</strong> \((2^4)^3 = 2^{4 \cdot 3} = 2^{12}\).</p>
+                            <p><strong>Шаг 2. Выполняем деление.</strong> При делении показатели вычитаются: \(\frac{2^{12}}{2^5} = 2^{12-5} = 2^7\).</p>
+                            <p><strong>Шаг 3. Считаем \(2^7\).</strong> \(2 \cdot 2 \cdot 2 \cdot 2 \cdot 2 \cdot 2 \cdot 2 = 128\).</p>
+                            <p><strong>Шаг 4. Сравниваем с лимитом.</strong> 128 > 100.</p>
+                            <p><strong>Ответ:</strong> Алгоритм не укладывается в лимит, его нужно оптимизировать.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При разработке нового формата хранения данных инженеру нужно закодировать 1024 различных состояния без потерь (например, для кодирования цвета или адресов памяти). Он решает уравнение \( 2^x = 1024 \), где \( x \) — количество бит на одно состояние. Найдите \( x \), чтобы не перерасходовать память.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Представляем 1024 как степень двойки.</strong> \(1024 = 2 \cdot 512 = 2 \cdot 2 \cdot 256 \dots\) Проще вспомнить: \(2^{10} = 1024\).</p>
+                            <p><strong>Шаг 2. Приравниваем показатели.</strong> Если \(2^x = 2^{10}\), то \(x = 10\).</p>
+                            <p><strong>Ответ:</strong> 10 бит. Меньше не хватит, больше — лишний расход.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Время работы алгоритма \( T(n) = n^2 \). Если размер обрабатываемых данных вырастет в 4 раза (например, база пользователей увеличится с 1000 до 4000), во сколько раз дольше будет работать программа? Это нужно, чтобы предсказать, справится ли сервер при увеличении нагрузки, или придётся покупать более мощный.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Записываем новое время.</strong> \(T(4n) = (4n)^2\).</p>
+                            <p><strong>Шаг 2. Возводим в квадрат.</strong> По правилу \((ab)^n = a^n b^n\): \((4n)^2 = 4^2 \cdot n^2 = 16n^2\).</p>
+                            <p><strong>Шаг 3. Сравниваем со старым.</strong> Старое время \(T(n) = n^2\). Новое \(16n^2\) — это в 16 раз больше.</p>
+                            <p><strong>Ответ:</strong> В 16 раз. Сервер может не справиться.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>В коде калькулятора, написанного вашим коллегой, используется выражение \( \frac{5^6 \cdot 5^{-2}}{5^2} \). Коллега ушёл в отпуск, а вам нужно понять, что это за число, чтобы не сломать программу при рефакторинге. Упростите выражение до итогового числа.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Упрощаем числитель.</strong> \(5^6 \cdot 5^{-2} = 5^{6-2} = 5^4\).</p>
+                            <p><strong>Шаг 2. Выполняем деление.</strong> \(\frac{5^4}{5^2} = 5^{4-2} = 5^2\).</p>
+                            <p><strong>Шаг 3. Считаем.</strong> \(5^2 = 25\).</p>
+                            <p><strong>Ответ:</strong> 25. Можно смело рефакторить.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Сжатие лога.</strong> Программист обрабатывает серверный лог, который занимает очень много места. Коэффициент сжатия вычисляется по формуле \( 2^{-3} \cdot 2^5 \). Вычислите его, чтобы понять, насколько уменьшится объём данных и хватит ли места на диске.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Сложите показатели: \( -3 + 5 = 2 \). \( 2^2 = 4 \). Данные сожмутся в 4 раза.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Тестирование алгоритма.</strong> Инженер тестирует алгоритм поиска. Сложность алгоритма задана уравнением \( n^3 = 512 \). Найдите \( n \) — количество элементов, которое алгоритм сможет обработать за фиксированное время. Если \( n < 10 \), алгоритм придётся оптимизировать.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 8^3 = 512 \). Значит, \( n = 8 \). Меньше 10 — нужна оптимизация.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Резервное копирование.</strong> Системный администратор настраивает резервное копирование базы данных. Время отправки данных \( t = \frac{S}{v} \). Найдите \( t \) (в секундах), если объём файла \( S = 2^{10} \) Мб, а скорость канала \( v = 2^5 \) Мб/с. Успеет ли бэкап завершиться до утра (за 8 часов)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 2^{10} / 2^5 = 2^{10-5} = 2^5 = 32 \) секунды. Успеет с огромным запасом.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Нагрузка на сервер видео.</strong> Разрешение видеопотока \( 1920 \times 1080 \). Если обе стороны увеличить в 2 раза (переход на 4K), как изменится количество пикселей и нагрузка на сервер? Справится ли текущее оборудование без апгрейда?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь зависит от произведения сторон: \( 2 \cdot 2 = 4 \). Нагрузка вырастет в 4 раза. Скорее всего, потребуется апгрейд.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Разработка формата сжатия.</strong> При разработке формата сжатия картинок программист использует формулу \( (3^2)^3 \cdot 3^{-4} \). Упростите её, чтобы узнать итоговый коэффициент сжатия и оценить, не потеряется ли качество изображения.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( (3^2)^3 = 3^6 \). Далее \( 3^{6-4} = 3^2 = 9 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Прогноз памяти.</strong> Объём одного блока данных \( V = a^3 \). Если размер блока \( a \) увеличить в 2 раза, как изменится объём? Это нужно, чтобы спрогнозировать, сколько памяти потребуется для нового формата и не придётся ли расширять сервер.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 2^3 = 8 \). Объём вырастет в 8 раз — памяти потребуется значительно больше.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Обработка пакета данных.</strong> Скорость обработки пакета данных \( v = \sqrt{\frac{2E}{m}} \). Найдите \( E \), если \( v = 4 \), \( m = 2 \). Это поможет понять, хватит ли энергии для обработки пакета без задержек.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Возведите обе части в квадрат: \( 16 = \frac{2E}{2} \). Значит, \( E = 16 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Настройка канала связи.</strong> Канал связи имеет пропускную способность \( \frac{10^5 \cdot 10^{-3}}{10^0} \). Вычислите значение, чтобы заложить его в документацию и настроить оборудование на нужную скорость.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 10^{5-3} = 10^2 = 100 \).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРЩИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔥 Сварщик</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>Сварщик получил срочный заказ на сварку тонкого листа (1 мм). Он знает: если сила тока превысит 10 А, металл прожжётся, и деталь уйдёт в брак. Паспорт аппарата даёт формулу для тока: \( I = 10^3 \cdot (2 \cdot 10^{-1})^3 \). Рассчитайте этот ток и решите, можно ли сразу начинать работу или нужно перенастроить аппарат.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Раскрываем скобки.</strong> \((2 \cdot 10^{-1})^3 = 2^3 \cdot (10^{-1})^3\).</p>
+                            <p><strong>Шаг 2. Считаем степени.</strong> \(2^3 = 8\). \((10^{-1})^3 = 10^{-1 \cdot 3} = 10^{-3}\). Получаем \(8 \cdot 10^{-3}\).</p>
+                            <p><strong>Шаг 3. Умножаем на \(10^3\).</strong> \(10^3 \cdot 8 \cdot 10^{-3} = 8 \cdot 10^{3 + (-3)} = 8 \cdot 10^0 = 8\).</p>
+                            <p><strong>Ответ:</strong> 8 А. Это меньше 10 А, значит, можно работать в текущем режиме.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Приёмщик ОТК проверяет сварной шов на партию деталей. По ГОСТу площадь поперечного сечения должна быть не менее 49 мм² (шов в форме квадрата, \( S = a^2 \)). Сварщик замерил катет: он равен 6.5 мм. Примут ли эту партию, и если нет — какой минимальный катет нужен, чтобы пройти проверку?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Вычисляем площадь.</strong> \(S = 6.5^2 = 42.25\) мм².</p>
+                            <p><strong>Шаг 2. Сравниваем с нормой.</strong> 42.25 < 49 — шов не примут, партию вернут на переделку.</p>
+                            <p><strong>Шаг 3. Находим минимальный катет.</strong> \(a = \sqrt{49} = 7\) мм.</p>
+                            <p><strong>Ответ:</strong> Не примут. Нужен катет не менее 7 мм.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Бригадир планирует закупку электродов на следующую смену. Он знает, что объём наплавки \( V = S \cdot L \). Если длину шва увеличить в 5 раз, а площадь уменьшить в 2 раза, как изменится объём? Нужно ли закупать больше электродов, и на сколько?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Записываем новые параметры.</strong> Новая длина \(L_{new} = 5L\), новая площадь \(S_{new} = \frac{S}{2}\).</p>
+                            <p><strong>Шаг 2. Подставляем в формулу.</strong> \(V_{new} = \frac{S}{2} \cdot 5L\).</p>
+                            <p><strong>Шаг 3. Упрощаем.</strong> \(\frac{S}{2} \cdot 5L = \frac{5}{2} \cdot S \cdot L = 2.5 \cdot S \cdot L\).</p>
+                            <p><strong>Ответ:</strong> Объём вырастет в 2.5 раза. Электродов нужно закупить в 2.5 раза больше.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Мастер вводит в контроллер сварочного аппарата коэффициент из паспорта. В инструкции он записан как \( \frac{3^4 \cdot 3^{-1}}{3^2} \). Упростите выражение, чтобы ввести корректное значение и не сбить режим.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Числитель.</strong> \(3^4 \cdot 3^{-1} = 3^{4-1} = 3^3\).</p>
+                            <p><strong>Шаг 2. Деление.</strong> \(\frac{3^3}{3^2} = 3^{3-2} = 3^1 = 3\).</p>
+                            <p><strong>Ответ:</strong> Коэффициент равен 3. Вводим в контроллер.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Подбор режима для нового сплава.</strong> Для сварки нового сплава нужен объём наплавки \( x^3 = 8 \) см³. Найдите толщину слоя \( x \), чтобы выставить параметры на аппарате. Если \( x \) окажется неверным, шов не проварится.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Какое число в кубе равно 8? Ответ: 2.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Работа с техкартой.</strong> В техкарте указана толщина покрытия электрода 0.0001 мм. Представьте это значение в виде степени 10, чтобы занести в электронный протокол и не ошибиться с допуском.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 10^{-4} \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Проверка дуги перед сменой.</strong> Сварщик проверяет дугу. Он знает, что сопротивление \( R = \frac{U}{I} \). Найдите напряжение \( U \), если \( R = 5 \) Ом, \( I = 2 \) А. Если напряжение выше 12 В, аппарат может выйти из строя во время работы.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( U = R \cdot I = 5 \cdot 2 = 10 \). Меньше 12, всё в порядке.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Планирование смены.</strong> Бригадир планирует смену и знает, что скорость сварки \( v = \frac{L}{t} \). Найдите длину шва \( L \), если \( v = 3 \) мм/с, \( t = 4 \) с. Это нужно, чтобы рассчитать норму выработки на смену.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( L = v \cdot t = 3 \cdot 4 = 12 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Оценка нагрева.</strong> При сварке выделяется теплота \( Q = I^2 R t \). Если ток увеличить в 3 раза, как изменится нагрев? Не расплавится ли деталь, если нагрев вырастет слишком сильно?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Квадратичная зависимость: \( 3^2 = 9 \). Нагрев вырастет в 9 раз, деталь может расплавиться.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт массы электрода.</strong> Масса электрода \( m = \rho V \). Если объём \( V \) увеличить в 4 раза, как изменится масса? Хватит ли запаса на смену, если изначально было 2 кг?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Масса вырастет в 4 раза: \( 2 \cdot 4 = 8 \) кг. Нужно закупить ещё.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Настройка оборудования.</strong> Для настройки аппарата нужно упростить \( (2^2)^3 \cdot 2^{-5} \). Упростите выражение, чтобы получить итоговый коэффициент и ввести его в панель управления.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 2^6 \cdot 2^{-5} = 2^1 = 2 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Проверка параметров цепи.</strong> Перед началом работ нужно проверить режим аппарата. Вычислите \( \frac{2^5 \cdot 2^{-3}}{2^0} \). Если результат больше 5, аппарат перегружен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 2^{5-3} / 1 = 2^2 = 4 \). Меньше 5, можно работать.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРОЧНОЕ ПРОИЗВОДСТВО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🏭 Сварочное производство</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>На участке сварки заканчивается проволока. Мастеру нужно рассчитать объём наплавленного металла на следующую партию, чтобы вовремя подать заявку в снабжение. По техпроцессу объём вычисляется по формуле \( V = (3 \cdot 10^{-2})^2 \cdot 10^4 \) (в см³ на одну деталь). Вычислите значение, чтобы указать его в заявке.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Скобка в квадрате.</strong> \((3 \cdot 10^{-2})^2 = 3^2 \cdot (10^{-2})^2 = 9 \cdot 10^{-4}\).</p>
+                            <p><strong>Шаг 2. Умножение на \(10^4\).</strong> \(9 \cdot 10^{-4} \cdot 10^4 = 9 \cdot 10^{-4+4} = 9 \cdot 10^0 = 9\).</p>
+                            <p><strong>Ответ:</strong> 9 см³ на одну деталь. Можно оформлять заявку.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Технолог получил заказ на партию швов. Ему нужно рассчитать длину шва, чтобы спланировать время работы. Известно, что объём наплавленного металла \( V = S \cdot L \). При площади сечения \( S = 5 \) см² и требуемом объёме \( V = 60 \) см³ найдите длину шва \( L \).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Подставляем значения.</strong> \(60 = 5 \cdot L\).</p>
+                            <p><strong>Шаг 2. Выражаем \( L \).</strong> \(L = \frac{60}{5} = 12\).</p>
+                            <p><strong>Ответ:</strong> Длина шва — 12 см. Можно планировать смену.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При замене сварочного кабеля на более длинный (для удобства работы) мастер увеличил длину в 3 раза, а сечение — тоже в 3 раза (чтобы не перегревался). Сопротивление сварочной цепи \( R = \rho \frac{L}{S} \). Изменится ли сопротивление, и нужно ли перенастраивать аппарат под новый кабель?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Новая формула.</strong> \(R_{new} = \rho \frac{3L}{3S}\).</p>
+                            <p><strong>Шаг 2. Сокращаем.</strong> Тройки в числителе и знаменателе сокращаются: \(R_{new} = \rho \frac{L}{S} = R\).</p>
+                            <p><strong>Ответ:</strong> Сопротивление не изменилось. Перенастраивать аппарат не нужно.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Инженер ОТК проверяет расчётный коэффициент для новой партии. В документации указано выражение \( \frac{7^5 \cdot 7^{-2}}{7^3} \). Чтобы убедиться, что режим выбран верно и партию можно запускать, упростите это выражение.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Числитель.</strong> \(7^5 \cdot 7^{-2} = 7^{5-2} = 7^3\).</p>
+                            <p><strong>Шаг 2. Деление.</strong> \(\frac{7^3}{7^3} = 7^{3-3} = 7^0 = 1\).</p>
+                            <p><strong>Ответ:</strong> Коэффициент равен 1. Режим выбран верно, партию можно запускать.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Контроль площади шва.</strong> Площадь поперечного сечения шва \( S = a^2 \). Найдите катет \( a \), если \( S = 36 \) мм². Это нужно, чтобы подобрать режим для партии и не получить брак из-за непровара.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( a = \sqrt{36} = 6 \) мм.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Запись в техкарту.</strong> Технолог проверяет детали с допуском 0.01 мм. Представьте это значение в виде степени 10 для записи в техническую карту и электронный протокол.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 10^{-2} \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Проверка цепи перед сменой.</strong> Сила тока \( I = \frac{U}{R} \). Найдите напряжение \( U \), если \( I = 10 \) А, а \( R = 2 \) Ом. Если напряжение больше 25 В, аппарат перегружен, и работать нельзя.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( U = I \cdot R = 10 \cdot 2 = 20 \) В. Меньше 25, можно работать.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт производительности.</strong> Производительность \( P = \frac{V}{t} \). Найдите объём \( V \), если \( P = 5 \) (за единицу времени), \( t = 2 \). Это нужно, чтобы спланировать выпуск на смену и не сорвать сроки.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( V = P \cdot t = 5 \cdot 2 = 10 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Влияние скорости на качество.</strong> Погонная энергия \( q = \frac{UI}{v} \). Если скорость сварки \( v \) увеличить в 2 раза, как изменится \( q \)? Повлияет ли это на качество шва (не будет ли непровара)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Скорость в знаменателе, значит \( q \) уменьшится в 2 раза. Энергии может не хватить — возможен непровар.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт массы наплавки.</strong> Масса наплавленного металла \( m = \rho V \). Если плотность \( \rho \) и объём \( V \) увеличить в 2 раза, как изменится масса? Хватит ли проволоки на партию, если изначально было 10 кг?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Масса вырастет в 4 раза: \( 10 \cdot 4 = 40 \) кг. Нужно закупить ещё.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Настройка режима.</strong> Упростите выражение \( (3^3)^2 \cdot 3^{-4} \), чтобы подставить в формулу расчёта и выставить режим сварки.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 3^6 \cdot 3^{-4} = 3^2 = 9 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Планирование энергопотребления.</strong> Вычислите \( \frac{10^5 \cdot 10^{-3}}{10^0} \), чтобы узнать потребление аппарата за смену и не превысить лимит электроэнергии на участке.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 10^2 = 100 \).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЛОГИСТЫ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚚 Логисты</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>В компанию поступил срочный заказ на доставку груза. Логист рассчитывает стоимость перевозки по формуле \( C = 10^5 \cdot (2 \cdot 10^{-2})^2 \). Руководство установило лимит: если стоимость превышает 50 у.е., заказ считается убыточным, и его нужно отклонить. Вычислите стоимость и примите решение — брать заказ или отказывать клиенту.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Скобка.</strong> \((2 \cdot 10^{-2})^2 = 2^2 \cdot (10^{-2})^2 = 4 \cdot 10^{-4}\).</p>
+                            <p><strong>Шаг 2. Умножение.</strong> \(10^5 \cdot 4 \cdot 10^{-4} = 4 \cdot 10^{5-4} = 4 \cdot 10^1 = 40\).</p>
+                            <p><strong>Ответ:</strong> 40 у.е. Это меньше 50, заказ можно принять и не работать в убыток.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>На складе скопился сыпучий груз объёмом 64 м³. Логисту нужно подобрать контейнер для его перевозки. Контейнеры есть в форме куба с ребром \( a \). Найдите длину ребра \( a \) из формулы \( V = a^3 \). Если ребро окажется больше 5 м, контейнер не пройдёт в ворота склада, и придётся искать другой вариант.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Уравнение.</strong> \(a^3 = 64\).</p>
+                            <p><strong>Шаг 2. Кубический корень.</strong> \(a = \sqrt[3]{64} = 4\).</p>
+                            <p><strong>Ответ:</strong> 4 м. Это меньше 5 м, контейнер подходит и пройдёт в ворота.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Логист анализирует маршрут для доставки скоропортящегося груза. Затраты на топливо зависят от квадрата скорости: \( C = kv^2 \). Водитель предлагает увеличить скорость в 3 раза, чтобы успеть к сроку. Во сколько раз вырастут затраты? Стоит ли экономить время за счёт топлива, если бюджет на перевозку ограничен?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Новая скорость.</strong> \(v_{new} = 3v\).</p>
+                            <p><strong>Шаг 2. Новая стоимость.</strong> \(C_{new} = k(3v)^2 = k \cdot 9v^2 = 9 \cdot (kv^2) = 9C\).</p>
+                            <p><strong>Ответ:</strong> Затраты вырастут в 9 раз. При ограниченном бюджете такое ускорение невыгодно.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Для формирования нового тарифа на перевозку логист использует коэффициент, который задан выражением \( \frac{6^4 \cdot 6^{-1}}{6^2} \). Упростите его, чтобы получить итоговый коэффициент и занести в прайс-лист.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Числитель.</strong> \(6^4 \cdot 6^{-1} = 6^3\).</p>
+                            <p><strong>Шаг 2. Деление.</strong> \(\frac{6^3}{6^2} = 6^1 = 6\).</p>
+                            <p><strong>Ответ:</strong> Коэффициент равен 6. Заносим в прайс-лист.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Срыв сроков доставки.</strong> Водитель должен доставить груз за 4 часа. Расстояние между городами 240 км. С какой средней скоростью ему нужно ехать? Если он поедет со скоростью 60 км/ч, успеет ли он к сроку?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( v = \frac{S}{t} = \frac{240}{4} = 60 \) км/ч. Успеет.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Перегрузка склада.</strong> После расширения склада его вместимость выросла. Логист рассчитывает коэффициент роста нагрузки по формуле \( (2^4)^2 \cdot 2^{-6} \). Упростите выражение, чтобы оценить, во сколько раз увеличилась нагрузка и хватит ли новых площадей.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 2^8 \cdot 2^{-6} = 2^2 = 4 \). В 4 раза.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Подбор помещения.</strong> Для хранения новой партии товара нужен склад площадью 144 м². Логист знает, что склад имеет квадратную форму. Найдите сторону \( x \) из уравнения \( x^2 = 144 \), чтобы выбрать подходящее помещение и не переплачивать за лишние метры.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( x = \sqrt{144} = 12 \) м.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Запись в договор.</strong> Тариф за перевозку 1 кг груза составляет 0.001 у.е. Представьте это значение в виде степени 10, чтобы занести в договор и не ошибиться с нулями.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 10^{-3} \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Модернизация цистерны.</strong> Цистерна имеет форму цилиндра \( V = \pi r^2 h \). Логист решил увеличить радиус в 2 раза, а высоту уменьшить в 2 раза. Как изменится объём цистерны, и стоит ли её модернизировать, если объём и так достаточен?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( V_{new} = \pi (2r)^2 \cdot \frac{h}{2} = 2 \cdot \pi r^2 h = 2V \). Объём вырастет в 2 раза.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт массы груза.</strong> Стоимость перевозки \( C = m \cdot S \). Логист знает, что стоимость 1000 у.е., а расстояние 50 км. Найдите массу груза \( m \), чтобы занести в накладную и не ошибиться при погрузке.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( m = \frac{C}{S} = \frac{1000}{50} = 20 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Загрузка склада.</strong> Логист проверяет загрузку склада по формуле \( \frac{3^4 \cdot 3^{-2}}{3^0} \). Упростите выражение, чтобы понять, какой процент склада занят и можно ли принять новую партию.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 3^{4-2-0} = 3^2 = 9 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Перепланировка склада.</strong> Площадь склада \( S = a \cdot b \). Логист планирует увеличить длину \( a \) в 2 раза, а ширину \( b \) уменьшить в 4 раза. Как изменится площадь? Стоит ли это делать, если нужно больше места?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( S_{new} = 2a \cdot \frac{b}{4} = 0.5 \cdot ab = 0.5S \). Площадь уменьшится в 2 раза — не стоит.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="logarithms-menu.html" class="back-link">Назад</a>
+</div>
+
+<script>
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
+
+    function toggleSpoiler(button) {
+        const content = button.nextElementSibling;
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            button.textContent = button.textContent.includes('Подсказка') ? '💡 Подсказка' : 'Показать решение';
+        } else {
+            content.style.display = 'block';
+            button.textContent = button.textContent.includes('Подсказка') ? 'Скрыть подсказку' : 'Скрыть решение';
+
+            // ПРИНУДИТЕЛЬНАЯ ОТРИСОВКА MATHJAX
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([content]).catch(function (err) {
+                    console.log('MathJax error: ', err.message);
+                });
+            }
+        }
+    }
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+
+<script id="bottom-nav-autohide-script">
+    (function(){
+        var nav = document.querySelector('.bottom-nav');
+        if (!nav) return;
+        var lastY = window.scrollY;
+        var threshold = 8;
+        var ticking = false;
+        function onScroll(){
+            var y = window.scrollY;
+            if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+            if (y > lastY && y > 80) {
+                nav.classList.add('nav-hidden');
+            } else {
+                nav.classList.remove('nav-hidden');
+            }
+            lastY = y;
+            ticking = false;
+        }
+        window.addEventListener('scroll', function(){
+            if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+        }, { passive: true });
+    })();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+    (function() {
+        var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+        els.forEach(function(el) {
+            if (el.dataset.rippleBound) return;
+            el.dataset.rippleBound = '1';
+            el.classList.add('ripple-host');
+            el.addEventListener('pointerdown', function(e) {
+                var rect = el.getBoundingClientRect();
+                var size = Math.max(rect.width, rect.height);
+                var r = document.createElement('span');
+                r.className = 'ripple';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                el.appendChild(r);
+                setTimeout(function(){ r.remove(); }, 650);
+            });
+        });
+    })();
+</script>
+</body>
+</html>

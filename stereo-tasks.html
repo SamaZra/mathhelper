@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Профессиональные задачи: Прямые и плоскости в пространстве</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #3b82f6; --example-bg: #162a38; --canvas-bg: #0f1a24;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --result-color: #4ade80; --danger-color: #f87171;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #3b82f6; --example-bg: #f8fafc;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --result-color: #059669; --danger-color: #dc2626;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding: 8px 40px; cursor: pointer; user-select: none; text-align: center; position: relative; border-radius: 0 12px 12px 0; transition: background 0.3s; }
+        .section-title:hover { background: linear-gradient(90deg, var(--special-border) 0%, rgba(59, 130, 246, 0.15) 30%, rgba(59, 130, 246, 0.05) 100%); }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+        .section.collapsed .section-title .main-title::after { transform: translateY(-50%) rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 4px; }
+        .section-content { max-height: 30000px; overflow: hidden; transition: max-height 0.5s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .sub-accordion { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+        .sub-accordion-title { background: var(--info-bg); padding: 12px 16px; cursor: pointer; user-select: none; transition: background 0.2s; display: flex; flex-direction: column; gap: 4px; }
+        .sub-accordion-title:hover { background: rgba(59, 130, 246, 0.1); }
+        .sub-accordion-title .title-main { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: 700; color: var(--text); }
+        .sub-accordion-title .title-main::after { content: "▼"; font-size: 0.8rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .sub-accordion.collapsed .sub-accordion-title .title-main::after { transform: rotate(-90deg); }
+        .sub-accordion-title .title-sub { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+
+        .sub-accordion-content { padding: 16px; background: var(--card-bg); max-height: 25000px; transition: max-height 0.4s ease; }
+        .sub-accordion.collapsed .sub-accordion-content { max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+
+        .formula-block, .example, .important {
+            position: relative; border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: none !important; padding-left: 20px !important; padding: 16px 20px;
+            background-color: var(--example-bg); margin-bottom: 16px; color: var(--text);
+            font-size: 0.95rem; line-height: 1.8;
+        }
+        .formula-block::before, .example::before, .important::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+            background: linear-gradient(180deg, var(--special-border) 0%, #0d9488 100%);
+            border-radius: 16px 0 0 16px; z-index: 1;
+        }
+        @media (hover: hover) {
+            .example:hover, .formula-block:hover, .important:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+        }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+
+        .spoiler-btn { display: inline-block; margin-top: 10px; padding: 8px 16px; background: var(--info-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.2s, color 0.2s; }
+        .spoiler-btn:hover { background: var(--special-border); color: #fff; }
+        .spoiler-content { display: none; margin-top: 12px; padding: 12px 16px; background: var(--card-bg); border-radius: 8px; border: 1px dashed var(--border); animation: fadeIn 0.3s ease; }
+        .spoiler-content.solution { border-left: 4px solid var(--result-color); background: rgba(74, 222, 128, 0.05); }
+        .spoiler-content.hint { border-left: 4px solid var(--warning-border); background: var(--warning-bg); }
+
+        .back-link { display: table !important; margin: 20px auto 10px auto; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; text-align: center; }
+        .back-link:hover { background: #2563eb; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .bottom-nav { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px; background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900; transition: background 0.3s, border 0.3s, transform 0.3s; }
+        :root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+        .bottom-nav a, .bottom-nav button { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .bottom-nav a:hover, .bottom-nav button:hover { background: rgba(59,130,246,0.15); color: var(--accent); transform: translateY(-2px) scale(1.08); }
+        .bottom-nav.nav-hidden { transform: translate(-50%, 120%); opacity: 0; pointer-events: none; }
+        .ripple-host { position: relative !important; overflow: hidden !important; }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(59, 130, 246, 0.35); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 0; }
+        @keyframes rippleAnim { to { transform: scale(2.5); opacity: 0; } }
+    </style>
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+            startup: { typeset: true }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise();
+                }
+            }, 100);
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Профессиональные задачи: Прямые и плоскости</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Зачем это нужно в профессии?</span>
+        </div>
+        <div class="section-content">
+            <p>Прямые и плоскости в пространстве — это язык, на котором описывается всё, что имеет объём, угол или пересечение. Электрик проверяет, лежит ли кабель в плоскости лотка, автомеханик выставляет углы установки колёс, технолог считает пересечение плоскостей резания, сварщик контролирует скрещивающиеся швы, а логист — поместится ли груз в кузов.</p>
+            <p>В этом практикуме собраны задачи, которые вам придётся решать на работе. Каждая — конкретная ситуация с замерами, углами и взаимным расположением прямых и плоскостей. От вашего ответа зависит, примут ли деталь, выдержит ли конструкция и не сорвётся ли поставка.</p>
+            <div class="important">
+                <strong>💡 Как пользоваться:</strong><br>
+                Выберите свою специальность ниже. В каждой — 4 задачи с подробным разбором (показано, откуда берётся вывод и как рассуждать) и 7 задач для самостоятельной работы (с подсказками). Считайте так, как будто вы уже на объекте: ошибка в пространственном расположении — это брак, авария или срыв сроков.
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЭРЭО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚡ ЭРЭО (Электрика)</span>
+            <span class="sub-title">Параллельность, перпендикулярность, теорема о трёх перпендикулярах, двугранный угол</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять стереометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>На подстанции прокладывают кабель от щита к двигателю. По проекту кабель должен идти параллельно плоскости пола. Инженер знает: кабель лежит на прямой \( a \), а в плоскости пола есть прямая \( b \), параллельная \( a \), причём \( a \) не лежит в плоскости пола. Докажите, что кабель параллелен плоскости пола. Если нет — кабель провиснет и перетрётся о край лотка.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак параллельности прямой и плоскости.</strong> Если прямая, не лежащая в плоскости, параллельна какой-либо прямой, лежащей в этой плоскости, то она параллельна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \not\subset \) плоскости пола, \( a \parallel b \), \( b \subset \) плоскости пола. Значит, \( a \parallel \) плоскости пола.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Кабель параллелен полу, провиса не будет.</p>
+                            <p><strong>Ответ:</strong> Кабель можно прокладывать по проекту.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При монтаже кронштейна для шинопровода нужно убедиться, что стойка кронштейна перпендикулярна плоскости стены. Мастер проверил: стойка (прямая \( a \)) перпендикулярна двум пересекающимся прямым \( m \) и \( n \), лежащим в плоскости стены (горизонтальной и вертикальной линиям разметки). Докажите, что стойка перпендикулярна плоскости стены. Если нет — кронштейн вырвет из стены под нагрузкой.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности прямой и плоскости.</strong> Если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \perp m \), \( a \perp n \), \( m \) и \( n \) пересекаются и лежат в плоскости стены. Значит, \( a \perp \) плоскости стены.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Стойка перпендикулярна стене, кронштейн выдержит нагрузку.</p>
+                            <p><strong>Ответ:</strong> Монтаж можно продолжать.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>К опоре ЛЭП подходит наклонная тяга. Из точки крепления \( A \) опущен перпендикуляр \( AH = 3{,}2 \) м на плоскость земли, проекция тяги \( HM = 2{,}4 \) м. Мастеру нужно найти длину тяги \( AM \) и проверить: если \( AM \) больше 4,5 м, тяга слишком длинная и будет раскачиваться на ветру. Найдите \( AM \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Теорема о трёх перпендикулярах.</strong> \( AH \perp \) плоскости земли, \( HM \) — проекция наклонной \( AM \). Треугольник \( AHM \) прямоугольный.</p>
+                            <p><strong>Шаг 2. Пифагор.</strong> \( AM^2 = AH^2 + HM^2 = 3{,}2^2 + 2{,}4^2 = 10{,}24 + 5{,}76 = 16 \).</p>
+                            <p><strong>Шаг 3. Длина тяги.</strong> \( AM = 4 \) м.</p>
+                            <p><strong>Ответ:</strong> \( AM = 4 \) м &lt; 4,5 м — тяга в норме, раскачиваться не будет.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>В трансформаторной будке нужно проверить, перпендикулярны ли две смежные стены. Мастер знает: если в плоскости одной стены есть прямая \( a \), перпендикулярная второй стене (плоскости \( \beta \)), то стены перпендикулярны. Он нашёл в первой стене вертикальную линию разметки, перпендикулярную второй стене. Докажите, что стены перпендикулярны. Если нет — при монтаже оборудования будет перекос.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности плоскостей.</strong> Если одна из двух плоскостей содержит прямую, перпендикулярную другой плоскости, то эти плоскости перпендикулярны.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \subset \alpha \), \( a \perp \beta \Rightarrow \alpha \perp \beta \).</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Стены перпендикулярны, перекоса не будет.</p>
+                            <p><strong>Ответ:</strong> Монтаж оборудования можно начинать.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Лоток «закачался».</strong> Бригада ставит три опоры для кабельного лотка в точках \( A \), \( B \), \( C \), не лежащих на одной прямой. Четвёртую опору поставили в точке \( D \), которая не лежит в плоскости \( ABC \). При пусконаладке лоток «закачался» — опоры не образуют жёсткую конструкцию. Объясните, почему через точки \( A \), \( B \), \( C \) проходит ровно одна плоскость, и почему точка \( D \) из неё выходит. Что нужно сделать, чтобы конструкция стала жёсткой?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Через три точки, не лежащие на одной прямой, проходит единственная плоскость (аксиома). Точка \( D \) не лежит в ней, значит, четвёртая опора «выламывает» конструкцию из плоскости. Нужно либо поставить \( D \) в плоскость \( ABC \), либо добавить связи (раскосы).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Перекладина «гуляет» на опоре.</strong> На опоре ЛЭП перекладина \( a \) должна быть перпендикулярна стойке \( c \). Мастер заметил: стойка \( c \) параллельна другой стойке \( b \), а перекладина \( a \) перпендикулярна \( b \). Докажите, что перекладина перпендикулярна и стойке \( c \). Если нет — крепление изолятора перегружено.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Лемма: если одна из двух параллельных прямых перпендикулярна третьей, то и другая перпендикулярна ей. \( c \parallel b \), \( a \perp b \Rightarrow a \perp c \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Второй трос не достаёт до крепления.</strong> Два кабельных канала проложены в параллельных плоскостях \( \alpha \) и \( \beta \). Эталонный трос \( AB = 48 \) см натянут строго между плоскостями (\( A \in \alpha \), \( B \in \beta \)) и параллелен второму тросу \( CD \) по проекту. Второй трос заказали длиной 42 см, и при монтаже он не достаёт до крепления: его концы не лежат в плоскостях \( \alpha \) и \( \beta \). Объясните, почему к короткому тросу нельзя применить свойство «отрезки параллельных прямых между параллельными плоскостями равны», и что нужно сделать, чтобы его установить.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Свойство работает только для отрезков, **заключённых** между параллельными плоскостями. Эталонный трос \( AB = 48 \) см натянут между \( \alpha \) и \( \beta \). Второй трос \( CD = 42 \) см короче — его концы не лежат в плоскостях \( \alpha \) и \( \beta \), крепление смещено, поэтому свойство к нему не применяется и равенство \( CD = AB \) не выполняется. Решение: выровнять крепление и **удлинить трос до 48 см** (или заказать нужную длину), чтобы он натянулся между плоскостями; тогда по свойству его длина будет равна 48 см.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Крепление тяги разболталось.</strong> Из точки \( A \) к плоскости земли опущен перпендикуляр \( AH = 2{,}8 \) м. Наклонная \( AM \) имеет проекцию \( HM = 2{,}1 \) м. Мастер хочет проверить: если прямая \( l \) на земле перпендикулярна проекции \( HM \), то она должна быть перпендикулярна и наклонной \( AM \). Докажите это и определите, при каком условии крепление тяги \( AM \) к земле будет надёжным.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Обратная теорема о трёх перпендикулярах: если прямая в плоскости перпендикулярна проекции наклонной, то она перпендикулярна и самой наклонной. Крепление надёжно, если тяга \( AM \) перпендикулярна линии крепления \( l \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Ввод не прошёл приёмку.</strong> При монтаже кабельного ввода на крыше мастер замерил линейный угол двугранного угла между плоскостью крыши и плоскостью стены: получил \( 115^\circ \). По нормативу угол не должен превышать \( 110^\circ \). Определите, пройдёт ли монтаж приёмку, и объясните, как измеряется линейный угол двугранного угла.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Линейный угол двугранного угла — угол между перпендикулярами к ребру, проведёнными в гранях. \( 115^\circ \) &gt; \( 110^\circ \) — монтаж не пройдёт приёмку, нужна доработка крыши.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Лотки перекосило под нагрузкой.</strong> Два кабельных лотка должны лежать в параллельных плоскостях. Мастер проверил: в плоскости первого лотка есть две пересекающиеся прямые \( a \) и \( b \), которые параллельны двум прямым \( a_1 \) и \( b_1 \) в плоскости второго лотка. Докажите, что плоскости лотков параллельны. Если нет — лотки перекосятся при нагрузке.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Признак параллельности плоскостей: если две пересекающиеся прямые одной плоскости параллельны двум прямым другой плоскости, то плоскости параллельны.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Трассу не согласовали.</strong> Кабель должен пройти через точку \( M \), не лежащую на прямой \( a \) (существующей трассе). Мастер утверждает, что через \( a \) и \( M \) можно провести ровно одну плоскость, в которой и уложить кабель. Докажите это. Если нет — трассу нельзя согласовать, и придётся менять проект.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Следствие из аксиом: через прямую и точку, не лежащую на ней, проходит единственная плоскость. Значит, трассу можно согласовать однозначно.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТОА / АВТОМЕХАНИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚗 ТОА / Автомеханик</span>
+            <span class="sub-title">Плоскости колёс, развал-схождение, углы установки, перпендикулярность</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять стереометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>На стенде сход-развала механик выставляет плоскость колеса. По технологии плоскость колеса должна быть параллельна продольной оси кузова. Ось кузова лежит на прямой \( a \), а в плоскости колеса есть прямая \( b \), параллельная \( a \), причём \( a \) не лежит в плоскости колеса. Докажите, что плоскость колеса параллельна оси кузова. Если нет — шина будет изнашиваться неравномерно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак параллельности прямой и плоскости.</strong> Если прямая, не лежащая в плоскости, параллельна какой-либо прямой, лежащей в этой плоскости, то она параллельна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \not\subset \) плоскости колеса, \( a \parallel b \), \( b \subset \) плоскости колеса. Значит, \( a \parallel \) плоскости колеса.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Ось кузова параллельна плоскости колеса, износ будет равномерным.</p>
+                            <p><strong>Ответ:</strong> Регулировка верна.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При проверке крепления стойки амортизатора нужно убедиться, что стойка перпендикулярна плоскости чашки. Механик проверил: стойка (прямая \( a \)) перпендикулярна двум пересекающимся прямым \( m \) и \( n \), лежащим в плоскости чашки. Докажите, что стойка перпендикулярна плоскости чашки. Если нет — стойку вырвет при езде по неровностям.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности прямой и плоскости.</strong> Если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \perp m \), \( a \perp n \), \( m \) и \( n \) пересекаются и лежат в плоскости чашки. Значит, \( a \perp \) плоскости чашки.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Стойка перпендикулярна чашке, крепление выдержит нагрузку.</p>
+                            <p><strong>Ответ:</strong> Сборку можно продолжать.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При проверке тормозной системы механик замеряет положение тяги. Из точки крепления \( A \) опущен перпендикуляр \( AH = 1{,}2 \) м на плоскость пола, проекция тяги \( HM = 1{,}6 \) м. Механику нужно найти длину тяги \( AM \) и проверить: если \( AM \) больше 2,2 м, тяга слишком длинная и будет цеплять за кузов. Найдите \( AM \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Теорема о трёх перпендикулярах.</strong> \( AH \perp \) плоскости пола, \( HM \) — проекция наклонной \( AM \). Треугольник \( AHM \) прямоугольный.</p>
+                            <p><strong>Шаг 2. Пифагор.</strong> \( AM^2 = AH^2 + HM^2 = 1{,}2^2 + 1{,}6^2 = 1{,}44 + 2{,}56 = 4 \).</p>
+                            <p><strong>Шаг 3. Длина тяги.</strong> \( AM = 2 \) м.</p>
+                            <p><strong>Ответ:</strong> \( AM = 2 \) м &lt; 2,2 м — тяга в норме, цеплять не будет.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>В боксе нужно проверить, перпендикулярны ли смежные стены (угол должен быть ровно \( 90^\circ \)). Механик знает: если в плоскости одной стены есть прямая \( a \), перпендикулярная второй стене (плоскости \( \beta \)), то стены перпендикулярны. Он нашёл в первой стене вертикальную линию разметки, перпендикулярную второй стене. Докажите, что стены перпендикулярны. Если нет — подъёмник встанет с перекосом.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности плоскостей.</strong> Если одна из двух плоскостей содержит прямую, перпендикулярную другой плоскости, то эти плоскости перпендикулярны.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \subset \alpha \), \( a \perp \beta \Rightarrow \alpha \perp \beta \).</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Стены перпендикулярны, перекоса не будет.</p>
+                            <p><strong>Ответ:</strong> Подъёмник можно монтировать.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Подъёмник «закачался».</strong> Бригада ставит три опоры подъёмника в точках \( A \), \( B \), \( C \), не лежащих на одной прямой. Четвёртую опору поставили в точке \( D \), которая не лежит в плоскости \( ABC \). При проверке подъёмник «закачался» — опоры не образуют жёсткую конструкцию. Объясните, почему через \( A \), \( B \), \( C \) проходит ровно одна плоскость, и почему точка \( D \) из неё выходит. Что нужно сделать, чтобы конструкция стала жёсткой?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Через три точки, не лежащие на одной прямой, проходит единственная плоскость (аксиома). Точка \( D \) не лежит в ней, значит, четвёртая опора «выламывает» конструкцию из плоскости. Нужно поставить \( D \) в плоскость \( ABC \) или добавить раскосы.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Рычаг «гуляет» на стойке.</strong> На стойке подвески рычаг \( a \) должен быть перпендикулярен стойке \( c \). Механик заметил: стойка \( c \) параллельна другой стойке \( b \), а рычаг \( a \) перпендикулярен \( b \). Докажите, что рычаг перпендикулярен и стойке \( c \). Если нет — сайлентблок быстро износится.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Лемма: если одна из двух параллельных прямых перпендикулярна третьей, то и другая перпендикулярна ей. \( c \parallel b \), \( a \perp b \Rightarrow a \perp c \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Вторая тяга не достаёт до крепления.</strong> Два тормозных канала проложены в параллельных плоскостях \( \alpha \) и \( \beta \). Эталонная тяга \( AB = 48 \) см натянута строго между плоскостями (\( A \in \alpha \), \( B \in \beta \)) и параллельна второй тяге \( CD \) по проекту. Вторую тягу заказали длиной 42 см, и при монтаже она не достаёт до крепления: её концы не лежат в плоскостях \( \alpha \) и \( \beta \). Объясните, почему к короткой тяге нельзя применить свойство «отрезки параллельных прямых между параллельными плоскостями равны», и что нужно сделать, чтобы её установить.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Свойство работает только для отрезков, **заключённых** между параллельными плоскостями. Эталонная тяга \( AB = 48 \) см натянута между \( \alpha \) и \( \beta \). Вторая тяга \( CD = 42 \) см короче — её концы не лежат в плоскостях \( \alpha \) и \( \beta \), крепление смещено, поэтому свойство к ней не применяется и равенство \( CD = AB \) не выполняется. Решение: выровнять крепление и **удлинить тягу до 48 см** (или заказать нужную длину), чтобы она натянулась между плоскостями; тогда по свойству её длина будет равна 48 см.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Крепление амортизатора разболталось.</strong> Из точки \( A \) к плоскости земли опущен перпендикуляр \( AH = 28 \) см. Наклонная \( AM \) имеет проекцию \( HM = 21 \) см. Механик хочет проверить: если прямая \( l \) на земле перпендикулярна проекции \( HM \), то она должна быть перпендикулярна и наклонной \( AM \). Докажите это и определите, при каком условии крепление амортизатора \( AM \) к земле будет надёжным.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Обратная теорема о трёх перпендикулярах: если прямая в плоскости перпендикулярна проекции наклонной, то она перпендикулярна и самой наклонной. Крепление надёжно, если амортизатор \( AM \) перпендикулярен линии крепления \( l \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Угол наклона колеса не прошёл контроль.</strong> При регулировке развала механик замерил линейный угол двугранного угла между плоскостью колеса и плоскостью дороги: получил \( 5^\circ \). По нормативу угол не должен превышать \( 3^\circ \). Определите, пройдёт ли регулировка контроль, и объясните, как измеряется линейный угол двугранного угла.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Линейный угол двугранного угла — угол между перпендикулярами к ребру, проведёнными в гранях. \( 5^\circ \) &gt; \( 3^\circ \) — регулировка не пройдёт контроль, нужна доработка.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Колёса встали с перекосом.</strong> Два колеса должны лежать в параллельных плоскостях. Механик проверил: в плоскости первого колеса есть две пересекающиеся прямые \( a \) и \( b \), которые параллельны двум прямым \( a_1 \) и \( b_1 \) в плоскости второго колеса. Докажите, что плоскости колёс параллельны. Если нет — колёса встанут с перекосом под нагрузкой.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Признак параллельности плоскостей: если две пересекающиеся прямые одной плоскости параллельны двум прямым другой плоскости, то плоскости параллельны.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Кронштейн не согласовали.</strong> Кронштейн должен пройти через точку \( M \), не лежащую на прямой \( a \) (существующей оси крепления). Механик утверждает, что через \( a \) и \( M \) можно провести ровно одну плоскость, в которой и закрепить кронштейн. Докажите это. Если нет — кронштейн нельзя согласовать, и придётся менять проект.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Следствие из аксиом: через прямую и точку, не лежащую на ней, проходит единственная плоскость. Значит, кронштейн можно согласовать однозначно.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚙️ ТМ (Технология машиностроения)</span>
+            <span class="sub-title">Плоскости обработки, базирование, точность, углы и перпендикулярность</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять стереометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>В цех привезли партию заготовок. Мастеру нужно проверить, параллельна ли плоскость фрезерования плоскости стола станка. Плоскость стола содержит прямую \( b \), а плоскость фрезерования содержит прямую \( a \), параллельную \( b \), причём \( a \) не лежит в плоскости стола. Докажите, что плоскость фрезерования параллельна плоскости стола. Если нет — деталь будет обработана с перекосом и уйдёт в брак.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак параллельности прямой и плоскости.</strong> Если прямая, не лежащая в плоскости, параллельна какой-либо прямой, лежащей в этой плоскости, то она параллельна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \not\subset \) плоскости стола, \( a \parallel b \), \( b \subset \) плоскости стола. Значит, \( a \parallel \) плоскости стола.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Плоскость фрезерования параллельна столу, перекоса не будет.</p>
+                            <p><strong>Ответ:</strong> Деталь можно обрабатывать.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>По чертежу требуется просверлить отверстие перпендикулярно плоскости детали. Мастер проверил: ось сверла (прямая \( a \)) перпендикулярна двум пересекающимся кромкам \( m \) и \( n \), лежащим в плоскости детали. Докажите, что сверло перпендикулярно плоскости детали. Если нет — отверстие будет косым и деталь уйдёт в брак.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности прямой и плоскости.</strong> Если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \perp m \), \( a \perp n \), \( m \) и \( n \) пересекаются и лежат в плоскости детали. Значит, \( a \perp \) плоскости детали.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Сверло перпендикулярно плоскости, отверстие будет точным.</p>
+                            <p><strong>Ответ:</strong> Деталь можно сверлить.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При настройке станка мастер замеряет положение консоли. Из точки крепления \( A \) опущен перпендикуляр \( AH = 0{,}8 \) м на плоскость станины, проекция консоли \( HM = 0{,}6 \) м. Мастеру нужно найти длину консоли \( AM \) и проверить: если \( AM \) больше 1,1 м, консоль слишком длинная и будет вибрировать при резании. Найдите \( AM \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Теорема о трёх перпендикулярах.</strong> \( AH \perp \) плоскости станины, \( HM \) — проекция наклонной \( AM \). Треугольник \( AHM \) прямоугольный.</p>
+                            <p><strong>Шаг 2. Пифагор.</strong> \( AM^2 = AH^2 + HM^2 = 0{,}8^2 + 0{,}6^2 = 0{,}64 + 0{,}36 = 1 \).</p>
+                            <p><strong>Шаг 3. Длина консоли.</strong> \( AM = 1 \) м.</p>
+                            <p><strong>Ответ:</strong> \( AM = 1 \) м &lt; 1,1 м — консоль в норме, вибрации не будет.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Мастер получил деталь на проверку. Нужно убедиться, что две грани детали перпендикулярны. Мастер знает: если в плоскости одной грани есть прямая \( a \), перпендикулярная второй грани (плоскости \( \beta \)), то грани перпендикулярны. Он нашёл в первой грани кромку, перпендикулярную второй грани. Докажите, что грани перпендикулярны. Если нет — деталь не пройдёт контроль.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности плоскостей.</strong> Если одна из двух плоскостей содержит прямую, перпендикулярную другой плоскости, то эти плоскости перпендикулярны.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \subset \alpha \), \( a \perp \beta \Rightarrow \alpha \perp \beta \).</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Грани перпендикулярны, деталь прошла контроль.</p>
+                            <p><strong>Ответ:</strong> Деталь годна.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Приспособление «закачалось».</strong> Бригада ставит три опоры приспособления в точках \( A \), \( B \), \( C \), не лежащих на одной прямой. Четвёртую опору поставили в точке \( D \), которая не лежит в плоскости \( ABC \). При проверке приспособление «закачалось» — опоры не образуют жёсткую конструкцию. Объясните, почему через \( A \), \( B \), \( C \) проходит ровно одна плоскость, и почему точка \( D \) из неё выходит. Что нужно сделать, чтобы конструкция стала жёсткой?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Через три точки, не лежащие на одной прямой, проходит единственная плоскость (аксиома). Точка \( D \) не лежит в ней, значит, четвёртая опора «выламывает» конструкцию из плоскости. Нужно поставить \( D \) в плоскость \( ABC \) или добавить раскосы.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Резцедержатель «гуляет».</strong> На станке резец \( a \) должен быть перпендикулярен оси \( c \). Мастер заметил: ось \( c \) параллельна другой оси \( b \), а резец \( a \) перпендикулярен \( b \). Докажите, что резец перпендикулярен и оси \( c \). Если нет — резец быстро износится и даст брак.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Лемма: если одна из двух параллельных прямых перпендикулярна третьей, то и другая перпендикулярна ей. \( c \parallel b \), \( a \perp b \Rightarrow a \perp c \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Оправка провисла.</strong> Два базовых канала проложены в параллельных плоскостях \( \alpha \) и \( \beta \). Между ними натянуты две оправки \( AB \) и \( CD \), причём \( A, C \in \alpha \), \( B, D \in \beta \). Первая оправка \( AB = 42 \) мм натянута и параллельна второй по проекту. Вторую оправку заказали длиной 48 мм — она провисла и не обеспечивает точность базирования. Объясните, почему провисшую оправку нельзя считать отрезком параллельной прямой между плоскостями, и что нужно сделать, чтобы её установить.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Свойство «отрезки параллельных прямых между параллельными плоскостями равны» работает только для прямых. Провисшая оправка — не прямая, и отрезок \( CD \) не параллелен \( AB \). Поэтому свойство к ней не применяется, и длина 48 мм не означает, что крепление неверное. Решение: укоротить оправку до 42 мм, чтобы она натянулась и стала отрезком прямой, параллельной \( AB \); тогда по свойству её длина будет равна 42 мм.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Крепление консоли разболталось.</strong> Из точки \( A \) к плоскости станины опущен перпендикуляр \( AH = 28 \) мм. Наклонная \( AM \) имеет проекцию \( HM = 21 \) мм. Мастер хочет проверить: если прямая \( l \) на станине перпендикулярна проекции \( HM \), то она должна быть перпендикулярна и наклонной \( AM \). Докажите это и определите, при каком условии крепление консоли \( AM \) к станине будет надёжным.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Обратная теорема о трёх перпендикулярах: если прямая в плоскости перпендикулярна проекции наклонной, то она перпендикулярна и самой наклонной. Крепление надёжно, если консоль \( AM \) перпендикулярна линии крепления \( l \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Угол скоса не прошёл контроль.</strong> При проверке детали мастер замерил линейный угол двугранного угла между плоскостью скоса и плоскостью основания: получил \( 35^\circ \). По нормативу угол не должен превышать \( 30^\circ \). Определите, пройдёт ли деталь контроль, и объясните, как измеряется линейный угол двугранного угла.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Линейный угол двугранного угла — угол между перпендикулярами к ребру, проведёнными в гранях. \( 35^\circ \) &gt; \( 30^\circ \) — деталь не пройдёт контроль, нужна доработка.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Плиты встали с перекосом.</strong> Две базовые плиты должны лежать в параллельных плоскостях. Мастер проверил: в плоскости первой плиты есть две пересекающиеся прямые \( a \) и \( b \), которые параллельны двум прямым \( a_1 \) и \( b_1 \) в плоскости второй плиты. Докажите, что плоскости плит параллельны. Если нет — плиты встанут с перекосом под нагрузкой.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Признак параллельности плоскостей: если две пересекающиеся прямые одной плоскости параллельны двум прямым другой плоскости, то плоскости параллельны.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Кронштейн не согласовали.</strong> Кронштейн должен пройти через точку \( M \), не лежащую на прямой \( a \) (существующей оси крепления). Мастер утверждает, что через \( a \) и \( M \) можно провести ровно одну плоскость, в которой и закрепить кронштейн. Докажите это. Если нет — кронштейн нельзя согласовать, и придётся менять проект.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Следствие из аксиом: через прямую и точку, не лежащую на ней, проходит единственная плоскость. Значит, кронштейн можно согласовать однозначно.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ИМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">💻 ИМ (Информационные системы)</span>
+            <span class="sub-title">3D-модели, коллизии, плоскости и прямые в пространстве</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять стереометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>Программист компании строит 3D-модель серверной. Нужно проверить, параллельна ли плоскость потолка плоскости пола. Плоскость пола содержит прямую \( b \), а плоскость потолка содержит прямую \( a \), параллельную \( b \), причём \( a \) не лежит в плоскости пола. Докажите, что плоскость потолка параллельна плоскости пола. Если нет — модель комнаты некорректна, и проверка коллизий будет ошибаться.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак параллельности прямой и плоскости.</strong> Если прямая, не лежащая в плоскости, параллельна какой-либо прямой, лежащей в этой плоскости, то она параллельна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \not\subset \) плоскости пола, \( a \parallel b \), \( b \subset \) плоскости пола. Значит, \( a \parallel \) плоскости пола.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Плоскость потолка параллельна полу, модель комнаты корректна.</p>
+                            <p><strong>Ответ:</strong> Модель можно использовать.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При разработке 3D-редактора инженеру нужно проверить, перпендикулярна ли ось вращения объекта плоскости основания. Ось (прямая \( a \)) перпендикулярна двум пересекающимся рёбрам \( m \) и \( n \), лежащим в плоскости основания. Докажите, что ось перпендикулярна плоскости основания. Если нет — объект при вращении будет «вилять», и редактор покажет некорректную анимацию.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности прямой и плоскости.</strong> Если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \perp m \), \( a \perp n \), \( m \) и \( n \) пересекаются и лежат в плоскости основания. Значит, \( a \perp \) плоскости основания.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Ось перпендикулярна основанию, вращение будет корректным.</p>
+                            <p><strong>Ответ:</strong> Анимацию можно сохранять.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>В алгоритме проверки коллизий нужно найти расстояние от камеры до плоскости стены. Из точки \( A \) (камера) опущен перпендикуляр \( AH = 2{,}4 \) м на плоскость стены, проекция луча \( HM = 1{,}8 \) м. Инженеру нужно найти длину луча \( AM \) и проверить: если \( AM \) больше 3,1 м, камера «видит» стену с искажением и нужно менять положение. Найдите \( AM \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Теорема о трёх перпендикулярах.</strong> \( AH \perp \) плоскости стены, \( HM \) — проекция наклонной \( AM \). Треугольник \( AHM \) прямоугольный.</p>
+                            <p><strong>Шаг 2. Пифагор.</strong> \( AM^2 = AH^2 + HM^2 = 2{,}4^2 + 1{,}8^2 = 5{,}76 + 3{,}24 = 9 \).</p>
+                            <p><strong>Шаг 3. Длина луча.</strong> \( AM = 3 \) м.</p>
+                            <p><strong>Ответ:</strong> \( AM = 3 \) м &lt; 3,1 м — искажения нет, камеру можно оставить.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При настройке освещения в 3D-сцене нужно проверить, перпендикулярны ли две плоскости: пол и экран. Инженер знает: если в плоскости пола есть прямая \( a \), перпендикулярная плоскости экрана (плоскости \( \beta \)), то плоскости перпендикулярны. Он нашёл в полу линию, перпендикулярную экрану. Докажите, что пол и экран перпендикулярны. Если нет — тени будут падать неправильно, и сцена будет выглядеть неестественно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности плоскостей.</strong> Если одна из двух плоскостей содержит прямую, перпендикулярную другой плоскости, то эти плоскости перпендикулярны.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \subset \alpha \), \( a \perp \beta \Rightarrow \alpha \perp \beta \).</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Пол и экран перпендикулярны, тени будут корректными.</p>
+                            <p><strong>Ответ:</strong> Сцену можно рендерить.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Модель «закачалась».</strong> Разработчик ставит три опорные точки модели в точках \( A \), \( B \), \( C \), не лежащих на одной прямой. Четвёртую точку поставил в \( D \), которая не лежит в плоскости \( ABC \). При проверке модель «закачалась» — точки не образуют жёсткую плоскость, и текстура «плывёт». Объясните, почему через \( A \), \( B \), \( C \) проходит ровно одна плоскость, и почему точка \( D \) из неё выходит. Что нужно сделать, чтобы модель стала корректной?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Через три точки, не лежащие на одной прямой, проходит единственная плоскость (аксиома). Точка \( D \) не лежит в ней, значит, четвёртая точка «выламывает» модель из плоскости. Нужно поставить \( D \) в плоскость \( ABC \) или задать модель иначе (например, через две пересекающиеся прямые).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Ось «гуляет» относительно основания.</strong> В модели ось \( a \) должна быть перпендикулярна оси \( c \). Разработчик заметил: ось \( c \) параллельна другой оси \( b \), а ось \( a \) перпендикулярна \( b \). Докажите, что ось \( a \) перпендикулярна и оси \( c \). Если нет — при анимации объект будет «вилять».</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Лемма: если одна из двух параллельных прямых перпендикулярна третьей, то и другая перпендикулярна ей. \( c \parallel b \), \( a \perp b \Rightarrow a \perp c \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Трос провис в сцене.</strong> Два кабельных канала в 3D-модели проложены в параллельных плоскостях \( \alpha \) и \( \beta \). Между ними натянуты два троса \( AB \) и \( CD \), причём \( A, C \in \alpha \), \( B, D \in \beta \). Первый трос \( AB = 4{,}2 \) м натянут и параллелен второму по проекту. Второй трос задали длиной 4,8 м — он провис, и физический движок показывает некорректное натяжение. Объясните, почему провисший трос нельзя считать отрезком параллельной прямой между плоскостями, и что нужно сделать, чтобы сцена стала корректной.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Свойство «отрезки параллельных прямых между параллельными плоскостями равны» работает только для прямых. Провисший трос — не прямая, и отрезок \( CD \) не параллелен \( AB \). Поэтому свойство к нему не применяется, и длина 4,8 м не означает, что крепление неверное. Решение: укоротить трос до 4,2 м, чтобы он натянулся и стал отрезком прямой, параллельной \( AB \); тогда по свойству его длина будет равна 4,2 м.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Крепление камеры разболталось.</strong> Из точки \( A \) (камера) к плоскости стены опущен перпендикуляр \( AH = 2{,}8 \) м. Наклонная \( AM \) имеет проекцию \( HM = 2{,}1 \) м. Инженер хочет проверить: если прямая \( l \) на стене перпендикулярна проекции \( HM \), то она должна быть перпендикулярна и наклонной \( AM \). Докажите это и определите, при каком условии крепление камеры \( AM \) к стене будет надёжным.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Обратная теорема о трёх перпендикулярах: если прямая в плоскости перпендикулярна проекции наклонной, то она перпендикулярна и самой наклонной. Крепление надёжно, если камера \( AM \) перпендикулярна линии крепления \( l \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Угол наклона панели не прошёл валидацию.</strong> При проверке 3D-модели разработчик замерил линейный угол двугранного угла между плоскостью панели и плоскостью основания: получил \( 115^\circ \). По техзаданию угол не должен превышать \( 110^\circ \). Определите, пройдёт ли модель валидацию, и объясните, как измеряется линейный угол двугранного угла.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Линейный угол двугранного угла — угол между перпендикулярами к ребру, проведёнными в гранях. \( 115^\circ \) &gt; \( 110^\circ \) — модель не пройдёт валидацию, нужна доработка.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Плиты встали с перекосом.</strong> Две базовые плиты модели должны лежать в параллельных плоскостях. Разработчик проверил: в плоскости первой плиты есть две пересекающиеся прямые \( a \) и \( b \), которые параллельны двум прямым \( a_1 \) и \( b_1 \) в плоскости второй плиты. Докажите, что плоскости плит параллельны. Если нет — плиты встанут с перекосом под нагрузкой, и физический движок посчитает коллизию неверно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Признак параллельности плоскостей: если две пересекающиеся прямые одной плоскости параллельны двум прямым другой плоскости, то плоскости параллельны.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Кронштейн не согласовали.</strong> Кронштейн в модели должен пройти через точку \( M \), не лежащую на прямой \( a \) (существующей оси крепления). Разработчик утверждает, что через \( a \) и \( M \) можно провести ровно одну плоскость, в которой и закрепить кронштейн. Докажите это. Если нет — кронштейн нельзя согласовать, и придётся менять модель.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Следствие из аксиом: через прямую и точку, не лежащую на ней, проходит единственная плоскость. Значит, кронштейн можно согласовать однозначно.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРОЧНОЕ ПРОИЗВОДСТВО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🏭 Сварочное производство</span>
+            <span class="sub-title">Техпроцессы, контроль качества, плоскости швов и деталей</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять стереометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>На участке сварки мастеру нужно проверить, параллельна ли плоскость прижимной планки плоскости стола. Плоскость стола содержит прямую \( b \), а плоскость планки содержит прямую \( a \), параллельную \( b \), причём \( a \) не лежит в плоскости стола. Докажите, что плоскость планки параллельна плоскости стола. Если нет — зазор под планкой будет неравномерным, шов получится с прожогом, и партия уйдёт в брак.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак параллельности прямой и плоскости.</strong> Если прямая, не лежащая в плоскости, параллельна какой-либо прямой, лежащей в этой плоскости, то она параллельна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \not\subset \) плоскости стола, \( a \parallel b \), \( b \subset \) плоскости стола. Значит, \( a \parallel \) плоскости стола.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Плоскость планки параллельна столу, зазор равномерный.</p>
+                            <p><strong>Ответ:</strong> Партию можно запускать.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При сварке стойки к плите нужно убедиться, что стойка перпендикулярна плоскости плиты. Мастер проверил: ось стойки (прямая \( a \)) перпендикулярна двум пересекающимся кромкам \( m \) и \( n \), лежащим в плоскости плиты. Докажите, что стойка перпендикулярна плите. Если нет — под нагрузкой стойку вырвет из шва, и конструкция разрушится.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности прямой и плоскости.</strong> Если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \perp m \), \( a \perp n \), \( m \) и \( n \) пересекаются и лежат в плоскости плиты. Значит, \( a \perp \) плоскости плиты.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Стойка перпендикулярна плите, шов выдержит нагрузку.</p>
+                            <p><strong>Ответ:</strong> Сварку можно выполнять.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При контроле таврового соединения мастер замеряет положение электрода. Из точки \( A \) (конец электрода) опущен перпендикуляр \( AH = 4 \) см на плоскость детали, проекция электрода \( HM = 3 \) см. Мастеру нужно найти длину электрода \( AM \) и проверить: если \( AM \) больше 5,2 см, электрод слишком длинный и будет «гулять» при сварке. Найдите \( AM \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Теорема о трёх перпендикулярах.</strong> \( AH \perp \) плоскости детали, \( HM \) — проекция наклонной \( AM \). Треугольник \( AHM \) прямоугольный.</p>
+                            <p><strong>Шаг 2. Пифагор.</strong> \( AM^2 = AH^2 + HM^2 = 4^2 + 3^2 = 16 + 9 = 25 \).</p>
+                            <p><strong>Шаг 3. Длина электрода.</strong> \( AM = 5 \) см.</p>
+                            <p><strong>Ответ:</strong> \( AM = 5 \) см &lt; 5,2 см — электрод в норме, «гулять» не будет.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Мастер варит угловое соединение двух пластин. Нужно проверить, перпендикулярны ли пластины. Мастер знает: если в плоскости одной пластины есть прямая \( a \), перпендикулярная второй пластине (плоскости \( \beta \)), то пластины перпендикулярны. Он нашёл в первой пластине кромку, перпендикулярную второй пластине. Докажите, что пластины перпендикулярны. Если нет — шов не выдержит нагрузку и лопнет.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности плоскостей.</strong> Если одна из двух плоскостей содержит прямую, перпендикулярную другой плоскости, то эти плоскости перпендикулярны.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \subset \alpha \), \( a \perp \beta \Rightarrow \alpha \perp \beta \).</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Пластины перпендикулярны, шов выдержит нагрузку.</p>
+                            <p><strong>Ответ:</strong> Угловое соединение надёжно.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Кондуктор «закачался».</strong> Бригада ставит три опоры кондуктора в точках \( A \), \( B \), \( C \), не лежащих на одной прямой. Четвёртую опору поставили в \( D \), не лежащей в плоскости \( ABC \). При проверке кондуктор «закачался» — деталь «пляшет» при сварке, шов уходит. Объясните, почему через \( A \), \( B \), \( C \) проходит ровно одна плоскость, и почему \( D \) из неё выходит. Дополнительно: расстояние от \( D \) до плоскости \( ABC \) равно 3 мм, допуск — не более 1,5 мм. Пройдёт ли кондуктор приёмку? Что нужно сделать?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Через три точки, не лежащие на одной прямой, проходит единственная плоскость (аксиома). \( D \) не лежит в ней — конструкция «выламывается». 3 мм &gt; 1,5 мм — приёмку не пройдёт. Нужно опустить \( D \) в плоскость \( ABC \) (или добавить раскосы) и добиться отклонения ≤ 1,5 мм.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Электрод «гуляет» относительно шва.</strong> В держателе электрод \( a \) должен быть перпендикулярен оси \( c \). Мастер заметил: ось \( c \) параллельна другой оси \( b \), а электрод \( a \) перпендикулярен \( b \). Докажите, что электрод перпендикулярен и оси \( c \). Дополнительно: если угол между электродом и осью \( c \) отклонился от \( 90^\circ \) на \( 4^\circ \), а допуск — не более \( 2^\circ \), пройдёт ли соединение контроль?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Лемма: если одна из двух параллельных прямых перпендикулярна третьей, то и другая перпендикулярна ей. \( c \parallel b \), \( a \perp b \Rightarrow a \perp c \), то есть угол \( 90^\circ \). Отклонение \( 4^\circ \) &gt; \( 2^\circ \) — контроль не пройдёт, нужна правка держателя.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Прижим провис.</strong> Два базовых канала проложены в параллельных плоскостях \( \alpha \) и \( \beta \). Между ними натянуты два прижима \( AB \) и \( CD \), причём \( A, C \in \alpha \), \( B, D \in \beta \). Первый прижим \( AB = 42 \) мм натянут и параллелен второму по проекту. Второй прижим заказали длиной 48 мм — он провис, и деталь «уводит» при сварке. Объясните, почему провисший прижим нельзя считать отрезком параллельной прямой между плоскостями, и что нужно сделать, чтобы соединение стало корректным.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Свойство «отрезки параллельных прямых между параллельными плоскостями равны» работает только для прямых. Провисший прижим — не прямая, и отрезок \( CD \) не параллелен \( AB \). Поэтому свойство к нему не применяется, и длина 48 мм не означает, что крепление неверное. Решение: укоротить прижим до 42 мм, чтобы он натянулся и стал отрезком прямой, параллельной \( AB \); тогда по свойству его длина будет равна 42 мм.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Крепление держателя разболталось.</strong> Из точки \( A \) (держатель) к плоскости стола опущен перпендикуляр \( AH = 28 \) мм. Наклонная \( AM \) имеет проекцию \( HM = 21 \) мм. Мастер хочет проверить: если прямая \( l \) на столе перпендикулярна проекции \( HM \), то она должна быть перпендикулярна и наклонной \( AM \). Докажите это и определите, при каком условии крепление держателя \( AM \) к столу будет надёжным. Дополнительно: если \( AM \) отклонилась от перпендикуляра на 3 мм, а допуск — 2 мм, пройдёт ли контроль?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Обратная теорема о трёх перпендикулярах: если прямая в плоскости перпендикулярна проекции наклонной, то она перпендикулярна и самой наклонной. Крепление надёжно, если держатель \( AM \) перпендикулярен линии крепления \( l \). Отклонение 3 мм &gt; 2 мм — контроль не пройдёт, нужно выровнять держатель.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Угол скоса не прошёл контроль.</strong> При проверке детали мастер замерил линейный угол двугранного угла между плоскостью скоса и плоскостью основания: получил \( 35^\circ \). По нормативу угол не должен превышать \( 30^\circ \). Дополнительно: если при этом угол между кромкой скоса и ребром отклонился от перпендикуляра на \( 5^\circ \), а допуск — \( 3^\circ \), пройдёт ли деталь контроль? Объясните, как измеряется линейный угол двугранного угла.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Линейный угол двугранного угла — угол между перпендикулярами к ребру, проведёнными в гранях. \( 35^\circ \) &gt; \( 30^\circ \) — деталь не пройдёт контроль. Отклонение \( 5^\circ \) &gt; \( 3^\circ \) — дополнительное нарушение, нужна доработка.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Плиты встали с перекосом.</strong> Две базовые плиты должны лежать в параллельных плоскостях. Мастер проверил: в плоскости первой плиты есть две пересекающиеся прямые \( a \) и \( b \), которые параллельны двум прямым \( a_1 \) и \( b_1 \) в плоскости второй плиты. Докажите, что плоскости плит параллельны. Дополнительно: если зазор между плитами в одном месте 2 мм, а в другом — 5 мм, а допуск на перепад зазора — не более 2 мм, пройдёт ли контроль?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Признак параллельности плоскостей: если две пересекающиеся прямые одной плоскости параллельны двум прямым другой плоскости, то плоскости параллельны. Перепад зазора: \( 5 - 2 = 3 \) мм &gt; 2 мм — контроль не пройдёт, нужна выверка плит.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Кронштейн не согласовали.</strong> Кронштейн должен пройти через точку \( M \), не лежащую на прямой \( a \) (существующей оси крепления). Мастер утверждает, что через \( a \) и \( M \) можно провести ровно одну плоскость, в которой и закрепить кронштейн. Докажите это. Дополнительно: если кронштейн отклонён от этой плоскости на 2 мм на длине 1 м, а допуск — 1 мм/м, пройдёт ли он приёмку?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Следствие из аксиом: через прямую и точку, не лежащую на ней, проходит единственная плоскость. Отклонение 2 мм/м &gt; 1 мм/м — приёмку не пройдёт, кронштейн нужно выставить в плоскости.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЛОГИСТЫ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚚 Логисты</span>
+            <span class="sub-title">Плоскости кузова, пандусы, углы погрузки, параллельность и перпендикулярность</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять стереометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>На складе проверяют, параллельна ли плоскость пола кузова плоскости погрузочной площадки. Плоскость площадки содержит прямую \( b \), а плоскость пола кузова содержит прямую \( a \), параллельную \( b \), причём \( a \) не лежит в плоскости площадки. Докажите, что плоскость пола кузова параллельна плоскости площадки. Если нет — при въезде погрузчика образуется ступенька, груз может сместиться, и доставка сорвётся.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак параллельности прямой и плоскости.</strong> Если прямая, не лежащая в плоскости, параллельна какой-либо прямой, лежащей в этой плоскости, то она параллельна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \not\subset \) плоскости площадки, \( a \parallel b \), \( b \subset \) плоскости площадки. Значит, \( a \parallel \) плоскости площадки.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Плоскости параллельны, ступеньки не будет.</p>
+                            <p><strong>Ответ:</strong> Погрузку можно начинать.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При установке стойки стеллажа нужно убедиться, что стойка перпендикулярна плоскости пола склада. Кладовщик проверил: стойка (прямая \( a \)) перпендикулярна двум пересекающимся линиям разметки \( m \) и \( n \), лежащим в плоскости пола. Докажите, что стойка перпендикулярна полу. Если нет — стеллаж «поведёт» под нагрузкой, и груз упадёт.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности прямой и плоскости.</strong> Если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна самой плоскости.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \perp m \), \( a \perp n \), \( m \) и \( n \) пересекаются и лежат в плоскости пола. Значит, \( a \perp \) полу.</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Стойка перпендикулярна полу, стеллаж выдержит нагрузку.</p>
+                            <p><strong>Ответ:</strong> Стеллаж можно нагружать.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При погрузке длинномера логист замеряет положение троса крепления груза. Из точки \( A \) (крюк) опущен перпендикуляр \( AH = 2{,}4 \) м на плоскость пола кузова, проекция троса \( HM = 1{,}8 \) м. Логисту нужно найти длину троса \( AM \) и проверить: если \( AM \) больше 3,1 м, трос слишком длинный и груз будет «гулять» в пути. Найдите \( AM \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Теорема о трёх перпендикулярах.</strong> \( AH \perp \) плоскости пола, \( HM \) — проекция наклонной \( AM \). Треугольник \( AHM \) прямоугольный.</p>
+                            <p><strong>Шаг 2. Пифагор.</strong> \( AM^2 = AH^2 + HM^2 = 2{,}4^2 + 1{,}8^2 = 5{,}76 + 3{,}24 = 9 \).</p>
+                            <p><strong>Шаг 3. Длина троса.</strong> \( AM = 3 \) м.</p>
+                            <p><strong>Ответ:</strong> \( AM = 3 \) м &lt; 3,1 м — трос в норме, груз «гулять» не будет.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Логист проверяет, перпендикулярны ли пол кузова и задний борт. Он знает: если в плоскости пола есть прямая \( a \), перпендикулярная плоскости борта (плоскости \( \beta \)), то пол и борт перпендикулярны. Он нашёл в полу линию, перпендикулярную борту. Докажите, что пол и борт перпендикулярны. Если нет — при погрузке борт может отогнуться, и груз высыплется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Признак перпендикулярности плоскостей.</strong> Если одна из двух плоскостей содержит прямую, перпендикулярную другой плоскости, то эти плоскости перпендикулярны.</p>
+                            <p><strong>Шаг 2. Применяем.</strong> \( a \subset \alpha \), \( a \perp \beta \Rightarrow \alpha \perp \beta \).</p>
+                            <p><strong>Шаг 3. Вывод.</strong> Пол и борт перпендикулярны, борт выдержит нагрузку.</p>
+                            <p><strong>Ответ:</strong> Погрузку можно начинать.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Погрузчик «закачался».</strong> Бригада ставит три опоры погрузочного моста в точках \( A \), \( B \), \( C \), не лежащих на одной прямой. Четвёртую опору поставили в \( D \), не лежащей в плоскости \( ABC \). При проверке мост «закачался» — погрузчик «пляшет», груз может упасть. Объясните, почему через \( A \), \( B \), \( C \) проходит ровно одна плоскость, и почему \( D \) из неё выходит. Дополнительно: расстояние от \( D \) до плоскости \( ABC \) равно 4 см, допуск — не более 2 см. Пройдёт ли мост приёмку? Что нужно сделать?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Через три точки, не лежащие на одной прямой, проходит единственная плоскость (аксиома). \( D \) не лежит в ней — конструкция «выламывается». 4 см &gt; 2 см — приёмку не пройдёт. Нужно опустить \( D \) в плоскость \( ABC \) (или добавить раскосы) и добиться отклонения ≤ 2 см.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Стойка «гуляет» относительно балки.</strong> На стеллаже стойка \( a \) должна быть перпендикулярна балке \( c \). Кладовщик заметил: балка \( c \) параллельна другой балке \( b \), а стойка \( a \) перпендикулярна \( b \). Докажите, что стойка перпендикулярна и балке \( c \). Дополнительно: если угол между стойкой и балкой \( c \) отклонился от \( 90^\circ \) на \( 5^\circ \), а допуск — не более \( 2^\circ \), пройдёт ли стеллаж контроль?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Лемма: если одна из двух параллельных прямых перпендикулярна третьей, то и другая перпендикулярна ей. \( c \parallel b \), \( a \perp b \Rightarrow a \perp c \), угол \( 90^\circ \). Отклонение \( 5^\circ \) &gt; \( 2^\circ \) — контроль не пройдёт, нужна правка стойки.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Два пандуса не параллельны.</strong> На складе два пандуса должны быть параллельны, чтобы погрузчик заезжал без перекоса. Логист проверил: в плоскости первого пандуса есть две пересекающиеся линии \( a \) и \( b \) (края), которые параллельны двум линиям \( a_1 \) и \( b_1 \) в плоскости второго пандуса. Докажите, что плоскости пандусов параллельны. Дополнительно: если зазор между пандусами в одном конце 3 см, а в другом — 7 см, а допуск — не более 4 см, пройдёт ли контроль? Что нужно сделать?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Признак параллельности плоскостей: если две пересекающиеся прямые одной плоскости параллельны двум прямым другой плоскости, то плоскости параллельны. Перепад зазора 7 см &gt; 4 см — контроль не пройдёт, нужна выверка пандусов.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Крепление троса разболталось.</strong> Из точки \( A \) (крюк) к плоскости пола кузова опущен перпендикуляр \( AH = 28 \) см. Наклонная \( AM \) имеет проекцию \( HM = 21 \) см. Логист хочет проверить: если прямая \( l \) на полу перпендикулярна проекции \( HM \), то она должна быть перпендикулярна и наклонной \( AM \). Докажите это и определите, при каком условии крепление троса \( AM \) к полу будет надёжным. Дополнительно: если \( AM \) отклонилась от перпендикуляра на 3 см, а допуск — 2 см, пройдёт ли контроль?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Обратная теорема о трёх перпендикулярах: если прямая в плоскости перпендикулярна проекции наклонной, то она перпендикулярна и самой наклонной. Крепление надёжно, если трос \( AM \) перпендикулярен линии крепления \( l \). Отклонение 3 см &gt; 2 см — контроль не пройдёт, нужно выровнять трос.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Угол пандуса не прошёл контроль.</strong> При проверке пандуса логист замерил линейный угол двугранного угла между плоскостью пандуса и плоскостью площадки: получил \( 18^\circ \). По нормативу угол не должен превышать \( 15^\circ \). Дополнительно: если при этом угол между кромкой пандуса и ребром отклонился от перпендикуляра на \( 4^\circ \), а допуск — \( 2^\circ \), пройдёт ли пандус контроль? Объясните, как измеряется линейный угол двугранного угла.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Линейный угол двугранного угла — угол между перпендикулярами к ребру, проведёнными в гранях. \( 18^\circ \) &gt; \( 15^\circ \) — пандус не пройдёт контроль. Отклонение \( 4^\circ \) &gt; \( 2^\circ \) — дополнительное нарушение, нужна доработка.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Линии разметки не сошлись.</strong> Две параллельные плоскости — пол кузова и площадка — пересечены третьей плоскостью (боковой стенкой кузова). Линия пересечения со полом — прямая \( a \), с площадкой — прямая \( b \). Логист замерил: \( a \) и \( b \) не параллельны, расходятся под углом \( 3^\circ \). По нормативу расхождение не должно превышать \( 1^\circ \). Докажите, что если бы плоскости были параллельны, то \( a \parallel b \), и определите, пройдёт ли кузов контроль. Что нужно исправить?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Свойство параллельных плоскостей: если две параллельные плоскости пересечены третьей, то линии пересечения параллельны. Значит, при параллельных плоскостях \( a \parallel b \), угол между ними \( 0^\circ \). Расхождение \( 3^\circ \) &gt; \( 1^\circ \) — кузов контроль не пройдёт, плоскости не параллельны, нужна выверка.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Раскос не согласовали.</strong> Раскос крепления груза должен пройти через точку \( M \), не лежащую на прямой \( a \) (существующей оси крепления). Логист утверждает, что через \( a \) и \( M \) можно провести ровно одну плоскость, в которой и закрепить раскос. Докажите это. Дополнительно: если раскос отклонён от этой плоскости на 2 см на длине 1 м, а допуск — 1 см/м, пройдёт ли он приёмку?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Следствие из аксиом: через прямую и точку, не лежащую на ней, проходит единственная плоскость. Отклонение 2 см/м &gt; 1 см/м — приёмку не пройдёт, раскос нужно выставить в плоскости.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="stereo.html" class="back-link">Назад</a>
+</div>
+
+<script>
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
+
+    function toggleSpoiler(button) {
+        const content = button.nextElementSibling;
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            button.textContent = button.textContent.includes('Подсказка') ? '💡 Подсказка' : 'Показать решение';
+        } else {
+            content.style.display = 'block';
+            button.textContent = button.textContent.includes('Подсказка') ? 'Скрыть подсказку' : 'Скрыть решение';
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([content]).catch(function (err) {
+                    console.log('MathJax error: ', err.message);
+                });
+            }
+        }
+    }
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+
+<script id="bottom-nav-autohide-script">
+    (function(){
+        var nav = document.querySelector('.bottom-nav');
+        if (!nav) return;
+        var lastY = window.scrollY;
+        var threshold = 8;
+        var ticking = false;
+        function onScroll(){
+            var y = window.scrollY;
+            if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+            if (y > lastY && y > 80) {
+                nav.classList.add('nav-hidden');
+            } else {
+                nav.classList.remove('nav-hidden');
+            }
+            lastY = y;
+            ticking = false;
+        }
+        window.addEventListener('scroll', function(){
+            if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+        }, { passive: true });
+    })();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+    (function() {
+        var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+        els.forEach(function(el) {
+            if (el.dataset.rippleBound) return;
+            el.dataset.rippleBound = '1';
+            el.classList.add('ripple-host');
+            el.addEventListener('pointerdown', function(e) {
+                var rect = el.getBoundingClientRect();
+                var size = Math.max(rect.width, rect.height);
+                var r = document.createElement('span');
+                r.className = 'ripple';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                el.appendChild(r);
+                setTimeout(function(){ r.remove(); }, 650);
+            });
+        });
+    })();
+</script>
+</body>
+</html>

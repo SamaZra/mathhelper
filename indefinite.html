@@ -1,0 +1,1079 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Неопределённый интеграл</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --formula-card-bg: #1e3545;
+            --example-bg: #1e3545;
+            --info-bg: #1a4a5a;
+            --special-bg: #1a4a5a;
+            --special-border: #ec489a;
+            --property-bg: #1a4a5a;
+            --info-border: #8b5cf6;
+            --outer-color: #e74c3c;
+            --inner-color: #3498db;
+            --table-row-even: #1e3545;
+            --table-row-odd: #162a38;
+            --table-row-hover: #2a4a5a;
+            --property-even: #1a4a5a;
+            --property-odd: #153d4a;
+            --property-hover: #2a5a6a;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --example-bg: #f8fafc;
+            --info-bg: #f5f3ff;
+            --special-bg: #fce4ec;
+            --special-border: #ec489a;
+            --property-bg: white;
+            --info-border: #8b5cf6;
+            --outer-color: #e74c3c;
+            --inner-color: #2980b9;
+            --table-row-even: #ffffff;
+            --table-row-odd: #f1f5f9;
+            --table-row-hover: #e2e8f0;
+            --property-even: #f8fafc;
+            --property-odd: #f1f5f9;
+            --property-hover: #e8f0fe;
+        }
+
+        body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);padding:32px 20px 48px;color:var(--text);}
+        .container{max-width:1200px;margin:0 auto;background:var(--card-bg);border-radius:32px;padding:20px 24px;padding-top:50px;position:relative;color:var(--text);}
+
+        h1{font-size:1.5rem;color:var(--text);margin:0 auto 16px auto;padding-bottom:8px;border-bottom:4px solid #ec489a;text-align:center;}
+        h2{font-size:1.3rem;color:var(--text);margin:10px 0 8px 0;padding-left:10px;border-left:4px solid var(--special-border);}
+        .section{margin-bottom:20px;}
+        .section-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid var(--special-border);padding-left:12px;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:12000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .formula-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:10px 0;}
+        .formula-card{background:var(--formula-card-bg);border-radius:16px;padding:14px 10px;box-shadow:0 2px 8px rgba(0,0,0,0.05);border:1px solid var(--border);text-align:center;}
+        .formula-card p{margin:6px 0;font-family:monospace;font-size:1.1rem;font-weight:bold;color:var(--text);}
+
+        .def-card{background:var(--info-bg);border-left:4px solid #ec489a;border-radius:16px;padding:16px 20px;margin:12px 0;}
+        .def-card p{margin:6px 0;font-size:1rem;line-height:1.5;color:var(--text);}
+        .def-card strong{color:var(--text);}
+
+        .property-card{
+            border-radius:16px;
+            padding:14px 18px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.05);
+            border:1px solid var(--border);
+            margin:0 0 4px 0;
+            border-left:5px solid var(--special-border);
+            transition: background-color 0.2s ease;
+        }
+        .property-card:nth-child(even) { background-color: var(--property-even); }
+        .property-card:nth-child(odd) { background-color: var(--property-odd); }
+        .property-card:hover {
+            background-color: var(--property-hover) !important;
+            transition: background-color 0.1s ease;
+        }
+        .property-name{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);margin-bottom:8px;font-weight:500;}
+        .property-formula{font-family:monospace;font-size:1.1rem;font-weight:bold;color:var(--text);overflow-x:auto;padding:5px 0;}
+        .property-card p{font-size:0.9rem;color:var(--text-secondary);margin-top:6px;}
+
+        .table-wrapper{
+            overflow-x:auto;
+            border-radius:20px;
+            border:1px solid var(--border);
+            background:var(--card-bg);
+            margin:16px 0;
+        }
+        table{
+            width:100%;
+            min-width:700px;
+            border-collapse:collapse;
+            font-size:1rem;
+        }
+        th{
+            background:#103956;
+            color:white;
+            font-weight:600;
+            padding:14px 16px;
+            text-align:center;
+            border:1px solid #265d84;
+            font-size:1rem;
+            position:sticky;
+            top:0;
+            z-index:2;
+        }
+        td{
+            padding:14px 16px;
+            border:1px solid var(--border);
+            vertical-align:middle;
+            text-align:center;
+            color:var(--text);
+            font-size:1rem;
+            line-height:1.5;
+            transition: background-color 0.2s ease;
+        }
+        .table-wrapper tbody tr:nth-child(even) td { background-color: var(--table-row-even); }
+        .table-wrapper tbody tr:nth-child(odd) td { background-color: var(--table-row-odd); }
+        .table-wrapper tbody tr:hover td {
+            background-color: var(--table-row-hover) !important;
+            transition: background-color 0.1s ease;
+        }
+        .col-simple{ font-weight:600; min-width:250px; }
+        .col-complex{ min-width:350px; }
+        .coef-red{color:#ec489a;font-weight:700;}
+
+        .examples-grid{
+            display:flex;
+            flex-direction:column;
+            gap:10px;
+            margin-top:10px;
+        }
+        .example-card{
+            background:var(--example-bg);
+            border-radius:16px;
+            padding:12px 18px;
+            border-left:5px solid #ec489a;
+            font-size:1rem;
+            color:var(--text);
+            word-wrap:break-word;
+            line-height:1.6;
+        }
+
+        .example-block{
+            background:var(--example-bg);
+            border-radius:16px;
+            padding:16px 20px;
+            margin:12px 0;
+            border:1px solid var(--border);
+        }
+        .example-block p{margin:8px 0;font-size:1rem;line-height:1.6;color:var(--text);}
+        .example-block .step{color:#ec489a;font-weight:700;font-size:1rem;}
+        .example-block .result{background:rgba(236,72,154,0.15);display:inline-block;padding:6px 14px;border-radius:12px;font-size:1rem;color:var(--text);font-weight:600;margin-top:8px;}
+        .example-comment{font-size:0.85rem;color:var(--text-secondary);margin-top:4px;font-style:italic;}
+
+        .note-box{
+            background:var(--info-bg);
+            border-left:4px solid #ec489a;
+            border-radius:16px;
+            padding:16px 20px;
+            margin:16px 0;
+            font-size:0.95rem;
+            line-height:1.5;
+            color:var(--text);
+        }
+
+        /* ===== НОВОЕ: введение ===== */
+        .intro-block{background:var(--info-bg);border-left:4px solid #ec489a;border-radius:14px;padding:14px 16px;margin:12px 0;}
+        .intro-block p{font-size:0.95rem;line-height:1.5;color:var(--text);margin-bottom:8px;}
+        .intro-block p:last-child{margin-bottom:0;}
+
+        /* ===== Раскрывающиеся подсказки и ответы (на <details>) ===== */
+        details.spoiler {
+            margin: 8px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--example-bg);
+        }
+
+        details.spoiler > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            background: var(--info-bg);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-left: 4px solid var(--special-border);
+            user-select: none;
+            transition: background-color 0.2s ease;
+        }
+
+        details.spoiler > summary::-webkit-details-marker { display: none; }
+        details.spoiler > summary::marker { content: ""; }
+
+        details.spoiler > summary::before {
+            content: "▶";
+            display: inline-block;
+            font-size: 0.75rem;
+            margin-right: 8px;
+            transition: transform 0.25s ease;
+            color: var(--text-secondary);
+        }
+
+        details.spoiler[open] > summary::before {
+            transform: rotate(90deg);
+        }
+
+        details.spoiler > summary:hover {
+            background: var(--property-hover);
+        }
+
+        details.spoiler > .spoiler-content {
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--example-bg);
+            animation: fadeInUp 0.25s ease-out;
+        }
+
+        details.spoiler > .spoiler-content p {
+            margin: 6px 0;
+        }
+
+        .back-link{
+            display:inline-block;
+            margin-top:20px;
+            padding:10px 24px;
+            background:var(--accent);
+            color:white;
+            text-decoration:none;
+            font-weight:600;
+            border-radius:40px;
+        }
+        mjx-container{font-size:1.05rem!important;overflow-x:auto!important;max-width:100%!important;}
+
+        @media(max-width:700px){
+            .container{padding:14px 16px;}
+            .section-title{font-size:1rem;}
+            .def-card p{font-size:0.95rem;}
+            .example-card{font-size:0.9rem;padding:10px 14px;}
+            .example-block p{font-size:0.95rem;}
+            .property-formula{font-size:1rem;}
+            mjx-container{font-size:0.95rem!important;}
+        }
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { scale: 1.05, displayAlign: 'center' },
+            options: { ignoreHtmlClass: 'no-mathjax', processHtmlClass: 'math' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js"></script>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>📐 Неопределённый интеграл</h1>
+
+    <!-- ===== НОВОЕ: ВВЕДЕНИЕ ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Зачем нужен неопределённый интеграл</div>
+        <div class="section-content">
+            <div class="intro-block">
+                <p>В теме «Первообразная» мы научились <strong>отменять</strong> дифференцирование: по функции $f(x)$ находить такую $F(x)$, что $F'(x) = f(x)$. Таких функций бесконечно много — они отличаются на константу $C$.</p>
+                <p>Возникает вопрос: как записать <strong>все</strong> эти первообразные одной формулой? Для этого вводят специальное обозначение — <strong>неопределённый интеграл</strong>:</p>
+                <p style="text-align:center; font-size:1.15rem; margin:8px 0;">$\displaystyle \int f(x)\,dx = F(x) + C$</p>
+                <p>Знак $\int$ — это «вытянутая S» (от латинского <em>summa</em> — «сумма»). Именно так интеграл и работает: он «суммирует» бесконечно много бесконечно маленьких частей.</p>
+            </div>
+            <div class="def-card" style="border-left-color:#fbbf24;">
+                <strong>💡 Главная идея:</strong> неопределённый интеграл — это <strong>все первообразные сразу</strong>, записанные как $F(x) + C$. Именно поэтому в ответе всегда стоит $+ C$ — без него теряется бесконечное множество функций.
+            </div>
+        </div>
+    </div>
+
+    <!-- ОПРЕДЕЛЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📘 Определение</div>
+        <div class="section-content">
+            <div class="def-card">
+                <p><strong>Неопределённый интеграл</strong> функции \(f(x)\) — это совокупность всех первообразных данной функции.</p>
+                <p style="margin-top:8px;">Обозначается \(\int f(x)\,dx = F(x) + C\), где \(F'(x) = f(x)\), а \(C\) — произвольная постоянная.</p>
+                <p style="margin-top:8px;">Символ \(\int\) (вытянутая буква S) ввёл Лейбниц, он происходит от латинского «summa».</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ТАБЛИЦА -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Таблица интегралов</div>
+        <div class="section-content">
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>\(\int f(x)\,dx\)</th><th>\(\int f(kx+b)\,dx\)</th></tr></thead>
+                    <tbody>
+                    <tr><td class="col-simple">\(\int 1\,dx = x + C\)</td><td class="col-complex">\(\int 7\,dx = 7x + C\)</td></tr>
+                    <tr><td class="col-simple">\(\int x^n dx = \frac{x^{n+1}}{n+1} + C\)</td><td class="col-complex">\(\int (kx+b)^n dx = \frac{(kx+b)^{n+1}}{k(n+1)} + C\)</td></tr>
+                    <tr><td class="col-simple">\(\int \frac{1}{x} dx = \ln|x| + C\)</td><td class="col-complex">\(\int \frac{dx}{kx+b} = \frac{1}{k} \ln|kx+b| + C\)</td></tr>
+                    <tr><td class="col-simple">\(\int \sin x\,dx = -\cos x + C\)</td><td class="col-complex">\(\int \sin(kx+b)\,dx = -\frac{\cos(kx+b)}{k} + C\)</td></tr>
+                    <tr><td class="col-simple">\(\int \cos x\,dx = \sin x + C\)</td><td class="col-complex">\(\int \cos(kx+b)\,dx = \frac{\sin(kx+b)}{k} + C\)</td></tr>
+                    <tr><td class="col-simple">\(\int \frac{1}{\sin^2 x} dx = -\operatorname{ctg} x + C\)</td><td class="col-complex">\(\int \frac{dx}{\sin^2(kx+b)} = -\frac{\operatorname{ctg}(kx+b)}{k} + C\)</td></tr>
+                    <tr><td class="col-simple">\(\int \frac{1}{\cos^2 x} dx = \operatorname{tg} x + C\)</td><td class="col-complex">\(\int \frac{dx}{\cos^2(kx+b)} = \frac{\operatorname{tg}(kx+b)}{k} + C\)</td></tr>
+                    <tr><td class="col-simple">\(\int e^x dx = e^x + C\)</td><td class="col-complex">\(\int e^{kx+b}\,dx = \frac{e^{kx+b}}{k} + C\)</td></tr>
+                    <tr><td class="col-simple">\(\int a^x dx = \frac{a^x}{\ln a} + C\)</td><td class="col-complex">\(\int a^{kx+b}\,dx = \frac{a^{kx+b}}{k\cdot\ln a} + C\)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕРЫ ДЛЯ СЛОЖНЫХ ФУНКЦИЙ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Примеры для сложных функций</div>
+        <div class="section-content">
+            <div class="examples-grid">
+                <div class="example-card">\(\int 7\,dx = 7x + C\)</div>
+                <div class="example-card">\(\int (3x+2)^4\,dx = \frac{(3x+2)^5}{3\cdot 5} + C\)</div>
+                <div class="example-card">\(\int \frac{dx}{4x-1} = \frac{1}{4} \ln|4x-1| + C\)</div>
+                <div class="example-card">\(\int \sin(6x)\,dx = -\frac{\cos(6x)}{6} + C\)</div>
+                <div class="example-card">\(\int \cos(2x+1)\,dx = \frac{\sin(2x+1)}{2} + C\)</div>
+                <div class="example-card">\(\int \frac{dx}{\sin^2(4x)} = -\frac{\operatorname{ctg}(4x)}{4} + C\)</div>
+                <div class="example-card">\(\int \frac{dx}{\cos^2(7x+\pi)} = \frac{\operatorname{tg}(7x+\pi)}{7} + C\)</div>
+                <div class="example-card">\(\int e^{3x+2}\,dx = \frac{e^{3x+2}}{3} + C\)</div>
+                <div class="example-card">\(\int 2^{5x}\,dx = \frac{2^{5x}}{5\cdot\ln 2} + C\)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- СВОЙСТВА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚙️ Свойства неопределённого интеграла</div>
+        <div class="section-content">
+
+            <!-- СВОЙСТВО 1 -->
+            <div class="property-card">
+                <div class="property-name">Свойство 1 · интеграл суммы/разности</div>
+                <div class="property-formula">\(\int (f(x) \pm g(x))dx = \int f(x)dx \pm \int g(x)dx\)</div>
+            </div>
+
+            <div class="example-block">
+                <p><span class="step">Пример.</span> Найти интеграл: \(\int (x^2 + \sin x)\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Разбиваем интеграл суммы на сумму интегралов:</span></p>
+                <p>\(\int (x^2 + \sin x)\,dx = \int x^2\,dx + \int \sin x\,dx\)</p>
+                <p class="example-comment">✓ По свойству 1: интеграл от суммы равен сумме интегралов. Каждое слагаемое интегрируем отдельно.</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Применяем табличные формулы к каждому интегралу:</span></p>
+                <p>\(\int x^2\,dx = \frac{x^{3}}{3}\) &nbsp;&nbsp;и&nbsp;&nbsp; \(\int \sin x\,dx = -\cos x\)</p>
+                <p class="example-comment">✓ Используем формулы: \(\int x^n dx = \frac{x^{n+1}}{n+1}\) и \(\int \sin x\,dx = -\cos x\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Складываем результаты и добавляем одну общую константу \(C\):</span></p>
+                <p>\(= \frac{x^3}{3} - \cos x + C\)</p>
+                <p class="example-comment">✓ Константу \(C\) пишем один раз в конце, а не после каждого интеграла — это одна произвольная постоянная.</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(\frac{x^3}{3} - \cos x + C\)</span></p>
+            </div>
+
+            <!-- СВОЙСТВО 2 -->
+            <div class="property-card">
+                <div class="property-name">Свойство 2 · вынесение постоянного множителя</div>
+                <div class="property-formula">\(\int a\cdot f(x)dx = a\cdot \int f(x)dx\)</div>
+            </div>
+
+            <div class="example-block">
+                <p><span class="step">Пример.</span> Найти интеграл: \(\int 5\cos x\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Выносим постоянный множитель 5 за знак интеграла:</span></p>
+                <p>\(\int 5\cos x\,dx = 5\int \cos x\,dx\)</p>
+                <p class="example-comment">✓ По свойству 2: постоянный множитель можно вынести за знак интеграла. Число 5 не зависит от \(x\), поэтому оно «не участвует» в интегрировании.</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Интегрируем оставшуюся функцию по таблице:</span></p>
+                <p>\(5\int \cos x\,dx = 5\cdot \sin x + C\)</p>
+                <p class="example-comment">✓ Используем формулу \(\int \cos x\,dx = \sin x\). Множитель 5 просто умножается на результат.</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(5\sin x + C\)</span></p>
+            </div>
+
+            <!-- СВОЙСТВО 3 -->
+            <div class="property-card">
+                <div class="property-name">Свойство 3 · линейная замена (интегрирование \(f(kx+b)\)</div>
+                <div class="property-formula">\(\int f(kx+b)dx = \frac{1}{k}F(kx+b) + C\)</div>
+            </div>
+
+            <div class="example-block">
+                <p><span class="step">Пример.</span> Найти интеграл: \(\int \sin(5x)\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Определяем, что это интеграл от сложной функции вида \(f(kx+b)\):</span></p>
+                <p>Здесь \(f(\cdot) = \sin(\cdot)\) — внешняя функция, а внутренняя линейная функция: \(kx+b = 5x\). Значит, \(k = 5\), \(b = 0\).</p>
+                <p class="example-comment">✓ Сравниваем с табличным интегралом \(\int \sin x\,dx = -\cos x + C\). Но там аргумент просто \(x\), а у нас \(5x\).</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Вспоминаем формулу свойства 3:</span></p>
+                <p>\(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b) + C\)</p>
+                <p class="example-comment">✓ Где \(F\) — первообразная для \(f\). То есть сначала берём табличную первообразную, но вместо \(x\) подставляем \(kx+b\), а потом делим на \(k\).</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Находим табличную первообразную для \(\sin\):</span></p>
+                <p>\(F(x) = -\cos x\)</p>
+                <p class="example-comment">✓ Это мы знаем из таблицы: \(\int \sin x\,dx = -\cos x + C\).</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Подставляем \(kx+b = 5x\) вместо \(x\) и делим на \(k=5\):</span></p>
+                <p>\(\int \sin(5x)\,dx = \frac{1}{5}\cdot\bigl(-\cos(5x)\bigr) + C = -\frac{\cos(5x)}{5} + C\)</p>
+                <p class="example-comment">✓ Сначала записываем \(-\cos(5x)\), затем умножаем на \(\frac{1}{k} = \frac{1}{5}\). Именно поэтому появляется деление на 5.</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 5. Проверка (по желанию):</span></p>
+                <p>\(\left(-\frac{\cos(5x)}{5}\right)' = -\frac{1}{5}\cdot\bigl(-\sin(5x)\bigr)\cdot 5 = \sin(5x)\)</p>
+                <p class="example-comment">✓ Производная совпала с подынтегральной функцией — ответ верный.</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(-\frac{\cos(5x)}{5} + C\)</span></p>
+            </div>
+
+            <!-- Остальные свойства -->
+            <div class="property-card"><div class="property-name">Свойство 4 · интеграл от нуля</div><div class="property-formula">\(\int 0 \cdot dx = C\)</div><p>\(\int 0\,dx = C\) (константа)</p></div>
+            <div class="property-card"><div class="property-name">Свойство 5 · интеграл от дифференциала</div><div class="property-formula">\(\int dx = x + C\)</div><p>\(\int 1\,dx = x + C\)</p></div>
+
+        </div>
+    </div>
+
+    <!-- МЕТОД НЕПОСРЕДСТВЕННОГО ИНТЕГРИРОВАНИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Метод непосредственного интегрирования</div>
+        <div class="section-content">
+
+            <div class="example-block">
+                <p><span class="step">Пример 1.</span> Найти интеграл: \(\int (3x^2 + 2x + 1)dx\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Разбиваем на сумму интегралов:</span></p>
+                <p>\(\int (3x^2 + 2x + 1)dx = \int 3x^2 dx + \int 2x dx + \int 1 dx\)</p>
+                <p class="example-comment">✓ Используем свойство 1: интеграл суммы равен сумме интегралов</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Выносим константы за знак интеграла:</span></p>
+                <p>\(= 3\int x^2 dx + 2\int x dx + \int 1 dx\)</p>
+                <p class="example-comment">✓ Используем свойство 2: \(\int a\cdot f(x)dx = a\cdot \int f(x)dx\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Применяем табличные формулы:</span></p>
+                <p>\(= 3\cdot\frac{x^3}{3} + 2\cdot\frac{x^2}{2} + x + C\)</p>
+                <p class="example-comment">✓ \(\int x^n dx = \frac{x^{n+1}}{n+1}\), \(\int 1 dx = x\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Упрощаем:</span></p>
+                <p>\(= x^3 + x^2 + x + C\)</p>
+                <p style="margin-top:10px;"><span class="result">Ответ: \(x^3 + x^2 + x + C\)</span></p>
+            </div>
+
+            <div class="example-block">
+                <p><span class="step">Пример 2.</span> Найти интеграл: \(\int \frac{x^4 + 2x^3 - x}{x}dx\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Упрощаем подынтегральное выражение:</span></p>
+                <p>\(\int \frac{x^4 + 2x^3 - x}{x}dx = \int \left(\frac{x^4}{x} + \frac{2x^3}{x} - \frac{x}{x}\right)dx\)</p>
+                <p class="example-comment">✓ Почленно делим числитель на знаменатель</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Сокращаем дроби:</span></p>
+                <p>\(= \int (x^3 + 2x^2 - 1)dx\)</p>
+                <p class="example-comment">✓ \(\frac{x^4}{x}=x^3\), \(\frac{2x^3}{x}=2x^2\), \(\frac{x}{x}=1\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Интегрируем почленно:</span></p>
+                <p>\(= \int x^3 dx + 2\int x^2 dx - \int 1 dx\)</p>
+                <p class="example-comment">✓ Разбиваем на сумму интегралов и выносим константу 2</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Применяем табличные формулы:</span></p>
+                <p>\(= \frac{x^4}{4} + 2\cdot\frac{x^3}{3} - x + C\)</p>
+                <p class="example-comment">✓ \(\int x^3 dx = \frac{x^4}{4}\), \(\int x^2 dx = \frac{x^3}{3}\), \(\int 1 dx = x\)</p>
+                <p style="margin-top:10px;"><span class="result">Ответ: \(\frac{x^4}{4} + \frac{2x^3}{3} - x + C\)</span></p>
+            </div>
+
+            <div class="example-block">
+                <p><span class="step">Пример 3.</span> Найти интеграл: \(\int 3x^2(2x - 4)dx\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Раскрываем скобки:</span></p>
+                <p>\(\int 3x^2(2x - 4)dx = \int (6x^3 - 12x^2)dx\)</p>
+                <p class="example-comment">✓ Умножаем: \(3x^2\cdot 2x = 6x^3\), \(3x^2\cdot(-4) = -12x^2\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Интегрируем почленно:</span></p>
+                <p>\(= 6\int x^3 dx - 12\int x^2 dx\)</p>
+                <p class="example-comment">✓ Выносим константы за знак интеграла</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Применяем табличные формулы:</span></p>
+                <p>\(= 6\cdot\frac{x^4}{4} - 12\cdot\frac{x^3}{3} + C\)</p>
+                <p class="example-comment">✓ \(\int x^3 dx = \frac{x^4}{4}\), \(\int x^2 dx = \frac{x^3}{3}\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Упрощаем:</span></p>
+                <p>\(= \frac{6x^4}{4} - 4x^3 + C = \frac{3x^4}{2} - 4x^3 + C\)</p>
+                <p class="example-comment">✓ Сокращаем: \(\frac{6}{4}=\frac{3}{2}\), \(\frac{12}{3}=4\)</p>
+                <p style="margin-top:10px;"><span class="result">Ответ: \(\frac{3x^4}{2} - 4x^3 + C\)</span></p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ПРИМЕРЫ ДЛЯ САМОСТОЯТЕЛЬНОГО РЕШЕНИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">✍️ Примеры для самостоятельного решения</div>
+        <div class="section-content">
+
+            <div class="note-box">
+                📝 Попробуйте решить каждый пример самостоятельно. Если возникнут трудности — откройте <strong>подсказку</strong>. Сверьте свой ответ с <strong>ответом</strong>. Помните: в конце всегда должна стоять константа \(C\)!<br>
+                🔥 В примерах <strong>6–10</strong> встречаются сложные функции вида \(f(kx+b)\) — применяйте <strong>свойство 3</strong>: \(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b) + C\).
+            </div>
+
+            <!-- ПРИМЕР 1 -->
+            <div class="example-block">
+                <p><span class="step">Пример 1.</span> Найти интеграл: \(\int (4x^3 - 2x + 7)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте интеграл на сумму трёх интегралов по свойству 1. Затем вынесите постоянные множители 4 и 2 за знак интеграла (свойство 2). Примените формулу \(\int x^n dx = \frac{x^{n+1}}{n+1}\) и \(\int 1\,dx = x\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(x^4 - x^2 + 7x + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 2 -->
+            <div class="example-block">
+                <p><span class="step">Пример 2.</span> Найти интеграл: \(\int (6x^2 + 4\cos x)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на два интеграла. Константы 6 и 4 вынесите за знак интеграла. Используйте табличные формулы \(\int x^2 dx = \frac{x^3}{3}\) и \(\int \cos x\,dx = \sin x\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(2x^3 + 4\sin x + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 3 -->
+            <div class="example-block">
+                <p><span class="step">Пример 3.</span> Найти интеграл: \(\int \frac{x^3 - 4x^2 + 2x}{x}\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Сначала почленно разделите числитель на знаменатель: \(\frac{x^3}{x} = x^2\), \(\frac{4x^2}{x} = 4x\), \(\frac{2x}{x} = 2\). Затем интегрируйте получившийся многочлен почленно.</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{x^3}{3} - 2x^2 + 2x + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 4 -->
+            <div class="example-block">
+                <p><span class="step">Пример 4.</span> Найти интеграл: \(\int 2x(x^2 + 3)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Сначала раскройте скобки: \(2x \cdot x^2 = 2x^3\), \(2x \cdot 3 = 6x\). Затем интегрируйте почленно, вынося константы за знак интеграла.</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{x^4}{2} + 3x^2 + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 5 -->
+            <div class="example-block">
+                <p><span class="step">Пример 5.</span> Найти интеграл: \(\int (5\sin x - 3e^x)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на два интеграла и вынесите константы. Используйте табличные формулы \(\int \sin x\,dx = -\cos x\) и \(\int e^x dx = e^x\). Следите за знаком минус!</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(-5\cos x - 3e^x + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 6 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 6.</span> Найти интеграл: \(\int \cos(3x)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = \cos(\cdot)\), \(k = 3\), \(b = 0\). Примените свойство 3: \(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b) + C\). Табличная первообразная: \(\int \cos x\,dx = \sin x\). Не забудьте разделить на \(k = 3\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{\sin(3x)}{3} + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 7 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 7.</span> Найти интеграл: \(\int e^{4x+1}\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = e^{(\cdot)}\), \(k = 4\), \(b = 1\). Примените свойство 3: \(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b) + C\). Табличная первообразная: \(\int e^x dx = e^x\). Разделите на \(k = 4\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{e^{4x+1}}{4} + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 8 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 8.</span> Найти интеграл: \(\int \frac{dx}{5x-2}\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = \frac{1}{\cdot}\), \(k = 5\), \(b = -2\). Примените свойство 3: \(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b) + C\). Табличная первообразная: \(\int \frac{1}{x}dx = \ln|x|\). Разделите на \(k = 5\) и не забудьте модуль.</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{1}{5}\ln|5x-2| + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 9 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 9.</span> Найти интеграл: \(\int (2x+3)^5\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = (\cdot)^5\), \(k = 2\), \(b = 3\). Примените свойство 3 (или табличную формулу для \((kx+b)^n\)): \(\int (kx+b)^n dx = \frac{(kx+b)^{n+1}}{k(n+1)} + C\). Здесь \(n = 5\), \(k = 2\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{(2x+3)^6}{12} + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 10 · смешанный -->
+            <div class="example-block">
+                <p><span class="step">Пример 10.</span> Найти интеграл: \(\int \bigl(3x^2 + \sin(2x) - e^{-x}\bigr)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на три интеграла по свойству 1: \(\int 3x^2\,dx + \int \sin(2x)\,dx - \int e^{-x}\,dx\).<br>
+                            • Первый — табличный: \(\int x^2 dx = \frac{x^3}{3}\), вынесите 3.<br>
+                            • Второй — сложная функция с \(k = 2\): \(\int \sin(2x)\,dx = -\frac{\cos(2x)}{2}\).<br>
+                            • Третий — сложная функция с \(k = -1\): \(\int e^{-x}\,dx = \frac{e^{-x}}{-1} = -e^{-x}\).<br>
+                            Будьте внимательны со знаками!</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(x^3 - \frac{\cos(2x)}{2} + e^{-x} + C\)</p>
+                    </div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ЧАСТЫЕ ОШИБКИ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚠️ Частые ошибки</div>
+        <div class="section-content">
+            <div class="def-card">
+                <p>❌ <strong>Забывают прибавить константу \(C\)</strong> — неопределённый интеграл = семейство функций, а не одна функция.</p>
+                <p>❌ <strong>Неправильно делят на коэффициент \(k\)</strong> — при интегрировании \(f(kx+b)\) всегда делим на \(k\): \(\int \sin(3x)dx = -\frac{\cos(3x)}{3} + C\).</p>
+                <p>❌ <strong>Путают знаки в тригонометрических интегралах</strong> — \(\int \sin x = -\cos x\), а \(\int \cos x = \sin x\).</p>
+                <p>✅ <strong>Проверяйте себя производной:</strong> \((F(x) + C)'\) должно равняться подынтегральной функции \(f(x)\).</p>
+            </div>
+        </div>
+    </div>
+
+    <a href="integral.html" class="back-link">← Назад к интегралам</a>
+</div>
+
+<script>
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
+        }
+    })();
+
+    window.addEventListener('load', function() {
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    });
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,1056 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Выпуклость и точки перегиба</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(139,92,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #8b5cf6; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --graph-bg: #243848;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #8b5cf6; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --graph-bg: #f8fafc;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 12000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .keep-sign { background: #065f46; color: #6ee7b7; padding: 2px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap; }
+        .flip-sign { background: #991b1b; color: #fca5a5; padding: 2px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap; }
+        .convex-up { color: #34d399; font-weight: 700; }
+        .convex-down { color: #f87171; font-weight: 700; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+
+        .graph-container { text-align: center; margin: 12px 0; background: var(--graph-bg); border-radius: 16px; padding: 8px; border: 1px solid var(--border); }
+        .graph-container canvas { display: block; width: 100%; height: auto; border-radius: 12px; background: var(--graph-bg); }
+        .graph-container canvas.parabola-plot { aspect-ratio: 650 / 220; min-height: 170px; }
+        .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; }
+
+        .interval-method { color: #fbbf24; font-weight: 700; background: rgba(251,191,36,0.12); padding: 2px 10px; border-radius: 6px; display: inline-block; border-left: 3px solid #fbbf24; }
+
+        .error-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9rem; border-radius: 12px; overflow: hidden; }
+        .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 10px 0; border-radius: 12px; }
+        .table-scroll .error-table { min-width: 600px; margin: 0; }
+        .error-table th { background: var(--special-border); color: white; padding: 10px 12px; text-align: left; font-weight: 700; }
+        .error-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; background: var(--card-bg); }
+        .error-table tr:nth-child(even) td { background: var(--formula-bg); }
+        .error-table tr:last-child td { border-bottom: none; }
+        .error-table .wrong { color: var(--danger-color); font-weight: 700; }
+        .error-table .right { color: var(--result-color); font-weight: 700; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { skipHtmlTypes: 'script', ignoreHtmlClass: 'no-mathjax' },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>📐 Выпуклость и точки перегиба</h1>
+
+    <!-- ===== 1. ВВЕДЕНИЕ ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Зачем нужна выпуклость</span>
+            <span class="sub-title">от дорожных знаков до экономики</span>
+        </div>
+        <div class="section-content">
+            <p>Знак «Осторожно, неровная дорога» изображает волну — сначала <strong>горка</strong> (выпуклость вверх), потом <strong>впадина</strong> (выпуклость вниз), потом снова горка. Точка, где горка переходит во впадину, называется <strong>точкой перегиба</strong>. Именно так <strong>выпуклость функции</strong> и <strong>точки перегиба</strong> описывают форму графика.</p>
+            <p>Выпуклость важна везде: в экономике (рост прибыли ускоряется или замедляется), в физике (ускорение), в дизайне (плавные линии), в строительстве (арки мостов).</p>
+            <div class="important">
+                <strong>💡 Главная идея:</strong> <strong>вторая производная $f''(x)$</strong> отвечает за <strong>направление изгиба</strong>. Если $f''(x) > 0$ — график «улыбается» (∪), если $f''(x) < 0$ — «грустит» (∩). В точке перегиба знак $f''$ меняется.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 2. ОПРЕДЕЛЕНИЕ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Определение выпуклости</span>
+            <span class="sub-title">выпуклая вниз и вверх</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block" style="border-left-color:#34d399;">
+                <strong><span class="convex-up">Выпуклая вниз</span> (∪):</strong><br>
+                График лежит <strong>выше</strong> касательной.<br>
+                Вторая производная: <strong>$f''(x) > 0$</strong>.<br>
+                Пример: $y = x^2$.
+            </div>
+            <div class="graph-container">
+                <canvas id="graphConvexDown" class="parabola-plot" width="650" height="220"></canvas>
+                <div class="graph-label">🟢 График $y = x^2$ <span style="color:#34d399;">выше</span> касательной (выпуклый вниз)</div>
+            </div>
+            <div class="formula-block" style="border-left-color:#f87171;">
+                <strong><span class="convex-down">Выпуклая вверх</span> (∩):</strong><br>
+                График лежит <strong>ниже</strong> касательной.<br>
+                Вторая производная: <strong>$f''(x) < 0$</strong>.<br>
+                Пример: $y = -x^2$.
+            </div>
+            <div class="graph-container">
+                <canvas id="graphConvexUp" class="parabola-plot" width="650" height="220"></canvas>
+                <div class="graph-label">🔴 График $y = -x^2$ <span style="color:#f87171;">ниже</span> касательной (выпуклый вверх)</div>
+            </div>
+            <div class="formula-block" style="border-left-color:#fbbf24;">
+                <strong>Точка перегиба</strong> — точка, где функция <strong>меняет направление выпуклости</strong>.<br>
+                В точке перегиба: <strong>$f''(x) = 0$</strong> (или не существует) и <strong>меняется знак</strong> $f''(x)$.<br>
+                Пример: $y = x^3$ в точке $x = 0$.
+            </div>
+            <div class="graph-container">
+                <canvas id="graphInflection" class="parabola-plot" width="650" height="220"></canvas>
+                <div class="graph-label">🟡 График $y = x^3$ меняет выпуклость в точке $(0; 0)$</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 3. АЛГОРИТМ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📋 Алгоритм исследования</span>
+            <span class="sub-title">с методом интервалов</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Как найти промежутки выпуклости и точки перегиба:</strong><br><br>
+                <span class="step">1️⃣ Найти вторую производную $f''(x)$.</span><br>
+                <span class="step">2️⃣ Найти точки, где $f''(x) = 0$ или не существует.</span><br>
+                <span class="step">3️⃣ Нанести эти точки на числовую прямую.</span><br>
+                <span class="step">4️⃣ <span class="interval-method">Метод интервалов:</span> определить знак $f''(x)$ на каждом промежутке, подставляя любое число из промежутка.</span><br>
+                <div class="hint">• если $f''(x) > 0$ → функция <span class="convex-up">выпукла вниз</span> (∪)<br>• если $f''(x) < 0$ → функция <span class="convex-down">выпукла вверх</span> (∩)</div>
+                <span class="step">5️⃣ Если в точке $x_0$ знак $f''(x)$ меняется, то $x_0$ — <strong>точка перегиба</strong>.</span>
+                <div class="hint">💡 <span class="interval-method">Метод интервалов</span> — берём любое число из промежутка, подставляем в $f''(x)$, смотрим знак.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 4. ПРИМЕР 1 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 1. $f(x) = x^3$</span>
+            <span class="sub-title">классическая точка перегиба</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1. Производные:</span><br>
+                $f(x) = x^3$<br>
+                $f'(x) = 3x^2$<br>
+                $f''(x) = 6x$.<br><br>
+
+                <span class="step">Шаг 2. Находим $f''(x) = 0$:</span><br>
+                $6x = 0 \Rightarrow x = 0$.<br><br>
+
+                <span class="step">Шаг 3. Метод интервалов.</span><br>
+                Наносим $x = 0$ на числовую прямую:
+            </div>
+
+            <!-- ===== CANVAS: метод интервалов ===== -->
+            <div class="graph-container">
+                <canvas id="intervalExample1" class="parabola-plot" width="650" height="220"></canvas>
+                <div class="graph-label">Знаки $f''(x) = 6x$ на интервалах $(-\infty; 0)$ и $(0; +\infty)$</div>
+            </div>
+
+            <div class="example">
+                <span class="step">Шаг 4. Проверяем знаки:</span><br>
+                $(-\infty; 0)$ — берём $x = -1$: $f''(-1) = -6 < 0$ → знак «−», функция <span class="convex-down">выпукла вверх (∩)</span>.<br>
+                $(0; +\infty)$ — берём $x = 1$: $f''(1) = 6 > 0$ → знак «+», функция <span class="convex-up">выпукла вниз (∪)</span>.<br><br>
+
+                <strong>Шаг 5. Вывод.</strong><br>
+                В точке $x = 0$ знак меняется с «−» на «+» ⇒ <strong>точка перегиба</strong>.<br><br>
+
+                <span class="result">Ответ:</span><br>
+                • Функция <span class="convex-down">выпукла вверх</span> на $(-\infty; 0)$.<br>
+                • Функция <span class="convex-up">выпукла вниз</span> на $(0; +\infty)$.<br>
+                • $x = 0$ — точка перегиба, $f(0) = 0$, координата $(0; 0)$.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 5. ПРИМЕР 2 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 2. $f(x) = x^4 - 6x^2$</span>
+            <span class="sub-title">две точки перегиба</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1. Производные:</span><br>
+                $f(x) = x^4 - 6x^2$<br>
+                $f'(x) = 4x^3 - 12x$<br>
+                $f''(x) = 12x^2 - 12 = 12(x^2 - 1)$.<br><br>
+
+                <span class="step">Шаг 2. Находим $f''(x) = 0$:</span><br>
+                $12(x^2 - 1) = 0 \Rightarrow x = \pm 1$.<br><br>
+
+                <span class="step">Шаг 3. Метод интервалов.</span><br>
+                Точки $-1$ и $1$ разбивают прямую на три промежутка.
+            </div>
+
+            <!-- ===== CANVAS: метод интервалов для примера 2 ===== -->
+            <div class="graph-container">
+                <canvas id="intervalExample2" class="parabola-plot" width="650" height="220"></canvas>
+                <div class="graph-label">Знаки $f''(x) = 12(x^2 - 1)$ на интервалах</div>
+            </div>
+
+            <div class="example">
+                <span class="step">Шаг 4. Проверяем знаки:</span><br>
+                $(-\infty; -1)$ — берём $x = -2$: $f''(-2) = 36 > 0$ → «+», <span class="convex-up">выпукла вниз (∪)</span>.<br>
+                $(-1; 1)$ — берём $x = 0$: $f''(0) = -12 < 0$ → «−», <span class="convex-down">выпукла вверх (∩)</span>.<br>
+                $(1; +\infty)$ — берём $x = 2$: $f''(2) = 36 > 0$ → «+», <span class="convex-up">выпукла вниз (∪)</span>.<br><br>
+
+                <strong>Шаг 5. Вывод.</strong><br>
+                $x = -1$: «+» → «−» ⇒ точка перегиба, $f(-1) = -5$.<br>
+                $x = 1$: «−» → «+» ⇒ точка перегиба, $f(1) = -5$.<br><br>
+
+                <span class="result">Ответ: <span class="convex-up">выпукла вниз</span> на $(-\infty; -1) \cup (1; +\infty)$; <span class="convex-down">выпукла вверх</span> на $(-1; 1)$; точки перегиба $(-1; -5)$ и $(1; -5)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 6. ПРИМЕР 3 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 3. $f(x) = \sin x$</span>
+            <span class="sub-title">периодические точки перегиба</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1. Производные:</span><br>
+                $f(x) = \sin x$<br>
+                $f'(x) = \cos x$<br>
+                $f''(x) = -\sin x$.<br><br>
+
+                <span class="step">Шаг 2. Находим $f''(x) = 0$:</span><br>
+                $-\sin x = 0 \Rightarrow x = \pi k,\; k \in \mathbb{Z}$.<br><br>
+
+                <span class="step">Шаг 3. Метод интервалов:</span><br>
+                $(0; \pi)$ — берём $x = \pi/2$: $f''(\pi/2) = -1 < 0$ → «−», <span class="convex-down">выпукла вверх (∩)</span>.<br>
+                $(\pi; 2\pi)$ — берём $x = 3\pi/2$: $f''(3\pi/2) = 1 > 0$ → «+», <span class="convex-up">выпукла вниз (∪)</span>.<br><br>
+
+                <span class="result">Ответ: точки перегиба $(\pi k; 0)$; выпукла вверх на $(2\pi k; \pi + 2\pi k)$; выпукла вниз на $(\pi + 2\pi k; 2\pi + 2\pi k)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 7. ПРИМЕР 4 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 4. $f(x) = x^4$</span>
+            <span class="sub-title">нет точек перегиба</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1. Производные:</span><br>
+                $f''(x) = 12x^2$.<br><br>
+                <span class="step">Шаг 2. $f''(x) = 0 \Rightarrow x = 0$.</span><br><br>
+                <span class="step">Шаг 3. Метод интервалов:</span><br>
+                $(-\infty; 0)$ — берём $x = -1$: $f''(-1) = 12 > 0$ → «+».<br>
+                $(0; +\infty)$ — берём $x = 1$: $f''(1) = 12 > 0$ → «+».<br><br>
+
+                <span class="result">Ответ: <span class="convex-up">выпукла вниз</span> на $\mathbb{R}$; <strong>точек перегиба нет</strong> — знак $f''$ не меняется.</span>
+                <div class="hint">💡 $f''(0) = 0$, но знак не меняется — значит, это не точка перегиба.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 8. ПРИМЕР 5 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 5. $f(x) = x^5$</span>
+            <span class="sub-title">точка перегиба с плоским участком</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1.</span> $f''(x) = 20x^3$.<br>
+                <span class="step">Шаг 2.</span> $f''(x) = 0 \Rightarrow x = 0$.<br>
+                <span class="step">Шаг 3. Метод интервалов:</span><br>
+                $(-\infty; 0)$: $f''(-1) = -20 < 0$ → «−», <span class="convex-down">выпукла вверх</span>.<br>
+                $(0; +\infty)$: $f''(1) = 20 > 0$ → «+», <span class="convex-up">выпукла вниз</span>.<br><br>
+                <span class="result">Ответ: $x = 0$ — точка перегиба, $(0; 0)$; выпукла вверх на $(-\infty; 0)$, вниз на $(0; +\infty)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 9. ПРИМЕР 6 ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Пример 6. $f(x) = \frac{1}{x}$</span>
+            <span class="sub-title">$f''$ не существует в точке $x = 0$</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <span class="step">Шаг 1.</span> $f''(x) = \dfrac{2}{x^3}$.<br>
+                <span class="step">Шаг 2.</span> $f''(x) = 0$ — решений нет; $f''$ не существует в $x = 0$.<br>
+                <span class="step">Шаг 3. Метод интервалов:</span><br>
+                $(-\infty; 0)$: $f''(-1) = -2 < 0$ → «−», <span class="convex-down">выпукла вверх</span>.<br>
+                $(0; +\infty)$: $f''(1) = 2 > 0$ → «+», <span class="convex-up">выпукла вниз</span>.<br><br>
+                <span class="result">Ответ: $x = 0$ — разрыв, <strong>не точка перегиба</strong>; выпукла вверх на $(-\infty; 0)$, вниз на $(0; +\infty)$.</span>
+                <div class="hint">💡 Точка перегиба должна принадлежать области определения функции.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 10. СВЯЗЬ С ЭКСТРЕМУМАМИ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔗 Связь с экстремумами</span>
+            <span class="sub-title">вторая производная и тип экстремума</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                Если $f'(x_0) = 0$ и $f''(x_0) \neq 0$, то:<br>
+                • $f''(x_0) < 0$ → $x_0$ — точка <strong>максимума</strong> (функция выпукла вверх).<br>
+                • $f''(x_0) > 0$ → $x_0$ — точка <strong>минимума</strong> (функция выпукла вниз).<br>
+                • $f''(x_0) = 0$ → требуется дополнительное исследование.
+            </div>
+            <div class="example">
+                <strong>Пример.</strong> $f(x) = x^2$:<br><br>
+                $f'(x) = 2x = 0 \Rightarrow x = 0$<br>
+                $f''(x) = 2 > 0 \Rightarrow x = 0$ — точка <strong>минимума</strong>.<br>
+                <span class="result">Минимум в $(0; 0)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 11. ТИПИЧНЫЕ ОШИБКИ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚠️ Типичные ошибки</span>
+        </div>
+        <div class="section-content">
+            <div class="table-scroll">
+                <table class="error-table">
+                    <thead><tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr></thead>
+                    <tbody>
+                    <tr>
+                        <td class="wrong">Считают, что $f''(x_0) = 0$ — это точка перегиба</td>
+                        <td>Если знак $f''$ не меняется, перегиба нет (например, $y = x^4$ при $x = 0$).</td>
+                        <td class="right">Проверять смену знака $f''$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Путают выпуклость вверх и вниз</td>
+                        <td>Знак $f''$ определяет: $> 0$ — вниз (∪), $< 0$ — вверх (∩).</td>
+                        <td class="right">Запомнить: $f'' > 0$ → «улыбка»</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Считают точку разрыва точкой перегиба</td>
+                        <td>Точка перегиба должна принадлежать области определения.</td>
+                        <td class="right">Проверять $D(f)$</td>
+                    </tr>
+                    <tr>
+                        <td class="wrong">Не проверяют знаки на всех интервалах</td>
+                        <td>Можно пропустить смену знака или принять за неё там, где её нет.</td>
+                        <td class="right">Метод интервалов — на каждом промежутке</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 12. СВОДНАЯ ТАБЛИЦА ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📊 Сводная таблица</span>
+        </div>
+        <div class="section-content">
+            <div class="formula-block">
+                <strong>1.</strong> $f''(x) > 0$ → <span class="convex-up">выпукла вниз</span> (∪).<br><br>
+                <strong>2.</strong> $f''(x) < 0$ → <span class="convex-down">выпукла вверх</span> (∩).<br><br>
+                <strong>3.</strong> Точка перегиба = смена знака $f''$ + принадлежит $D(f)$.<br><br>
+                <strong>4.</strong> Алгоритм: $f''$ → нули → знаки → вывод.<br><br>
+                <strong>5.</strong> При $f'(x_0) = 0$: $f''(x_0) > 0$ → минимум, $f''(x_0) < 0$ → максимум.
+            </div>
+        </div>
+    </div>
+
+    <a href="derivative.html" class="back-link">← Назад к производным</a>
+</div>
+
+<script>
+    // ========== ИНИЦИАЛИЗАЦИЯ ТЕМЫ ==========
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
+
+    // ========== РИСОВАНИЕ ГРАФИКОВ С КАСАТЕЛЬНОЙ ==========
+    function drawGraphWithTangent(canvasId, func, xMin, xMax, yMin, yMax, tangentX, color) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 40;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        // Сетка
+        ctx.strokeStyle = isLight ? '#dce3ec' : '#2a3a4a';
+        ctx.lineWidth = 0.6;
+        for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x += 1) {
+            if (Math.abs(x) < 0.01) continue;
+            const sx = toX(x);
+            ctx.beginPath();
+            ctx.moveTo(sx, pad);
+            ctx.lineTo(sx, h - pad);
+            ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(x, sx, h - pad + 4);
+        }
+        for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y += 1) {
+            if (Math.abs(y) < 0.01) continue;
+            const sy = toY(y);
+            ctx.beginPath();
+            ctx.moveTo(pad, sy);
+            ctx.lineTo(w - pad, sy);
+            ctx.stroke();
+            ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(y, pad - 8, sy);
+        }
+
+        // Оси
+        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 1.8;
+        const ox = toY(0), oy = toX(0);
+        if (ox >= pad && ox <= h - pad) {
+            ctx.beginPath();
+            ctx.moveTo(pad, ox);
+            ctx.lineTo(w - pad, ox);
+            ctx.stroke();
+        }
+        if (oy >= pad && oy <= w - pad) {
+            ctx.beginPath();
+            ctx.moveTo(oy, pad);
+            ctx.lineTo(oy, h - pad);
+            ctx.stroke();
+        }
+
+        // График
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        let first = true;
+        const step = (xMax - xMin) / 500;
+        for (let x = xMin; x <= xMax; x += step) {
+            let y;
+            try { y = func(x); } catch (e) { first = true; continue; }
+            if (y === null || y === undefined || isNaN(y) || !isFinite(y) || y < yMin - 0.5 || y > yMax + 0.5) {
+                first = true;
+                continue;
+            }
+            const sx = toX(x), sy = toY(y);
+            if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+        }
+        ctx.stroke();
+
+        // Касательная
+        if (tangentX !== undefined && tangentX >= xMin && tangentX <= xMax) {
+            const fAt = func(tangentX);
+            const hStep = 0.001;
+            const slope = (func(tangentX + hStep) - func(tangentX - hStep)) / (2 * hStep);
+
+            const tStartX = tangentX - 1.5;
+            const tEndX = tangentX + 1.5;
+            const tStartY = fAt + slope * (tStartX - tangentX);
+            const tEndY = fAt + slope * (tEndX - tangentX);
+
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
+            ctx.beginPath();
+            ctx.moveTo(toX(tStartX), toY(tStartY));
+            ctx.lineTo(toX(tEndX), toY(tEndY));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.arc(toX(tangentX), toY(fAt), 6, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.strokeStyle = isLight ? '#ffffff' : '#0f1a24';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(toX(tangentX), toY(fAt), 6, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
+    }
+
+    // ========== МЕТОД ИНТЕРВАЛОВ (ДЛЯ ОДНОЙ ИЛИ НЕСКОЛЬКИХ ТОЧЕК) ==========
+    function drawIntervalPlotMulti(canvasId, zeros, signs, labels, xMin, xMax) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 40;
+        const pw = w - 2 * pad;
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        const yAxis = h - 80;
+
+        // Ось X
+        ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(pad - 10, yAxis);
+        ctx.lineTo(w - pad + 10, yAxis);
+        ctx.stroke();
+
+        // Стрелка
+        ctx.beginPath();
+        ctx.moveTo(w - pad + 10, yAxis);
+        ctx.lineTo(w - pad, yAxis - 5);
+        ctx.lineTo(w - pad, yAxis + 5);
+        ctx.closePath();
+        ctx.fillStyle = isLight ? '#5b7c9c' : '#8899aa';
+        ctx.fill();
+
+        // Подпись x
+        ctx.fillStyle = isLight ? '#1a2a3f' : '#ffffff';
+        ctx.font = '14px Inter,sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('x', w - pad, yAxis - 8);
+
+        // Точки (засечки + подписи)
+        const xPos = [];
+        for (let i = 0; i < zeros.length; i++) {
+            const zx = toX(zeros[i]);
+            xPos.push(zx);
+
+            // Засечка
+            ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(zx, yAxis - 6);
+            ctx.lineTo(zx, yAxis + 6);
+            ctx.stroke();
+
+            // Точка (выколотая)
+            ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+            ctx.beginPath();
+            ctx.arc(zx, yAxis, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = isLight ? '#5b7c9c' : '#8899aa';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Подпись точки
+            ctx.fillStyle = isLight ? '#1a2a3f' : '#ffffff';
+            ctx.font = 'bold 14px Inter,sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(zeros[i].toString(), zx, yAxis + 10);
+        }
+
+        // Дуги со знаками
+        const amp = 40;
+        const colors = {
+            plus: isLight ? '#059669' : '#34d399',
+            minus: isLight ? '#dc2626' : '#f87171',
+            plusFill: isLight ? 'rgba(5,150,105,0.15)' : 'rgba(52,211,153,0.15)',
+            minusFill: isLight ? 'rgba(220,38,38,0.15)' : 'rgba(248,113,113,0.15)'
+        };
+
+        for (let si = 0; si < signs.length; si++) {
+            const xStart = (si === 0) ? pad - 10 : xPos[si - 1];
+            const xEnd = (si === signs.length - 1) ? w - pad + 10 : xPos[si];
+            const isPlus = (signs[si] === '+');
+
+            ctx.beginPath();
+            ctx.strokeStyle = isPlus ? colors.plus : colors.minus;
+            ctx.lineWidth = 3;
+            ctx.fillStyle = isPlus ? colors.plusFill : colors.minusFill;
+            for (let t = 0; t <= 1; t += 0.01) {
+                const xx = xStart + t * (xEnd - xStart);
+                const yy = yAxis - amp * Math.sin(t * Math.PI);
+                if (t === 0) ctx.moveTo(xx, yy);
+                else ctx.lineTo(xx, yy);
+            }
+            ctx.lineTo(xEnd, yAxis);
+            ctx.lineTo(xStart, yAxis);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Знак
+            const mid = (xStart + xEnd) / 2;
+            ctx.fillStyle = isPlus ? colors.plus : colors.minus;
+            ctx.font = 'bold 30px Inter,sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(signs[si], mid, yAxis - amp / 2 + 2);
+
+            // Подпись интервала
+            if (labels && labels[si]) {
+                ctx.fillStyle = isLight ? '#334155' : '#cbd5e1';
+                ctx.font = '12px Inter,sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(labels[si], mid, yAxis + 30);
+            }
+        }
+    }
+
+    function drawAllGraphs() {
+        // Выпуклая вниз: y = x²
+        drawGraphWithTangent('graphConvexDown',
+            x => x * x,
+            -2.5, 2.5, -1.5, 6,
+            1, '#34d399'
+        );
+
+        // Выпуклая вверх: y = -x²
+        drawGraphWithTangent('graphConvexUp',
+            x => -(x * x),
+            -2.5, 2.5, -6, 1.5,
+            1, '#f87171'
+        );
+
+        // Точка перегиба: y = x³
+        drawGraphWithTangent('graphInflection',
+            x => x * x * x,
+            -2.5, 2.5, -7, 7,
+            0, '#fbbf24'
+        );
+
+        // Метод интервалов для примера 1: f''(x) = 6x, ноль в x = 0
+        drawIntervalPlotMulti(
+            'intervalExample1',
+            [0],
+            ['-', '+'],
+            ['(−∞; 0)', '(0; +∞)'],
+            -2, 2
+        );
+
+        // Метод интервалов для примера 2: f''(x) = 12(x²-1), нули в -1 и 1
+        drawIntervalPlotMulti(
+            'intervalExample2',
+            [-1, 1],
+            ['+', '-', '+'],
+            ['(−∞; −1)', '(−1; 1)', '(1; +∞)'],
+            -2.5, 2.5
+        );
+    }
+
+    function initGraphs() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', drawAllGraphs);
+        } else {
+            drawAllGraphs();
+        }
+        window.addEventListener('load', drawAllGraphs);
+        setTimeout(drawAllGraphs, 1500);
+        setTimeout(drawAllGraphs, 3000);
+    }
+
+    initGraphs();
+
+    // Экспорт для theme.js
+    window.drawAllGraphs = drawAllGraphs;
+
+    window.addEventListener('resize', drawAllGraphs);
+    var observer = new MutationObserver(function () { drawAllGraphs(); });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Теорема о трёх перпендикулярах — 3D модели с подписями</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(249, 115, 22, 0.1);
+            --special-border: #f97316;
+            --canvas-bg: #1a2d3c;
+            --theorem-bg: #1a2d3c;
+            --accent: #1abc9c;
+            --warning-bg: rgba(251,191,36,0.15);
+            --warning-border: #fbbf24;
+            --danger-color: #f87171;
+            --result-color: #4ade80;
+            --formula-color: #fbbf24;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --border: #eff3f8;
+            --special-border: #f97316;
+            --canvas-bg: #eef2f8;
+            --theorem-bg: #fefce8;
+            --accent: #1abc9c;
+            --warning-bg: #fffbeb;
+            --warning-border: #f59e0b;
+            --danger-color: #dc2626;
+            --result-color: #059669;
+            --formula-color: #b45309;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); padding: 8px; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; }.theme-toggle:hover { transform: scale(1.1); }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
+        .section-title:hover { opacity: 0.8; }
+        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .section.collapsed .section-title::after { transform: rotate(-90deg); }
+        .section-content { max-height: 5000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .comp-list { list-style: none; }
+        .comp-list li { padding-left: 26px; margin-bottom: 10px; font-size: 0.95rem; line-height: 1.6; color: var(--text); background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="%23f97316"><rect x="4" y="10" width="16" height="4"/></svg>') left center no-repeat; background-size: 14px; }
+        p { font-size: 0.95rem; line-height: 1.6; color: var(--text); margin: 8px 0; }
+
+        .theorem-text { background: var(--theorem-bg); padding: 16px 18px; border-radius: 20px; border-left: 4px solid var(--special-border); margin: 10px 0; }
+        .theorem-text p { color: var(--text); }
+        .theorem-text strong { color: var(--text); }
+
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+
+        .model-container {
+            text-align: center;
+            margin: 16px 0;
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--canvas-bg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            min-height: 380px;
+        }
+        .model-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border-radius: 20px;
+            cursor: grab;
+            touch-action: none;
+        }
+        .model-canvas:active { cursor: grabbing; }
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            color: white;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .fullscreen-btn:hover { background: var(--special-border); transform: scale(1.05); }
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .back-link { display: inline-block; margin: 20px 0 10px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: transform 0.2s; }
+        .back-link:hover { transform: scale(1.02); }
+
+        @media (max-width: 700px) {
+            .model-container { min-height: 280px; }
+            .fullscreen-btn { width: 38px; height: 38px; font-size: 18px; bottom: 12px; right: 12px; }
+        }
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}/* ===== ЖЕСТКИЙ ФИКС КАРТОЧЕК В СВЕТЛОЙ ТЕМЕ ===== */
+:root.light-mode .theorem-text,
+:root.light-mode .important,
+:root.light-mode .example,
+:root.light-mode .formula-block {
+    background-color: #f8fafc !important; /* Светлый фон для карточек */
+    color: #1a2a3f !important; /* Темный текст */
+    border-left-color: var(--special-border) !important; /* Сохраняем цветную полоску */
+}
+
+/* Убеждаемся, что текст внутри (включая strong) тоже темный */
+:root.light-mode .theorem-text p,
+:root.light-mode .theorem-text strong,
+:root.light-mode .important p,
+:root.light-mode .important strong,
+:root.light-mode .example p,
+:root.light-mode .example strong,
+:root.light-mode .formula-block p,
+:root.light-mode .formula-block strong {
+    color: #1a2a3f !important;
+}
+
+/* Фикс для текста "Главная идея", который был оранжевым в темной теме */
+:root.light-mode .important strong {
+    color: #b45309 !important; /* Темно-оранжевый для светлой темы */
+}
+
+/* Фикс для контейнера 3D-моделей (на всякий случай) */
+:root.light-mode .model-container {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+:root.light-mode .subtitle {
+    color: #5a7a94 !important;
+}
+</style>
+    <script>MathJax={tex:{inlineMath:[['$','$']]}};</script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+    <style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<script src="./three/build/three.min.js"></script>
+<script src="./three/examples/js/controls/OrbitControls.js"></script>
+<script src="./three/examples/js/renderers/CSS2DRenderer.js"></script>
+
+<div class="container">
+    <h1>📐 Теорема о трёх перпендикулярах</h1>
+
+    <!-- ===== ВСТУПЛЕНИЕ ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Что здесь изучаем</div>
+        <div class="section-content">
+            <p>В стереометрии есть теорема, которая <strong>экономит кучу времени</strong> при решении задач. Она связывает три объекта: <strong>перпендикуляр</strong> к плоскости, <strong>наклонную</strong> к ней и <strong>прямую в плоскости</strong>, проходящую через основание наклонной.</p>
+            <p>Смысл прост: если в плоскости провести прямую, перпендикулярную <strong>проекции</strong> наклонной, то она автоматически будет перпендикулярна и <strong>самой наклонной</strong>. И наоборот.</p>
+            <div class="important">
+                <strong>💡 Главная идея:</strong> теорема о трёх перпендикулярах позволяет <strong>переносить перпендикулярность</strong> между наклонной и её проекцией. Не нужно каждый раз доказывать — достаточно проверить одно из двух.
+            </div>
+            <p>💡 Разберите сначала <strong>основные понятия</strong> (перпендикуляр, наклонная, проекция), потом прямую теорему и обратную. 3D-модели вращаются мышью.</p>
+        </div>
+    </div>
+
+    <!-- 1. ОСНОВНЫЕ ПОНЯТИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Основные понятия</div>
+        <div class="section-content">
+            <ul class="comp-list">
+                <li><strong>Перпендикуляр (AH)</strong> — отрезок, проведённый из точки A к плоскости α под прямым углом. Точка H — основание перпендикуляра.</li>
+                <li><strong>Наклонная (AB)</strong> — отрезок, проведённый из точки A к плоскости α, не являющийся перпендикуляром. Точка B — основание наклонной.</li>
+                <li><strong>Проекция наклонной (BH)</strong> — отрезок, соединяющий основание перпендикуляра и основание наклонной.</li>
+                <li><strong>Угол между наклонной и плоскостью</strong> — угол между наклонной AB и её проекцией BH на плоскость α, то есть ∠ABH.</li>
+            </ul>
+
+            <div class="model-container" id="concepts-container">
+                <canvas id="concepts-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="concepts-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div class="subtitle">AH — перпендикуляр, AB — наклонная, BH — проекция наклонной</div>
+        </div>
+    </div>
+
+    <!-- 2. ПРЯМАЯ ТЕОРЕМА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📖 Прямая теорема (ТТП)</div>
+        <div class="section-content">
+            <div class="theorem-text">
+                <p>Если прямая, проведённая на плоскости через основание наклонной, перпендикулярна её проекции, то она перпендикулярна и самой наклонной.</p>
+                <p>$AH \perp \alpha$, $c \subset \alpha$, $c \perp BH \Rightarrow c \perp AB$.</p>
+            </div>
+            <div class="model-container" id="direct-theorem-container">
+                <canvas id="direct-theorem-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="direct-theorem-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div class="subtitle">c ⊂ α, c ⟂ BH ⇒ c ⟂ AB</div>
+        </div>
+    </div>
+
+    <!-- 3. ОБРАТНАЯ ТЕОРЕМА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">🔄 Обратная теорема</div>
+        <div class="section-content">
+            <div class="theorem-text">
+                <p>Если прямая на плоскости перпендикулярна наклонной, то она перпендикулярна и проекции этой наклонной.</p>
+                <p>$c \perp AB \Rightarrow c \perp BH$.</p>
+            </div>
+            <div class="model-container" id="inverse-theorem-container">
+                <canvas id="inverse-theorem-canvas" class="model-canvas"></canvas>
+                <button class="fullscreen-btn" id="inverse-theorem-fullscreen" title="Во весь экран">⛶</button>
+            </div>
+            <div class="subtitle">c ⊂ α, c ⟂ AB ⇒ c ⟂ BH</div>
+        </div>
+    </div>
+
+    <a href="stereo.html" class="back-link">← Назад к меню</a>
+</div>
+
+<script>
+// ===== ОПТИМИЗАЦИЯ 3D (ЛЕНИВАЯ ЗАГРУЗКА) =====
+(function() {
+    // 1. Принудительно ставим среднее качество (если пользователь не выбрал явно)
+    if (!localStorage.getItem('quality3d')) {
+        localStorage.setItem('quality3d', 'medium');
+    }
+
+    // 2. Перехватываем запуск сцен
+    const originalInitScene = window.initScene;
+    if (originalInitScene) {
+        window.initScene = function(containerId, ...args) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            // Находим ближайший спойлер (section)
+            const section = container.closest('.section');
+            
+            // Если секция свернута — не запускаем 3D, пока не откроют
+            if (section && section.classList.contains('collapsed')) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (!section.classList.contains('collapsed')) {
+                            // Секция открылась — запускаем сцену
+                            originalInitScene(containerId, ...args);
+                            observer.disconnect(); // Отключаем слежку
+                        }
+                    });
+                });
+                observer.observe(section, { attributes: true, attributeFilter: ['class'] });
+                return; // Выходим, сцена не создается
+            }
+            
+            // Если секция изначально открыта — запускаем сразу
+            originalInitScene(containerId, ...args);
+        };
+    }
+})();
+</script>
+<script>
+    let quality3D = 'high';
+    if (window.Android && window.Android.getQuality3D) {
+        quality3D = window.Android.getQuality3D();
+    } else {
+        const saved = localStorage.getItem('quality3d');
+        if (saved) quality3D = saved;
+    }
+
+    window.quality3D = quality3D;
+
+    const qualitySettings = {
+        low:    { segments: 24, opacity: 1.0,  transparent: false },
+        medium: { segments: 48, opacity: 0.65, transparent: true },
+        high:   { segments: 96, opacity: 0.55, transparent: true }
+    };
+
+    const settings = qualitySettings[quality3D] || qualitySettings.high;
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeBtn');
+        if (html.classList.contains('light-mode')) {
+            html.classList.remove('light-mode');
+            localStorage.setItem('mathTheme', 'dark');
+            btn.textContent = '🌙';
+        } else {
+            html.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            btn.textContent = '☀️';
+        }
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+    (function initTheme() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            const btn = document.getElementById('themeBtn');
+            if (btn) btn.textContent = '☀️';
+        }
+    })();
+
+    (async function() {
+
+        function makeLabel(text, color, position, fontSize = '0.85rem') {
+            const sizeNum = parseFloat(fontSize);
+            const biggerSize = (sizeNum * 1.15).toFixed(2) + 'rem';
+
+            const div = document.createElement('div');
+            div.textContent = text;
+            div.style.color = color;
+            div.style.fontSize = biggerSize;
+            div.style.fontWeight = '900';
+            div.style.fontFamily = "'JetBrains Mono', monospace";
+            div.style.letterSpacing = '0.02em';
+            div.style.background = 'transparent';
+            div.style.padding = '0';
+            div.style.border = 'none';
+            div.style.whiteSpace = 'nowrap';
+            div.style.pointerEvents = 'none';
+            div.style.webkitTextStroke = '1.5px #000';
+            div.style.paintOrder = 'stroke fill';
+            div.style.textShadow = '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 0 0 #000, -1px 0 0 #000';
+            const label = new THREE.CSS2DObject(div);
+            label.position.copy(position);
+            return label;
+        }
+
+        function addThickLine(scene, start, end, color, thickness = 0.012) {
+            const mainGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+            const mainMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 1 });
+            scene.add(new THREE.Line(mainGeo, mainMat));
+
+            const dir = end.clone().sub(start);
+            if (dir.length() < 0.001) return;
+            dir.normalize();
+            const up = new THREE.Vector3(0, 1, 0);
+            let perp1 = new THREE.Vector3().crossVectors(dir, up);
+            if (perp1.length() < 0.001) perp1 = new THREE.Vector3(1, 0, 0);
+            perp1.normalize().multiplyScalar(thickness);
+            const perp2 = new THREE.Vector3().crossVectors(dir, perp1).normalize().multiplyScalar(thickness);
+            [perp1, perp1.clone().negate(), perp2, perp2.clone().negate()].forEach(off => {
+                const geo = new THREE.BufferGeometry().setFromPoints([start.clone().add(off), end.clone().add(off)]);
+                const m = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.7 });
+                scene.add(new THREE.Line(geo, m));
+            });
+        }
+
+        function initScene(containerId, canvasId, builder, fullscreenBtnId = null) {
+            const container = document.getElementById(containerId);
+            const canvas = document.getElementById(canvasId);
+            if (!container || !canvas) return;
+
+            const scene = new THREE.Scene();
+            scene.background = null;
+            scene.fog = null;
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            camera.position.set(4, 3, 5);
+            camera.lookAt(0, 0, 0);
+
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+
+        // ===== Настройка качества 3D (Вставлено скриптом) =====
+        if (typeof window.quality3D !== 'undefined') {
+            if (window.quality3D === 'low') {
+                renderer.setPixelRatio(0.75);
+                renderer.shadowMap.enabled = false;
+                renderer.antialias = false;
+            } else if (window.quality3D === 'medium') {
+                renderer.setPixelRatio(1);
+            } else {
+                renderer.setPixelRatio(window.devicePixelRatio || 1);
+            }
+        }
+        // ======================================================
+
+        
+            renderer.setSize(width, height);
+
+            const labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.left = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            container.style.position = 'relative';
+            container.appendChild(labelRenderer.domElement);
+
+            function updateSize() {
+                const rect = container.getBoundingClientRect();
+                let w = rect.width, h = rect.height;
+                if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
+                    w = window.innerWidth;
+                    h = window.innerHeight;
+                }
+                if (w < 10) w = 800;
+                if (h < 10) h = 450;
+                canvas.style.width = `${w}px`;
+                canvas.style.height = `${h}px`;
+                canvas.width = w;
+                canvas.height = h;
+                renderer.setSize(w, h);
+                labelRenderer.setSize(w, h);
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+            }
+
+            function forceResizeScene() {
+                canvas.style.width = '';
+                canvas.style.height = '';
+                setTimeout(() => { updateSize(); requestAnimationFrame(() => updateSize()); }, 30);
+            }
+
+            const resizeObserver = new ResizeObserver(() => updateSize());
+            resizeObserver.observe(container);
+            setTimeout(updateSize, 100);
+
+            scene.add(new THREE.AmbientLight(0x40486c, 0.6));
+            const keyLight = new THREE.DirectionalLight(0xfff5e0, 1.2);
+            keyLight.position.set(2, 5, 2); scene.add(keyLight);
+            const fillLight = new THREE.PointLight(0xccaa77, 0.55);
+            fillLight.position.set(-1.5, 2, 2); scene.add(fillLight);
+            const rimLight = new THREE.PointLight(0x88aaff, 0.5);
+            rimLight.position.set(1, 2, -3); scene.add(rimLight);
+            const bottomLight = new THREE.PointLight(0x6699cc, 0.35);
+            bottomLight.position.set(0, -1.2, 0); scene.add(bottomLight);
+
+            
+
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.06;
+            controls.autoRotate = false;
+            controls.enableZoom = true;
+            controls.enablePan = true;
+            controls.rotateSpeed = 1.0;
+            controls.target.set(0, 0, 0);
+
+            if (builder) builder(scene, THREE, labelRenderer, camera, makeLabel, addThickLine);
+
+            if (fullscreenBtnId) {
+                const fullscreenBtn = document.getElementById(fullscreenBtnId);
+                if (fullscreenBtn) {
+                    async function toggleFullscreen() {
+                        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                            try { await container.requestFullscreen(); fullscreenBtn.textContent = '✖'; } catch(err) {}
+                        } else {
+                            if (document.exitFullscreen) await document.exitFullscreen();
+                            else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                            fullscreenBtn.textContent = '⛶';
+                            forceResizeScene();
+                        }
+                    }
+                    fullscreenBtn.addEventListener('click', toggleFullscreen);
+                    document.addEventListener('fullscreenchange', () => {
+                        if (document.fullscreenElement === container || document.webkitFullscreenElement === container) {
+                            fullscreenBtn.textContent = '✖'; updateSize();
+                        } else {
+                            fullscreenBtn.textContent = '⛶'; forceResizeScene();
+                        }
+                    });
+                }
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
+            }
+            animate();
+
+            return { scene, controls };
+        }
+
+        // ===== 1. ОСНОВНЫЕ ПОНЯТИЯ =====
+        initScene('concepts-container', 'concepts-canvas', (scene, THREE, labelRenderer, camera, makeLabel, addThickLine) => {
+            const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
+            const planeMat = new THREE.MeshPhysicalMaterial({
+                color: 0xf97316, side: THREE.DoubleSide,
+                transparent: settings.transparent, opacity: settings.opacity,
+                metalness: 0.3, roughness: 0.4, emissive: 0x331500
+            });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = 0;
+            scene.add(plane);
+
+            const borderPoints = [
+                new THREE.Vector3(-1.75, 0, -1.75), new THREE.Vector3( 1.75, 0, -1.75),
+                new THREE.Vector3( 1.75, 0,  1.75), new THREE.Vector3(-1.75, 0,  1.75),
+                new THREE.Vector3(-1.75, 0, -1.75)
+            ];
+            for (let i = 0; i < 4; i++) {
+                addThickLine(scene, borderPoints[i], borderPoints[i+1], 0xfb923c);
+            }
+
+            const pointH_pos = new THREE.Vector3(0, 0, 0);
+            const pointA_pos = new THREE.Vector3(0, 1.1, 0);
+            const pointB_pos = new THREE.Vector3(1.0, 0, 0.5);
+
+            // AH — перпендикуляр
+            addThickLine(scene, pointA_pos, pointH_pos, 0xf87171);
+            // AB — наклонная
+            addThickLine(scene, pointA_pos, pointB_pos, 0x60a5fa);
+            // BH — проекция
+            addThickLine(scene, pointB_pos, pointH_pos, 0xfde047);
+
+            const ptH = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0x442200 }));
+            ptH.position.copy(pointH_pos);
+            scene.add(ptH);
+
+            const ptA = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0xf87171, emissive: 0x441100 }));
+            ptA.position.copy(pointA_pos);
+            scene.add(ptA);
+
+            const ptB = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0x60a5fa, emissive: 0x001133 }));
+            ptB.position.copy(pointB_pos);
+            scene.add(ptB);
+
+            scene.add(makeLabel('α', '#fb923c', new THREE.Vector3(2.2, 0.15, 1.5), '0.85rem'));
+            scene.add(makeLabel('A', '#f87171', new THREE.Vector3(0.18, 1.22, 0.15), '0.85rem'));
+            scene.add(makeLabel('H', '#fde047', new THREE.Vector3(0.18, 0.1, -0.2), '0.85rem'));
+            scene.add(makeLabel('B', '#60a5fa', new THREE.Vector3(1.15, 0.1, 0.65), '0.85rem'));
+            scene.add(makeLabel('AH', '#f87171', new THREE.Vector3(0.35, 0.6, 0.15), '0.85rem'));
+            scene.add(makeLabel('AB', '#60a5fa', new THREE.Vector3(0.75, 0.7, 0.4), '0.85rem'));
+            scene.add(makeLabel('BH', '#fde047', new THREE.Vector3(0.6, 0.15, 0.5), '0.85rem'));
+        }, 'concepts-fullscreen');
+
+        // ===== 2. ПРЯМАЯ ТЕОРЕМА =====
+        initScene('direct-theorem-container', 'direct-theorem-canvas', (scene, THREE, labelRenderer, camera, makeLabel, addThickLine) => {
+            const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
+            const planeMat = new THREE.MeshPhysicalMaterial({
+                color: 0xf97316, side: THREE.DoubleSide,
+                transparent: settings.transparent, opacity: settings.opacity,
+                metalness: 0.3, roughness: 0.4, emissive: 0x331500
+            });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = 0;
+            scene.add(plane);
+
+            const borderPoints = [
+                new THREE.Vector3(-1.75, 0, -1.75), new THREE.Vector3( 1.75, 0, -1.75),
+                new THREE.Vector3( 1.75, 0,  1.75), new THREE.Vector3(-1.75, 0,  1.75),
+                new THREE.Vector3(-1.75, 0, -1.75)
+            ];
+            for (let i = 0; i < 4; i++) {
+                addThickLine(scene, borderPoints[i], borderPoints[i+1], 0xfb923c);
+            }
+
+            const pointH_pos = new THREE.Vector3(0, 0, 0);
+            const pointA_pos = new THREE.Vector3(0, 1.1, 0);
+            const pointB_pos = new THREE.Vector3(1.0, 0, 0.5);
+
+            // AH — перпендикуляр (тонкий, чтобы не мешал)
+            addThickLine(scene, pointA_pos, pointH_pos, 0xf87171);
+            // AB — наклонная
+            addThickLine(scene, pointA_pos, pointB_pos, 0x60a5fa);
+            // BH — проекция
+            addThickLine(scene, pointB_pos, pointH_pos, 0xfde047);
+            // c — прямая в плоскости, перпендикулярная BH
+            const cDir = new THREE.Vector3(-0.5, 0, 1.0).normalize();
+            addThickLine(scene,
+                pointB_pos.clone().add(cDir.clone().multiplyScalar(-1.2)),
+                pointB_pos.clone().add(cDir.clone().multiplyScalar(1.2)),
+                0x34d399);
+
+            const ptH = new THREE.Mesh(new THREE.SphereGeometry(0.06, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0x442200 }));
+            ptH.position.copy(pointH_pos);
+            scene.add(ptH);
+
+            const ptA = new THREE.Mesh(new THREE.SphereGeometry(0.06, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0xf87171, emissive: 0x441100 }));
+            ptA.position.copy(pointA_pos);
+            scene.add(ptA);
+
+            const ptB = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0x60a5fa, emissive: 0x001133 }));
+            ptB.position.copy(pointB_pos);
+            scene.add(ptB);
+
+            scene.add(makeLabel('α', '#fb923c', new THREE.Vector3(2.2, 0.15, 1.5), '0.85rem'));
+            scene.add(makeLabel('A', '#f87171', new THREE.Vector3(0.18, 1.22, 0.15), '0.85rem'));
+            scene.add(makeLabel('H', '#fde047', new THREE.Vector3(0.18, 0.1, -0.2), '0.85rem'));
+            scene.add(makeLabel('B', '#60a5fa', new THREE.Vector3(1.15, 0.1, 0.65), '0.85rem'));
+            scene.add(makeLabel('AB', '#60a5fa', new THREE.Vector3(0.75, 0.7, 0.4), '0.85rem'));
+            scene.add(makeLabel('BH', '#fde047', new THREE.Vector3(0.6, 0.15, 0.45), '0.85rem'));
+            scene.add(makeLabel('c', '#34d399', new THREE.Vector3(1.6, 0.15, 0.0), '0.85rem'));
+            scene.add(makeLabel('c ⟂ BH, c ⟂ AB', '#6ee7b7', new THREE.Vector3(1.6, 0.4, 0.15), '0.75rem'));
+        }, 'direct-theorem-fullscreen');
+
+        // ===== 3. ОБРАТНАЯ ТЕОРЕМА =====
+        initScene('inverse-theorem-container', 'inverse-theorem-canvas', (scene, THREE, labelRenderer, camera, makeLabel, addThickLine) => {
+            const planeGeo = new THREE.PlaneGeometry(3.5, 3.5);
+            const planeMat = new THREE.MeshPhysicalMaterial({
+                color: 0xf97316, side: THREE.DoubleSide,
+                transparent: settings.transparent, opacity: settings.opacity,
+                metalness: 0.3, roughness: 0.4, emissive: 0x331500
+            });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = 0;
+            scene.add(plane);
+
+            const borderPoints = [
+                new THREE.Vector3(-1.75, 0, -1.75), new THREE.Vector3( 1.75, 0, -1.75),
+                new THREE.Vector3( 1.75, 0,  1.75), new THREE.Vector3(-1.75, 0,  1.75),
+                new THREE.Vector3(-1.75, 0, -1.75)
+            ];
+            for (let i = 0; i < 4; i++) {
+                addThickLine(scene, borderPoints[i], borderPoints[i+1], 0xfb923c);
+            }
+
+            const pointH_pos = new THREE.Vector3(0, 0, 0);
+            const pointA_pos = new THREE.Vector3(0, 1.1, 0);
+            const pointB_pos = new THREE.Vector3(1.0, 0, 0.5);
+
+            addThickLine(scene, pointA_pos, pointH_pos, 0xf87171);
+            addThickLine(scene, pointA_pos, pointB_pos, 0x60a5fa);
+            addThickLine(scene, pointB_pos, pointH_pos, 0xfde047);
+
+            // c — перпендикулярна AB
+            const cDir = new THREE.Vector3(-0.5, 0, 1.0).normalize();
+            addThickLine(scene,
+                pointB_pos.clone().add(cDir.clone().multiplyScalar(-1.2)),
+                pointB_pos.clone().add(cDir.clone().multiplyScalar(1.2)),
+                0x34d399);
+
+            const ptH = new THREE.Mesh(new THREE.SphereGeometry(0.06, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0x442200 }));
+            ptH.position.copy(pointH_pos);
+            scene.add(ptH);
+
+            const ptA = new THREE.Mesh(new THREE.SphereGeometry(0.06, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0xf87171, emissive: 0x441100 }));
+            ptA.position.copy(pointA_pos);
+            scene.add(ptA);
+
+            const ptB = new THREE.Mesh(new THREE.SphereGeometry(0.07, settings.segments, settings.segments),
+                new THREE.MeshStandardMaterial({ color: 0x60a5fa, emissive: 0x001133 }));
+            ptB.position.copy(pointB_pos);
+            scene.add(ptB);
+
+            scene.add(makeLabel('α', '#fb923c', new THREE.Vector3(2.2, 0.15, 1.5), '0.85rem'));
+            scene.add(makeLabel('A', '#f87171', new THREE.Vector3(0.18, 1.22, 0.15), '0.85rem'));
+            scene.add(makeLabel('H', '#fde047', new THREE.Vector3(0.18, 0.1, -0.2), '0.85rem'));
+            scene.add(makeLabel('B', '#60a5fa', new THREE.Vector3(1.15, 0.1, 0.65), '0.85rem'));
+            scene.add(makeLabel('AB', '#60a5fa', new THREE.Vector3(0.75, 0.7, 0.4), '0.85rem'));
+            scene.add(makeLabel('BH', '#fde047', new THREE.Vector3(0.6, 0.15, 0.45), '0.85rem'));
+            scene.add(makeLabel('c', '#34d399', new THREE.Vector3(1.6, 0.15, 0.0), '0.85rem'));
+            scene.add(makeLabel('c ⟂ AB, c ⟂ BH', '#6ee7b7', new THREE.Vector3(1.6, 0.4, 0.15), '0.75rem'));
+        }, 'inverse-theorem-fullscreen');
+    })();
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

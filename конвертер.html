@@ -1,0 +1,1064 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Конвертер величин</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --accent-strong: #16a085;
+            --border: rgba(46, 204, 113, 0.1);
+            --btn-bg: #2c5a77;
+            --display-bg: #0f2a38;
+            --func-bg: #2c5a77;
+            --example-bg: #162a38;
+            --menu-item-hover: #233e50;
+            --icon-color: #8ba5b8;
+            --history-bg: rgba(15, 42, 56, 0.5);
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --accent-strong: #16a085;
+            --border: #e2e8f0;
+            --btn-bg: #e2e8f0;
+            --display-bg: #f1f5f9;
+            --func-bg: #eef2ff;
+            --example-bg: #e8f0fe;
+            --menu-item-hover: #f8fafd;
+            --icon-color: #1a2d3c;
+            --history-bg: #eef2f8;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            position: relative;
+        }
+
+        .converter-card {
+            background: var(--card-bg);
+            border-radius: 32px;
+            padding: 16px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .history {
+            background: var(--history-bg);
+            border-radius: 16px;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+            margin-top: 50px;
+            max-height: 80px;
+            overflow-y: auto;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .history-item {
+            padding: 3px 0;
+            border-bottom: 1px solid var(--border);
+            font-family: monospace;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            color: var(--accent);
+            padding-left: 6px;
+        }
+
+        .clear-history {
+            float: right;
+            font-size: 0.65rem;
+            cursor: pointer;
+            background: var(--btn-bg);
+            padding: 1px 6px;
+            border-radius: 12px;
+            margin-bottom: 4px;
+        }
+
+        .clear-history:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            flex: 1;
+            align-content: start;
+            margin-bottom: 16px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .cat-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 12px;
+            border-radius: 24px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: var(--btn-bg);
+            color: var(--text);
+            border: none;
+            font-family: inherit;
+            gap: 12px;
+            text-align: center;
+            min-height: 100px;
+        }
+
+        .cat-card:hover {
+            background: var(--menu-item-hover);
+            transform: translateY(-2px);
+        }
+
+        .cat-card:active {
+            transform: scale(0.97);
+        }
+
+        .cat-icon {
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--icon-color);
+            transition: all 0.2s ease;
+            font-family: 'Segoe UI', 'Inter', monospace;
+            line-height: 1;
+        }
+
+        .cat-card:hover .cat-icon {
+            color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .cat-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.2px;
+            line-height: 1.3;
+        }
+
+        @media (max-width: 520px) {
+            .categories-grid { gap: 10px; }
+            .cat-card { padding: 16px 8px; min-height: 85px; }
+            .cat-icon { font-size: 24px; }
+            .cat-title { font-size: 12px; }
+        }
+
+        @media (max-width: 420px) {
+            .categories-grid { gap: 8px; }
+            .cat-card { padding: 14px 6px; min-height: 75px; }
+            .cat-icon { font-size: 22px; }
+            .cat-title { font-size: 11px; }
+        }
+
+        .back-link-wrapper {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 12px;
+            flex-shrink: 0;
+        }
+
+        .back-link {
+            display: inline-block;
+            width: auto;
+            min-width: 180px;
+            padding: 14px 28px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 44px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            transition: 0.1s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .back-link:hover {
+            background: var(--accent-strong);
+        }
+
+        .back-link:active {
+            transform: scale(0.97);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            padding: 16px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 460px;
+            border-radius: 44px;
+            overflow-y: auto;
+            max-height: 85vh;
+            box-shadow: 0 30px 45px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+        }
+
+        .modal-header {
+            padding: 18px 20px 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .modal-header h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .close-modal {
+            font-size: 32px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0 8px;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: var(--accent);
+        }
+
+        .converter-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .input-group, .output-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label, .output-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .converter-input, .converter-output {
+            background: var(--display-bg);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 14px 18px;
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--text);
+            outline: none;
+            width: 100%;
+            font-family: monospace;
+        }
+
+        .converter-input:focus {
+            border-color: var(--accent);
+        }
+
+        .converter-output {
+            background: var(--func-bg);
+            cursor: default;
+            word-break: break-word;
+        }
+
+        .unit-select-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+            flex-wrap: nowrap;
+        }
+
+        .select-unit {
+            flex: 1;
+            background: var(--btn-bg);
+            border-radius: 40px;
+            padding: 12px 8px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            cursor: pointer;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .swap-icon {
+            background: var(--card-bg);
+            border-radius: 48px;
+            padding: 6px 12px;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--accent);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        .swap-icon:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .info-note {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-align: center;
+            background: var(--example-bg);
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
+
+        .extra-fields {
+            background: var(--example-bg);
+            border-radius: 24px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .extra-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .extra-field label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .extra-input {
+            background: var(--display-bg);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 12px 16px;
+            font-size: 15px;
+            color: var(--text);
+            outline: none;
+            width: 100%;
+        }
+
+        .extra-input:focus {
+            border-color: var(--accent);
+        }
+
+        .mode-switch {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+
+        .mode-switch-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 40px;
+            background: var(--btn-bg);
+            border: none;
+            color: var(--text);
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.1s;
+            font-size: 14px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .mode-switch-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        @media (max-width: 480px) {
+            .select-unit { font-size: 11px; padding: 10px 6px; }
+            .mode-switch-btn { font-size: 12px; padding: 10px; white-space: normal; }
+            .converter-body { padding: 16px; }
+            .unit-select-row { gap: 8px; }
+            .swap-icon { padding: 4px 8px; font-size: 18px; }
+        }
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="converter-card">
+        <div class="history" id="historyContainer">
+            <div class="clear-history" onclick="clearHistory()">✖ Очистить</div>
+            <div id="historyList">—</div>
+        </div>
+
+        <div class="categories-grid" id="categoriesGrid"></div>
+        <div class="back-link-wrapper">
+            <button class="back-link" onclick="window.location.href='index.html'">← Назад в меню</button>
+        </div>
+    </div>
+</div>
+
+<div id="converterModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Конвертер</h3>
+            <span class="close-modal" id="closeModalBtn">&times;</span>
+        </div>
+        <div class="converter-body" id="converterBody">
+            <div class="input-group">
+                <label>Введите значение</label>
+                <input type="number" id="inputValue" class="converter-input" placeholder="0" step="any" value="1" inputmode="decimal">
+            </div>
+            <div class="unit-select-row">
+                <select id="fromUnit" class="select-unit"></select>
+                <div class="swap-icon" id="swapUnitsBtn">⇄</div>
+                <select id="toUnit" class="select-unit"></select>
+            </div>
+            <div id="extraFieldsContainer"></div>
+            <div class="output-group">
+                <label>Результат</label>
+                <input type="text" id="outputValue" class="converter-output" readonly placeholder="—">
+            </div>
+            <div class="info-note" id="infoNote">Автоматический пересчет</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const baseConverters = {
+        currency: { name: "Валюта", units: ["RUB", "USD", "EUR", "CNY", "GBP"], rates: { USD: 1, RUB: 88.5, EUR: 0.92, CNY: 7.25, GBP: 0.79 }, convert: (v, f, t, d) => { const base = v / d.rates[f]; return base * d.rates[t]; } },
+        length: { name: "Длина", units: ["Метры", "Километры", "Сантиметры", "Миллиметры", "Мили", "Футы", "Дюймы"], toMeter: { "Метры": 1, "Километры": 1000, "Сантиметры": 0.01, "Миллиметры": 0.001, "Мили": 1609.344, "Футы": 0.3048, "Дюймы": 0.0254 }, convert: (v, f, t, d) => (v * d.toMeter[f]) / d.toMeter[t] },
+        mass: { name: "Масса", units: ["Килограммы", "Граммы", "Тонны", "Фунты", "Унции"], toKg: { "Килограммы": 1, "Граммы": 0.001, "Тонны": 1000, "Фунты": 0.453592, "Унции": 0.0283495 }, convert: (v, f, t, d) => (v * d.toKg[f]) / d.toKg[t] },
+        area: { name: "Площадь", units: ["м²", "км²", "см²", "Гектары", "Акры", "Футы²"], toSqM: { "м²": 1, "км²": 1e6, "см²": 0.0001, "Гектары": 10000, "Акры": 4046.86, "Футы²": 0.092903 }, convert: (v, f, t, d) => v * d.toSqM[f] / d.toSqM[t] },
+        time: { name: "Время", units: ["Секунды", "Минуты", "Часы", "Дни", "Недели"], toSec: { "Секунды": 1, "Минуты": 60, "Часы": 3600, "Дни": 86400, "Недели": 604800 }, convert: (v, f, t, d) => v * d.toSec[f] / d.toSec[t] },
+        finance: { name: "Финансы", units: ["Проценты %", "Десятичная дробь", "НДС 20%", "Сумма с НДС"], convert: (v, f, t) => { if (f === "Проценты %" && t === "Десятичная дробь") return v / 100; if (f === "Десятичная дробь" && t === "Проценты %") return v * 100; if (f === "НДС 20%" && t === "Сумма с НДС") return v * 1.2; if (f === "Сумма с НДС" && t === "НДС 20%") return v / 1.2; return v; } },
+        data: { name: "Данные", units: ["Байты", "КБ", "МБ", "ГБ", "ТБ"], toBytes: { "Байты": 1, "КБ": 1024, "МБ": 1048576, "ГБ": 1073741824, "ТБ": 1099511627776 }, convert: (v, f, t, d) => v * d.toBytes[f] / d.toBytes[t] },
+        date: { name: "Дата", units: ["Дни", "Недели", "Месяцы (прибл.)", "Годы (прибл.)"], convert: (v, f, t) => { const factors = { "Дни": 1, "Недели": 7, "Месяцы (прибл.)": 30.44, "Годы (прибл.)": 365.25 }; return (v * factors[f]) / factors[t]; } },
+        volume: { name: "Объем", units: ["Литры", "см³", "мм³", "дм³", "м³"], toLiter: { "Литры": 1, "см³": 0.001, "мм³": 0.000001, "дм³": 1, "м³": 1000 }, convert: (v, f, t, d) => (v * d.toLiter[f]) / d.toLiter[t] },
+        numeralSystem: { name: "Система счисления", units: ["Десятичная", "Двоичная", "Восьмеричная", "Шестнадцатеричная"], convert: (v, f, t) => { try { let num; if (f === "Десятичная") num = parseFloat(v); else if (f === "Двоичная") num = parseInt(v, 2); else if (f === "Восьмеричная") num = parseInt(v, 8); else num = parseInt(v, 16); if (isNaN(num)) return "Ошибка"; if (t === "Десятичная") return num; if (t === "Двоичная") return num.toString(2); if (t === "Восьмеричная") return num.toString(8); return num.toString(16).toUpperCase(); } catch(e) { return "неверно"; } } },
+        speed: { name: "Скорость", units: ["км/ч", "м/с", "миль/ч", "узлы"], toKmph: { "км/ч": 1, "м/с": 3.6, "миль/ч": 1.60934, "узлы": 1.852 }, convert: (v, f, t, d) => v * d.toKmph[f] / d.toKmph[t] },
+        temperature: { name: "Температура", units: ["Цельсий", "Фаренгейт", "Кельвин"], convert: (v, f, t) => { let c; if (f === "Цельсий") c = v; else if (f === "Фаренгейт") c = (v - 32) * 5/9; else c = v - 273.15; if (t === "Цельсий") return c; if (t === "Фаренгейт") return c * 9/5 + 32; return c + 273.15; } },
+        bmi: { name: "ИМТ", units: ["ИМТ"], hasExtra: true, getExtraFields: () => [{ name: "weight", label: "Вес (кг)", type: "number", placeholder: "70" }, { name: "height", label: "Рост (см)", type: "number", placeholder: "170" }], convertWithExtra: (_, __, ___, extra) => { let w = parseFloat(extra.weight), h = parseFloat(extra.height); if (isNaN(w) || isNaN(h) || h <= 0) return "Введите вес и рост"; let bmi = w / ((h/100)**2); return bmi.toFixed(2); } }
+    };
+
+    let discountMode = "discount";
+    const discountConverter = {
+        name: "Скидка / Наценка",
+        units: ["Базовая цена", "Конечная цена"],
+        hasExtra: true,
+        getExtraFields: () => [{ name: "percent", label: discountMode === "discount" ? "Скидка (%)" : "Наценка (%)", type: "number", placeholder: discountMode === "discount" ? "10" : "20" }],
+        getModeSwitch: () => {
+            const div = document.createElement('div');
+            div.className = 'mode-switch';
+            const discountBtn = document.createElement('button');
+            discountBtn.textContent = 'Скидка (-%)';
+            discountBtn.className = `mode-switch-btn ${discountMode === 'discount' ? 'active' : ''}`;
+            const markupBtn = document.createElement('button');
+            markupBtn.textContent = 'Наценка (+%)';
+            markupBtn.className = `mode-switch-btn ${discountMode === 'markup' ? 'active' : ''}`;
+            discountBtn.onclick = () => { discountMode = 'discount'; openConverter('discount'); };
+            markupBtn.onclick = () => { discountMode = 'markup'; openConverter('discount'); };
+            div.appendChild(discountBtn);
+            div.appendChild(markupBtn);
+            return div;
+        },
+        convertWithExtra: (value, fromUnit, toUnit, extra) => {
+            let percent = parseFloat(extra.percent);
+            if (isNaN(percent)) percent = 0;
+            if (fromUnit === "Базовая цена" && toUnit === "Конечная цена") {
+                if (discountMode === "discount") return (value * (1 - percent / 100)).toFixed(2);
+                else return (value * (1 + percent / 100)).toFixed(2);
+            }
+            if (fromUnit === "Конечная цена" && toUnit === "Базовая цена") {
+                if (discountMode === "discount") return (value / (1 - percent / 100)).toFixed(2);
+                else return (value / (1 + percent / 100)).toFixed(2);
+            }
+            return value;
+        }
+    };
+
+    const categoriesList = [
+        { id: "currency", label: "Валюта", icon: "₽" },
+        { id: "length", label: "Длина", icon: "ℓ" },
+        { id: "mass", label: "Масса", icon: "kg" },
+        { id: "area", label: "Площадь", icon: "m²" },
+        { id: "time", label: "Время", icon: "⏱" },
+        { id: "finance", label: "Финансы", icon: "%" },
+        { id: "data", label: "Данные", icon: "MB" },
+        { id: "date", label: "Дата", icon: "📅" },
+        { id: "discount", label: "Скидка", icon: "−%" },
+        { id: "volume", label: "Объем", icon: "ℓ" },
+        { id: "numeralSystem", label: "Счисления", icon: "01" },
+        { id: "speed", label: "Скорость", icon: "km/h" },
+        { id: "temperature", label: "Температура", icon: "°C" },
+        { id: "bmi", label: "ИМТ", icon: "⚖" }
+    ];
+
+    let currentCategory = null, currentConverter = null, extraValues = {};
+    let history = [];
+
+    function loadHistory() {
+        const saved = localStorage.getItem('converter_history');
+        if (saved) {
+            try { history = JSON.parse(saved); } catch(e) { history = []; }
+        }
+        updateHistoryDisplay();
+    }
+
+    function saveHistory() {
+        localStorage.setItem('converter_history', JSON.stringify(history.slice(-20)));
+    }
+
+    function addToHistory(fromVal, fromUnit, toVal, toUnit) {
+        if (fromVal === '' || fromVal === null || fromVal === undefined) return;
+        if (toVal === '' || toVal === null || toVal === undefined) return;
+        if (toVal === 'Ошибка' || toVal === 'неверно' || toVal === 'ошибка') return;
+        if (toVal === 'Введите вес и рост') return;
+        const fromStr = `${fromVal} ${fromUnit}`.trim();
+        const toStr = `${toVal} ${toUnit}`.trim();
+        // Не дублируем последнюю запись
+        if (history.length > 0 && history[0].from === fromStr && history[0].to === toStr) return;
+        history.unshift({ from: fromStr, to: toStr });
+        if (history.length > 20) history.pop();
+        saveHistory();
+        updateHistoryDisplay();
+    }
+
+    function updateHistoryDisplay() {
+        const historyList = document.getElementById('historyList');
+        if (!historyList) return;
+        if (history.length === 0) {
+            historyList.innerHTML = '—';
+            return;
+        }
+        let html = '';
+        for (let i = 0; i < Math.min(history.length, 8); i++) {
+            html += `<div class="history-item" onclick="restoreFromHistory(${i})">${history[i].from} = ${history[i].to}</div>`;
+        }
+        historyList.innerHTML = html;
+    }
+
+    function restoreFromHistory(index) {
+        if (history[index]) {
+            const match = history[index].from.match(/([\d.,\-]+)\s+(.+)$/);
+            if (match) {
+                document.getElementById('inputValue').value = match[1];
+                const fromSelect = document.getElementById('fromUnit');
+                for (let i = 0; i < fromSelect.options.length; i++) {
+                    if (fromSelect.options[i].text === match[2]) {
+                        fromSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+                updateConversion();
+            }
+        }
+    }
+
+    function clearHistory() {
+        history = [];
+        saveHistory();
+        updateHistoryDisplay();
+    }
+
+    function roundNumber(num) {
+        if (typeof num !== 'number') return num;
+        return parseFloat(num.toFixed(6)).toString();
+    }
+
+    const grid = document.getElementById('categoriesGrid');
+    const modal = document.getElementById('converterModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const fromSelect = document.getElementById('fromUnit');
+    const toSelect = document.getElementById('toUnit');
+    const inputElem = document.getElementById('inputValue');
+    const outputElem = document.getElementById('outputValue');
+    const closeBtn = document.getElementById('closeModalBtn');
+    const swapBtn = document.getElementById('swapUnitsBtn');
+    const infoNote = document.getElementById('infoNote');
+    const extraContainer = document.getElementById('extraFieldsContainer');
+
+    categoriesList.forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'cat-card';
+        card.innerHTML = `
+            <div class="cat-icon">${cat.icon}</div>
+            <div class="cat-title">${cat.label}</div>
+        `;
+        card.onclick = () => openConverter(cat.id);
+        grid.appendChild(card);
+    });
+
+    function renderExtraFields(converter, categoryId) {
+        extraContainer.innerHTML = '';
+        extraValues = {};
+        if (categoryId === 'discount' && discountConverter.getModeSwitch) {
+            extraContainer.appendChild(discountConverter.getModeSwitch());
+        }
+        if (converter.hasExtra && converter.getExtraFields) {
+            const fields = converter.getExtraFields();
+            const div = document.createElement('div');
+            div.className = 'extra-fields';
+            fields.forEach(f => {
+                const fd = document.createElement('div');
+                fd.className = 'extra-field';
+                const lbl = document.createElement('label');
+                lbl.textContent = f.label;
+                const inp = document.createElement('input');
+                inp.type = f.type || 'text';
+                inp.className = 'extra-input';
+                inp.placeholder = f.placeholder || '';
+                inp.oninput = (e) => {
+                    extraValues[f.name] = e.target.value;
+                    updateConversion();
+                };
+                fd.appendChild(lbl);
+                fd.appendChild(inp);
+                div.appendChild(fd);
+                extraValues[f.name] = '';
+            });
+            extraContainer.appendChild(div);
+        }
+    }
+
+    function openConverter(categoryId) {
+        currentCategory = categoryId;
+        if (categoryId === 'discount') currentConverter = discountConverter;
+        else currentConverter = baseConverters[categoryId];
+        if (!currentConverter) return;
+        modalTitle.textContent = currentConverter.name;
+
+        let units = currentConverter.units ? [...currentConverter.units] : (categoryId === 'bmi' ? ["ИМТ"] : []);
+        if (categoryId === 'discount') units = ["Базовая цена", "Конечная цена"];
+
+        fromSelect.innerHTML = '';
+        toSelect.innerHTML = '';
+        units.forEach(u => {
+            fromSelect.add(new Option(u, u));
+            toSelect.add(new Option(u, u));
+        });
+
+        if (categoryId === 'temperature') { fromSelect.value = "Цельсий"; toSelect.value = "Фаренгейт"; infoNote.innerText = "°C → °F: ×9/5+32"; }
+        else if (categoryId === 'volume') { fromSelect.value = "Литры"; toSelect.value = "м³"; infoNote.innerText = "1 л = 0.001 м³"; }
+        else if (categoryId === 'finance') { fromSelect.value = "Проценты %"; toSelect.value = "Десятичная дробь"; infoNote.innerText = "1% = 0.01"; }
+        else if (categoryId === 'numeralSystem') { fromSelect.value = "Десятичная"; toSelect.value = "Двоичная"; infoNote.innerText = "Перевод систем счисления"; }
+        else if (categoryId === 'discount') { fromSelect.value = "Базовая цена"; toSelect.value = "Конечная цена"; infoNote.innerText = discountMode === "discount" ? "Расчет цены со скидкой" : "Расчет цены с наценкой"; }
+        else { if (units[0]) fromSelect.value = units[0]; if (units[1]) toSelect.value = units[1]; infoNote.innerText = "Автоматический пересчет"; }
+
+        inputElem.value = "1";
+        if (categoryId === 'bmi') inputElem.style.display = 'none';
+        else inputElem.style.display = 'flex';
+
+        renderExtraFields(currentConverter, categoryId);
+        updateConversion();
+        modal.classList.add('active');
+        localStorage.setItem('lastConverterCategory', categoryId);
+    }
+
+    function updateConversion() {
+        if (!currentConverter) return;
+
+        if (currentCategory === 'bmi') {
+            if (currentConverter.convertWithExtra) {
+                let res = currentConverter.convertWithExtra(0, null, null, extraValues);
+                outputElem.value = res;
+                // В историю пишем только когда результат реальный
+                if (res && res !== 'Введите вес и рост' && !isNaN(parseFloat(res))) {
+                    let weight = extraValues.weight || '0';
+                    let height = extraValues.height || '0';
+                    addToHistory(`${weight}кг/${height}см`, '', res, 'ИМТ');
+                }
+            }
+            return;
+        }
+
+        if (currentCategory === 'discount') {
+            let val = parseFloat(inputElem.value);
+            if (isNaN(val)) { outputElem.value = "ошибка"; return; }
+            let from = fromSelect.value, to = toSelect.value;
+            let res = currentConverter.convertWithExtra(val, from, to, extraValues);
+            outputElem.value = res;
+            if (res !== 'ошибка' && res !== '') {
+                addToHistory(val, from, res, to);
+            }
+            return;
+        }
+
+        let val = parseFloat(inputElem.value);
+        if (isNaN(val)) { outputElem.value = "ошибка"; return; }
+        let from = fromSelect.value, to = toSelect.value;
+        let res = currentConverter.convert(val, from, to, currentConverter);
+        if (typeof res === 'number') {
+            res = roundNumber(res);
+            outputElem.value = res;
+            addToHistory(val, from, res, to);
+        } else {
+            outputElem.value = res;
+        }
+    }
+
+    function swapUnits() {
+        let f = fromSelect.value, t = toSelect.value;
+        fromSelect.value = t;
+        toSelect.value = f;
+        updateConversion();
+    }
+
+    inputElem.addEventListener('input', updateConversion);
+    fromSelect.addEventListener('change', updateConversion);
+    toSelect.addEventListener('change', updateConversion);
+    swapBtn.addEventListener('click', swapUnits);
+    closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+
+    if (localStorage.getItem('mathTheme') === 'light') {
+        document.documentElement.classList.add('light-mode');
+        const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
+    }
+
+    loadHistory();
+
+    const lastCategory = localStorage.getItem('lastConverterCategory');
+    if (lastCategory) {
+        setTimeout(() => openConverter(lastCategory), 100);
+    }
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

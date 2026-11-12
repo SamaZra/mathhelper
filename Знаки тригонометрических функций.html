@@ -1,0 +1,740 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Знаки тригонометрических функций по четвертям</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #3b82f6; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --circle-stroke: #4a7a9c; --circle-axis: #5a7a94; --circle-text: #8ba5b8;
+            --circle-angle: #fbbf24; --circle-quadrant: #ffffff; --circle-bg: #1a2d3c;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #3b82f6; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --circle-stroke: #2980b9; --circle-axis: #2c3e50; --circle-text: #2c3e50;
+            --circle-angle: #2980b9; --circle-quadrant: #1a2a3f; --circle-bg: #eef2f8;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 12000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #2563eb; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+        }
+        /* Таблица знаков */
+        .signs-table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 16px; overflow: hidden; text-align: center; font-weight: bold; margin: 15px 0; table-layout: fixed; }
+        .signs-table th { background: var(--info-bg); color: var(--text); padding: 14px 6px; font-weight: 700; font-size: 0.9rem; text-align: center; border-right: 1px solid var(--border); vertical-align: middle; }
+        .signs-table th:last-child { border-right: none; }
+        .signs-table td:first-child, .signs-table th:first-child { background: var(--formula-bg); width: 90px; color: var(--text); }
+        .signs-table td { padding: 12px 6px; border: 1px solid var(--border); font-weight: 700; font-size: 0.95rem; text-align: center; vertical-align: middle; color: var(--text); }
+        .sign-positive { color: #27ae60; font-weight: 800; font-size: 1.2rem; }
+        .sign-negative { color: #e74c3c; font-weight: 800; font-size: 1.2rem; }
+        .angle-range { display: block; font-size: 0.7rem; font-weight: 500; color: var(--text-secondary); margin-top: 4px; line-height: 1.2; }
+
+        /* Круг */
+        .circle-container { display: flex; justify-content: center; margin: 20px 0 15px; padding: 12px; background: var(--circle-bg); border-radius: 20px; border: 1px solid var(--border); }
+        .circle-svg { max-width: 100%; height: auto; border-radius: 12px; }
+        .circle-caption { text-align: center; margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+
+        /* Мнемоника */
+        .mnemonic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 10px 0; }
+        .mnemonic-card { background: var(--example-bg); border-left: 4px solid var(--accent); border-radius: 14px; padding: 12px 14px; }
+        .mnemonic-card .title { font-weight: 700; color: var(--accent); margin-bottom: 6px; font-size: 0.95rem; }
+        .mnemonic-card .phrase { color: var(--text); font-size: 0.9rem; line-height: 1.5; }
+        .mnemonic-card .phrase strong { color: var(--formula-color); }
+
+        /* Таблица ошибок */
+        .error-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9rem; border-radius: 12px; overflow: hidden; }
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 10px 0;
+            border-radius: 12px;
+        }
+        .table-scroll .error-table {
+            min-width: 600px;
+            margin: 0;
+        }
+        .error-table th { background: var(--special-border); color: white; padding: 10px 12px; text-align: left; font-weight: 700; }
+        .error-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; background: var(--card-bg); }
+        .error-table tr:nth-child(even) td { background: var(--formula-bg); }
+        .error-table tr:last-child td { border-bottom: none; }
+        .error-table .wrong { color: var(--danger-color); font-weight: 700; }
+        .error-table .right { color: var(--result-color); font-weight: 700; }
+
+        .nav-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; justify-content: center; }
+        .nav-links a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); font-size: 0.9rem; padding: 4px 0; }
+        .nav-links a:hover { opacity: 0.8; }
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+    <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},chtml:{scale:1.0,displayAlign:'center'}};</script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Знаки тригонометрических функций по четвертям</h1>
+
+    <!-- 1. ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Почему знаки вообще меняются</span>
+        </div>
+        <div class="section-content">
+            <p>Вспомни: точка на тригонометрическом круге имеет координаты $(\cos\alpha; \sin\alpha)$. То есть <strong>косинус — это $x$-координата</strong> точки, а <strong>синус — $y$-координата</strong>. Отсюда сразу понятно, почему знаки зависят от четверти.</p>
+            <ul>
+                <li>Если точка <strong>справа</strong> от оси $Oy$ — косинус положителен.</li>
+                <li>Если точка <strong>сверху</strong> от оси $Ox$ — синус положителен.</li>
+                <li>Тангенс — это отношение $\dfrac{\sin}{\cos}$, значит его знак зависит от того, одинаковые знаки у синуса и косинуса (тогда $+$) или разные (тогда $-$).</li>
+            </ul>
+            <div class="important">
+                <strong>💡 Главная идея:</strong> не нужно зубрить знаки — достаточно помнить, что $\sin$ — это «вертикаль» ($y$), а $\cos$ — «горизонталь» ($x$). Знаки $y$ и $x$ в четвертях считываются с круга мгновенно.
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ТАБЛИЦА ЗНАКОВ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📊 Таблица знаков по четвертям</span>
+        </div>
+        <div class="section-content">
+            <table class="signs-table">
+                <thead>
+                <tr>
+                    <th>Функция</th>
+                    <th>I<br><span class="angle-range">\(0^\circ\) – \(90^\circ\)</span></th>
+                    <th>II<br><span class="angle-range">\(90^\circ\) – \(180^\circ\)</span></th>
+                    <th>III<br><span class="angle-range">\(180^\circ\) – \(270^\circ\)</span></th>
+                    <th>IV<br><span class="angle-range">\(270^\circ\) – \(360^\circ\)</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><strong>sin α</strong></td>
+                    <td><span class="sign-positive">+</span></td>
+                    <td><span class="sign-positive">+</span></td>
+                    <td><span class="sign-negative">−</span></td>
+                    <td><span class="sign-negative">−</span></td>
+                </tr>
+                <tr>
+                    <td><strong>cos α</strong></td>
+                    <td><span class="sign-positive">+</span></td>
+                    <td><span class="sign-negative">−</span></td>
+                    <td><span class="sign-negative">−</span></td>
+                    <td><span class="sign-positive">+</span></td>
+                </tr>
+                <tr>
+                    <td><strong>tg α</strong></td>
+                    <td><span class="sign-positive">+</span></td>
+                    <td><span class="sign-negative">−</span></td>
+                    <td><span class="sign-positive">+</span></td>
+                    <td><span class="sign-negative">−</span></td>
+                </tr>
+                <tr>
+                    <td><strong>ctg α</strong></td>
+                    <td><span class="sign-positive">+</span></td>
+                    <td><span class="sign-negative">−</span></td>
+                    <td><span class="sign-positive">+</span></td>
+                    <td><span class="sign-negative">−</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. КРУГ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Круг с основными углами</span>
+            <span class="sub-title">визуальная шпаргалка</span>
+        </div>
+        <div class="section-content">
+            <div class="circle-container">
+                <svg class="circle-svg" width="420" height="420" viewBox="-210 -210 420 420" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="-210" y="-210" width="420" height="420" fill="transparent" rx="10" ry="10"/>
+
+                    <line x1="-180" y1="0" x2="180" y2="0" stroke="var(--circle-axis)" stroke-width="2" marker-end="url(#arrowX)"/>
+                    <line x1="0" y1="180" x2="0" y2="-180" stroke="var(--circle-axis)" stroke-width="2" marker-end="url(#arrowY)"/>
+
+                    <defs>
+                        <marker id="arrowX" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                            <path d="M0,0 L8,4 L0,8 Z" fill="var(--circle-axis)"/>
+                        </marker>
+                        <marker id="arrowY" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                            <path d="M0,0 L8,4 L0,8 Z" fill="var(--circle-axis)"/>
+                        </marker>
+                    </defs>
+
+                    <circle cx="0" cy="0" r="150" fill="none" stroke="var(--circle-stroke)" stroke-width="2.5"/>
+                    <circle cx="0" cy="0" r="3" fill="var(--circle-stroke)"/>
+
+                    <text x="185" y="6" font-size="16" fill="var(--circle-text)" font-weight="bold">x</text>
+                    <text x="8" y="-188" font-size="16" fill="var(--circle-text)" font-weight="bold">y</text>
+
+                    <!-- 0° -->
+                    <circle cx="150" cy="0" r="4" fill="#e74c3c"/>
+                    <text x="165" y="20" font-size="14" fill="var(--circle-angle)" font-weight="bold">0°</text>
+
+                    <!-- 30° -->
+                    <circle cx="129.9" cy="-75" r="3" fill="#f39c12"/>
+                    <text x="138" y="-86" font-size="12" fill="var(--circle-angle)">30°</text>
+
+                    <!-- 45° -->
+                    <circle cx="106.1" cy="-106.1" r="3" fill="#f39c12"/>
+                    <text x="114" y="-118" font-size="12" fill="var(--circle-angle)">45°</text>
+
+                    <!-- 60° -->
+                    <circle cx="75" cy="-129.9" r="3" fill="#f39c12"/>
+                    <text x="84" y="-146" font-size="12" fill="var(--circle-angle)">60°</text>
+
+                    <!-- 90° -->
+                    <circle cx="0" cy="-150" r="4" fill="#e74c3c"/>
+                    <text x="20" y="-165" font-size="14" fill="var(--circle-angle)" font-weight="bold">90°</text>
+
+                    <!-- 120° -->
+                    <circle cx="-75" cy="-129.9" r="3" fill="#f39c12"/>
+                    <text x="-110" y="-146" font-size="12" fill="var(--circle-angle)">120°</text>
+
+                    <!-- 135° -->
+                    <circle cx="-106.1" cy="-106.1" r="3" fill="#f39c12"/>
+                    <text x="-140" y="-118" font-size="12" fill="var(--circle-angle)">135°</text>
+
+                    <!-- 150° -->
+                    <circle cx="-129.9" cy="-75" r="3" fill="#f39c12"/>
+                    <text x="-162" y="-86" font-size="12" fill="var(--circle-angle)">150°</text>
+
+                    <!-- 180° -->
+                    <circle cx="-150" cy="0" r="4" fill="#e74c3c"/>
+                    <text x="-190" y="15" font-size="14" fill="var(--circle-angle)" font-weight="bold">180°</text>
+
+                    <!-- 210° -->
+                    <circle cx="-129.9" cy="75" r="3" fill="#f39c12"/>
+                    <text x="-162" y="90" font-size="12" fill="var(--circle-angle)">210°</text>
+
+                    <!-- 225° -->
+                    <circle cx="-106.1" cy="106.1" r="3" fill="#f39c12"/>
+                    <text x="-140" y="122" font-size="12" fill="var(--circle-angle)">225°</text>
+
+                    <!-- 240° -->
+                    <circle cx="-75" cy="129.9" r="3" fill="#f39c12"/>
+                    <text x="-110" y="148" font-size="12" fill="var(--circle-angle)">240°</text>
+
+                    <!-- 270° -->
+                    <circle cx="0" cy="150" r="4" fill="#e74c3c"/>
+                    <text x="-30" y="170" font-size="14" fill="var(--circle-angle)" font-weight="bold">270°</text>
+
+                    <!-- 300° -->
+                    <circle cx="75" cy="129.9" r="3" fill="#f39c12"/>
+                    <text x="84" y="148" font-size="12" fill="var(--circle-angle)">300°</text>
+
+                    <!-- 315° -->
+                    <circle cx="106.1" cy="106.1" r="3" fill="#f39c12"/>
+                    <text x="114" y="122" font-size="12" fill="var(--circle-angle)">315°</text>
+
+                    <!-- 330° -->
+                    <circle cx="129.9" cy="75" r="3" fill="#f39c12"/>
+                    <text x="138" y="90" font-size="12" fill="var(--circle-angle)">330°</text>
+
+                    <!-- 360° -->
+                    <text x="165" y="-15" font-size="12" fill="var(--circle-angle)">360°</text>
+
+                    <!-- Четверти -->
+                    <text x="55" y="-55" font-size="20" fill="#2ecc71" font-weight="bold">I</text>
+                    <text x="-80" y="-55" font-size="20" fill="#e74c3c" font-weight="bold">II</text>
+                    <text x="-80" y="65" font-size="20" fill="#e74c3c" font-weight="bold">III</text>
+                    <text x="55" y="65" font-size="20" fill="#2ecc71" font-weight="bold">IV</text>
+                </svg>
+            </div>
+            <div class="circle-caption">
+                📐 Тригонометрический круг с основными углами (0°, 30°, 45°, 60°, 90°, 120°, 135°, 150°, 180°, 210°, 225°, 240°, 270°, 300°, 315°, 330°, 360°)
+            </div>
+            <div class="nav-links">
+                <a href="trig_circle.htm">🎯 Открыть интерактивный круг</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. МНЕМОНИКА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🧠 Как запомнить знаки</span>
+            <span class="sub-title">мнемонические приёмы</span>
+        </div>
+        <div class="section-content">
+            <p>Есть классические фразы для запоминания знаков. Возьми ту, что нравится — или придумай свою.</p>
+
+            <div class="mnemonic-card">
+                <div class="title">📖 «Все студенты танцуют кадриль»</div>
+                <div class="phrase">По первым буквам слов: <strong>В</strong>се (I) — <strong>С</strong>туденты (II) — <strong>Т</strong>анцуют (III) — <strong>К</strong>адриль (IV).<br><br>Каждая буква — это функция, положительная в этой четверти:<br>
+                    • I четверть: <strong>В</strong>се функции «+» (sin, cos, tg, ctg).<br>
+                    • II четверть: только <strong>С</strong>инус «+».<br>
+                    • III четверть: только <strong>Т</strong>ангенс и котангенс «+».<br>
+                    • IV четверть: только <strong>К</strong>осинус «+».
+                </div>
+            </div>
+                <div class="mnemonic-card">
+                    <div class="title">📖 «Косить — Осина»</div>
+                    <div class="phrase">
+                        <strong>кос</strong>инус → <strong>кос</strong>ить. Косят <strong>горизонтально</strong> — значит, $\cos$ отвечает за ось $Ox$ (горизонталь).<br>
+                        <strong>син</strong>ус → о<strong>син</strong>а. Осина растёт <strong>вверх</strong> — значит, $\sin$ отвечает за ось $Oy$ (вертикаль).
+                    </div>
+                </div>
+
+            <div class="important">
+                <strong>💡 Рекомендация:</strong> не заучивай таблицу знаков, а пользуйся кругом. Знаки sin и cos — это просто «верх/низ» и «право/лево». Всё остальное — арифметика.
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. УГЛЫ БОЛЬШЕ 360° И ОТРИЦАТЕЛЬНЫЕ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔄 Как определить четверть для любого угла</span>
+            <span class="sub-title">углы больше 360° и отрицательные</span>
+        </div>
+        <div class="section-content">
+            <p>Четверть определяется не самим углом, а <strong>положением точки</strong> на круге. Поэтому углы, отличающиеся на $360°$, попадают в одну и ту же четверть.</p>
+
+            <div class="formula-block">
+                <strong>Алгоритм:</strong><br>
+                1. Приведи угол к «нормальному» виду: $\alpha_{\text{норм}} = \alpha \mod 360°$<br>
+                2. Если получилось отрицательное число — прибавь $360°$<br>
+                3. Полученный угол в диапазоне $[0°; 360°)$ определит четверть.
+            </div>
+
+            <p><strong>Пример 1.</strong> Угол $750°$. Найдём четверть.</p>
+            <ul>
+                <li>$750° = 2 \cdot 360° + 30°$, значит угол совпадает с $30°$.</li>
+                <li>$30°$ лежит в I четверти. Значит, и $750°$ — в I четверти.</li>
+            </ul>
+            <p><strong>Пример 2.</strong> Угол $-100°$.</p>
+            <ul>
+                <li>$-100° + 360° = 260°$ — III четверть. Значит, и $-100°$ — в III четверти.</li>
+            </ul>
+            <p><strong>Пример 3.</strong> Угол $1000°$.</p>
+            <ul>
+                <li>$1000° - 2 \cdot 360° = 280°$ — IV четверть.</li>
+            </ul>
+
+            <div class="important">
+                <strong>💡 Важно:</strong> сами значения $\sin$, $\cos$ и т.д. для углов, отличающихся на $360°$, <strong>совпадают</strong> (периодичность). Меняется только «обёртка» — на знак это не влияет.
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. НА ЧТО ОБРАТИТЬ ВНИМАНИЕ (заменяет таблицу ошибок) -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚠️ На что обратить внимание</span>
+        </div>
+        <div class="section-content">
+            <p>Ошибки в этой теме обычно не «логические», а от невнимательности. Три самых частых:</p>
+            <ul>
+                <li><strong>Путают sin и cos во II четверти.</strong> Во II четверти sin «+», cos «−». Смотри на круг: точка сверху (sin +) и слева (cos −).</li>
+                <li><strong>Считают, что отрицательный угол даёт отрицательную функцию.</strong> Неверно: знак зависит от четверти, а не от знака угла. Пример: $\cos(-60°) = +0{,}5$.</li>
+                <li><strong>Забывают приводить углы больше 360°.</strong> Угол $750°$ — та же четверть, что и $30°$. Сначала $\mod 360°$, потом определяй четверть.</li>
+            </ul>
+        </div>
+    </div>
+
+    <a href="trigonometry.html" class="back-link">← Назад к тригонометрии</a>
+
+<script>
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
+        }
+    })();
+
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

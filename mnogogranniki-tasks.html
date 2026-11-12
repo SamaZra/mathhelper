@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Профессиональные задачи: Многогранники</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #3b82f6; --example-bg: #162a38; --canvas-bg: #0f1a24;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --result-color: #4ade80; --danger-color: #f87171;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #3b82f6; --example-bg: #f8fafc;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --result-color: #059669; --danger-color: #dc2626;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding: 8px 40px; cursor: pointer; user-select: none; text-align: center; position: relative; border-radius: 0 12px 12px 0; transition: background 0.3s; }
+        .section-title:hover { background: linear-gradient(90deg, var(--special-border) 0%, rgba(59, 130, 246, 0.15) 30%, rgba(59, 130, 246, 0.05) 100%); }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+        .section.collapsed .section-title .main-title::after { transform: translateY(-50%) rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 4px; }
+        .section-content { max-height: 30000px; overflow: hidden; transition: max-height 0.5s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .sub-accordion { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+        .sub-accordion-title { background: var(--info-bg); padding: 12px 16px; cursor: pointer; user-select: none; transition: background 0.2s; display: flex; flex-direction: column; gap: 4px; }
+        .sub-accordion-title:hover { background: rgba(59, 130, 246, 0.1); }
+        .sub-accordion-title .title-main { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: 700; color: var(--text); }
+        .sub-accordion-title .title-main::after { content: "▼"; font-size: 0.8rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .sub-accordion.collapsed .sub-accordion-title .title-main::after { transform: rotate(-90deg); }
+        .sub-accordion-title .title-sub { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+
+        .sub-accordion-content { padding: 16px; background: var(--card-bg); max-height: 25000px; transition: max-height 0.4s ease; }
+        .sub-accordion.collapsed .sub-accordion-content { max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+
+        .formula-block, .example, .important {
+            position: relative; border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: none !important; padding-left: 20px !important; padding: 16px 20px;
+            background-color: var(--example-bg); margin-bottom: 16px; color: var(--text);
+            font-size: 0.95rem; line-height: 1.8;
+        }
+        .formula-block::before, .example::before, .important::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+            background: linear-gradient(180deg, var(--special-border) 0%, #0d9488 100%);
+            border-radius: 16px 0 0 16px; z-index: 1;
+        }
+        @media (hover: hover) {
+            .example:hover, .formula-block:hover, .important:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+        }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+
+        .spoiler-btn { display: inline-block; margin-top: 10px; padding: 8px 16px; background: var(--info-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.2s, color 0.2s; }
+        .spoiler-btn:hover { background: var(--special-border); color: #fff; }
+        .spoiler-content { display: none; margin-top: 12px; padding: 12px 16px; background: var(--card-bg); border-radius: 8px; border: 1px dashed var(--border); animation: fadeIn 0.3s ease; }
+        .spoiler-content.solution { border-left: 4px solid var(--result-color); background: rgba(74, 222, 128, 0.05); }
+        .spoiler-content.hint { border-left: 4px solid var(--warning-border); background: var(--warning-bg); }
+
+        .back-link { display: table !important; margin: 20px auto 10px auto; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; text-align: center; }
+        .back-link:hover { background: #2563eb; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .bottom-nav { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px; background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900; transition: background 0.3s, border 0.3s, transform 0.3s; }
+        :root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+        .bottom-nav a, .bottom-nav button { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .bottom-nav a:hover, .bottom-nav button:hover { background: rgba(59,130,246,0.15); color: var(--accent); transform: translateY(-2px) scale(1.08); }
+        .bottom-nav.nav-hidden { transform: translate(-50%, 120%); opacity: 0; pointer-events: none; }
+        .ripple-host { position: relative !important; overflow: hidden !important; }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(59, 130, 246, 0.35); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 0; }
+        @keyframes rippleAnim { to { transform: scale(2.5); opacity: 0; } }
+    </style>
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] },
+            startup: { typeset: true }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise();
+                }
+            }, 100);
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Профессиональные задачи: Многогранники</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Зачем это нужно в профессии?</span>
+        </div>
+        <div class="section-content">
+            <p>Призмы, пирамиды и параллелепипеды — это не только школьные чертежи. На производстве это формы заготовок, контейнеров, кузовов, бетонных блоков и сварных швов. Ошибка в расчёте объёма — это либо перерасход металла (убыток), либо перегрузка платформы (авария), либо непровар (брак).</p>
+            <p>В этом практикуме — реальные задачи с производственных участков. Здесь важно не просто посчитать по формуле, а понять, выдержит ли конструкция, не сорвётся ли поставка и пройдёт ли деталь контроль.</p>
+            <div class="important">
+                <strong>💡 Как пользоваться:</strong><br>
+                Выберите специальность ниже. В каждой — 4 задачи с подробным разбором и 7 задач для самостоятельной работы (с подсказками). Считайте так, как будто вы уже на объекте.
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЭРЭО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚡ ЭРЭО (Электрика)</span>
+            <span class="sub-title">Расчёт фундаментов, кабельных трасс, кожухов и защитных ящиков</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Для установки нового распределительного щита на подстанции требуется залить бетонный фундамент в форме прямоугольного параллелепипеда. Габариты фундамента: длина 4,5 м, ширина 2,8 м, высота 0,5 м. Плотность бетона 2,4 т/м³. На объект приехал самосвал грузоподъемностью 15 тонн. Сможет ли он привезти весь бетон за один рейс? Если нет, сколько рейсов придется заказать, чтобы доставить весь объём?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Вычисляем объём фундамента.</strong> Формула объёма прямоугольного параллелепипеда: \(V = a \cdot b \cdot c\). Подставляем значения: \(V = 4{,}5 \cdot 2{,}8 \cdot 0{,}5 = 6{,}3\) м³.</p>
+                            <p><strong>Шаг 2. Вычисляем массу бетона.</strong> Масса равна произведению объёма на плотность: \(m = V \cdot \rho\). \(m = 6{,}3 \cdot 2{,}4 = 15{,}12\) тонны.</p>
+                            <p><strong>Шаг 3. Сравниваем с грузоподъемностью.</strong> Масса бетона (15,12 т) превышает максимальную грузоподъемность самосвала (15 т) на 0,12 тонны (120 кг). Перегруз недопустим.</p>
+                            <p><strong>Шаг 4. Считаем рейсы.</strong> Так как за один рейс привезти нельзя, делим общий объём на объём, который можно перевезти за раз. Максимальный безопасный объём для одного рейса: \(V_{рейс} = 15 / 2{,}4 = 6{,}25\) м³. Общее количество рейсов: \(6{,}3 / 6{,}25 = 1{,}008\). Округляем в большую сторону.</p>
+                            <p><strong>Ответ:</strong> За один рейс машина не справится (будет перегруз). Потребуется 2 рейса (во втором рейсе привезут остаток — 0,05 м³).</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>При прокладке силового кабеля на глубине 1,2 м вырыли траншею длиной 60 м. По технике безопасности профиль траншеи должен быть трапециевидным: ширина по дну 0,6 м, ширина по верху 1,2 м. Грунт вывозят самосвалами, каждый кузов вмещает 8 м³ с шапкой. Однако, из-за глинистой почвы грунт разрыхляется, и его объём увеличивается на 20% (коэффициент разрыхления). Рассчитайте фактический объём вывозимого грунта и определите, сколько полных рейсов сделают самосвалы.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Находим площадь поперечного сечения траншеи.</strong> Сечение — трапеция. Формула площади: \(S = \frac{a + b}{2} \cdot h\). \(S = \frac{1{,}2 + 0{,}6}{2} \cdot 1{,}2 = \frac{1{,}8}{2} \cdot 1{,}2 = 0{,}9 \cdot 1{,}2 = 1{,}08\) м².</p>
+                            <p><strong>Шаг 2. Вычисляем геометрический объём траншеи.</strong> Траншея — это прямая призма, где основание — трапеция, а длина — высота призмы. \(V = S \cdot L\). \(V = 1{,}08 \cdot 60 = 64{,}8\) м³.</p>
+                            <p><strong>Шаг 3. Учитываем разрыхление грунта.</strong> Реальный объём грунта будет больше на 20%: \(V_{факт} = V \cdot 1{,}2 = 64{,}8 \cdot 1{,}2 = 77{,}76\) м³.</p>
+                            <p><strong>Шаг 4. Считаем рейсы.</strong> Делим фактический объём на вместимость одного самосвала: \(77{,}76 / 8 = 9{,}72\). Так как количество рейсов должно быть целым, округляем в большую сторону.</p>
+                            <p><strong>Ответ:</strong> Фактический объём грунта — 77,76 м³. Потребуется 10 рейсов самосвалов.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Для защиты уличного трансформатора от осадков сварщик изготавливает защитный колпак в форме правильной четырёхугольной пирамиды. Сторона квадратного основания колпака 1,6 м, а высота колпака 0,6 м. Крыша должна быть покрыта антикоррозийным составом в два слоя. Расход состава — 250 г на 1 м². В наличии есть банка весом 3,5 кг. Хватит ли этой банки, чтобы покрыть все четыре ската крыши в два слоя?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Находим апофему (высоту боковой грани).</strong> Боковая грань — равнобедренный треугольник. Апофема (проведённая от вершины к середине стороны) находится по теореме Пифагора из прямоугольного треугольника, где катеты — это высота пирамиды (0,6 м) и половина стороны основания (1,6 / 2 = 0,8 м). \(l = \sqrt{0{,}6^2 + 0{,}8^2} = \sqrt{0{,}36 + 0{,}64} = \sqrt{1} = 1\) м.</p>
+                            <p><strong>Шаг 2. Вычисляем площадь одной грани.</strong> \(S_{гр} = \frac{1}{2} \cdot a \cdot l = \frac{1}{2} \cdot 1{,}6 \cdot 1 = 0{,}8\) м².</p>
+                            <p><strong>Шаг 3. Вычисляем площадь всех 4-х скатов.</strong> \(S_{общ} = 4 \cdot 0{,}8 = 3{,}2\) м².</p>
+                            <p><strong>Шаг 4. Учитываем два слоя.</strong> Площадь для покраски удваивается: \(S_{покраски} = 3{,}2 \cdot 2 = 6{,}4\) м².</p>
+                            <p><strong>Шаг 5. Находим необходимую массу состава.</strong> \(m = S_{покраски} \cdot \text{расход} = 6{,}4 \cdot 250 = 1600\) г = 1,6 кг.</p>
+                            <p><strong>Ответ:</strong> Требуется 1,6 кг состава. Банки в 3,5 кг более чем достаточно (останется запас).</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>На подстанции монтируют металлический ящик для реле. Ящик имеет форму прямоугольного параллелепипеда с размерами: длина 1,8 м, ширина 0,8 м, высота 1,2 м. Для изготовления стенок используется стальной лист толщиной 4 мм. Плотность стали 7,8 г/см³. Мастеру нужно заказать металл. Вычислите массу пустого ящика (без крышки и дна, только 4 боковые стенки), чтобы рассчитать нагрузку на крепёжную раму.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Переводим размеры в сантиметры.</strong> Длина 180 см, ширина 80 см, высота 120 см. Толщина стенки 0,4 см.</p>
+                            <p><strong>Шаг 2. Вычисляем площадь 4 стенок.</strong> Площадь двух длинных стенок: \(2 \cdot (180 \cdot 120) = 43200\) см². Площадь двух коротких стенок: \(2 \cdot (80 \cdot 120) = 19200\) см². Общая площадь: \(43200 + 19200 = 62400\) см².</p>
+                            <p><strong>Шаг 3. Вычисляем объём металла.</strong> Объём = Площадь × Толщина. \(V = 62400 \cdot 0{,}4 = 24960\) см³.</p>
+                            <p><strong>Шаг 4. Вычисляем массу.</strong> Масса = Объём × Плотность. \(m = 24960 \cdot 7{,}8 = 194688\) г = 194,688 кг.</p>
+                            <p><strong>Шаг 5. Вывод.</strong> Масса ящика почти 195 кг. Если рама рассчитана на 150 кг, её нужно усилить.</p>
+                            <p><strong>Ответ:</strong> Масса ящика составляет 194,7 кг.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Перегрузка барабана.</strong> На поддон в форме параллелепипеда (1,5 м × 1 м × 1 м) полностью намотали медный кабель. Плотность меди 8,9 т/м³. Кран на площадке рассчитан на подъём максимум 10 тонн. Определите массу груза и скажите, можно ли поднимать поддон этим краном?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём поддона \(V = 1{,}5 \cdot 1 \cdot 1 = 1{,}5\) м³. Масса \(m = 1{,}5 \cdot 8{,}9 = 13{,}35\) т. Кран не выдержит (13,35 &gt; 10).</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Закупка бетона для опор.</strong> Требуется залить 5 фундаментов под опоры ЛЭП. Каждый фундамент — прямоугольный параллелепипед 0,8 × 0,8 × 1,5 м. Поставщик привозит бетон машинами по 3 м³. Однако по факту из-за неровностей грунта расходуется на 15% больше бетона. Хватит ли одной машины, чтобы залить все 5 опор?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём 5 опор: \(5 \cdot (0{,}8 \cdot 0{,}8 \cdot 1{,}5) = 5 \cdot 0{,}96 = 4{,}8\) м³. С запасом 15%: \(4{,}8 \cdot 1{,}15 = 5{,}52\) м³. Машины на 3 м³ не хватит.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём траншеи.</strong> Траншея для кабеля имеет длину 25 м, глубину 0,8 м. Ширина по дну 0,4 м, по верху 0,8 м. Рассчитайте геометрический объём траншеи. Хватит ли 15 м³ песка для её обратной засыпки?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь сечения \(S = \frac{0{,}4 + 0{,}8}{2} \cdot 0{,}8 = 0{,}48\) м². Объём \(V = 0{,}48 \cdot 25 = 12\) м³. 12 &lt; 15, песка хватит.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Вес щита управления.</strong> Шкаф управления — параллелепипед 1,2 м × 0,8 м × 0,4 м. Плотность материала корпуса 1,2 т/м³. Кронштейн на стене по паспорту выдерживает до 300 кг. Безопасно ли вешать этот шкаф на кронштейн?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём \(V = 1{,}2 \cdot 0{,}8 \cdot 0{,}4 = 0{,}384\) м³. Масса \(m = 0{,}384 \cdot 1{,}2 = 0{,}4608\) т = 460,8 кг. Это больше 300 кг — вешать небезопасно.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Покраска ящика.</strong> Металлический ящик 2 × 1 × 0,5 м нужно покрасить снаружи (все 6 граней). Расход краски 120 г/м². Хватит ли одной банки краски весом 1,5 кг?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь \(S = 2(2\cdot1 + 1\cdot0{,}5 + 2\cdot0{,}5) = 2(2 + 0{,}5 + 1) = 7\) м². Расход \(7 \cdot 120 = 840\) г. Банки 1,5 кг хватит.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Крыша навеса.</strong> Навес для генератора сделан в виде правильной четырёхугольной пирамиды. Сторона основания 3 м, апофема 2 м. Сколько листов профнастила по 1,5 м² нужно купить, чтобы покрыть крышу (с запасом 5% на нахлёст)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь 4 граней: \(4 \cdot (\frac{1}{2} \cdot 3 \cdot 2) = 12\) м². С запасом \(12 \cdot 1{,}05 = 12{,}6\) м². Количество листов: \(12{,}6 / 1{,}5 = 8{,}4\). Округляем — нужно 9 листов.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём ямы.</strong> Для установки заземлителя нужно выкопать яму размером 2 м × 2 м × 3 м. Рабочие выбрасывают по 1,5 м³ грунта в час. Сколько полных часов займет работа?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём ямы \(V = 2 \cdot 2 \cdot 3 = 12\) м³. Время \(12 / 1{,}5 = 8\) часов.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТОА / АВТОМЕХАНИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚗 ТОА / Автомеханик</span>
+            <span class="sub-title">Расчёты кузовов, баков, загрузки и восстановительных работ</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Владелец грузовика решил установить дополнительный топливный бак в форме прямоугольного параллелепипеда на раму. Габариты бака: длина 1,4 м, ширина 0,9 м, высота 0,6 м. Толщина стенок бака — 5 мм. Плотность дизельного топлива 0,85 т/м³. Внутренние размеры бака (для топлива) меньше внешних на две толщины стенки (по 5 мм с каждой стороны). Рассчитайте, сколько литров топлива реально войдет в бак, и хватит ли этого запаса на маршрут в 2000 км, если средний расход грузовика 32 л на 100 км?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Находим внутренние размеры бака.</strong> Переводим мм в метры (5 мм = 0,005 м). Толщина стенок с двух сторон: \(0,005 \cdot 2 = 0,01\) м. Внутренняя длина: \(1{,}4 - 0{,}01 = 1{,}39\) м. Ширина: \(0{,}9 - 0{,}01 = 0{,}89\) м. Высота: \(0{,}6 - 0{,}01 = 0{,}59\) м.</p>
+                            <p><strong>Шаг 2. Внутренний объём.</strong> \(V = 1{,}39 \cdot 0{,}89 \cdot 0{,}59 \approx 0{,}72988\) м³.</p>
+                            <p><strong>Шаг 3. Переводим в литры.</strong> 1 м³ = 1000 л. Объём \(\approx 729{,}9\) литра.</p>
+                            <p><strong>Шаг 4. Считаем потребность в топливе.</strong> На 2000 км при расходе 32 л/100 км нужно: \((2000 / 100) \cdot 32 = 20 \cdot 32 = 640\) литров.</p>
+                            <p><strong>Ответ:</strong> В бак войдёт примерно 730 л. Это больше необходимых 640 л, так что запаса хватит.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>В сервис привезли автомобиль с вмятиной на двери. Механик решил, что для выравнивания проще всего использовать шпатлевку. Вмятина имеет форму четырехугольной пирамиды (перевернутой). Её основание (на поверхности двери) — прямоугольник со сторонами 30 см и 50 см. Глубина вмятины (высота пирамиды) — 4 см. Шпатлевка продается в банках по 1,8 кг. Плотность готовой шпатлевки 1,6 г/см³. Сколько банок придется купить мастеру, чтобы полностью залить вмятину с запасом 10% (на усадку и шлифовку)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём вмятины.</strong> Формула объёма пирамиды \(V = \frac{1}{3} \cdot S_{осн} \cdot h\). Площадь основания: \(S = 30 \cdot 50 = 1500\) см². \(V = \frac{1}{3} \cdot 1500 \cdot 4 = 2000\) см³.</p>
+                            <p><strong>Шаг 2. Учитываем запас 10%.</strong> Требуемый объём шпатлевки: \(2000 \cdot 1{,}1 = 2200\) см³.</p>
+                            <p><strong>Шаг 3. Находим массу шпатлевки.</strong> \(m = V \cdot \rho = 2200 \cdot 1{,}6 = 3520\) г = 3,52 кг.</p>
+                            <p><strong>Шаг 4. Считаем банки.</strong> Масса одной банки 1,8 кг. \(3{,}52 / 1{,}8 \approx 1{,}95\). Округляем в большую сторону.</p>
+                            <p><strong>Ответ:</strong> Потребуется 2 банки шпатлевки.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Для перевозки запчастей используется закрытый фургон с внутренними размерами кузова: длина 4,2 м, ширина 2,2 м, высота 2,4 м. В него загружают коробки размером 0,6 × 0,4 × 0,5 м. По правилам перевозки, коробки нельзя ставить друг на друга выше 4 ярусов (иначе нижние могут раздавиться). Какое максимальное количество коробок можно загрузить в фургон, и каков будет общий вес груза, если одна коробка весит 15 кг? Не превысит ли вес допустимую нагрузку на ось, если грузоподъемность фургона 3 тонны?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Раскладка по длине.</strong> Вдоль длины поместится: \(4{,}2 / 0{,}6 = 7\) коробок.</p>
+                            <p><strong>Шаг 2. Раскладка по ширине.</strong> Вдоль ширины: \(2{,}2 / 0{,}4 = 5{,}5\), значит, поместится только 5 коробок. (Если развернуть по-другому: \(2{,}2 / 0{,}6 = 3{,}6\), это меньше, так что оставляем 5).</p>
+                            <p><strong>Шаг 3. Раскладка по высоте.</strong> Максимально разрешено 4 яруса.</p>
+                            <p><strong>Шаг 4. Общее количество.</strong> \(7 \cdot 5 \cdot 4 = 140\) коробок.</p>
+                            <p><strong>Шаг 5. Общий вес.</strong> \(140 \cdot 15 = 2100\) кг = 2,1 тонны.</p>
+                            <p><strong>Ответ:</strong> Поместится 140 коробок. Вес груза составит 2,1 т, что не превышает грузоподъемность фургона (3 т).</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>В автосервисе изготавливают защитный каркас (клетку) для внедорожника. Для расчёта веса решили прикинуть массу прямоугольного багажника на крышу. Багажник имеет форму прямоугольного параллелепипеда (каркаса) с размерами: длина 1,8 м, ширина 1,4 м, высота 0,2 м. Для его сварки используют стальной профиль. Если бы весь объём каркаса был заполнен сталью (плотность 7,8 т/м³), какова была бы его масса? Оцените, выдержит ли крыша автомобиля такой вес, если максимальная нагрузка на крышу — 80 кг?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Находим объем.</strong> \(V = 1{,}8 \cdot 1{,}4 \cdot 0{,}2 = 0{,}504\) м³.</p>
+                            <p><strong>Шаг 2. Находим массу.</strong> \(m = 0{,}504 \cdot 7{,}8 = 3{,}9312\) тонны = 3931,2 кг.</p>
+                            <p><strong>Шаг 3. Сравниваем с нормой.</strong> Полученная масса (если бы это был сплошной кусок металла) — почти 4 тонны. Естественно, реальный каркас весит меньше (он пустой внутри). Но если мастер по ошибке заложит в расчёт сплошной брус и решит, что багажник будет весить 4 тонны, он забракует проект. А если реальный каркас весит, скажем, 50 кг — крыша выдержит.</p>
+                            <p><strong>Ответ:</strong> Масса сплошного бруса такого объёма составила бы 3931 кг, что в 49 раз превышает допустимую нагрузку в 80 кг. Требуется облегчённая сварная конструкция с меньшим объёмом металла.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Бак для дальнобойщика.</strong> Дополнительный бак-параллелепипед имеет внешние размеры 1,2 × 0,8 × 0,5 м. Толщина стенок 10 мм. Сколько литров топлива войдет внутрь? Хватит ли этого на 1000 км пути при расходе 40 л/100 км?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Внутренние размеры: \(1{,}18 \times 0{,}78 \times 0{,}48\) м. Объём \(V = 0{,}44179\) м³ \(\approx 442\) л. На 1000 км нужно 400 л. Хватит.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Рихтовка порога.</strong> Вмятина на пороге имеет форму пирамиды: основание 80 × 15 см, глубина 3 см. Сколько шпатлевки понадобится для выравнивания, если её плотность 1,5 г/см³ (ответ дайте в граммах)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём вмятины \(V = \frac{1}{3} \cdot (80 \cdot 15) \cdot 3 = 1200\) см³. Масса \(m = 1200 \cdot 1{,}5 = 1800\) г.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Загрузка прицепа.</strong> Прицеп 3 × 1,5 × 0,4 м. Ящики 0,5 × 0,5 × 0,4 м. Максимальная грузоподъемность 500 кг, вес ящика 20 кг. Сколько ящиков можно загрузить, чтобы не превысить лимит веса (при условии, что они помещаются)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">По объёму поместится: \(6 \cdot 3 \cdot 1 = 18\) ящиков. Вес 18 ящиков: \(18 \cdot 20 = 360\) кг. Это меньше 500 кг. Значит, можно загрузить все 18.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Вес тормозного диска.</strong> Диск (для упрощения — сплошной параллелепипед) 30 × 30 × 3 см. Плотность чугуна 7,2 г/см³. Какова масса диска в кг? Если норматив 25 кг, нужно ли искать облегченную модель?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём \(V = 30 \cdot 30 \cdot 3 = 2700\) см³. Масса \(m = 2700 \cdot 7{,}2 = 19440\) г = 19,44 кг. 19,44 &lt; 25, модель подходит.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Оклейка кузова.</strong> Кабина грузовика (параллелепипед) 2,2 × 1,8 × 1,5 м. Оклейка стоит 1000 руб. за 1 м². Сколько денег нужно на оклейку всех боковых сторон (4 стены, без крыши и пола)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь 4 стен: \(2 \cdot (2{,}2 \cdot 1{,}5) + 2 \cdot (1{,}8 \cdot 1{,}5) = 6{,}6 + 5{,}4 = 12\) м². Стоимость: \(12 \cdot 1000 = 12000\) руб.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём кузова самосвала.</strong> Кузов 5,5 × 2,3 × 1,6 м. Плотность влажного песка 1,8 т/м³. Грузоподъемность 20 т. Можно ли насыпать песок «с горкой» (считать объём по верхним краям)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём кузова \(V = 5{,}5 \cdot 2{,}3 \cdot 1{,}6 = 20{,}24\) м³. Масса \(m = 20{,}24 \cdot 1{,}8 = 36{,}4\) т. Это превышает 20 т, полный кузов везти нельзя.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Коробка передач.</strong> Картер КПП имеет форму, близкую к параллелепипеду: 40 × 20 × 15 см. Плотность алюминиевого сплава 2,7 г/см³. Найдите массу пустого картера, если его стенки в среднем занимают 15% от общего объёма.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Общий объём \(V = 40 \cdot 20 \cdot 15 = 12000\) см³. Объём металла = \(12000 \cdot 0{,}15 = 1800\) см³. Масса \(m = 1800 \cdot 2{,}7 = 4860\) г = 4,86 кг.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚙️ ТМ (Технология машиностроения)</span>
+            <span class="sub-title">Заготовки, детали, объёмы, массы и раскрой материала</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>В цех поступила партия стальных заготовок в форме прямоугольного параллелепипеда. Размеры одной заготовки: длина 250 мм, ширина 120 мм, высота 40 мм. Плотность стали 7,8 г/см³. Мастеру нужно настроить станок, зная массу одной детали. Если масса одной заготовки превышает 10 кг, станок нужно перенастроить на пониженную скорость подачи. Рассчитайте массу заготовки в килограммах и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Переводим размеры в сантиметры.</strong> 250 мм = 25 см, 120 мм = 12 см, 40 мм = 4 см.</p>
+                            <p><strong>Шаг 2. Вычисляем объём.</strong> \(V = 25 \cdot 12 \cdot 4 = 1200\) см³.</p>
+                            <p><strong>Шаг 3. Вычисляем массу.</strong> \(m = V \cdot \rho = 1200 \cdot 7{,}8 = 9360\) г.</p>
+                            <p><strong>Шаг 4. Переводим в килограммы.</strong> 9360 г = 9,36 кг.</p>
+                            <p><strong>Ответ:</strong> Масса заготовки 9,36 кг. Это меньше 10 кг, поэтому перенастраивать станок не нужно.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Требуется изготовить деталь в форме правильной четырёхугольной пирамиды. Сторона квадратного основания 8 см, а высота детали 12 см. Отливка делается из латуни (плотность 8,5 г/см³). Технолог знает, что при литье образуются отходы (литники), которые составляют 5% от чистого объёма детали. Сколько латуни (в граммах) нужно расплавить, чтобы получить одну такую деталь, и какова будет её итоговая масса?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Вычисляем объём чистой детали.</strong> \(V = \frac{1}{3} \cdot S_{осн} \cdot h = \frac{1}{3} \cdot (8 \cdot 8) \cdot 12 = \frac{1}{3} \cdot 64 \cdot 12 = 256\) см³.</p>
+                            <p><strong>Шаг 2. Учитываем отходы (5%).</strong> Объём с отходами: \(V_{общ} = 256 \cdot 1{,}05 = 268{,}8\) см³.</p>
+                            <p><strong>Шаг 3. Масса необходимой латуни (с отходами).</strong> \(m_{закуп} = 268{,}8 \cdot 8{,}5 = 2284{,}8\) г.</p>
+                            <p><strong>Шаг 4. Масса самой детали (без отходов).</strong> \(m_{дет} = 256 \cdot 8{,}5 = 2176\) г.</p>
+                            <p><strong>Ответ:</strong> Для литья нужно заложить 2284,8 г латуни. Чистая масса готовой детали составит 2176 г (2,176 кг).</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Из листа металла размером 2,5 м × 1,2 м необходимо вырезать прямоугольные заготовки размером 300 мм × 200 мм. При раскрое образуются отходы. Технолог планирует расположить детали так, чтобы минимизировать отходы. Рассчитайте максимальное количество целых заготовок, которое можно вырезать из одного листа, и определите процент отходов (площадь стружки и обрези).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Переводим в единые единицы.</strong> Лист 2500 мм × 1200 мм. Заготовка 300 мм × 200 мм.</p>
+                            <p><strong>Шаг 2. Считаем раскладку по длине.</strong> 2500 / 300 = 8,33, значит, в ряд помещается 8 деталей (по 300 мм). Остаток: 100 мм.</p>
+                            <p><strong>Шаг 3. Считаем раскладку по ширине.</strong> 1200 / 200 = 6 деталей.</p>
+                            <p><strong>Шаг 4. Общее количество.</strong> \(8 \cdot 6 = 48\) заготовок.</p>
+                            <p><strong>Шаг 5. Площадь листа.</strong> \(2500 \cdot 1200 = 3\,000\,000\) мм² = 3 м².</p>
+                            <p><strong>Шаг 6. Площадь 48 заготовок.</strong> \(48 \cdot (300 \cdot 200) = 48 \cdot 60000 = 2\,880\,000\) мм² = 2,88 м².</p>
+                            <p><strong>Шаг 7. Отходы.</strong> \((3 - 2{,}88) / 3 \cdot 100\% = 0{,}12 / 3 \cdot 100\% = 4\%\).</p>
+                            <p><strong>Ответ:</strong> Из листа получится 48 заготовок. Процент отходов составит 4%.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Для проверки прочности на изгиб инженеру нужно рассчитать массу стального бруска, имеющего форму правильной треугольной призмы. Сторона основания (равносторонний треугольник) равна 10 см, высота призмы 30 см. Плотность стали 7,8 г/см³. Допустимая масса испытываемого образца на испытательной машине — не более 15 кг. Подойдет ли такой брусок для испытаний?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Находим площадь основания (равностороннего треугольника).</strong> Формула: \(S = \frac{a^2 \sqrt{3}}{4}\). \(S = \frac{10^2 \cdot \sqrt{3}}{4} = \frac{100 \cdot 1{,}732}{4} = 43{,}3\) см².</p>
+                            <p><strong>Шаг 2. Находим объём призмы.</strong> \(V = S \cdot h = 43{,}3 \cdot 30 = 1299\) см³.</p>
+                            <p><strong>Шаг 3. Находим массу.</strong> \(m = 1299 \cdot 7{,}8 = 10132{,}2\) г ≈ 10,13 кг.</p>
+                            <p><strong>Ответ:</strong> Масса бруска 10,13 кг, что не превышает допустимые 15 кг. Брусок подойдет для испытаний.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Масса плиты.</strong> Стальная плита имеет размеры 1,5 м × 1 м × 100 мм. Плотность стали 7,8 т/м³. Выдержит ли её магнитный подъемник, рассчитанный на 1,5 тонны?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">100 мм = 0,1 м. Объём \(V = 1{,}5 \cdot 1 \cdot 0{,}1 = 0{,}15\) м³. Масса \(m = 0{,}15 \cdot 7{,}8 = 1{,}17\) т. 1,17 &lt; 1,5 — подъемник выдержит.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём литейной формы.</strong> Форма для отливки — правильная четырёхугольная пирамида с основанием 20 × 20 см и высотой 30 см. Сколько литров металла потребуется, чтобы заполнить её с запасом 10%?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём \(V = \frac{1}{3} \cdot 400 \cdot 30 = 4000\) см³ = 4 л. С запасом 10%: \(4 \cdot 1{,}1 = 4{,}4\) литра.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Раскрой листа.</strong> Лист 2 м × 1 м нужно раскроить на квадратные заготовки 500 × 500 мм. Какое максимальное количество заготовок получится, и какой процент площади уйдет в отходы?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">По длине 4 шт, по ширине 2 шт. Всего 8 шт. Площадь листа 2 м², площадь заготовок \(8 \cdot 0{,}25 = 2\) м². Отходов 0%.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Коробка для деталей.</strong> Ящик имеет размеры 400 × 300 × 200 мм. В него нужно сложить кубики с ребром 50 мм. Сколько кубиков поместится, если заполнять ящик полностью?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">По длине 8 шт, по ширине 6 шт, по высоте 4 шт. Всего \(8 \cdot 6 \cdot 4 = 192\) кубика.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Покраска деталей.</strong> Партия из 20 деталей в форме куба с ребром 10 см. Норма расхода краски 80 г/м². Хватит ли 1 литра краски (плотность 1,2 г/см³), чтобы покрасить все детали в один слой?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь одного куба: \(6 \cdot 0{,}1^2 = 0{,}06\) м². На 20 деталей: \(20 \cdot 0{,}06 = 1{,}2\) м². Нужно краски: \(1{,}2 \cdot 80 = 96\) г. 1 литр весит 1200 г. Хватит с запасом.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём отливки.</strong> Деталь имеет форму правильной треугольной призмы: сторона основания 6 см, высота 15 см. Плотность сплава 8,2 г/см³. Найдите массу детали с точностью до грамма (корень из 3 = 1,732).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь основания \(S = \frac{6^2 \cdot 1{,}732}{4} = 15{,}588\) см². Объём \(V = 15{,}588 \cdot 15 = 233{,}82\) см³. Масса \(m = 233{,}82 \cdot 8{,}2 = 1917\) г.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Сколько кубов в контейнере?</strong> Контейнер 6 м × 2,4 м × 2,4 м. Кубические заготовки с ребром 1,2 м. Сколько заготовок поместится, если между ними нужно оставлять зазор 5 см (считать, что зазор уменьшает полезную длину и ширину)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">С зазором длина ряда: \(1{,}2 + 0{,}05 = 1{,}25\) м. По длине 4 шт (5 м). По ширине и высоте: \(2 \cdot 2{,}4 / 1{,}25 = 3{,}8\), значит по 1 шт в ряду с учётом зазоров (2,4/1,25=1). Итого: \(4 \cdot 1 \cdot 1 = 4\) шт. (или \(6/1,25 = 4\), \(2,4/1,25 = 1\), \(2,4/1,25 = 1\) → 4 шт).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ИМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">💻 ИМ (Информационные системы)</span>
+            <span class="sub-title">3D-модели, полигональные сетки, объёмы данных</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию в IT-сфере.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Разработчик игрового движка создаёт 3D-модель комнаты для квеста. Комната имеет форму прямоугольного параллелепипеда с размерами: длина 10 м, ширина 6 м, высота 3 м. Для текстурирования стен и потолка (пол пока не нужен) используется разрешение 2048×2048 пикселей на каждый квадратный метр. Если один пиксель текстуры весит 4 байта, сколько мегабайт (МБ) оперативной памяти потребуется для хранения этих текстур? (1 МБ = 1024×1024 байт)</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Площадь стен и потолка.</strong> Стены: \(2 \cdot (10 \cdot 3) + 2 \cdot (6 \cdot 3) = 60 + 36 = 96\) м². Потолок: \(10 \cdot 6 = 60\) м². Общая площадь: \(96 + 60 = 156\) м².</p>
+                            <p><strong>Шаг 2. Общее количество пикселей.</strong> \(156 \cdot (2048 \cdot 2048) = 156 \cdot 4\,194\,304 = 654\,311\,424\) пикселей.</p>
+                            <p><strong>Шаг 3. Вес в байтах.</strong> \(654\,311\,424 \cdot 4 = 2\,617\,245\,696\) байт.</p>
+                            <p><strong>Шаг 4. Перевод в МБ.</strong> \(2\,617\,245\,696 / (1024 \cdot 1024) = 2496\) МБ.</p>
+                            <p><strong>Ответ:</strong> Потребуется 2496 МБ (или 2,44 ГБ) памяти.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>При создании 3D-модели детали в CAD-системе используется полигональная сетка. Деталь имеет форму правильной четырёхугольной пирамиды. Сторона основания 20 см, высота 30 см. В программе каждая грань разбивается на треугольники: боковые грани — по 2 треугольника, основание — 2 треугольника. Если на один треугольник (полигон) в базе данных отводится 256 байт, сколько килобайт (КБ) займёт модель? (1 КБ = 1024 байта)</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Считаем количество полигонов.</strong> У пирамиды 4 боковые грани. Каждая — 2 полигона. Итого боковых: \(4 \cdot 2 = 8\). Основание — квадрат, состоит из 2 треугольников. Всего полигонов: \(8 + 2 = 10\).</p>
+                            <p><strong>Шаг 2. Размер в байтах.</strong> \(10 \cdot 256 = 2560\) байт.</p>
+                            <p><strong>Шаг 3. Перевод в КБ.</strong> \(2560 / 1024 = 2{,}5\) КБ.</p>
+                            <p><strong>Ответ:</strong> Модель займёт 2,5 КБ.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Для сервера баз данных закупают новые SSD-накопители. Один блок данных в системе имеет форму куба с ребром 2 см. Если объём одного блока данных занимает 1,5 МБ на диске, сколько таких блоков поместится на SSD объёмом 2 ТБ? (1 ТБ = 1024 ГБ, 1 ГБ = 1024 МБ). Также узнайте общий физический объём, который займут все эти кубы, если их сложить в один большой куб.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Переводим объём SSD в МБ.</strong> 2 ТБ = \(2 \cdot 1024 = 2048\) ГБ = \(2048 \cdot 1024 = 2\,097\,152\) МБ.</p>
+                            <p><strong>Шаг 2. Количество блоков.</strong> \(2\,097\,152 / 1{,}5 \approx 1\,398\,101\) блок.</p>
+                            <p><strong>Шаг 3. Физический объём одного куба.</strong> \(2^3 = 8\) см³.</p>
+                            <p><strong>Шаг 4. Общий объём.</strong> \(1\,398\,101 \cdot 8 = 11\,184\,808\) см³ \(\approx 11{,}18\) м³.</p>
+                            <p><strong>Ответ:</strong> На диск поместится ~1 398 101 блок. Их общий физический объём составит ~11,18 м³.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>В 3D-редакторе нужно создать модель здания. Здание имеет форму прямоугольного параллелепипеда 12 м × 8 м × 5 м. Программа сохраняет модель в формате, где 1 м³ геометрического объёма модели весит 40 КБ. Однако для оптимизации разработчик решил вырезать внутри здания пустоту (сделать полым), оставив только стены толщиной 20 см. На сколько процентов уменьшится вес файла модели, если стены занимают только часть объёма?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём сплошного здания.</strong> \(V = 12 \cdot 8 \cdot 5 = 480\) м³.</p>
+                            <p><strong>Шаг 2. Внутренние размеры (с учётом стен 0,2 м с каждой стороны).</strong> Длина: \(12 - 0{,}4 = 11{,}6\) м. Ширина: \(8 - 0{,}4 = 7{,}6\) м. Высота: \(5 - 0{,}4 = 4{,}6\) м (считаем, что пол и потолок тоже толщиной 20 см).</p>
+                            <p><strong>Шаг 3. Внутренний объём.</strong> \(11{,}6 \cdot 7{,}6 \cdot 4{,}6 \approx 405{,}5\) м³.</p>
+                            <p><strong>Шаг 4. Объём стен.</strong> \(480 - 405{,}5 = 74{,}5\) м³.</p>
+                            <p><strong>Шаг 5. Процент уменьшения.</strong> \((74{,}5 / 480) \cdot 100\% \approx 15{,}5\%\). Значит, вес файла уменьшится на \(100\% - 15{,}5\% = 84{,}5\%\).</p>
+                            <p><strong>Ответ:</strong> Вес модели уменьшится на 84,5%.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Текстура пола.</strong> Комната 6 × 5 м. На пол накладывается текстура 1024×1024 пикселей на каждый м². Вес одного пикселя — 3 байта. Сколько МБ памяти уйдёт на текстуру пола?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь 30 м². Пикселей \(30 \cdot 1024^2 = 31\,457\,280\). Вес \(31\,457\,280 \cdot 3 = 94\,371\,840\) байт. В МБ: \(94\,371\,840 / 1024^2 = 90\) МБ.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Полигоны куба.</strong> Модель куба содержит 12 треугольников. Для 1500 таких кубов (например, ящиков на складе) нужно рассчитать общее количество полигонов. Если движок обрабатывает 100 000 полигонов в секунду, за сколько секунд он отрисует всю сцену?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Общее количество: \(1500 \cdot 12 = 18\,000\) полигонов. Время: \(18\,000 / 100\,000 = 0{,}18\) секунды.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём модели.</strong> В программе деталь представлена в форме правильной четырёхугольной пирамиды с основанием 15 × 15 см и высотой 20 см. Сколько литров занимает деталь в виртуальном пространстве?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём \(V = \frac{1}{3} \cdot 225 \cdot 20 = 1500\) см³ = 1,5 литра.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Память для 3D.</strong> Сервер выделяет 512 МБ памяти на модель. Один кубический сантиметр модели занимает 2 МБ. Влезет ли в память модель в форме параллелепипеда 8 × 6 × 5 см?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём \(V = 8 \cdot 6 \cdot 5 = 240\) см³. Память \(240 \cdot 2 = 480\) МБ. 480 &lt; 512, влезет.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Оптимизация сервера.</strong> Сервер обрабатывает 10 000 запросов. Каждый запрос генерирует блок данных размером 4 КБ. Сколько МБ данных генерируется за секунду, если сервер обрабатывает всё за 0,5 секунды?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём данных: \(10\,000 \cdot 4 = 40\,000\) КБ = 39,06 МБ. За 0,5 сек = 78,12 МБ/с.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Модель бака.</strong> В симуляторе физики бак имеет форму прямоугольного параллелепипеда 2,5 × 1,5 × 1,2 м. В него заливают жидкость с плотностью 800 кг/м³. Какая масса жидкости будет в баке, если он заполнен на 75%?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём бака \(V = 2{,}5 \cdot 1{,}5 \cdot 1{,}2 = 4{,}5\) м³. Заполнено 75%: \(4{,}5 \cdot 0{,}75 = 3{,}375\) м³. Масса \(3{,}375 \cdot 800 = 2700\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Количество полигонов.</strong> 3D-модель пирамиды состоит из 4 боковых граней по 2 треугольника и квадратного основания (2 треугольника). Для рендера 200 таких пирамид нужно посчитать общую нагрузку. Сколько всего треугольников обработает видеокарта?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">1 пирамида = \(4 \cdot 2 + 2 = 10\) треугольников. 200 пирамид = \(200 \cdot 10 = 2000\) треугольников.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРЩИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔥 Сварщик</span>
+            <span class="sub-title">Расчёт швов, наплавки, расхода электродов и веса конструкций</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Сварщик выполняет стыковой шов с V-образной разделкой кромок. Поперечное сечение разделки можно представить как трапецию: ширина по верху 10 мм, по низу 2 мм, глубина (толщина металла) 8 мм. Длина шва составляет 1,5 метра. Плотность наплавленного металла 7,8 г/см³. На 1 грамм наплавленного металла расходуется 1,6 г электродов (с учётом огарков и разбрызгивания). Сколько граммов электродов потребуется сварщику для этого шва?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Находим площадь сечения шва (трапеции).</strong> \(S = \frac{a + b}{2} \cdot h\). Переводим мм в см: \(a = 1\) см, \(b = 0{,}2\) см, \(h = 0{,}8\) см. \(S = \frac{1 + 0{,}2}{2} \cdot 0{,}8 = 0{,}6 \cdot 0{,}8 = 0{,}48\) см².</p>
+                            <p><strong>Шаг 2. Находим объём наплавки.</strong> Длина шва 1,5 м = 150 см. Объём равен площади на длину: \(V = S \cdot L = 0{,}48 \cdot 150 = 72\) см³.</p>
+                            <p><strong>Шаг 3. Находим массу наплавленного металла.</strong> \(m_{напл} = V \cdot \rho = 72 \cdot 7{,}8 = 561{,}6\) г.</p>
+                            <p><strong>Шаг 4. Считаем расход электродов.</strong> \(m_{электр} = m_{напл} \cdot 1{,}6 = 561{,}6 \cdot 1{,}6 = 898{,}56\) г.</p>
+                            <p><strong>Ответ:</strong> Потребуется примерно 899 граммов электродов.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>При сварке углового соединения двух пластин под прямым углом шов имеет форму равнобедренного прямоугольного треугольника (катеты шва равны 8 мм). Длина шва 2 метра. Сварщик работает на токе 180 А и напряжении 24 В. Скорость сварки 6 мм/с. Рассчитайте погонную энергию (в Дж/мм) и общий объём наплавленного металла в см³.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Погонная энергия.</strong> Формула: \(q = \frac{U \cdot I}{v}\). Мощность \(P = 24 \cdot 180 = 4320\) Вт (Дж/с). Скорость 6 мм/с. \(q = 4320 / 6 = 720\) Дж/мм.</p>
+                            <p><strong>Шаг 2. Площадь сечения шва.</strong> Катеты в см: 0,8 см. \(S = \frac{1}{2} \cdot 0{,}8 \cdot 0{,}8 = 0{,}32\) см².</p>
+                            <p><strong>Шаг 3. Объём.</strong> Длина 2 м = 200 см. \(V = 0{,}32 \cdot 200 = 64\) см³.</p>
+                            <p><strong>Ответ:</strong> Погонная энергия 720 Дж/мм, объём наплавки 64 см³.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Для изготовления каркаса сварщик сваривает стальной куб с ребром 20 см. Швы прокладываются по всем 12 рёбрам куба. Сечение каждого шва — квадрат со стороной 4 мм. Плотность наплавленного металла 7,8 г/см³. Какова общая масса наплавленного металла на весь каркас? Если один электрод весит 50 г и дает 60% полезного металла (остальное — огарки и разбрызгивание), сколько электродов потребуется?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Общая длина швов.</strong> У куба 12 рёбер по 20 см. Общая длина: \(12 \cdot 20 = 240\) см.</p>
+                            <p><strong>Шаг 2. Площадь сечения шва.</strong> Сторона 4 мм = 0,4 см. \(S = 0{,}4 \cdot 0{,}4 = 0{,}16\) см².</p>
+                            <p><strong>Шаг 3. Объём и масса.</strong> \(V = 0{,}16 \cdot 240 = 38{,}4\) см³. \(m = 38{,}4 \cdot 7{,}8 = 299{,}52\) г.</p>
+                            <p><strong>Шаг 4. Полезный металл с одного электрода.</strong> \(50 \cdot 0{,}6 = 30\) г.</p>
+                            <p><strong>Шаг 5. Количество электродов.</strong> \(299{,}52 / 30 = 9{,}984\). Округляем в большую сторону.</p>
+                            <p><strong>Ответ:</strong> Масса наплавки ~300 г. Потребуется 10 электродов.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Сварщик заваривает трещину в чугунном блоке. Для разделки трещины он использует болгарку с диском толщиной 3 мм и заглубляется на 15 мм. Длина трещины 12 см. Получившуюся канавку он полностью заплавляет. Плотность чугуна 7,2 г/см³. Сколько граммов присадочного материала уйдет на заварку? (Примечание: ширина канавки равна толщине диска).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Размеры канавки (параллелепипед).</strong> Длина 12 см, ширина 3 мм = 0,3 см, глубина 15 мм = 1,5 см.</p>
+                            <p><strong>Шаг 2. Объём канавки.</strong> \(V = 12 \cdot 0{,}3 \cdot 1{,}5 = 5{,}4\) см³.</p>
+                            <p><strong>Шаг 3. Масса присадки.</strong> \(m = V \cdot \rho = 5{,}4 \cdot 7{,}2 = 38{,}88\) г.</p>
+                            <p><strong>Ответ:</strong> Потребуется 38,88 грамма присадочного материала.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Объём стыкового шва.</strong> Толщина металла 10 мм. Разделка V-образная: ширина сверху 12 мм, снизу 2 мм. Длина шва 2,5 м. Найдите объём наплавки в см³.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь \(S = \frac{1{,}2 + 0{,}2}{2} \cdot 1 = 0{,}7\) см². Объём \(V = 0{,}7 \cdot 250 = 175\) см³.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Расход электродов.</strong> Объём наплавки 120 см³. Плотность 7,8 г/см³. Коэффициент расхода 1,7. Какая масса электродов нужна?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Масса наплавки \(120 \cdot 7{,}8 = 936\) г. Расход электродов \(936 \cdot 1{,}7 = 1591{,}2\) г.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Сварка кубов.</strong> 15 кубов с ребром 15 см. Швы по всем 12 рёбрам, сечение 3×3 мм. Найдите общую массу наплавки (плотность 7,8 г/см³).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Длина швов на 1 куб = \(12 \cdot 15 = 180\) см. Объём = \(180 \cdot 0{,}09 = 16{,}2\) см³. На 15 кубов = 243 см³. Масса = \(243 \cdot 7{,}8 = 1895{,}4\) г.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Трапеция.</strong> Шов: 8 мм сверху, 4 мм снизу, глубина 6 мм, длина 3,5 м. Объём в литрах?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(S = \frac{0{,}8 + 0{,}4}{2} \cdot 0{,}6 = 0{,}36\) см². \(V = 0{,}36 \cdot 350 = 126\) см³ = 0,126 л.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Электроды.</strong> Сварщик потратил 25 электродов по 45 г. КПД наплавки (доля полезного металла) 65%. Какова масса наплавленного металла?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Общая масса электродов = \(25 \cdot 45 = 1125\) г. Полезный металл = \(1125 \cdot 0{,}65 = 731{,}25\) г.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Приварка пластины.</strong> Прямоугольная пластина 20 × 15 см приварена по периметру швом 6×6 мм (квадрат). Плотность 7,8 г/см³. Какова масса шва?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Периметр = \(2 \cdot (20 + 15) = 70\) см. Площадь \(0{,}6 \cdot 0{,}6 = 0{,}36\) см². Объём \(70 \cdot 0{,}36 = 25{,}2\) см³. Масса \(25{,}2 \cdot 7{,}8 = 196{,}56\) г.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Вес конструкции.</strong> Сварили каркас в форме параллелепипеда 30 × 20 × 15 см. Швы по всем 12 рёбрам, сечение 5×5 мм. Какова общая длина швов, объём и масса наплавки?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Длина всех рёбер = \(4 \cdot (30 + 20 + 15) = 260\) см. Площадь \(0{,}5 \cdot 0{,}5 = 0{,}25\) см². Объём \(260 \cdot 0{,}25 = 65\) см³. Масса \(65 \cdot 7{,}8 = 507\) г.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРОЧНОЕ ПРОИЗВОДСТВО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🏭 Сварочное производство</span>
+            <span class="sub-title">Партии, раскрой, контроль качества и экономика производства</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>На сварочном участке нужно изготовить партию из 200 деталей. Каждая деталь — это куб с ребром 10 см, сваренный из листового металла толщиной 2 мм. Масса готовой детали должна быть строго рассчитана. Плотность стали 7,8 г/см³. Мастеру нужно рассчитать общую массу металла на партию. Однако по технологии на каждый куб уходит 5% металла в отходы (при раскрое и сварке). Какая общая масса стали потребуется для выполнения заказа?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём металла одной детали.</strong> Деталь — это полый куб. Внешнее ребро 10 см, толщина стенок 2 мм = 0,2 см. Объём сплошного куба: \(10^3 = 1000\) см³. Внутренний объём (пустота): \((10 - 2 \cdot 0{,}2)^3 = 9{,}6^3 = 884{,}736\) см³. Объём металла одной детали: \(1000 - 884{,}736 = 115{,}264\) см³.</p>
+                            <p><strong>Шаг 2. Масса одной детали.</strong> \(m_1 = 115{,}264 \cdot 7{,}8 = 899{,}0592\) г \(\approx 0{,}9\) кг.</p>
+                            <p><strong>Шаг 3. Масса партии (без отходов).</strong> \(200 \cdot 0{,}9 = 180\) кг.</p>
+                            <p><strong>Шаг 4. С учётом отходов 5%.</strong> \(180 \cdot 1{,}05 = 189\) кг.</p>
+                            <p><strong>Ответ:</strong> Для партии потребуется 189 кг стали.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Технолог получил лист металла размером 2,4 м × 1,2 м. Из него нужно выкроить прямоугольные заготовки для деталей размером 400 × 200 мм. Резка производится с зазором 5 мм между деталями (на рез). Рассчитайте максимальное количество заготовок, которое можно получить из одного листа, и определите процент отходов (с учётом зазоров), если площадь одной заготовки 800 см².</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Переводим размеры листа в мм.</strong> 2400 мм × 1200 мм.</p>
+                            <p><strong>Шаг 2. Считаем с учётом зазора 5 мм.</strong> Шаг одной детали по длине: 400 + 5 = 405 мм. По ширине: 200 + 5 = 205 мм.</p>
+                            <p><strong>Шаг 3. Сколько деталей поместится по длине?</strong> \(2400 / 405 = 5{,}92\) → 5 деталей в ряд.</p>
+                            <p><strong>Шаг 4. Сколько по ширине?</strong> \(1200 / 205 = 5{,}85\) → 5 деталей в столбец.</p>
+                            <p><strong>Шаг 5. Общее количество.</strong> \(5 \cdot 5 = 25\) заготовок.</p>
+                            <p><strong>Шаг 6. Площадь листа.</strong> \(240 \cdot 120 = 28\,800\) см².</p>
+                            <p><strong>Шаг 7. Площадь 25 заготовок.</strong> \(25 \cdot 800 = 20\,000\) см².</p>
+                            <p><strong>Шаг 8. Процент отходов.</strong> \((28\,800 - 20\,000) / 28\,800 \cdot 100\% = 8800 / 28\,800 \cdot 100\% \approx 30{,}5\%\).</p>
+                            <p><strong>Ответ:</strong> Получится 25 заготовок. Отходы составят 30,5%.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>На участке сварки работают два сварщика. Первый варит стыковые швы длиной 1,2 м со скоростью 5 мм/с, второй — угловые швы длиной 2,5 м со скоростью 4 мм/с. Смена длится 8 часов. Если каждый сварщик делает перерыв 1 час и тратит 15% времени на подготовку (зачистка, смена электродов), сколько всего метров шва они сварят за смену?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Чистое рабочее время на сварку.</strong> Смена 8 ч - 1 ч перерыв = 7 ч. Из них 15% уходит на подготовку: 7 ч = 420 минут. Подготовка: \(420 \cdot 0{,}15 = 63\) мин. Чистая сварка: \(420 - 63 = 357\) минут = 21 420 секунд.</p>
+                            <p><strong>Шаг 2. Сколько метров сварит первый сварщик?</strong> Скорость 5 мм/с = 0,005 м/с. Длина шва: \(0{,}005 \cdot 21\,420 = 107{,}1\) м.</p>
+                            <p><strong>Шаг 3. Сколько метров сварит второй сварщик?</strong> Скорость 4 мм/с = 0,004 м/с. Длина: \(0{,}004 \cdot 21\,420 = 85{,}68\) м.</p>
+                            <p><strong>Шаг 4. Общая длина.</strong> \(107{,}1 + 85{,}68 = 192{,}78\) м.</p>
+                            <p><strong>Ответ:</strong> За смену они сварят 192,78 метра шва.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Мастер ОТК проверяет партию из 500 сварных швов. По нормативу выборка для контроля должна составлять 5% от партии. Однако в каждом десятом шве из выборки обнаруживается дефект (непровар). Если дефектных швов в выборке окажется больше 2 штук, вся партия отправляется на переделку. Определите, пройдет ли партия контроль, и рассчитайте, сколько дефектных швов ожидается в выборке?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Размер выборки.</strong> 5% от 500 = \(500 \cdot 0{,}05 = 25\) швов.</p>
+                            <p><strong>Шаг 2. Ожидаемое количество брака.</strong> Каждый 10-й шов в выборке бракованный. В 25 швах: \(25 / 10 = 2{,}5\). Округляем в большую сторону — ожидается 3 дефектных шва (или берем математическое ожидание 2,5, что уже больше 2).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Вес партии.</strong> Партия 300 деталей. Каждая деталь — параллелепипед 10×5×2 см. Плотность 7,8 г/см³. Вес партии в кг с учётом 8% отходов?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём 1 детали = 100 см³. Вес 1 детали = 780 г. Партия = \(300 \cdot 780 = 234000\) г = 234 кг. С отходами = \(234 \cdot 1{,}08 = 252{,}72\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Раскрой листа.</strong> Лист 3×1,5 м. Заготовки 300×150 мм. Зазор 5 мм. Сколько заготовок получится (считать по сетке с зазором) и какой процент отходов?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">По длине: \(3000/305 = 9\) шт. По ширине: \(1500/155 = 9\) шт. Всего 81 заготовка. Площадь листа 4,5 м². Площадь деталей \(81 \cdot (0{,}3 \cdot 0{,}15) = 3{,}645\) м². Отходы \((4{,}5 - 3{,}645)/4{,}5 \cdot 100\% = 19\%\).</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Планирование смены.</strong> Бригада варит шов 4 м. Скорость 6 мм/с. Смена 8 часов. Перерыв 1 час. Подготовка 20% от оставшегося времени. Сколько деталей они успеют сварить?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Чистое время: 7 ч = 420 мин. Подготовка: 84 мин. Сварка: 336 мин = 20160 с. Одна деталь: 4000 мм / 6 мм/с = 666,7 с. \(20160 / 666{,}7 \approx 30\) деталей.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Выборка.</strong> Партия 1200 деталей. Проверяют 5%. В каждом 20-м шве — дефект. Если в выборке больше 3 дефектов, партию бракуют. Пройдёт ли контроль?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Выборка: \(1200 \cdot 0{,}05 = 60\) шт. Брак: \(60 / 20 = 3\) шт. Дефектов ровно 3. Условие брака «больше 3», значит партия проходит контроль на грани.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Масса куба.</strong> Куб с ребром 20 см. Толщина стенок 3 мм. Плотность 7,5 г/см³. Масса пустотелого куба?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Внешний объём \(20^3 = 8000\) см³. Внутренний: \((20 - 0{,}6)^3 = 19{,}4^3 = 7301{,}384\) см³. Объём металла = \(8000 - 7301{,}384 = 698{,}616\) см³. Масса = \(698{,}616 \cdot 7{,}5 = 5239{,}62\) г \(\approx 5{,}24\) кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Расход металла.</strong> На 1 деталь уходит 3,5 кг. Планируется 250 деталей. Поставщик продает металл кратно 50 кг. Сколько нужно купить кг?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Нужно \(250 \cdot 3{,}5 = 875\) кг. Округляем вверх до кратного 50: 900 кг.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Отходы.</strong> Из листа 4 м² вырезают 15 деталей площадью 0,2 м² каждая. Остальное — отходы. Сколько процентов отходов?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь деталей: \(15 \cdot 0{,}2 = 3\) м². Отходы: \(4 - 3 = 1\) м². Процент: \(1 / 4 \cdot 100\% = 25\%\).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЛОГИСТЫ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚚 Логисты</span>
+            <span class="sub-title">Укладка грузов, объёмы, плотность и расчёт рейсов</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять геометрию на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Логистическая компания закупила новый контейнер для перевозки сыпучих грузов. Контейнер имеет форму прямоугольного параллелепипеда с внутренними размерами: длина 5,9 м, ширина 2,35 м, высота 2,39 м. Планируется перевозить в нём гравий (плотность 1,4 т/м³). По правилам дорожного движения, максимальная разрешённая масса груза для данного типа фур — 20 тонн. Можно ли загрузить контейнер «под завязку» (до потолка), не нарушая весовой лимит? Если нет, то какой максимальный объём гравия можно загрузить, чтобы не превысить норму?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Вычисляем геометрический объём контейнера.</strong> \(V = a \cdot b \cdot c = 5{,}9 \cdot 2{,}35 \cdot 2{,}39\).</p>
+                            <p>\(5{,}9 \cdot 2{,}35 = 13{,}865\) м². \(13{,}865 \cdot 2{,}39 = 33{,}13735\) м³ \(\approx 33{,}14\) м³.</p>
+                            <p><strong>Шаг 2. Вычисляем массу гравия при полной загрузке.</strong> \(m = V \cdot \rho = 33{,}14 \cdot 1{,}4 = 46{,}396\) тонн.</p>
+                            <p><strong>Шаг 3. Сравниваем с нормой.</strong> 46,4 т значительно превышает допустимые 20 т. Загружать под завязку нельзя.</p>
+                            <p><strong>Шаг 4. Находим безопасный объём.</strong> \(V_{безопас} = m_{макс} / \rho = 20 / 1{,}4 \approx 14{,}29\) м³.</p>
+                            <p><strong>Ответ:</strong> Полная загрузка (33,14 м³) приведёт к перегрузу (46,4 т). Максимально допустимый объём — 14,29 м³.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>На складе нужно уложить коробки с хрупким товаром в кузов грузовика. Кузов имеет размеры: длина 6 м, ширина 2,4 м, высота 2,6 м. Коробки представляют собой прямоугольные параллелепипеды размером 0,8 м × 0,6 м × 0,5 м. По технике безопасности коробки нельзя ставить друг на друга выше 4 ярусов. Кроме того, по длине кузова нужно оставить 0,5 м свободного пространства у заднего борта для доступа. Рассчитайте максимальное количество коробок, которое можно загрузить, и каков будет общий вес груза, если масса одной коробки 25 кг?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Полезная длина кузова.</strong> Оставляем 0,5 м: \(6 - 0{,}5 = 5{,}5\) м.</p>
+                            <p><strong>Шаг 2. Раскладка по длине.</strong> \(5{,}5 / 0{,}8 = 6{,}875\) → 6 коробок (по длине 0,8 м).</p>
+                            <p><strong>Шаг 3. Раскладка по ширине.</strong> \(2{,}4 / 0{,}6 = 4\) коробки.</p>
+                            <p><strong>Шаг 4. Раскладка по высоте.</strong> По правилам не выше 4 ярусов. Проверим высоту: \(4 \cdot 0{,}5 = 2\) м &lt; 2,6 м. Значит, 4 яруса.</p>
+                            <p><strong>Шаг 5. Общее количество.</strong> \(6 \cdot 4 \cdot 4 = 96\) коробок.</p>
+                            <p><strong>Шаг 6. Общий вес.</strong> \(96 \cdot 25 = 2400\) кг = 2,4 тонны.</p>
+                            <p><strong>Ответ:</strong> В грузовик поместится 96 коробок. Общий вес груза составит 2,4 тонны.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Для перевозки оборудования используется контейнер-параллелепипед с внешними размерами 12,2 м × 2,44 м × 2,59 м. Внутренние размеры меньше внешних на 10 см с каждой стороны (толщина стенок и пола). В контейнер нужно загрузить 8 станков в форме кубов с ребром 1,2 м. Сколько свободного объёма останется внутри контейнера после загрузки станков?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Внутренние размеры контейнера.</strong> Длина: \(12{,}2 - 0{,}2 = 12\) м. Ширина: \(2{,}44 - 0{,}2 = 2{,}24\) м. Высота: \(2{,}59 - 0{,}2 = 2{,}39\) м.</p>
+                            <p><strong>Шаг 2. Внутренний объём контейнера.</strong> \(V_{конт} = 12 \cdot 2{,}24 \cdot 2{,}39 = 64{,}2432\) м³.</p>
+                            <p><strong>Шаг 3. Объём одного станка (куба).</strong> \(V_{куб} = 1{,}2^3 = 1{,}728\) м³.</p>
+                            <p><strong>Шаг 4. Объём 8 станков.</strong> \(8 \cdot 1{,}728 = 13{,}824\) м³.</p>
+                            <p><strong>Шаг 5. Свободный объём.</strong> \(64{,}2432 - 13{,}824 = 50{,}4192\) м³.</p>
+                            <p><strong>Ответ:</strong> Останется примерно 50,42 м³ свободного места (с учётом того, что станки поместятся по габаритам).</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Логисту нужно перевезти 120 м³ груза. В автопарке есть два типа машин: малые (вмещают 8 м³, стоимость рейса 5000 руб.) и большие (вмещают 20 м³, стоимость рейса 11000 руб.). Нужно минимизировать стоимость перевозки. Можно ли обойтись только большими машинами, и какая сумма будет затрачена, если груз нельзя делить между машинами (т.е. каждая машина делает целое число рейсов)?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Считаем только большими машинами.</strong> Количество рейсов: \(120 / 20 = 6\) рейсов. Стоимость: \(6 \cdot 11000 = 66000\) руб.</p>
+                            <p><strong>Шаг 2. Считаем только малыми.</strong> \(120 / 8 = 15\) рейсов. Стоимость: \(15 \cdot 5000 = 75000\) руб.</p>
+                            <p><strong>Шаг 3. Комбинированный вариант (например, 5 больших и 2 малых).</strong> 5 больших перевезут \(5 \cdot 20 = 100\) м³. Останется 20 м³. 2 малых перевезут 16 м³ (не хватит). 3 малых перевезут 24 м³. Стоимость: \(5 \cdot 11000 + 3 \cdot 5000 = 55000 + 15000 = 70000\) руб.</p>
+                            <p><strong>Шаг 4. Сравниваем.</strong> Самый дешевый вариант — 6 больших машин за 66 000 рублей.</p>
+                            <p><strong>Ответ:</strong> Выгоднее использовать 6 больших машин, стоимость составит 66 000 рублей.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Вес груза.</strong> Контейнер 3 × 2 × 1,5 м. Плотность груза 0,85 т/м³. Вес груза? Если максимальная грузоподъемность машины 10 т, будет ли перегруз?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём \(V = 9\) м³. Масса \(m = 9 \cdot 0{,}85 = 7{,}65\) т. 7,65 &lt; 10, перегруза нет.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Кубики.</strong> Ящик 2,4 × 1,2 × 1,2 м. Кубы 0,4 × 0,4 × 0,4 м. Сколько кубов поместится? (без зазоров)</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">По длине: 6, по ширине: 3, по высоте: 3. Всего \(6 \cdot 3 \cdot 3 = 54\) куба.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Рейсы.</strong> 145 м³ груза. Машина на 20 м³. Сколько полных рейсов потребуется?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(145 / 20 = 7{,}25\). Округляем вверх — 8 рейсов.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Пирамидки.</strong> Груз — 10 пирамид с квадратным основанием 1,5 × 1,5 м. Площадь кузова 30 м². Поместятся ли все 10 пирамид в один ряд?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь основания одной пирамиды: \(1{,}5 \cdot 1{,}5 = 2{,}25\) м². Количество: \(30 / 2{,}25 = 13{,}3\). Значит, все 10 пирамид поместятся.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём кузова.</strong> Кузов 6 × 2,4 × 2,5 м. Сколько литров вмещает?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(V = 6 \cdot 2{,}4 \cdot 2{,}5 = 36\) м³ = 36 000 литров.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Плотность.</strong> Масса груза 12,5 т, объём 8 м³. Найдите плотность.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\(\rho = m / V = 12{,}5 / 8 = 1{,}5625\) т/м³.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Экономия.</strong> Перевозка 100 м³ груза. Малая машина (10 м³) стоит 4000 руб., большая (25 м³) — 9000 руб. Какой вариант дешевле: только большие или только малые?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Большие: \(100/25 = 4\) рейса \(\cdot 9000 = 36000\) руб. Малые: \(100/10 = 10\) рейсов \(\cdot 4000 = 40000\) руб. Большие дешевле.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="polyhedrons.html" class="back-link">Назад к разделу «Многогранники»</a>
+</div>
+
+<script>
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
+
+    function toggleSpoiler(button) {
+        const content = button.nextElementSibling;
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            button.textContent = button.textContent.includes('Подсказка') ? '💡 Подсказка' : 'Показать решение';
+        } else {
+            content.style.display = 'block';
+            button.textContent = button.textContent.includes('Подсказка') ? 'Скрыть подсказку' : 'Скрыть решение';
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([content]).catch(function (err) {
+                    console.log('MathJax error: ', err.message);
+                });
+            }
+        }
+    }
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+
+<script id="bottom-nav-autohide-script">
+    (function(){
+        var nav = document.querySelector('.bottom-nav');
+        if (!nav) return;
+        var lastY = window.scrollY;
+        var threshold = 8;
+        var ticking = false;
+        function onScroll(){
+            var y = window.scrollY;
+            if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+            if (y > lastY && y > 80) {
+                nav.classList.add('nav-hidden');
+            } else {
+                nav.classList.remove('nav-hidden');
+            }
+            lastY = y;
+            ticking = false;
+        }
+        window.addEventListener('scroll', function(){
+            if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+        }, { passive: true });
+    })();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+    (function() {
+        var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+        els.forEach(function(el) {
+            if (el.dataset.rippleBound) return;
+            el.dataset.rippleBound = '1';
+            el.classList.add('ripple-host');
+            el.addEventListener('pointerdown', function(e) {
+                var rect = el.getBoundingClientRect();
+                var size = Math.max(rect.width, rect.height);
+                var r = document.createElement('span');
+                r.className = 'ripple';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                el.appendChild(r);
+                setTimeout(function(){ r.remove(); }, 650);
+            });
+        });
+    })();
+</script>
+</body>
+</html>

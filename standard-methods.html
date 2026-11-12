@@ -1,0 +1,789 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Стандартные методы решения — ЕГЭ (профиль)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(16,185,129,0.1);
+            --formula-bg: #1a2d3c;
+            --info-bg: #1e3545;
+            --special-border: #8b5cf6;
+            --example-bg: #162a38;
+            --canvas-bg: #1a2d3c;
+            --method-card: rgba(139,92,246,0.08);
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --special-border: #7c3aed;
+            --example-bg: #e8f0fe;
+            --canvas-bg: #eef2f8;
+            --method-card: rgba(124,58,237,0.06);
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-left: 4px solid var(--special-border);
+            padding-left: 12px;
+            text-align: center;
+            position: relative;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-title:hover { opacity: 0.8; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; color: var(--text); text-decoration: none; }
+        .section-title .sub-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 2px; }
+        .section.collapsed .section-content { display: none; }
+        .section-content { overflow: visible; }
+
+        .method-card {
+            background: var(--method-card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border-left: 4px solid var(--special-border);
+        }
+        .method-card .method-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .method-card .method-name .badge {
+            background: var(--special-border);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .method-card .method-name .link-to-formulas {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+        .method-card .method-name .link-to-formulas a {
+            color: var(--special-border);
+            text-decoration: none;
+        }
+        .method-card .method-name .link-to-formulas a:hover {
+            text-decoration: underline;
+        }
+        .method-card .algorithm {
+            margin: 8px 0 4px 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+        .method-card .algorithm li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 20px;
+        }
+        .method-card .algorithm li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--special-border);
+            font-weight: 700;
+        }
+
+        .example-no-border {
+            background: var(--example-bg);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 2.0;
+            color: var(--text);
+            word-break: break-word;
+            overflow-x: visible;
+        }
+        .example-no-border .step { font-weight: 700; color: #a78bfa; margin-top: 10px; margin-bottom: 2px; display: block; }
+        .example-no-border .result { margin-top: 10px; font-weight: 600; color: #c4b5fd; display: block; }
+        .example-no-border .explain { color: #34d399; font-style: italic; margin: 4px 0 8px 16px; border-left: 2px solid #34d399; padding-left: 12px; display: block; }
+        .example-no-border .formula-line { display: block; margin: 4px 0; word-break: break-word; }
+        .example-no-border .danger { color: #f87171; font-weight: 600; }
+        .example-no-border .success { color: #34d399; font-weight: 600; }
+        .example-no-border .highlight { color: #fbbf24; font-weight: 600; }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--info-bg); border-left: 4px solid #fbbf24; border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: #fbbf24; }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #6d28d9; }
+        .method-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .method-list .method-item {
+            background: var(--method-card);
+            border-radius: 12px;
+            padding: 12px 16px;
+            border-left: 3px solid var(--special-border);
+            text-align: center;
+        }
+        .method-list .method-item a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: block;
+        }
+        .method-list .method-item a:hover {
+            color: var(--special-border);
+        }
+        .method-list .method-item .desc {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        mjx-container { font-size: 1.1em !important; overflow-x: visible !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example-no-border { padding: 12px 14px; font-size: 0.9rem; }
+            .method-card { padding: 12px 14px; }
+            .method-list { grid-template-columns: 1fr; }
+            mjx-container { font-size: 1em !important; }
+        }
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: {
+                scale: 1.1,
+                displayAlign: 'center'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Стандартные методы решения</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое «стандартные методы»?</span>
+        </div>
+        <div class="section-content">
+            <p><strong>Стандартные (алгоритмические) методы</strong> — это универсальные приёмы, которые работают по чёткому алгоритму. Если вы видите уравнение или неравенство, вы всегда можете попробовать применить один из этих методов.</p>
+            <div class="important">
+                <strong>🎯 Главное правило:</strong> Стандартные методы — это ваша «базовая техника». Их нужно знать наизусть и применять автоматически.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== МЕТОД 1: МЕТОД ИНТЕРВАЛОВ ===== -->
+    <div class="section" id="method-interval">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Метод интервалов</span>
+            <span class="sub-title">для неравенств любой сложности</span>
+        </div>
+        <div class="section-content">
+            <div class="method-card">
+                <div class="method-name">
+                    <span>📌 Метод интервалов</span>
+                    <span class="badge">Универсальный</span>
+                    <span class="link-to-formulas">
+                        <a href="formulas.html#method-interval" target="_blank">📖 Подробнее →</a>
+                    </span>
+                </div>
+                <div class="algorithm">
+                    <li><strong>Шаг 1.</strong> Перенести все члены в левую часть (справа — 0).</li>
+                    <li><strong>Шаг 2.</strong> Разложить числитель и знаменатель на множители.</li>
+                    <li><strong>Шаг 3.</strong> Найти нули числителя (закрашенные точки) и знаменателя (выколотые).</li>
+                    <li><strong>Шаг 4.</strong> Нанести точки на числовую прямую в порядке возрастания.</li>
+                    <li><strong>Шаг 5.</strong> Определить знак на каждом промежутке (подставить любое число).</li>
+                    <li><strong>Шаг 6.</strong> Выбрать промежутки с нужным знаком.</li>
+                </div>
+            </div>
+
+            <div class="example-no-border">
+                <span class="step">🔹 Пример: \(\frac{x^2-4}{x-1} \ge 0\)</span>
+                <div class="formula-line">Разлагаем: \(\frac{(x-2)(x+2)}{x-1} \ge 0\)</div>
+                <div class="formula-line">Нули: \(x = -2\) (закр.), \(x = 2\) (закр.), \(x = 1\) (выкол.)</div>
+                <div class="explain">💡 Наносим на прямую: \(-2\), \(1\), \(2\).</div>
+                <div class="formula-line">Знаки: \(+\;|\;-\;|\;+\;|\;+\)</div>
+                <div class="explain">💡 Выбираем \(\ge 0\): промежутки со знаком «+» и точки с нулём числителя.</div>
+                <span class="result">✅ Ответ: \(x \in [-2; 1) \cup [2; +\infty)\)</span>
+                <div class="explain">💡 Запомните: знаменатель всегда выколотый!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== МЕТОД 2: ЗАМЕНА ПЕРЕМЕННОЙ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Замена переменной</span>
+            <span class="sub-title">подробно в отдельном файле</span>
+        </div>
+        <div class="section-content">
+            <div class="method-card">
+                <div class="method-name">
+                    <span>📌 Замена переменной</span>
+                    <span class="badge">Упрощение</span>
+                    <span class="link-to-formulas">
+                        <a href="substitution-method.html" target="_blank">📖 Подробнее →</a>
+                    </span>
+                </div>
+                <div class="algorithm">
+                    <li><strong>Шаг 1.</strong> Найти в уравнении повторяющееся выражение.</li>
+                    <li><strong>Шаг 2.</strong> Обозначить его новой буквой (например, \(t\)).</li>
+                    <li><strong>Шаг 3.</strong> Решить получившееся уравнение относительно \(t\).</li>
+                    <li><strong>Шаг 4.</strong> Вернуться к исходной переменной \(x\).</li>
+                    <li><strong>Шаг 5.</strong> Проверить ОДЗ (если нужно).</li>
+                </div>
+            </div>
+
+            <div class="example-no-border">
+                <span class="step">🔹 Пример: \(\left(\frac{x}{x+1}\right)^2 - 4\cdot\frac{x}{x+1} + 3 = 0\)</span>
+                <div class="formula-line">Замечаем: \(\frac{x}{x+1}\) повторяется.</div>
+                <div class="formula-line">Замена: \(t = \frac{x}{x+1}\)</div>
+                <div class="formula-line">Получаем: \(t^2 - 4t + 3 = 0\)</div>
+                <div class="formula-line">Корни: \(t = 1\) или \(t = 3\)</div>
+                <div class="explain">💡 Возвращаемся: \(\frac{x}{x+1} = 1\) или \(\frac{x}{x+1} = 3\)</div>
+                <div class="formula-line">\(x = x+1\) → решений нет; \(x = 3x+3\) → \(x = -1.5\)</div>
+                <span class="result">✅ Ответ: \(x = -1.5\)</span>
+                <div class="explain">💡 Замена помогает свести сложное уравнение к простому квадратному!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== МЕТОД 3: РАЗЛОЖЕНИЕ НА МНОЖИТЕЛИ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Разложение на множители</span>
+            <span class="sub-title">подробно в отдельном файле</span>
+        </div>
+        <div class="section-content">
+            <div class="method-card">
+                <div class="method-name">
+                    <span>📌 Разложение на множители</span>
+                    <span class="badge">Ключевой</span>
+                    <span class="link-to-formulas">
+                        <a href="factorization-method.html" target="_blank">📖 Подробнее →</a>
+                    </span>
+                </div>
+                <div class="algorithm">
+                    <li><strong>Шаг 1.</strong> Перенести все члены в левую часть.</li>
+                    <li><strong>Шаг 2.</strong> Применить: вынесение за скобку, формулы сокращённого умножения, группировку.</li>
+                    <li><strong>Шаг 3.</strong> Приравнять каждый множитель к нулю.</li>
+                    <li><strong>Шаг 4.</strong> Решить получившиеся уравнения.</li>
+                    <li><strong>Шаг 5.</strong> Проверить корни по ОДЗ.</li>
+                </div>
+            </div>
+
+            <div class="example-no-border">
+                <span class="step">🔹 Пример: \(x^3 - 4x = 0\)</span>
+                <div class="formula-line">Выносим \(x\): \(x(x^2 - 4) = 0\)</div>
+                <div class="formula-line">Раскладываем разность квадратов: \(x(x-2)(x+2) = 0\)</div>
+                <div class="formula-line">Корни: \(x = 0\), \(x = 2\), \(x = -2\)</div>
+                <span class="result">✅ Ответ: \(x = -2,\; 0,\; 2\)</span>
+                <div class="explain">💡 Разложение — это как «разобрать уравнение на кирпичики», каждый кирпичик даёт корень.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== МЕТОД 4: РАВНОСИЛЬНЫЕ ПРЕОБРАЗОВАНИЯ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Равносильные преобразования</span>
+            <span class="sub-title">подробно в отдельном файле</span>
+        </div>
+        <div class="section-content">
+            <div class="method-card">
+                <div class="method-name">
+                    <span>📌 Равносильные преобразования</span>
+                    <span class="badge">Важно!</span>
+                    <span class="link-to-formulas">
+                        <a href="equivalent-transformations.html" target="_blank">📖 Подробнее →</a>
+                    </span>
+                </div>
+                <div class="algorithm">
+                    <li><strong>Правило 1.</strong> Можно прибавлять/вычитать одно и то же число к обеим частям.</li>
+                    <li><strong>Правило 2.</strong> Можно умножать/делить на число \(\neq 0\).</li>
+                    <li><strong>Правило 3.</strong> При умножении на отрицательное число знак неравенства меняется.</li>
+                    <li><strong>Правило 4.</strong> Нельзя умножать на выражение с переменной, не зная его знак!</li>
+                    <li><strong>Правило 5.</strong> При возведении в квадрат обе части должны быть неотрицательны.</li>
+                </div>
+            </div>
+
+            <div class="example-no-border">
+                <span class="step">🔹 Пример: \(\sqrt{x+1} = x-1\)</span>
+                <div class="explain danger">⚠️ ОПАСНОСТЬ: правая часть должна быть \(\ge 0\).</div>
+                <div class="formula-line">ОДЗ: \(x \ge 1\) (из \(x-1 \ge 0\)) и \(x \ge -1\) (под корнем).</div>
+                <div class="formula-line">Возводим в квадрат: \(x+1 = (x-1)^2\)</div>
+                <div class="formula-line">\(x+1 = x^2 - 2x + 1\) → \(x^2 - 3x = 0\) → \(x(x-3) = 0\)</div>
+                <div class="formula-line">Корни: \(x = 0\), \(x = 3\)</div>
+                <div class="explain danger">⚠️ \(x = 0\) не подходит по ОДЗ (\(x \ge 1\)).</div>
+                <span class="result">✅ Ответ: \(x = 3\)</span>
+                <div class="explain success">💡 Всегда проверяйте корни в исходном уравнении — это спасёт от ошибок!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== МЕТОД 5: МЕТОД РАЦИОНАЛИЗАЦИИ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Метод рационализации</span>
+            <span class="sub-title">подробно в отдельном файле</span>
+        </div>
+        <div class="section-content">
+            <div class="method-card">
+                <div class="method-name">
+                    <span>📌 Метод рационализации</span>
+                    <span class="badge">Спасает на ЕГЭ</span>
+                    <span class="link-to-formulas">
+                        <a href="rationalization-method.html" target="_blank">📖 Подробнее →</a>
+                    </span>
+                </div>
+                <div class="algorithm">
+                    <li><strong>Суть:</strong> заменить сложное выражение на более простое, сохраняя знак.</li>
+                    <li>Для \(\log_a f(x) > \log_a g(x)\): \((a-1)(f(x)-g(x)) > 0\)</li>
+                    <li>Для \(a^{f(x)} > a^{g(x)}\): \((a-1)(f(x)-g(x)) > 0\)</li>
+                    <li>Работает только при \(a > 0\), \(a \neq 1\).</li>
+                </div>
+            </div>
+
+            <div class="example-no-border">
+                <span class="step">🔹 Пример: \(\log_2(x^2-1) > \log_2(2x+2)\)</span>
+                <div class="explain">💡 Основание \(2 > 1\), можно просто сравнить аргументы.</div>
+                <div class="formula-line">Но по методу рационализации:</div>
+                <div class="formula-line">\((2-1)((x^2-1) - (2x+2)) > 0\)</div>
+                <div class="formula-line">\(x^2 - 2x - 3 > 0\) → \((x-3)(x+1) > 0\)</div>
+                <div class="formula-line">С учётом ОДЗ: \(x^2-1 > 0\) и \(2x+2 > 0\)</div>
+                <div class="formula-line">ОДЗ: \(x < -1\) или \(x > 1\), и \(x > -1\) → \(x > 1\)</div>
+                <div class="explain">💡 Пересекаем с \((x-3)(x+1) > 0\) → \(x \in (3; +\infty)\).</div>
+                <span class="result">✅ Ответ: \(x \in (3; +\infty)\)</span>
+                <div class="explain success">💡 Метод рационализации превращает логарифмы в обычные квадратные неравенства!</div>
+            </div>
+        </div>
+    </div>
+
+    <a href="methods-equations-inequalities.html" class="back-link">← Назад к методам</a>
+</div>
+
+<script>
+        updateLegendColors();
+    }
+    function updateLegendColors() {
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const legend = document.querySelector('.legend');
+        if (legend) legend.style.color = isLight ? '#1a2a3f' : '#cbdbe6';
+    }
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
+        }
+        setTimeout(updateLegendColors, 100);
+    })();
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

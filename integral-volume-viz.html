@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>3D: Сумма дисков → интеграл</title>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            chtml: { scale: 1.05, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --border: rgba(20, 184, 166, 0.15);
+            --accent: #14b8a6;
+            --accent-soft: rgba(20, 184, 166, 0.12);
+            --accent-strong: #0d9488;
+            --canvas-bg: #1a2d3c;
+            --slider-bg: #2c5a77;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #4a6a8a;
+            --border: #eff3f8;
+            --accent: #0d9488;
+            --accent-soft: rgba(13, 148, 136, 0.1);
+            --accent-strong: #0f766e;
+            --canvas-bg: #eef2f8;
+            --slider-bg: #e2e8f0;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 12px; padding-bottom: 8px; border-bottom: 4px solid var(--accent); text-align: center; }
+        .back-link { display: inline-block; margin: 12px 0 4px; padding: 8px 18px; background: var(--accent); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.9rem; transition: 0.2s; }
+        .back-link:hover { background: var(--accent-strong); }
+
+        .viz-section { background: var(--card-bg); border-radius: 16px; padding: 16px 18px 20px; margin: 10px 0 14px; border: 1px solid var(--border); }
+        .viz-desc { color: var(--text-secondary); font-size: 0.92rem; line-height: 1.8; margin-bottom: 12px; padding: 12px 16px; background: var(--card-bg); border-radius: 14px; border-left: 3px solid var(--accent); }
+        .viz-desc strong { color: var(--text); }
+        .viz-desc .accent { color: var(--accent); font-weight: 700; }
+        .viz-desc .accent-soft { background: var(--accent-soft); color: var(--accent); padding: 1px 8px; border-radius: 6px; font-weight: 600; }
+        .viz-sub { color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 10px; }
+
+        .viz-model-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            min-height: 350px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: var(--canvas-bg);
+            transition: background 0.3s;
+        }
+        .viz-model-container canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; background: transparent; }
+        .viz-model-container canvas:active { cursor: grabbing; }
+
+        .viz-controls { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+        .viz-slider-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .viz-slider-row label { color: var(--text); font-weight: 600; font-size: 0.9rem; white-space: nowrap; min-width: 60px; }
+        .viz-slider-row input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 100px; height: 6px; border-radius: 3px; background: var(--slider-bg); outline: none; cursor: pointer; }
+        .viz-slider-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+        .viz-slider-row input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+        .viz-slider-value { font-weight: 700; color: var(--accent); min-width: 60px; text-align: center; font-size: 0.9rem; }
+
+        .viz-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
+        .viz-stat { background: var(--card-bg); padding: 8px 12px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
+        .viz-stat .label { color: var(--text-secondary); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .viz-stat .value { font-weight: 700; font-size: 1rem; color: var(--text); }
+        .viz-stat .value.accent { color: var(--accent); }
+
+        .viz-legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary); }
+        .viz-legend-item { display: flex; align-items: center; gap: 6px; }
+        .viz-legend-color { width: 20px; height: 12px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.08); }
+
+        .viz-error { margin-top: 8px; text-align: center; font-size: 0.85rem; color: var(--text-secondary); }
+        .viz-error .err-val { font-weight: 700; color: var(--accent); }
+        .viz-error .ok-val { font-weight: 700; color: var(--accent); }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.1rem; }
+            .viz-model-container { min-height: 250px; }
+            .viz-slider-row { gap: 8px; }
+            .viz-slider-row label { font-size: 0.8rem; min-width: 40px; }
+            .viz-slider-value { min-width: 44px; font-size: 0.8rem; }
+            .viz-stats { grid-template-columns: 1fr 1fr; }
+            .viz-desc { font-size: 0.85rem; padding: 10px 12px; }
+        }
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>📊 Сумма дисков → интеграл</h1>
+
+    <div class="viz-section">
+        <div class="viz-desc">
+            <strong>💡 Главная идея метода:</strong><br><br>
+
+            Если <span class="accent">тело вращения</span> (фиолетовый параболоид)
+            <span class="accent-soft">разрезать</span> на <span class="accent-soft">тонкие диски</span> (зелёные цилиндры),
+            то объём всего тела можно приближённо найти как
+            <strong>сумму объёмов этих дисков</strong>.<br><br>
+
+            <strong>🔥 Ключевой момент:</strong><br>
+            Чем <span class="accent-soft">больше дисков</span> мы возьмём,
+            тем <span class="accent">тоньше</span> будет каждый диск
+            (его высота <span class="accent">Δx → 0</span>),
+            а значит, тем <span class="accent">точнее</span>
+            их сумма будет приближаться к <span class="accent">точному объёму</span> тела.<br><br>
+
+            <strong>🎯 А что такое интеграл?</strong><br>
+            Интеграл — это и есть <span class="accent-soft">предел</span> такой суммы,
+            когда число дисков <span class="accent">стремится к бесконечности</span>.<br><br>
+
+            <span style="font-size:0.9rem; color:var(--text-secondary);">
+                👇 <strong>Смотрите на 3D-модель:</strong><br>
+                • <span class="accent">Зелёные диски</span> — это приближение (сумма)<br>
+                • <span class="accent">Фиолетовое тело</span> — точный объём (интеграл)<br>
+                • Двигайте ползунок <strong>«Количество слоёв»</strong> —
+                  чем больше дисков, тем <span class="accent">точнее</span> результат!
+            </span>
+        </div>
+        <div class="viz-sub">Зелёные диски — приближение · Полупрозрачное тело — точный объём</div>
+
+        <div class="viz-model-container" id="vizContainer">
+            <canvas id="vizCanvas" class="model-canvas"></canvas>
+        </div>
+
+        <div class="viz-controls">
+            <div class="viz-slider-row">
+                <label>📏 Количество слоёв</label>
+                <input type="range" id="layersSlider" min="1" max="50" value="4" step="1">
+                <span class="viz-slider-value" id="layersCountDisplay">4</span>
+            </div>
+        </div>
+
+        <div class="viz-stats" id="vizStats">
+            <div class="viz-stat"><div class="label">📊 Приближение (сумма дисков)</div><div class="value accent" id="vizApproxVal">0.000</div></div>
+            <div class="viz-stat"><div class="label">🎯 Точный объём</div><div class="value accent" id="vizExactVal">0.000</div></div>
+            <div class="viz-stat"><div class="label">📉 Погрешность</div><div class="value" id="vizErrorVal">0.000%</div></div>
+        </div>
+
+        <div class="viz-legend">
+            <span class="viz-legend-item"><span class="viz-legend-color" style="background:#34d399;"></span> Диски (приближение)</span>
+            <span class="viz-legend-item"><span class="viz-legend-color" style="background:rgba(139,92,246,0.4);"></span> Тело (точный объём)</span>
+            <span class="viz-legend-item"><span class="viz-legend-color" style="background:#ff6b6b;"></span> Осевое сечение</span>
+        </div>
+        <div class="viz-error" id="vizError">
+            <span class="ok-val">✓</span> Сумма дисков приближается к точному объёму
+        </div>
+    </div>
+
+    <a href="integral-volume.html" class="back-link">← Назад к объёмам</a>
+</div>
+
+<script src="./three/build/three.min.js"></script>
+<script src="./three/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+    // ===== ТЕМА (только установка класса, без вызовов несуществующих функций) =====
+    (function() {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            const __btn = document.getElementById('themeBtn');
+            if (__btn) __btn.textContent = '☀️';
+        }
+    })();
+
+    // ===== ВИЗУАЛИЗАЦИЯ ОБЪЁМА (3D) =====
+    (function() {
+        const container = document.getElementById('vizContainer');
+        const canvas = document.getElementById('vizCanvas');
+        if (!container || !canvas) return;
+
+        if (typeof THREE === 'undefined') {
+            console.warn('THREE не загружен');
+            return;
+        }
+
+        const a = 0;
+        const b = Math.PI;
+
+        function f(x) { return Math.sin(x) + 0.3; }
+
+        function F2(x) {
+            return x / 2 - Math.sin(2 * x) / 4 - 0.6 * Math.cos(x) + 0.09 * x;
+        }
+
+        const exactVolume = Math.PI * (F2(b) - F2(a));
+
+        let numLayers = 4;
+
+        let width = container.clientWidth || 400;
+        let height = container.clientHeight || 350;
+
+        const scene = new THREE.Scene();
+
+        function getSceneBgColor() {
+            const isLight = document.documentElement.classList.contains('light-mode');
+            return isLight ? 0xeef2f8 : 0x1a2d3c;
+        }
+
+        function updateSceneBackground() {
+            const color = getSceneBgColor();
+            scene.background = new THREE.Color(color);
+            const containerEl = document.getElementById('vizContainer');
+            if (containerEl) {
+                const isLight = document.documentElement.classList.contains('light-mode');
+                containerEl.style.background = isLight ? '#eef2f8' : '#1a2d3c';
+            }
+        }
+
+        updateSceneBackground();
+        window._updateVizSceneBackground = updateSceneBackground;
+
+        const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+        camera.position.set(3.5, 2.2, 5.5);
+        camera.lookAt(1.5, 0.5, 0);
+
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+
+        // ===== Настройка качества 3D (Вставлено скриптом) =====
+        if (typeof window.quality3D !== 'undefined') {
+            if (window.quality3D === 'low') {
+                renderer.setPixelRatio(0.75);
+                renderer.shadowMap.enabled = false;
+                renderer.antialias = false;
+            } else if (window.quality3D === 'medium') {
+                renderer.setPixelRatio(1);
+            } else {
+                renderer.setPixelRatio(window.devicePixelRatio || 1);
+            }
+        }
+        // ======================================================
+
+        
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0);
+        renderer.sortObjects = true;
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.target.set(1.5, 0.5, 0);
+        controls.update();
+
+        const ambient = new THREE.AmbientLight(0x404060, 0.7);
+        scene.add(ambient);
+        const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+        dir.position.set(5, 8, 6);
+        scene.add(dir);
+        const back = new THREE.DirectionalLight(0x8888ff, 0.4);
+        back.position.set(-3, 2, -4);
+        scene.add(back);
+
+        const mainGroup = new THREE.Group();
+        scene.add(mainGroup);
+
+        function makeLabel(text, pos, color = '#ffffff', scale = 1.0) {
+            const c = document.createElement('canvas');
+            c.width = 256; c.height = 128;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = color;
+            ctx.font = 'bold 56px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.9)';
+            ctx.shadowBlur = 12;
+            ctx.fillText(text, 128, 64);
+            const texture = new THREE.CanvasTexture(c);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                depthTest: false,
+                depthWrite: false
+            }));
+            sprite.position.set(pos.x, pos.y, pos.z);
+            sprite.scale.set(scale, scale * 0.5, 1);
+            sprite.renderOrder = 2000;
+            return sprite;
+        }
+
+        function buildVizScene(layers) {
+            while (mainGroup.children.length > 0) {
+                const child = mainGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+                mainGroup.remove(child);
+            }
+
+            function makeAxis(from, to, color) {
+                const line = new THREE.Line(
+                    new THREE.BufferGeometry().setFromPoints([
+                        new THREE.Vector3(from.x, from.y, from.z),
+                        new THREE.Vector3(to.x, to.y, to.z)
+                    ]),
+                    new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: false, depthWrite: false })
+                );
+                line.renderOrder = 2000;
+                mainGroup.add(line);
+                const dir = new THREE.Vector3(to.x - from.x, to.y - from.y, to.z - from.z).normalize();
+                const arrow = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.06, 0.15, 8),
+                    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: false, depthWrite: false })
+                );
+                arrow.position.copy(new THREE.Vector3(to.x, to.y, to.z));
+                arrow.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir));
+                arrow.renderOrder = 2000;
+                mainGroup.add(arrow);
+            }
+            makeAxis({ x: 0, y: 0, z: 0 }, { x: 4.2, y: 0, z: 0 }, 0xff6b6b);
+            makeAxis({ x: 0, y: 0, z: 0 }, { x: 0, y: 2.2, z: 0 }, 0x4ecdc4);
+            makeAxis({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 2.2 }, 0x45b7d1);
+
+            mainGroup.add(makeLabel('X', { x: 4.0, y: -0.2, z: 0 }, '#ff6b6b', 0.7));
+            mainGroup.add(makeLabel('Y', { x: 0, y: 2.0, z: 0 }, '#4ecdc4', 0.7));
+            mainGroup.add(makeLabel('Z', { x: 0, y: -0.2, z: 2.0 }, '#45b7d1', 0.7));
+            mainGroup.add(makeLabel('a = 0', { x: 0, y: -0.35, z: 0 }, '#fbbf24', 0.6));
+            mainGroup.add(makeLabel('b = π', { x: Math.PI, y: -0.35, z: 0 }, '#fbbf24', 0.6));
+
+            const seg = 64;
+            const geo = new THREE.BufferGeometry();
+            const verts = [], idx = [], norms = [], uvs = [];
+            for (let i = 0; i <= seg; i++) {
+                const t = i / seg;
+                const x = a + t * (b - a);
+                const r = f(x);
+                for (let j = 0; j <= seg; j++) {
+                    const theta = (j / seg) * Math.PI * 2;
+                    verts.push(x, r * Math.cos(theta), r * Math.sin(theta));
+                    uvs.push(t, j / seg);
+                    const nx = 0;
+                    const ny = Math.cos(theta), nz = Math.sin(theta);
+                    const len = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
+                    norms.push(nx / len, ny / len, nz / len);
+                }
+            }
+            for (let i = 0; i < seg; i++) {
+                for (let j = 0; j < seg; j++) {
+                    const a2 = i * (seg + 1) + j, b2 = i * (seg + 1) + j + 1;
+                    const c2 = (i + 1) * (seg + 1) + j, d2 = (i + 1) * (seg + 1) + j + 1;
+                    idx.push(a2, b2, c2);
+                    idx.push(b2, d2, c2);
+                }
+            }
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+            geo.setAttribute('normal', new THREE.Float32BufferAttribute(norms, 3));
+            geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+            geo.setIndex(idx);
+            geo.computeVertexNormals();
+
+            const bodyMat = new THREE.MeshPhongMaterial({
+                color: 0x8b5cf6,
+                transparent: true,
+                opacity: 0.15,
+                side: THREE.DoubleSide,
+                shininess: 30,
+                wireframe: false,
+                depthWrite: true
+            });
+            const bodyMesh = new THREE.Mesh(geo, bodyMat);
+            bodyMesh.renderOrder = 0;
+            mainGroup.add(bodyMesh);
+
+            const edges = new THREE.EdgesGeometry(geo);
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x6d28d9, transparent: true, opacity: 0.08 });
+            const wireframe = new THREE.LineSegments(edges, edgeMat);
+            mainGroup.add(wireframe);
+
+            const pts = [];
+            const nPts = 100;
+            for (let i = 0; i <= nPts; i++) {
+                const t = i / nPts;
+                const x = a + t * (b - a);
+                const r = f(x);
+                pts.push(new THREE.Vector3(x, r, 0));
+            }
+            for (let i = nPts; i >= 0; i--) {
+                const t = i / nPts;
+                const x = a + t * (b - a);
+                pts.push(new THREE.Vector3(x, 0, 0));
+            }
+
+            const shape = new THREE.Shape();
+            shape.moveTo(pts[0].x, pts[0].y);
+            for (let i = 1; i < pts.length; i++) {
+                shape.lineTo(pts[i].x, pts[i].y);
+            }
+            shape.closePath();
+
+            const shapeGeo = new THREE.ShapeGeometry(shape);
+            const shapeMat = new THREE.MeshBasicMaterial({
+                color: 0xff6b6b,
+                transparent: true,
+                opacity: 0.4,
+                side: THREE.DoubleSide,
+                depthTest: false,
+                depthWrite: false
+            });
+            const axialMesh = new THREE.Mesh(shapeGeo, shapeMat);
+            axialMesh.renderOrder = 1000;
+            mainGroup.add(axialMesh);
+
+            const linePts = [];
+            for (let i = 0; i <= nPts; i++) {
+                const t = i / nPts;
+                const x = a + t * (b - a);
+                const r = f(x);
+                linePts.push(new THREE.Vector3(x, r, 0));
+            }
+            const lineGeo = new THREE.BufferGeometry().setFromPoints(linePts);
+            const lineMat = new THREE.LineBasicMaterial({
+                color: 0xff6b6b,
+                transparent: true,
+                opacity: 1.0,
+                depthTest: false,
+                depthWrite: false,
+                linewidth: 2
+            });
+            const line = new THREE.Line(lineGeo, lineMat);
+            line.renderOrder = 1001;
+            mainGroup.add(line);
+
+            const layersGroup = new THREE.Group();
+            mainGroup.add(layersGroup);
+
+            const dx = (b - a) / layers;
+            let approxVolume = 0;
+
+            for (let i = 0; i < layers; i++) {
+                const xLeft = a + i * dx;
+                const xCenter = xLeft + dx / 2;
+                const r = f(xCenter);
+                const diskVolume = Math.PI * r * r * dx;
+                approxVolume += diskVolume;
+
+                const diskGeo = new THREE.CylinderGeometry(r, r, dx * 0.9, 32);
+                const diskMat = new THREE.MeshPhongMaterial({
+                    color: 0x34d399,
+                    transparent: true,
+                    opacity: 0.55 + 0.25 * (1 - i / layers),
+                    side: THREE.DoubleSide,
+                    shininess: 40,
+                    depthWrite: true
+                });
+                const disk = new THREE.Mesh(diskGeo, diskMat);
+                disk.position.set(xCenter, 0, 0);
+                disk.rotation.z = Math.PI / 2;
+                disk.renderOrder = 500 + i;
+                layersGroup.add(disk);
+
+                const ringPoints = [];
+                const nRing = 32;
+                for (let j = 0; j <= nRing; j++) {
+                    const theta = (j / nRing) * Math.PI * 2;
+                    ringPoints.push(new THREE.Vector3(0, r * Math.cos(theta), r * Math.sin(theta)));
+                }
+                const ringGeo2 = new THREE.BufferGeometry().setFromPoints(ringPoints);
+                const ringMat2 = new THREE.LineBasicMaterial({
+                    color: 0x34d399,
+                    transparent: true,
+                    opacity: 0.6,
+                    depthTest: false,
+                    depthWrite: false
+                });
+                const ringLine2 = new THREE.Line(ringGeo2, ringMat2);
+                ringLine2.position.set(xCenter, 0, 0);
+                ringLine2.renderOrder = 1500 + i;
+                layersGroup.add(ringLine2);
+            }
+
+            mainGroup.add(makeLabel('π', { x: Math.PI + 0.2, y: -0.25, z: 0 }, '#4ecdc4', 0.8));
+
+            const error = Math.abs(exactVolume - approxVolume);
+            const errorPercent = (error / exactVolume) * 100;
+
+            document.getElementById('vizApproxVal').textContent = approxVolume.toFixed(4);
+            document.getElementById('vizExactVal').textContent = exactVolume.toFixed(4);
+            document.getElementById('vizErrorVal').textContent = errorPercent.toFixed(2) + '%';
+            document.getElementById('layersCountDisplay').textContent = layers;
+
+            const vizError = document.getElementById('vizError');
+            if (errorPercent < 0.5) {
+                document.getElementById('vizErrorVal').style.color = 'var(--accent)';
+                vizError.innerHTML = '<span class="ok-val">✓</span> Отлично! Сумма дисков почти совпадает с точным объёмом';
+            } else if (errorPercent < 5) {
+                document.getElementById('vizErrorVal').style.color = 'var(--accent)';
+                vizError.innerHTML = '<span class="ok-val">✓</span> Хорошо! Увеличьте количество слоёв для большей точности';
+            } else {
+                document.getElementById('vizErrorVal').style.color = 'var(--accent)';
+                vizError.innerHTML = '<span class="err-val">⟳</span> Добавьте больше слоёв для точного результата';
+            }
+        }
+
+        const layersSlider = document.getElementById('layersSlider');
+        layersSlider.addEventListener('input', function() {
+            numLayers = parseInt(this.value);
+            buildVizScene(numLayers);
+        });
+
+        function animateViz() {
+            requestAnimationFrame(animateViz);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animateViz();
+
+        function updateVizSize() {
+            const rect = container.getBoundingClientRect();
+            let rw = rect.width, rh = rect.height;
+            if (rw < 10) rw = 400;
+            if (rh < 10) rh = 350;
+
+            canvas.width = rw;
+            canvas.height = rh;
+            renderer.setSize(rw, rh);
+            camera.aspect = rw / rh;
+            camera.updateProjectionMatrix();
+            updateSceneBackground();
+        }
+
+        window.addEventListener('resize', updateVizSize);
+        new ResizeObserver(() => updateVizSize()).observe(container);
+        setTimeout(updateVizSize, 100);
+
+        let animRunning = false;
+
+        function animateLayers() {
+            if (animRunning) return;
+            animRunning = true;
+            let startN = 1;
+            const endN = 12;
+
+            function step() {
+                if (startN > endN) {
+                    animRunning = false;
+                    return;
+                }
+                numLayers = startN;
+                layersSlider.value = startN;
+                buildVizScene(startN);
+                startN += 1;
+                setTimeout(step, 200);
+            }
+            step();
+        }
+
+        setTimeout(() => {
+            buildVizScene(4);
+            setTimeout(animateLayers, 400);
+        }, 300);
+    })();
+
+    // ===== МГНОВЕННАЯ СМЕНА ФОНА 3D ПРИ ПЕРЕКЛЮЧЕНИИ ТЕМЫ =====
+    (function() {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                if (m.attributeName === 'class') {
+                    if (window._updateVizSceneBackground) window._updateVizSceneBackground();
+                }
+            });
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+        document.addEventListener('click', function(e) {
+            const t = e.target;
+            if (t && (t.id === 'themeBtn' || (t.closest && t.closest('#themeBtn')))) {
+                setTimeout(function() {
+                    if (window._updateVizSceneBackground) window._updateVizSceneBackground();
+                }, 0);
+                setTimeout(function() {
+                    if (window._updateVizSceneBackground) window._updateVizSceneBackground();
+                }, 50);
+            }
+        }, true);
+    })();
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

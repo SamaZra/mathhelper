@@ -1,0 +1,827 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Таблица и правила дифференцирования</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --formula-card-bg: #1e3545;
+            --example-bg: #1e3545;
+            --info-bg: #1e3545;
+            --table-row-even: #1e3545;
+            --table-row-odd: #162a38;
+            --table-row-hover: #2a4a5a;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --example-bg: #f8fafc;
+            --info-bg: #e8f0fe;
+            --table-row-even: #ffffff;
+            --table-row-odd: #f1f5f9;
+            --table-row-hover: #e2e8f0;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:1200px;margin:0 auto;position:relative;}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+        .content-card{background:var(--card-bg);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px -12px rgba(0,0,0,0.08);border:1px solid var(--border);padding:20px 24px;}
+        .section{margin-bottom:20px;}
+        .section-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;border-left:4px solid #2c7cb6;padding-left:12px;cursor:pointer;user-select:none;}
+        .section-title:hover{opacity:0.8;}
+        .section-title::after{content:"▼";margin-left:auto;font-size:0.9rem;transition:transform 0.3s;color:var(--text-secondary);}
+        .section.collapsed .section-title::after{transform:rotate(-90deg);}
+        .section-content{max-height:5000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .definition-block{background:var(--info-bg);border-left:4px solid #2c7cb6;border-radius:14px;padding:14px 16px;margin:12px 0;}
+        .definition-block p{font-size:0.95rem;line-height:1.6;color:var(--text);}
+        .definition-block strong{color:var(--text);}
+
+        .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:20px;border:1px solid var(--border);background:var(--card-bg);margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+        th{background:#103956;color:white;font-weight:700;padding:10px 8px;text-align:center;border:1px solid #265d84;}
+        td{padding:10px 8px;border:1px solid var(--border);vertical-align:middle;text-align:center;color:var(--text);font-size:0.85rem;}
+
+        .table-wrapper table tbody tr:nth-child(even) {
+            background-color: var(--table-row-even);
+            transition: background-color 0.2s ease;
+        }
+        .table-wrapper table tbody tr:nth-child(odd) {
+            background-color: var(--table-row-odd);
+            transition: background-color 0.2s ease;
+        }
+        .table-wrapper table tbody tr:hover {
+            background-color: var(--table-row-hover) !important;
+            transition: background-color 0.1s ease;
+        }
+
+        .col-func{font-weight:600;}
+
+        .rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0;}
+        .rule-card{background:var(--formula-card-bg);border:1px solid var(--border);border-radius:20px;padding:14px;transition:transform 0.2s;}
+        .rule-card:hover{transform:translateY(-3px);}
+        .rule-card h3{font-size:1rem;color:var(--text);margin-bottom:8px;font-weight:800;border-bottom:1px dashed var(--border);display:inline-block;}
+        .rule-formula{background:var(--card-bg);padding:8px;border-radius:14px;margin:8px 0;text-align:center;font-weight:800;font-size:0.9rem;color:var(--text);}
+        .rule-text{font-size:0.85rem;color:var(--text-secondary);line-height:1.5;}
+
+        .examples-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+        .example-card{background:var(--example-bg);border-radius:14px;padding:8px 12px;box-shadow:0 2px 6px rgba(0,0,0,0.04);border-left:4px solid #2c7cb6;flex:1 1 250px;font-size:0.9rem;color:var(--text);}
+        .example-card br{display:block;content:"";margin-top:2px;}
+
+        /* Только для двух длинных примеров */
+        .break-formula {
+            word-break: break-word;
+            white-space: normal;
+            max-width: 100%;
+        }
+
+        .back-link{display:inline-block;margin-top:24px;padding:10px 24px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;text-decoration:none;border-radius:40px;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
+        .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
+
+        @media (max-width:700px){
+            body{padding:20px 10px 36px;}
+            .content-card{padding:14px 16px;}
+            .section-title{font-size:1.1rem;}
+            .definition-block p{font-size:0.9rem;}
+            .example-card{font-size:0.85rem;}
+            .rule-formula{font-size:0.85rem;}
+            td, th{font-size:0.75rem;padding:6px 4px;}
+            h1{font-size:1.3rem;}
+        }
+
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out;}.content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+
+        
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+    <script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true,macros:{tg:'\\mathop{\\mathrm{tg}}',ctg:'\\mathop{\\mathrm{ctg}}'}},chtml:{scale:1.05,displayAlign:'center'}};</script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1>Таблица и правила дифференцирования</h1><div class="subtitle">Формулы · Правила · Подробные примеры</div></div>
+    <div class="content-card">
+
+        <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📘 Определение</div>
+            <div class="section-content"><div class="definition-block">
+                <p><strong>Производная</strong> функции \(f(x)\) в точке \(x_0\) — это предел отношения приращения функции к приращению аргумента:</p>
+                <p style="text-align:center; font-size:1.1rem; margin-top:8px;">\( f'(x_0) = \lim\limits_{\Delta x \to 0} \frac{f(x_0+\Delta x) - f(x_0)}{\Delta x} \)</p>
+                <p style="margin-top:8px;">📌 <strong>Геометрический смысл:</strong> тангенс угла наклона касательной к графику функции в точке \(x_0\).</p>
+                <p style="margin-top:4px;">📌 <strong>Физический смысл:</strong> мгновенная скорость изменения функции.</p>
+                <p style="margin-top:8px; font-size:0.9rem; color:var(--text-secondary);">
+                    ✅ <strong>Важно:</strong> Если функция дифференцируема в точке, то она непрерывна в этой точке.
+                </p>
+            </div></div>
+        </div>
+
+        <!-- ===== ТАБЛИЦА ПРОИЗВОДНЫХ ===== -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📊 Таблица производных</div>
+            <div class="section-content"><div class="table-wrapper"><table><thead><tr><th>№</th><th>Простая функция</th><th>Пример (простая)</th><th>Сложная функция \(Kx+b\)</th><th>Пример (сложная)</th></tr></thead><tbody>
+            <tr><td>1</td><td class="col-func">\((C)' = 0\)</td><td>\((3)' = 0\)</td><td>\((C)' = 0\)</td><td>\((5)' = 0\)</td></tr>
+            <tr><td>2</td><td class="col-func">\((x^n)' = n x^{n-1}\)</td><td>\((x^3)' = 3x^2\)</td><td>\(((Kx+b)^n)' = n(Kx+b)^{n-1} \cdot K\)</td><td>\(((2x+3)^5)' = 5(2x+3)^4 \cdot 2\)</td></tr>
+            <tr><td>3</td><td class="col-func">\((x)' = 1\)</td><td>\((2x)' = 2\)</td><td>\((Kx+b)' = K\)</td><td>\((3x-4)' = 3\)</td></tr>
+            <tr><td>4</td><td class="col-func">\((\frac{1}{x})' = -\frac{1}{x^2}\)</td><td>\((\frac{3}{x})' = -\frac{3}{x^2}\)</td><td>\((\frac{1}{Kx+b})' = -\frac{K}{(Kx+b)^2}\)</td><td>\((\frac{1}{3x-5})' = -\frac{3}{(3x-5)^2}\)</td></tr>
+            <tr><td>5</td><td class="col-func">\((\sqrt{x})' = \frac{1}{2\sqrt{x}}\)</td><td>\((3\sqrt{x})' = \frac{3}{2\sqrt{x}}\)</td><td>\((\sqrt{Kx+b})' = \frac{K}{2\sqrt{Kx+b}}\)</td><td>\((\sqrt{2-3x})' = -\frac{3}{2\sqrt{2-3x}}\)</td></tr>
+            <tr><td>6</td><td class="col-func">\((e^x)' = e^x\)</td><td>\((2e^x)' = 2e^x\)</td><td>\((e^{Kx+b})' = e^{Kx+b} \cdot K\)</td><td>\((e^{2x+3})' = e^{2x+3} \cdot 2\)</td></tr>
+            <tr><td>7</td><td class="col-func">\((a^x)' = a^x \ln a\)</td><td>\((4^x)' = 4^x \ln 4\)</td><td>\((a^{Kx+b})' = a^{Kx+b} \ln a \cdot K\)</td><td>\((4^{3x-2})' = 4^{3x-2} \ln 4 \cdot 3\)</td></tr>
+            <tr><td>8</td><td class="col-func">\((\ln x)' = \frac{1}{x}\)</td><td>\((2\ln x)' = \frac{2}{x}\)</td><td>\((\ln(Kx+b))' = \frac{K}{Kx+b}\)</td><td>\((\ln(2-5x))' = \frac{-5}{2-5x}\)</td></tr>
+            <tr><td>9</td><td class="col-func">\((\log_a x)' = \frac{1}{x \ln a}\)</td><td>\((\log_3 x)' = \frac{1}{x \ln 3}\)</td><td>\((\log_a(Kx+b))' = \frac{K}{(Kx+b) \ln a}\)</td><td>\((\log_3(3-4x))' = \frac{-4}{(3-4x) \ln 3}\)</td></tr>
+            <tr><td>10</td><td class="col-func">\((\sin x)' = \cos x\)</td><td>\((3\sin x)' = 3\cos x\)</td><td>\((\sin(Kx+b))' = \cos(Kx+b) \cdot K\)</td><td>\((\sin 2x)' = \cos 2x \cdot 2\)</td></tr>
+            <tr><td>11</td><td class="col-func">\((\cos x)' = -\sin x\)</td><td>\((1.5\cos x)' = -1.5\sin x\)</td><td>\((\cos(Kx+b))' = -\sin(Kx+b) \cdot K\)</td><td>\((\cos(5x-2))' = -\sin(5x-2) \cdot 5\)</td></tr>
+            <tr><td>12</td><td class="col-func">\((\operatorname{tg} x)' = \frac{1}{\cos^2 x}\)</td><td>\((3\operatorname{tg} x)' = \frac{3}{\cos^2 x}\)</td><td>\((\operatorname{tg}(Kx+b))' = \frac{K}{\cos^2(Kx+b)}\)</td><td>\((2\operatorname{tg}(3x-2))' = \frac{6}{\cos^2(3x-2)}\)</td></tr>
+            <tr><td>13</td><td class="col-func">\((\operatorname{ctg} x)' = -\frac{1}{\sin^2 x}\)</td><td>\((4\operatorname{ctg} x)' = -\frac{4}{\sin^2 x}\)</td><td>\((\operatorname{ctg}(Kx+b))' = -\frac{K}{\sin^2(Kx+b)}\)</td><td>\((\operatorname{ctg}(3x-2))' = -\frac{3}{\sin^2(3x-2)}\)</td></tr>
+            </tbody></table></div></div>
+        </div>
+
+        <!-- ===== ПРАВИЛА ДИФФЕРЕНЦИРОВАНИЯ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚙️ Правила дифференцирования</div>
+            <div class="section-content"><div class="rules-grid">
+                <div class="rule-card"><h3>➤ Вынесение константы</h3><div class="rule-formula">\((c \cdot u)' = c \cdot u'\)</div><div class="rule-text">Постоянный множитель выносится за знак производной.</div></div>
+                <div class="rule-card"><h3>➤ Сумма / разность</h3><div class="rule-formula">\((u \pm v)' = u' \pm v'\)</div><div class="rule-text">Производная суммы равна сумме производных.</div></div>
+                <div class="rule-card"><h3>➤ Произведение</h3><div class="rule-formula">\((u \cdot v)' = u' \cdot v + u \cdot v'\)</div><div class="rule-text">Производная произведения: первой на производную второй плюс второй на производную первой.</div></div>
+                <div class="rule-card"><h3>➤ Частное</h3><div class="rule-formula">\(\left(\frac{u}{v}\right)' = \frac{u'v - uv'}{v^2}\)</div><div class="rule-text">Производная дроби, знаменатель в квадрате.</div></div>
+                <div class="rule-card"><h3>➤ Сложная функция</h3><div class="rule-formula">\((f(g(x)))' = f'(g(x)) \cdot g'(x)\)</div><div class="rule-text">Производная внешней функции умножается на производную внутренней.</div></div>
+            </div></div>
+        </div>
+
+        <!-- ===== ПРАКТИКА: ПРОИЗВОДНЫЕ ЭЛЕМЕНТАРНЫХ ФУНКЦИЙ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')"> Примеры: производные элементарных функций</div>
+            <div class="section-content"><div class="examples-grid">
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 1. \((C)' = 0\)</strong><br>
+                    \((5)' = 0\)<br>
+                    \((-4)' = 0\)<br>
+                    \((7)' = 0\)<br>
+                    \((\pi)' = 0\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 2. \((x^n)' = n \cdot x^{n-1}\)</strong><br>
+                    \((x^4)' = 4x^3\)<br>
+                    \((x^5)' = 5x^4\)<br>
+                    \((2x^3)' = 6x^2\)<br>
+                    \((5x^4)' = 20x^3\)<br>
+                    \((-3x^2)' = -6x\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 3. \((x)' = 1\)</strong><br>
+                    \((2x)' = 2\)<br>
+                    \((-5x)' = -5\)<br>
+                    \((3x-4)' = 3\)<br>
+                    \((7x+2)' = 7\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 4. \((\frac{1}{x})' = -\frac{1}{x^2}\)</strong><br>
+                    \((\frac{4}{x})' = -\frac{4}{x^2}\)<br>
+                    \((\frac{5}{x^2})' = -\frac{10}{x^3}\)<br>
+                    \((\frac{2}{x^3})' = -\frac{6}{x^4}\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 5. \((\sqrt{x})' = \frac{1}{2\sqrt{x}}\)</strong><br>
+                    \((2\sqrt{x})' = \frac{1}{\sqrt{x}}\)<br>
+                    \((4\sqrt{x})' = \frac{2}{\sqrt{x}}\)<br>
+                    \((\sqrt{2x})' = \frac{1}{\sqrt{2x}}\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 6. \((e^x)' = e^x\)</strong><br>
+                    \((3e^x)' = 3e^x\)<br>
+                    \((5e^x)' = 5e^x\)<br>
+                    \((2e^x + x)' = 2e^x + 1\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 7. \((a^x)' = a^x \ln a\)</strong><br>
+                    \((2^x)' = 2^x \ln 2\)<br>
+                    \((3^x)' = 3^x \ln 3\)<br>
+                    \((5 \cdot 2^x)' = 5 \cdot 2^x \ln 2\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 8. \((\ln x)' = \frac{1}{x}\)</strong><br>
+                    \((3\ln x)' = \frac{3}{x}\)<br>
+                    \((5\ln x)' = \frac{5}{x}\)<br>
+                    \((\ln x + x)' = \frac{1}{x} + 1\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 9. \((\log_a x)' = \frac{1}{x \ln a}\)</strong><br>
+                    \((\log_2 x)' = \frac{1}{x \ln 2}\)<br>
+                    \((\log_5 x)' = \frac{1}{x \ln 5}\)<br>
+                    \((3\log_3 x)' = \frac{3}{x \ln 3}\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 10. \((\sin x)' = \cos x\)</strong><br>
+                    \((4\sin x)' = 4\cos x\)<br>
+                    \((2\sin x + 3)' = 2\cos x\)<br>
+                    \((\sin x + \cos x)' = \cos x - \sin x\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 11. \((\cos x)' = -\sin x\)</strong><br>
+                    \((2\cos x)' = -2\sin x\)<br>
+                    \((4\cos x)' = -4\sin x\)<br>
+                    \((3\sin x - 2\cos x)' = 3\cos x + 2\sin x\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 12. \((\operatorname{tg} x)' = \frac{1}{\cos^2 x}\)</strong><br>
+                    \((2\operatorname{tg} x)' = \frac{2}{\cos^2 x}\)<br>
+                    \((5\operatorname{tg} x)' = \frac{5}{\cos^2 x}\)<br>
+                    \((\operatorname{tg} x - x)' = \frac{1}{\cos^2 x} - 1\)
+                </div>
+
+                <div class="example-card" style="flex:1 1 100%;border-left-color:#ec489a;">
+                    <strong>📌 13. \((\operatorname{ctg} x)' = -\frac{1}{\sin^2 x}\)</strong><br>
+                    \((3\operatorname{ctg} x)' = -\frac{3}{\sin^2 x}\)<br>
+                    \((2\operatorname{ctg} x)' = -\frac{2}{\sin^2 x}\)<br>
+                    \((\operatorname{ctg} x + \cos x)' = -\frac{1}{\sin^2 x} - \sin x\)
+                </div>
+
+            </div></div>
+        </div>
+
+        <!-- ===== ПРАКТИКА: ПРАВИЛА ДИФФЕРЕНЦИРОВАНИЯ С ПОДРОБНЫМ РАЗБОРОМ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')"> Примеры: правила дифференцирования</div>
+            <div class="section-content">
+
+                <!-- ===== ВЫНЕСЕНИЕ КОНСТАНТЫ ===== -->
+                <div style="background:var(--example-bg);border-radius:16px;padding:16px 18px;margin-top:12px;border-left:4px solid #f59e0b;">
+                    <p style="font-weight:700;color:var(--text);font-size:1.05rem;">📌 Правило вынесения константы: \((c \cdot u)' = c \cdot u'\)</p>
+
+                    <div style="margin-top:12px;padding:10px 14px;background:var(--card-bg);border-radius:12px;border-left:3px solid #34d399;">
+                        <p style="font-weight:600;color:var(--text);">Пример: \((5x^3)'\)</p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 1.</strong> Выносим константу \(5\) за знак производной:<br>
+                            \((5x^3)' = 5 \cdot (x^3)'\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 2.</strong> Находим производную степени: \((x^3)' = 3x^2\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 3.</strong> Умножаем: \(5 \cdot 3x^2 = 15x^2\)
+                        </p>
+                        <p style="color:#34d399;font-weight:600;margin-top:6px;">✅ Ответ: \((5x^3)' = 15x^2\)</p>
+                    </div>
+
+                    <div style="margin-top:12px;padding:10px 14px;background:var(--card-bg);border-radius:12px;border-left:3px solid #34d399;">
+                        <p style="font-weight:600;color:var(--text);">Пример: \((2e^x)'\)</p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 1.</strong> Выносим константу \(2\): \((2e^x)' = 2 \cdot (e^x)'\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 2.</strong> Производная экспоненты: \((e^x)' = e^x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 3.</strong> Умножаем: \(2 \cdot e^x = 2e^x\)
+                        </p>
+                        <p style="color:#34d399;font-weight:600;margin-top:6px;">✅ Ответ: \((2e^x)' = 2e^x\)</p>
+                    </div>
+                </div>
+
+                <!-- ===== СУММА / РАЗНОСТЬ ===== -->
+                <div style="background:var(--example-bg);border-radius:16px;padding:16px 18px;margin-top:16px;border-left:4px solid #f59e0b;">
+                    <p style="font-weight:700;color:var(--text);font-size:1.05rem;">📌 Правило суммы / разности: \((u \pm v)' = u' \pm v'\)</p>
+
+                    <div style="margin-top:12px;padding:10px 14px;background:var(--card-bg);border-radius:12px;border-left:3px solid #34d399;">
+                        <p style="font-weight:600;color:var(--text);">Пример: \((x^3 + x^2)'\)</p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 1.</strong> Производная суммы равна сумме производных:<br>
+                            \((x^3 + x^2)' = (x^3)' + (x^2)'\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 2.</strong> Находим производные по отдельности:<br>
+                            \((x^3)' = 3x^2\), \((x^2)' = 2x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 3.</strong> Складываем: \(3x^2 + 2x\)
+                        </p>
+                        <p style="color:#34d399;font-weight:600;margin-top:6px;">✅ Ответ: \((x^3 + x^2)' = 3x^2 + 2x\)</p>
+                    </div>
+
+                    <div style="margin-top:12px;padding:10px 14px;background:var(--card-bg);border-radius:12px;border-left:3px solid #34d399;">
+                        <p style="font-weight:600;color:var(--text);">Пример: \((\sin x + \cos x)'\)</p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 1.</strong> Производная суммы: \((\sin x + \cos x)' = (\sin x)' + (\cos x)'\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 2.</strong> Находим производные:<br>
+                            \((\sin x)' = \cos x\), \((\cos x)' = -\sin x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 3.</strong> Складываем: \(\cos x + (-\sin x) = \cos x - \sin x\)
+                        </p>
+                        <p style="color:#34d399;font-weight:600;margin-top:6px;">✅ Ответ: \((\sin x + \cos x)' = \cos x - \sin x\)</p>
+                    </div>
+                </div>
+
+                <!-- ===== ПРОИЗВЕДЕНИЕ ===== -->
+                <div style="background:var(--example-bg);border-radius:16px;padding:16px 18px;margin-top:16px;border-left:4px solid #f59e0b;">
+                    <p style="font-weight:700;color:var(--text);font-size:1.05rem;">📌 Правило произведения: \((u \cdot v)' = u' \cdot v + u \cdot v'\)</p>
+
+                    <div style="margin-top:12px;padding:10px 14px;background:var(--card-bg);border-radius:12px;border-left:3px solid #34d399;">
+                        <p style="font-weight:600;color:var(--text);">Пример: \((x^2 \cdot e^x)'\)</p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 1.</strong> Определяем \(u\) и \(v\):<br>
+                            \(u = x^2\), \(v = e^x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 2.</strong> Находим производные:<br>
+                            \(u' = (x^2)' = 2x\), \(v' = (e^x)' = e^x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 3.</strong> Подставляем в формулу:<br>
+                            \((x^2 \cdot e^x)' = 2x \cdot e^x + x^2 \cdot e^x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 4.</strong> Выносим общий множитель \(e^x\):<br>
+                            \(= e^x(2x + x^2) = x e^x(2 + x)\)
+                        </p>
+                        <p style="color:#34d399;font-weight:600;margin-top:6px;">✅ Ответ: \((x^2 \cdot e^x)' = e^x(x^2 + 2x)\)</p>
+                    </div>
+
+                    <!-- ===== ТОЛЬКО ЭТОТ ПРИМЕР С ПЕРЕНОСОМ ===== -->
+                    <div style="margin-top:12px;padding:10px 14px;background:var(--card-bg);border-radius:12px;border-left:3px solid #34d399;">
+                        <p style="font-weight:600;color:var(--text);">Пример: \((x \cdot \cos x)'\)</p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;word-break:break-word;white-space:normal;max-width:100%;">
+                            <strong>Шаг 1.</strong> \(u = x\), \(v = \cos x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;word-break:break-word;white-space:normal;max-width:100%;">
+                            <strong>Шаг 2.</strong> \(u' = (x)' = 1\), \(v' = (\cos x)' = -\sin x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;word-break:break-word;white-space:normal;max-width:100%;">
+                            <strong>Шаг 3.</strong> Подставляем:<br>
+                            \((x \cdot \cos x)' = 1 \cdot \cos x + x \cdot (-\sin x)\)<br>
+                            \(= \cos x - x \sin x\)
+                        </p>
+                        <p style="color:#34d399;font-weight:600;margin-top:6px;">✅ Ответ: \((x \cdot \cos x)' = \cos x - x \sin x\)</p>
+                    </div>
+                </div>
+
+                <!-- ===== ЧАСТНОЕ ===== -->
+                <div style="background:var(--example-bg);border-radius:16px;padding:16px 18px;margin-top:16px;border-left:4px solid #f59e0b;">
+                    <p style="font-weight:700;color:var(--text);font-size:1.05rem;">📌 Правило частного: \(\left(\frac{u}{v}\right)' = \frac{u'v - uv'}{v^2}\)</p>
+
+                    <div style="margin-top:12px;padding:10px 14px;background:var(--card-bg);border-radius:12px;border-left:3px solid #34d399;">
+                        <p style="font-weight:600;color:var(--text);">Пример: \(\left(\frac{\sin x}{x}\right)'\)</p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 1.</strong> \(u = \sin x\), \(v = x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 2.</strong> \(u' = \cos x\), \(v' = 1\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 3.</strong> Подставляем в формулу:<br>
+                            \(\left(\frac{\sin x}{x}\right)' = \frac{\cos x \cdot x - \sin x \cdot 1}{x^2}\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 4.</strong> Упрощаем: \(\frac{x\cos x - \sin x}{x^2}\)
+                        </p>
+                        <p style="color:#34d399;font-weight:600;margin-top:6px;">✅ Ответ: \(\left(\frac{\sin x}{x}\right)' = \frac{x\cos x - \sin x}{x^2}\)</p>
+                    </div>
+
+                    <div style="margin-top:12px;padding:10px 14px;background:var(--card-bg);border-radius:12px;border-left:3px solid #34d399;">
+                        <p style="font-weight:600;color:var(--text);">Пример: \(\left(\frac{\ln x}{x}\right)'\)</p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 1.</strong> \(u = \ln x\), \(v = x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 2.</strong> \(u' = \frac{1}{x}\), \(v' = 1\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;">
+                            <strong>Шаг 3.</strong> \(\left(\frac{\ln x}{x}\right)' = \frac{\frac{1}{x} \cdot x - \ln x \cdot 1}{x^2} = \frac{1 - \ln x}{x^2}\)
+                        </p>
+                        <p style="color:#34d399;font-weight:600;margin-top:6px;">✅ Ответ: \(\left(\frac{\ln x}{x}\right)' = \frac{1 - \ln x}{x^2}\)</p>
+                    </div>
+                </div>
+
+                <!-- ===== КОМБИНАЦИЯ ПРАВИЛ ===== -->
+                <div style="background:var(--example-bg);border-radius:16px;padding:16px 18px;margin-top:16px;border-left:4px solid #f59e0b;">
+                    <p style="font-weight:700;color:var(--text);font-size:1.05rem;">📌 Комбинация правил</p>
+
+                    <!-- ===== ТОЛЬКО ЭТОТ ПРИМЕР С ПЕРЕНОСОМ ===== -->
+                    <div style="margin-top:12px;padding:10px 14px;background:var(--card-bg);border-radius:12px;border-left:3px solid #34d399;">
+                        <p style="font-weight:600;color:var(--text);">Пример: \((3x^2 e^x)'\)</p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;word-break:break-word;white-space:normal;max-width:100%;">
+                            <strong>Шаг 1.</strong> Выносим константу \(3\):<br>
+                            \((3x^2 e^x)' = 3 \cdot (x^2 e^x)'\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;word-break:break-word;white-space:normal;max-width:100%;">
+                            <strong>Шаг 2.</strong> Применяем правило произведения к \(x^2 e^x\):<br>
+                            \((x^2 e^x)' = (x^2)' \cdot e^x + x^2 \cdot (e^x)'\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;word-break:break-word;white-space:normal;max-width:100%;">
+                            <strong>Шаг 3.</strong> Находим производные:<br>
+                            \((x^2)' = 2x\), \((e^x)' = e^x\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;word-break:break-word;white-space:normal;max-width:100%;">
+                            <strong>Шаг 4.</strong> Подставляем:<br>
+                            \((x^2 e^x)' = 2x \cdot e^x + x^2 \cdot e^x\)<br>
+                            \(= e^x(2x + x^2)\)
+                        </p>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px;word-break:break-word;white-space:normal;max-width:100%;">
+                            <strong>Шаг 5.</strong> Умножаем на \(3\):<br>
+                            \(3 \cdot e^x(2x + x^2) = 3e^x(2x + x^2)\)<br>
+                            \(= 3x e^x(2 + x)\)
+                        </p>
+                        <p style="color:#34d399;font-weight:600;margin-top:6px;">✅ Ответ: \((3x^2 e^x)' = 3x e^x(2 + x)\)</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <a href="derivative.html" class="back-link">← Назад к производной</a>
+    </div>
+</div>
+
+<script>
+    }
+    (function(){
+        if(localStorage.getItem('mathTheme')==='light'){
+            document.documentElement.classList.add('light-mode');
+            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
+        }
+    })();
+</script>
+
+<script>
+    const FAV_KEY='math_favorites';
+    function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}
+    function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}
+    function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}
+    function toggleFavorite(){const u=window.location.pathname.split('/').pop();let f=getFavorites();const btn=document.getElementById('favoriteBtn');if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}else{f.push(u);btn.textContent='★';btn.classList.add('active');}saveFavorites(f);}
+    function updateFavoriteBtn(){const btn=document.getElementById('favoriteBtn');if(btn){if(isFavorite()){btn.textContent='★';btn.classList.add('active');}else{btn.textContent='☆';btn.classList.remove('active');}}}
+    updateFavoriteBtn();
+</script>
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

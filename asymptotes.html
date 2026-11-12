@@ -1,0 +1,1613 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Асимптоты</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(139, 92, 246, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --special-border: #8b5cf6;
+            --example-bg: #1e3545;
+            --step-color: #a78bfa;
+            --result-color: #4ade80;
+            --explain-color: #34d399;
+            --info-bg: #1e3545;
+            --table-even: rgba(255, 255, 255, 0.03);
+            --table-odd: rgba(255, 255, 255, 0.07);
+            --table-hover: rgba(139, 92, 246, 0.18);
+            --canvas-bg: #162a38;
+            --example-text: #ffffff;
+            --formula-used-text: #ffffff;
+            --highlight-bg: rgba(139, 92, 246, 0.10);
+            --highlight-border: #8b5cf6;
+            --highlight-text: #a78bfa;
+            --code-bg: rgba(255,255,255,0.06);
+            --warning-bg: rgba(139,92,246,0.12);
+            --warning-border: #8b5cf6;
+            --danger-color: #f87171;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --special-border: #8b5cf6;
+            --example-bg: #f8fafc;
+            --step-color: #7c3aed;
+            --result-color: #059669;
+            --explain-color: #059669;
+            --info-bg: #e8f0fe;
+            --table-even: rgba(0, 0, 0, 0.02);
+            --table-odd: rgba(0, 0, 0, 0.05);
+            --table-hover: rgba(139, 92, 246, 0.12);
+            --canvas-bg: #f8fafc;
+            --example-text: #1a2a3f;
+            --formula-used-text: #1a5276;
+            --highlight-bg: rgba(139, 92, 246, 0.10);
+            --highlight-border: #8b5cf6;
+            --highlight-text: #6d28d9;
+            --code-bg: rgba(0,0,0,0.04);
+            --warning-bg: #f5f3ff;
+            --warning-border: #8b5cf6;
+            --danger-color: #dc2626;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:1000px;margin:0 auto;position:relative;background:var(--card-bg);border-radius:32px;padding:20px 24px;padding-top:50px;}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+
+        .content-card{background:transparent;padding:0;}
+
+        /* ===== СЕКЦИИ ===== */
+        .section{margin-bottom:14px;}
+        .section-title{
+            font-size:1.1rem;
+            font-weight:700;
+            color:var(--text);
+            margin-bottom:4px;
+            display:flex;
+            flex-direction:column;
+            gap:4px;
+            border-left:4px solid var(--special-border);
+            padding:8px 12px;
+            cursor:pointer;
+            user-select:none;
+            text-align:left;
+            background:var(--info-bg);
+            border-radius:10px;
+            transition:background 0.2s;
+            line-height:1.4;
+            position:relative;
+        }
+        .section-title:hover{opacity:0.9;background:var(--example-bg);}
+        .section-title .main-title{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            width:100%;
+            font-size:1rem;
+            color:var(--text);
+        }
+        .section-title .main-title::after{
+            content:"▼";
+            margin-left:auto;
+            font-size:0.85rem;
+            transition:transform 0.3s;
+            color:var(--text-secondary);
+            flex-shrink:0;
+        }
+        .section.collapsed .section-title .main-title::after{transform:rotate(-90deg);}
+        .section-title .sub-title{
+            font-size:0.85rem;
+            color:var(--text-secondary);
+            font-weight:400;
+            font-style:italic;
+            opacity:0.9;
+            display:block;
+            text-align:left;
+        }
+        /* ===== ЕДИНЫЙ РАЗМЕР MathJax В ЗАГОЛОВКАХ ===== */
+        .section-title .main-title mjx-container{
+            font-size:1em !important;
+        }
+        .section-content{max-height:10000px;overflow:hidden;transition:max-height 0.4s ease;}
+        .section.collapsed .section-content{max-height:0;}
+
+        .definition-block{
+            background:var(--info-bg);
+            border-left:4px solid var(--special-border);
+            padding:12px 14px;
+            border-radius:14px;
+            margin:8px 0;
+        }
+        .definition-block p{
+            font-size:0.95rem;
+            line-height:1.4;
+            color:var(--text);
+            margin:4px 0;
+        }
+        .definition-block strong{color:var(--text);}
+        .definition-block ul{
+            padding-left:20px;
+            margin:6px 0;
+            font-size:0.95rem;
+            line-height:1.4;
+            color:var(--text);
+        }
+        .definition-block ul li{margin:2px 0;}
+
+        .formula-block{
+            background:var(--bg);
+            padding:12px 14px;
+            border-radius:14px;
+            font-size:0.95rem;
+            margin:8px 0;
+            border-left:4px solid var(--special-border);
+            word-break:break-word;
+            overflow-x:visible;
+            line-height:1.6;
+            color:var(--text);
+        }
+        .formula-block mjx-container{font-size:0.95rem !important;}
+
+        .example{
+            background:var(--example-bg);
+            padding:12px 14px;
+            border-radius:14px;
+            margin-top:8px;
+            border-left:4px solid var(--special-border);
+            font-size:0.95rem;
+            line-height:1.5;
+            color:var(--example-text);
+            word-break:break-word;
+            overflow-x:visible;
+        }
+        .example .step{
+            font-weight:700;
+            color:var(--step-color);
+            margin-top:6px;
+            margin-bottom:2px;
+            display:block;
+            font-size:0.95rem;
+        }
+        .example .result{
+            margin-top:6px;
+            font-weight:600;
+            color:var(--result-color);
+            display:block;
+            font-size:0.95rem;
+        }
+        .example .explain{
+            color:var(--explain-color);
+            font-style:italic;
+            margin:2px 0 4px 12px;
+            border-left:2px solid var(--explain-color);
+            padding-left:10px;
+            display:block;
+            font-size:0.9rem;
+        }
+        .example .formula-line{
+            display:block;
+            margin:2px 0;
+            word-break:break-word;
+            font-size:0.95rem;
+        }
+        .example .star{
+            color:var(--highlight-text);
+            font-size:1.1rem;
+            margin-right:4px;
+        }
+        .example mjx-container{
+            font-size:0.95rem !important;
+            overflow-x:visible !important;
+        }
+
+        .highlight-box{
+            background:var(--highlight-bg);
+            border-left:4px solid var(--highlight-border);
+            border-radius:14px;
+            padding:10px 14px;
+            margin:8px 0;
+            color:var(--text);
+        }
+        .highlight-box strong{color:var(--highlight-text);}
+        .highlight-box p{
+            font-size:0.95rem;
+            line-height:1.4;
+            color:var(--text);
+            word-wrap:break-word;
+            margin:2px 0;
+        }
+
+        .important{
+            background:var(--warning-bg);
+            border-left:4px solid var(--warning-border);
+            border-radius:14px;
+            padding:10px 14px;
+            margin:8px 0;
+            color:var(--text);
+            font-size:0.95rem;
+            line-height:1.5;
+        }
+        .important strong{color:var(--highlight-text);}
+
+        p{
+            margin:6px 0;
+            font-size:0.95rem;
+            line-height:1.4;
+            color:var(--text);
+            word-wrap:break-word;
+        }
+
+        .code-block{
+            background:var(--code-bg);
+            padding:8px 12px;
+            border-radius:10px;
+            font-family:'Courier New',monospace;
+            font-size:0.85rem;
+            margin:4px 0;
+            color:var(--text);
+            word-break:break-word;
+            overflow-wrap:break-word;
+        }
+
+        .back-link{
+            display:inline-block;
+            margin:16px 0 8px;
+            padding:10px 24px;
+            background:var(--special-border);
+            color:white;
+            text-decoration:none;
+            font-weight:600;
+            border-radius:40px;
+            font-size:0.9rem;
+            transition:transform 0.2s,box-shadow 0.2s;
+            box-shadow:0 4px 8px rgba(0,0,0,0.1);
+        }
+        .back-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,0.15);}
+
+        mjx-container{
+            font-size:0.95em !important;
+            overflow-x:visible !important;
+            max-width:100% !important;
+            display:inline-block !important;
+        }
+
+        .asymptote-vertical{color:#f87171;font-weight:700;}
+        .asymptote-horizontal{color:#34d399;font-weight:700;}
+        .asymptote-oblique{color:#a78bfa;font-weight:700;}
+
+        .graph-container{
+            text-align:center;
+            margin:8px 0;
+            background:var(--canvas-bg);
+            border-radius:14px;
+            padding:6px;
+            display:block;
+            transition:background 0.2s;
+        }
+        .graph-container canvas{
+            max-width:100%;
+            height:auto;
+            border-radius:10px;
+            display:inline-block;
+            background:var(--canvas-bg);
+            transition:background 0.2s;
+            width:100%;
+        }
+        .graph-label{
+            font-size:0.85rem;
+            color:var(--text-secondary);
+            text-align:center;
+            margin-top:4px;
+            font-style:italic;
+        }
+
+        .table-wrapper{
+            display:flex;
+            justify-content:center;
+            width:100%;
+            margin-top:6px;
+        }
+        .table-scroll{
+            overflow-x:auto;
+            border-radius:10px;
+            background:var(--card-bg);
+            width:100%;
+            padding:2px 0;
+        }
+        .cheat-table{
+            width:100%;
+            min-width:700px;
+            border-collapse:collapse;
+            font-size:0.85rem;
+            background:var(--card-bg);
+            border-radius:10px;
+            overflow:hidden;
+            border:1px solid var(--border);
+        }
+        .cheat-table thead th{
+            background:var(--bg);
+            color:var(--text);
+            font-weight:700;
+            padding:10px 14px;
+            text-align:center;
+            border:1px solid var(--border);
+            font-size:0.85rem;
+            letter-spacing:0.2px;
+            white-space:nowrap;
+            word-break:keep-all;
+        }
+        .cheat-table tbody td{
+            padding:10px 14px;
+            border:1px solid var(--border);
+            color:var(--text);
+            font-size:0.85rem;
+            vertical-align:middle;
+            text-align:center;
+            white-space:nowrap;
+            word-break:keep-all;
+        }
+        .cheat-table tbody tr:nth-child(even){background:var(--table-even);}
+        .cheat-table tbody tr:nth-child(odd){background:var(--table-odd);}
+        .cheat-table tbody tr:hover{background:var(--table-hover)!important;transition:background 0.15s ease;cursor:default;}
+        .cheat-table tbody td mjx-container{
+            display:inline-block!important;
+            text-align:center!important;
+            font-size:0.85rem!important;
+        }
+
+        .error-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.9rem;border-radius:12px;overflow:hidden;}
+        .error-table th{background:var(--special-border);color:#fff;padding:10px 12px;text-align:left;font-weight:700;}
+        .error-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;background:var(--card-bg);}
+        .error-table tr:nth-child(even) td{background:var(--example-bg);}
+        .error-table tr:last-child td{border-bottom:none;}
+        .error-table .wrong{color:var(--danger-color);font-weight:700;}
+        .error-table .right{color:var(--result-color);font-weight:700;}
+
+        .general-form{
+            background:var(--card-bg);
+            padding:10px 14px;
+            border-radius:12px;
+            margin:8px 0 12px 0;
+            text-align:center;
+            font-size:0.95rem;
+            border:1px solid var(--border);
+            color:var(--text);
+        }
+        .general-form .num{color:#a78bfa;font-weight:600;}
+        .general-form .den{color:#34d399;font-weight:600;}
+        .general-form .sub-hint{
+            font-size:0.8rem;
+            color:var(--text-secondary);
+            margin-top:2px;
+        }
+        .general-form mjx-container{font-size:0.95rem !important;}
+
+        .link-to-theory{
+            display:inline-block;
+            background:rgba(139,92,246,0.12);
+            border:1px solid var(--special-border);
+            border-radius:16px;
+            padding:2px 12px;
+            font-size:0.75rem;
+            color:var(--highlight-text);
+            text-decoration:none;
+            transition:all 0.2s;
+            margin-left:6px;
+        }
+        .link-to-theory:hover{
+            background:rgba(139,92,246,0.25);
+            transform:scale(1.02);
+        }
+
+        @media (max-width:700px){
+            body{padding:20px 14px 36px;}
+            .container{padding:14px 16px;padding-top:44px;border-radius:24px;}
+            .header{padding:16px 16px;margin-bottom:20px;}
+            h1{font-size:1.2rem;}
+            .subtitle{font-size:0.7rem;}
+            .section-title{font-size:1rem;padding:6px 10px;}
+            .section-title .main-title{font-size:0.95rem;}
+            .section-title .sub-title{font-size:0.75rem;}
+            .definition-block p,.formula-block,.example,.p,.highlight-box p,.important{font-size:0.9rem;}
+            .example .step,.example .result,.example .formula-line{font-size:0.9rem;}
+            .example .explain{font-size:0.85rem;}
+            .cheat-table{min-width:520px;font-size:0.75rem;}
+            .cheat-table thead th,.cheat-table tbody td{padding:8px 10px;font-size:0.75rem;}
+            .graph-container canvas{min-height:180px;}
+            .graph-label{font-size:0.75rem;}
+            mjx-container{font-size:0.85em !important;}
+            .back-link{font-size:0.85rem;padding:8px 18px;}
+        }
+
+        @media (max-width:400px){
+            body{padding:12px 6px 30px;}
+            .container{padding:10px 10px;padding-top:40px;border-radius:20px;}
+            .header{padding:12px 12px;margin-bottom:16px;}
+            h1{font-size:1rem;}
+            .section-title{font-size:0.9rem;padding:4px 8px;}
+            .section-title .main-title{font-size:0.85rem;}
+            .section-title .sub-title{font-size:0.65rem;}
+            .definition-block p,.formula-block,.example,.p,.highlight-box p,.important{font-size:0.8rem;}
+            .example .step,.example .result,.example .formula-line{font-size:0.8rem;}
+            .example .explain{font-size:0.75rem;}
+            .cheat-table{min-width:400px;font-size:0.65rem;}
+            .cheat-table thead th,.cheat-table tbody td{padding:6px 8px;font-size:0.65rem;}
+            mjx-container{font-size:0.75em !important;}
+            .back-link{font-size:0.75rem;padding:6px 14px;}
+        }
+
+        @keyframes fadeInUp{
+            from{opacity:0;transform:translateY(15px);}
+            to{opacity:1;transform:translateY(0);}
+        }
+        .header{animation:fadeInUp 0.4s ease-out;}
+        .content-card{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { skipHtmlTypes: 'script', ignoreHtmlClass: 'no-mathjax' },
+            chtml: { scale: 0.95, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1>Асимптоты</h1><div class="subtitle">Вертикальные · Горизонтальные · Наклонные · Примеры</div></div>
+    <div class="content-card">
+
+        <!-- ===== ЖИВОЕ ВСТУПЛЕНИЕ ===== -->
+        <div class="section">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📖 Зачем нужны асимптоты</span>
+                <span class="sub-title">от горных дорог до графиков функций</span>
+            </div>
+            <div class="section-content">
+                <p>Представь, что ты едешь по горной дороге. Слева — обрыв, справа — скала. Ты можешь подъезжать к краю всё ближе и ближе, но <strong>никогда не пересечёшь его</strong>. Этот край — и есть <strong>асимптота</strong> (от греческого <em>asymptotos</em> — «не совпадающий»).</p>
+                <p>В математике асимптота — это прямая, к которой график функции <strong>бесконечно приближается</strong>, но не касается её (или касается в конечном числе точек). Асимптоты помогают понять <strong>поведение функции на бесконечности</strong> и рядом с точками разрыва.</p>
+                <div class="important">
+                    <strong>💡 Главная идея:</strong> асимптота — это «невидимая граница», к которой стремится график. Она бывает <span class="asymptote-vertical">вертикальной</span>, <span class="asymptote-horizontal">горизонтальной</span> и <span class="asymptote-oblique">наклонной</span>.
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ОПРЕДЕЛЕНИЕ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📌 Что такое асимптота?</span>
+                <span class="sub-title">три вида асимптот</span>
+            </div>
+            <div class="section-content">
+                <p><strong>Асимптота</strong> — это прямая, к которой график функции <strong>бесконечно приближается</strong>, но никогда её не пересекает (или пересекает в конечном числе точек).</p>
+
+                <div class="highlight-box">
+                    <strong>📌 Простыми словами:</strong>
+                    <p>Асимптота — это «невидимая граница», к которой график стремится, но не может её достичь.</p>
+                </div>
+
+                <div class="formula-block" style="border-left-color: #f87171;">
+                    <strong><span class="asymptote-vertical">Вертикальная асимптота</span>:</strong><br>
+                    Прямая \(x = a\), к которой график приближается при \(x \to a\).<br>
+                    📌 Находится через <strong>ОДЗ</strong>: точки, где функция не определена (знаменатель = 0).
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="graphVertical" width="700" height="380"></canvas>
+                    <div class="graph-label">
+                        🔴 Вертикальная асимптота \(x = 2\) функции \(f(x) = \frac{1}{x-2}\)
+                    </div>
+                </div>
+
+                <div class="formula-block" style="border-left-color: #34d399;">
+                    <strong><span class="asymptote-horizontal">Горизонтальная асимптота</span>:</strong><br>
+                    Прямая \(y = b\), к которой график приближается при \(x \to \pm\infty\).<br>
+                    📌 Находится по <strong>старшим степеням</strong> числителя и знаменателя.
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="graphHorizontal" width="700" height="380"></canvas>
+                    <div class="graph-label">
+                        🟢 Горизонтальная асимптота \(y = 0\) функции \(f(x) = \frac{1}{x}\)
+                    </div>
+                </div>
+
+                <div class="formula-block" style="border-left-color: #a78bfa;">
+                    <strong><span class="asymptote-oblique">Наклонная асимптота</span>:</strong><br>
+                    Прямая \(y = kx + b\), к которой график приближается при \(x \to \pm\infty\).<br>
+                    📌 Находится <strong><a href="деление-многочленов-уголком.html" target="_blank" style="color: var(--highlight-text); text-decoration: underline;">делением многочленов (уголком)</a></strong>
+                    <a href="деление-многочленов-уголком.html" target="_blank" class="link-to-theory">📖 теория</a>
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="graphOblique" width="700" height="380"></canvas>
+                    <div class="graph-label">
+                        🟣 Наклонная асимптота \(y = x\) функции \(f(x) = \frac{x^2+1}{x}\)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ТАБЛИЦА-ШПАРГАЛКА ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📋 Таблица-шпаргалка</span>
+                <span class="sub-title">как быстро определить асимптоту</span>
+            </div>
+            <div class="section-content">
+                <div class="formula-block">
+                    <strong>Для дробно-рациональной функции \(f(x) = \dfrac{P(x)}{Q(x)}\):</strong>
+
+                    <div class="general-form">
+                        $$ f(x) = \frac{ \class{num}{a x^n + a_{n-1}x^{n-1} + \ldots + a_0} }{ \class{den}{b x^m + b_{m-1}x^{m-1} + \ldots + b_0} } $$
+                        <div class="sub-hint">
+                            <span style="color:#a78bfa;">🟣 Числитель</span> степени \(n\) &nbsp;·&nbsp;
+                            <span style="color:#34d399;">🟢 Знаменатель</span> степени \(m\)
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <div class="table-scroll">
+                            <table class="cheat-table">
+                                <colgroup>
+                                    <col style="min-width:100px;">
+                                    <col style="min-width:100px;">
+                                    <col style="min-width:130px;">
+                                    <col style="min-width:140px;">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>Степень числителя \(n\)</th>
+                                    <th>Степень знаменателя \(m\)</th>
+                                    <th>Асимптота</th>
+                                    <th>Пример</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>\(n < m\)</td>
+                                    <td>—</td>
+                                    <td><span class="asymptote-horizontal">\(y = 0\)</span></td>
+                                    <td>\(f(x) = \dfrac{1}{x}\)</td>
+                                </tr>
+                                <tr>
+                                    <td>\(n = m\)</td>
+                                    <td>—</td>
+                                    <td><span class="asymptote-horizontal">\(y = \dfrac{a}{b}\)</span></td>
+                                    <td>\(f(x) = \dfrac{2x+1}{x-3} \rightarrow y = 2\)</td>
+                                </tr>
+                                <tr>
+                                    <td>\(n = m + 1\)</td>
+                                    <td>—</td>
+                                    <td><span class="asymptote-oblique">Наклонная</span> (делим уголком)
+                                        <a href="деление-многочленов-уголком.html" target="_blank" class="link-to-theory" style="font-size:0.55rem;padding:1px 8px;">📖</a>
+                                    </td>
+                                    <td>\(f(x) = \dfrac{x^2+1}{x} \rightarrow y = x\)</td>
+                                </tr>
+                                <tr>
+                                    <td>\(n > m + 1\)</td>
+                                    <td>—</td>
+                                    <td>Асимптот нет</td>
+                                    <td>\(f(x) = \dfrac{x^3+1}{x}\)</td>
+                                </tr>
+                                <tr>
+                                    <td>—</td>
+                                    <td>\(Q(x) = 0\)</td>
+                                    <td><span class="asymptote-vertical">Вертикальная</span> \(x = a\)</td>
+                                    <td>\(f(x) = \dfrac{1}{x-2} \rightarrow x = 2\)</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <span class="explain">💡 Вертикальные асимптоты ищутся <strong>отдельно</strong> через ОДЗ, независимо от степеней.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРАВИЛА НАХОЖДЕНИЯ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📋 Правила нахождения асимптот</span>
+                <span class="sub-title">без использования пределов</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">🔴 <span class="asymptote-vertical">Вертикальные асимптоты</span></span>
+                    <div class="formula-line" style="padding-left:16px;">
+                        1️⃣ Найти ОДЗ функции (знаменатель ≠ 0).<br>
+                        2️⃣ Точки, где знаменатель обращается в 0 — кандидаты в вертикальные асимптоты.<br>
+                        3️⃣ Если в этих точках функция «уходит в бесконечность» — это вертикальная асимптота.
+                    </div>
+
+                    <span class="step">🟢 <span class="asymptote-horizontal">Горизонтальные асимптоты</span></span>
+                    <div class="formula-line" style="padding-left:16px;">
+                        Сравниваем <strong>степени многочленов</strong> в числителе и знаменателе:<br><br>
+                        • Если степень числителя < степени знаменателя → \(y = 0\)<br>
+                        • Если степень числителя = степени знаменателя → \(y = \frac{a}{b}\) (отношение старших коэффициентов)<br>
+                        • Если степень числителя > степени знаменателя → <strong>горизонтальной асимптоты нет</strong> (ищем наклонную)
+                    </div>
+
+                    <span class="step">🟣 <span class="asymptote-oblique">Наклонные асимптоты</span></span>
+                    <div class="formula-line" style="padding-left:16px;">
+                        1️⃣ Разделить числитель на знаменатель <strong><a href="деление-многочленов-уголком.html" target="_blank" style="color: var(--highlight-text); text-decoration: underline;">уголком</a></strong>
+                        <a href="деление-многочленов-уголком.html" target="_blank" class="link-to-theory" style="font-size:0.7rem;">📖 теория</a><br>
+                        2️⃣ Целая часть — это уравнение наклонной асимптоты \(y = kx + b\).<br>
+                        3️⃣ Остаток → 0 при \(x \to \infty\).
+                    </div>
+
+                    <div class="explain">💡 Наклонная асимптота появляется, когда степень числителя ровно на 1 больше степени знаменателя.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ПРИМЕРЫ (единый стиль заголовков) ===== -->
+
+        <!-- ПРИМЕР 1 -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 1. \(f(x) = \dfrac{1}{x-2}\)</span>
+                <span class="sub-title">вертикальная асимптота</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Находим ОДЗ:</span>
+                    <span class="formula-line">$$ x - 2 \neq 0 \Rightarrow x \neq 2 $$</span>
+                    <span class="step">Шаг 2. Проверяем точку \(x = 2\):</span>
+                    <span class="formula-line">$$ \text{При } x \to 2^+: \quad f(x) \to +\infty $$</span>
+                    <span class="formula-line">$$ \text{При } x \to 2^-: \quad f(x) \to -\infty $$</span>
+                    <div class="explain">💡 Функция «уходит в бесконечность» → это вертикальная асимптота.</div>
+                    <span class="result">Ответ: \(x = 2\) — вертикальная асимптота</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРИМЕР 2 -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 2. \(f(x) = \dfrac{2x+1}{x-3}\)</span>
+                <span class="sub-title">горизонтальная асимптота</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Сравниваем степени:</span>
+                    <span class="formula-line">$$ \text{Числитель: } 2x+1 \text{ — степень } 1 $$</span>
+                    <span class="formula-line">$$ \text{Знаменатель: } x-3 \text{ — степень } 1 $$</span>
+                    <div class="explain">💡 Степени равны → горизонтальная асимптота есть.</div>
+                    <span class="step">Шаг 2. Находим отношение старших коэффициентов:</span>
+                    <span class="formula-line">$$ y = \frac{2}{1} = 2 $$</span>
+                    <span class="result">Ответ: \(y = 2\) — горизонтальная асимптота</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРИМЕР 3 -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 3. \(f(x) = \dfrac{x^2+1}{x}\)</span>
+                <span class="sub-title">наклонная асимптота</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Сравниваем степени:</span>
+                    <span class="formula-line">$$ \text{Числитель: } x^2+1 \text{ — степень } 2 $$</span>
+                    <span class="formula-line">$$ \text{Знаменатель: } x \text{ — степень } 1 $$</span>
+                    <div class="explain">💡 Степень числителя на 1 больше → будет наклонная асимптота.</div>
+                    <span class="step">Шаг 2. Делим уголком:</span>
+                    <span class="formula-line">$$ \frac{x^2+1}{x} = x + \frac{1}{x} $$</span>
+                    <span class="result">Ответ: \(y = x\) — наклонная асимптота</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРИМЕР 4 -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 4. \(f(x) = x^2\)</span>
+                <span class="sub-title">нет асимптот</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Проверяем вертикальные асимптоты:</span>
+                    <span class="formula-line">$$ \text{ОДЗ: } x \in \mathbb{R} \text{ — нет точек разрыва} $$</span>
+                    <span class="step">Шаг 2. Проверяем горизонтальные:</span>
+                    <span class="formula-line">$$ f(x) = x^2 \text{ — многочлен, степень } 2 $$</span>
+                    <span class="step">Шаг 3. Проверяем наклонные:</span>
+                    <span class="formula-line">$$ \text{Наклонных асимптот тоже нет} $$</span>
+                    <span class="result">Ответ: асимптот нет</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРИМЕР 5 -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 5. \(f(x) = \dfrac{x}{x^2-1}\)</span>
+                <span class="sub-title">вертикальная и горизонтальная</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Находим вертикальные асимптоты (ОДЗ):</span>
+                    <span class="formula-line">$$ x^2 - 1 = 0 \Rightarrow x = \pm 1 $$</span>
+                    <span class="formula-line">$$ x = 1 \text{ и } x = -1 \text{ — вертикальные асимптоты} $$</span>
+                    <span class="step">Шаг 2. Находим горизонтальную асимптоту:</span>
+                    <span class="formula-line">$$ \text{Степень числителя: } 1 $$</span>
+                    <span class="formula-line">$$ \text{Степень знаменателя: } 2 $$</span>
+                    <div class="explain">💡 Степень числителя < степени знаменателя → \(y = 0\).</div>
+                    <span class="result">Ответ:</span>
+                    <span class="formula-line">• Вертикальные: \(x = 1\), \(x = -1\)</span>
+                    <span class="formula-line">• Горизонтальная: \(y = 0\)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРИМЕР 6 -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📐 Пример 6. \(f(x) = \dfrac{x^2+3x+2}{x+1}\)</span>
+                <span class="sub-title">вертикальная + наклонная (с сокращением)</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="step">Шаг 1. Находим вертикальную асимптоту (ОДЗ):</span>
+                    <span class="formula-line">$$ x + 1 = 0 \Rightarrow x = -1 $$</span>
+                    <span class="step">Шаг 2. Сокращаем дробь:</span>
+                    <span class="formula-line">$$ f(x) = \frac{x^2+3x+2}{x+1} = \frac{(x+1)(x+2)}{x+1} = x+2 $$</span>
+                    <span class="step">Шаг 3. Но в точке \(x = -1\) функция не определена:</span>
+                    <span class="formula-line">$$ f(-1) \text{ не существует} $$</span>
+                    <span class="result">Ответ:</span>
+                    <span class="formula-line">• Вертикальная: \(x = -1\) (выколотая точка)</span>
+                    <span class="formula-line">• Наклонная: \(y = x+2\)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРИМЕР 7 -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">⭐ Пример 7. \(f(x) = \sqrt{x^2 + 1}\)</span>
+                <span class="sub-title">две наклонные асимптоты</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="star">⭐</span> <strong>Функция с корнем. У неё две наклонные асимптоты:</strong><br><br>
+                    <span class="step">Шаг 1. При \(x \to +\infty\):</span>
+                    <span class="formula-line">$$ \sqrt{x^2 + 1} \approx x \Rightarrow y = x $$</span>
+                    <span class="step">Шаг 2. При \(x \to -\infty\):</span>
+                    <span class="formula-line">$$ \sqrt{x^2 + 1} \approx -x \Rightarrow y = -x $$</span>
+                    <span class="result">Ответ:</span>
+                    <span class="formula-line">• При \(x \to +\infty\): \(y = x\)</span>
+                    <span class="formula-line">• При \(x \to -\infty\): \(y = -x\)</span>
+                </div>
+                <div class="graph-container">
+                    <canvas id="graphRoot" width="700" height="380"></canvas>
+                    <div class="graph-label">
+                        🟣 График \(y = \sqrt{x^2+1}\) и две наклонные асимптоты: \(y = x\) и \(y = -x\)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРИМЕР 8 -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">⭐ Пример 8. \(f(x) = \dfrac{x^2 - 1}{x - 1}\)</span>
+                <span class="sub-title">выколотая точка, а не асимптота</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="star">⭐</span> <strong>Важно не путать выколотую точку с асимптотой!</strong><br><br>
+                    <span class="step">Шаг 1. Находим ОДЗ:</span>
+                    <span class="formula-line">$$ x - 1 \neq 0 \Rightarrow x \neq 1 $$</span>
+                    <span class="step">Шаг 2. Сокращаем дробь:</span>
+                    <span class="formula-line">$$ f(x) = \frac{x^2 - 1}{x - 1} = x + 1, \quad x \neq 1 $$</span>
+                    <span class="step">Шаг 3. Проверяем точку \(x = 1\):</span>
+                    <span class="formula-line">$$ f(1) \text{ не существует}, \quad \text{но } f(x) \to 2 $$</span>
+                    <span class="result">Ответ:</span>
+                    <span class="formula-line">• В точке \(x = 1\) — <strong>выколотая точка</strong> \((1; 2)\), а не асимптота</span>
+                    <span class="formula-line">• Наклонная асимптота: \(y = x + 1\)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРИМЕР 9 -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">⭐ Пример 9. \(f(x) = \dfrac{x^2 + ax + 1}{x + 2}\)</span>
+                <span class="sub-title">задача с параметром</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <span class="star">⭐</span> <strong>Задача повышенной сложности (с параметром).</strong><br><br>
+                    <strong>Условие:</strong> При каких \(a\) график имеет наклонную асимптоту \(y = x - 1\)?<br><br>
+                    <span class="step">Шаг 1. Делим уголком:</span>
+                    <span class="formula-line">$$ \frac{x^2 + ax + 1}{x + 2} = x + (a - 2) + \frac{5 - 2a}{x + 2} $$</span>
+                    <span class="step">Шаг 2. Приравниваем целую часть:</span>
+                    <span class="formula-line">$$ x + (a - 2) = x - 1 \Rightarrow a = 1 $$</span>
+                    <span class="result">Ответ: \(a = 1\)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ТИПИЧНЫЕ ОШИБКИ ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">⚠️ Типичные ошибки</span>
+                <span class="sub-title">что чаще всего путают</span>
+            </div>
+            <div class="section-content">
+                <div class="table-scroll">
+                    <table class="error-table">
+                        <thead>
+                        <tr><th>Ошибка</th><th>Почему неверно</th><th>Как правильно</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="wrong">Считают, что любая точка, где знаменатель = 0, — вертикальная асимптота</td>
+                            <td>Если после сокращения дробь «спокойная» в этой точке, там выколотая точка, а не асимптота.</td>
+                            <td class="right">Проверять, уходит ли функция в бесконечность</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">Путают горизонтальную и наклонную асимптоты</td>
+                            <td>Если степень числителя больше степени знаменателя, горизонтальной асимптоты нет.</td>
+                            <td class="right">Сравнивать степени многочленов</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">Ищут вертикальные асимптоты через деление уголком</td>
+                            <td>Вертикальные асимптоты — это точки разрыва, они находятся через ОДЗ.</td>
+                            <td class="right">Сначала ОДЗ, потом степени</td>
+                        </tr>
+                        <tr>
+                            <td class="wrong">Забывают, что у функции с корнем могут быть две наклонные асимптоты</td>
+                            <td>Поведение на \(+\infty\) и \(-\infty\) может отличаться.</td>
+                            <td class="right">Проверять оба направления</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== СВОДКА ===== -->
+        <div class="section collapsed">
+            <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+                <span class="main-title">📊 Сводная таблица</span>
+            </div>
+            <div class="section-content">
+                <div class="formula-block">
+                    <strong>1.</strong> Вертикальная асимптота: \(x = a\), где знаменатель = 0 и функция → ∞.<br><br>
+                    <strong>2.</strong> Горизонтальная асимптота: \(y = b\), если степень числителя ≤ степени знаменателя.<br><br>
+                    <strong>3.</strong> Наклонная асимптота: \(y = kx + b\), если степень числителя ровно на 1 больше.<br><br>
+                    <strong>4.</strong> Алгоритм: ОДЗ → степени → деление уголком (если нужно).<br><br>
+                    <strong>5.</strong> В ответе указывать <strong>вид и уравнение</strong> асимптоты: \(x = 2\), \(y = 0\), \(y = x\).
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <a href="derivative.html" class="back-link">← Назад к производным</a>
+</div>
+
+<script>
+    /* ============================================================
+       АДАПТИВНЫЕ КАНВАСЫ + ПЕРЕРИСОВКА ПРИ RESIZE/ТЕМЕ
+    ============================================================ */
+
+    function drawVerticalAsymptote() {
+        const canvas = document.getElementById('graphVertical');
+        if (!canvas) return;
+        const container = canvas.parentElement;
+        const isLight = document.documentElement.classList.contains('light-mode');
+
+        const baseW = 700, baseH = 380;
+        const cssW = Math.max(280, container.clientWidth - 12);
+        const cssH = Math.round(cssW * baseH / baseW);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const w = cssW, h = cssH;
+        const pad = 45;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+        const xMin = -5, xMax = 7, yMin = -7, yMax = 7;
+
+        const toX = x => pad + (x - xMin) / (xMax - xMin) * pw;
+        const toY = y => h - pad - (y - yMin) / (yMax - yMin) * ph;
+
+        const c = {
+            bg: isLight ? '#fefefe' : '#0f1a24',
+            grid: isLight ? '#dce3ec' : '#2a3a4a',
+            axis: isLight ? '#5b7c9c' : '#8899aa',
+            text: isLight ? '#334155' : '#cbd5e1',
+            curve: '#34d399',
+            asym: '#f87171'
+        };
+
+        ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = c.grid; ctx.lineWidth = 0.8;
+        for (let x = -5; x <= 7; x++) {
+            const sx = toX(x);
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            if (x !== 0) ctx.fillText(x, sx, h - pad + 6);
+        }
+        for (let y = -7; y <= 7; y++) {
+            const sy = toY(y);
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            if (y !== 0) ctx.fillText(y, pad - 10, sy);
+        }
+
+        ctx.strokeStyle = c.axis; ctx.lineWidth = 2.2;
+        const ox = toY(0), oy = toX(0);
+        ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
+
+        ctx.strokeStyle = c.asym; ctx.lineWidth = 2.5;
+        ctx.setLineDash([8, 5]);
+        const asymX = toX(2);
+        ctx.beginPath(); ctx.moveTo(asymX, pad); ctx.lineTo(asymX, h - pad); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = c.asym; ctx.font = 'bold 14px Inter,sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('x = 2', asymX, pad - 10);
+
+        ctx.strokeStyle = c.curve; ctx.lineWidth = 3;
+        ctx.beginPath();
+        let first = true;
+        const step = (xMax - xMin) / 1200;
+        for (let x = xMin + 0.02; x <= xMax; x += step) {
+            if (Math.abs(x - 2) < 0.02) { first = true; continue; }
+            const y = 1 / (x - 2);
+            if (y < yMin - 3 || y > yMax + 3) { first = true; continue; }
+            const sx = toX(x), sy = toY(y);
+            if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+        }
+        ctx.stroke();
+    }
+
+    function drawHorizontalAsymptote() {
+        const canvas = document.getElementById('graphHorizontal');
+        if (!canvas) return;
+        const container = canvas.parentElement;
+        const isLight = document.documentElement.classList.contains('light-mode');
+
+        const baseW = 700, baseH = 380;
+        const cssW = Math.max(280, container.clientWidth - 12);
+        const cssH = Math.round(cssW * baseH / baseW);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const w = cssW, h = cssH;
+        const pad = 45;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+        const xMin = -7, xMax = 7, yMin = -5, yMax = 5;
+
+        const toX = x => pad + (x - xMin) / (xMax - xMin) * pw;
+        const toY = y => h - pad - (y - yMin) / (yMax - yMin) * ph;
+
+        const c = {
+            bg: isLight ? '#fefefe' : '#0f1a24',
+            grid: isLight ? '#dce3ec' : '#2a3a4a',
+            axis: isLight ? '#5b7c9c' : '#8899aa',
+            text: isLight ? '#334155' : '#cbd5e1',
+            curve: '#f87171',
+            asym: '#34d399'
+        };
+
+        ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = c.grid; ctx.lineWidth = 0.8;
+        for (let x = -7; x <= 7; x++) {
+            const sx = toX(x);
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            if (x !== 0) ctx.fillText(x, sx, h - pad + 6);
+        }
+        for (let y = -5; y <= 5; y++) {
+            const sy = toY(y);
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            if (y !== 0) ctx.fillText(y, pad - 10, sy);
+        }
+
+        ctx.strokeStyle = c.axis; ctx.lineWidth = 2.2;
+        const ox = toY(0), oy = toX(0);
+        ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
+
+        ctx.strokeStyle = c.asym; ctx.lineWidth = 2.5;
+        ctx.setLineDash([8, 5]);
+        const asymY = toY(0);
+        ctx.beginPath(); ctx.moveTo(pad, asymY); ctx.lineTo(w - pad, asymY); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = c.asym; ctx.font = 'bold 14px Inter,sans-serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+        ctx.fillText('y = 0', w - pad - 6, asymY - 6);
+
+        ctx.strokeStyle = c.curve; ctx.lineWidth = 3;
+        ctx.beginPath();
+        let first = true;
+        const step = (xMax - xMin) / 1200;
+        for (let x = xMin + 0.02; x <= xMax; x += step) {
+            if (Math.abs(x) < 0.02) { first = true; continue; }
+            const y = 1 / x;
+            if (y < yMin - 2 || y > yMax + 2) { first = true; continue; }
+            const sx = toX(x), sy = toY(y);
+            if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+        }
+        ctx.stroke();
+    }
+
+    function drawObliqueAsymptote() {
+        const canvas = document.getElementById('graphOblique');
+        if (!canvas) return;
+        const container = canvas.parentElement;
+        const isLight = document.documentElement.classList.contains('light-mode');
+
+        const baseW = 700, baseH = 380;
+        const cssW = Math.max(280, container.clientWidth - 12);
+        const cssH = Math.round(cssW * baseH / baseW);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const w = cssW, h = cssH;
+        const pad = 45;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+        const xMin = -7, xMax = 7, yMin = -9, yMax = 9;
+
+        const toX = x => pad + (x - xMin) / (xMax - xMin) * pw;
+        const toY = y => h - pad - (y - yMin) / (yMax - yMin) * ph;
+
+        const c = {
+            bg: isLight ? '#fefefe' : '#0f1a24',
+            grid: isLight ? '#dce3ec' : '#2a3a4a',
+            axis: isLight ? '#5b7c9c' : '#8899aa',
+            text: isLight ? '#334155' : '#cbd5e1',
+            curve: '#a78bfa',
+            asym: '#a78bfa'
+        };
+
+        ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = c.grid; ctx.lineWidth = 0.8;
+        for (let x = -7; x <= 7; x++) {
+            const sx = toX(x);
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            if (x !== 0) ctx.fillText(x, sx, h - pad + 6);
+        }
+        for (let y = -9; y <= 9; y++) {
+            const sy = toY(y);
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            if (y !== 0) ctx.fillText(y, pad - 10, sy);
+        }
+
+        ctx.strokeStyle = c.axis; ctx.lineWidth = 2.2;
+        const ox = toY(0), oy = toX(0);
+        ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
+
+        ctx.strokeStyle = c.asym; ctx.lineWidth = 2.5;
+        ctx.setLineDash([8, 5]);
+        ctx.beginPath();
+        ctx.moveTo(toX(-6), toY(-6));
+        ctx.lineTo(toX(6), toY(6));
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = c.asym; ctx.font = 'bold 14px Inter,sans-serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('y = x', toX(3.5), toY(3.5) - 8);
+
+        ctx.strokeStyle = c.curve; ctx.lineWidth = 3;
+        ctx.beginPath();
+        let first = true;
+        const step = (xMax - xMin) / 1200;
+        for (let x = xMin + 0.02; x <= xMax; x += step) {
+            if (Math.abs(x) < 0.02) { first = true; continue; }
+            const y = (x * x + 1) / x;
+            if (y < yMin - 2 || y > yMax + 2) { first = true; continue; }
+            const sx = toX(x), sy = toY(y);
+            if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+        }
+        ctx.stroke();
+    }
+
+    function drawRootAsymptote() {
+        const canvas = document.getElementById('graphRoot');
+        if (!canvas) return;
+        const container = canvas.parentElement;
+        const isLight = document.documentElement.classList.contains('light-mode');
+
+        const baseW = 700, baseH = 380;
+        const cssW = Math.max(280, container.clientWidth - 12);
+        const cssH = Math.round(cssW * baseH / baseW);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const w = cssW, h = cssH;
+        const pad = 45;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+        const xMin = -7, xMax = 7, yMin = -7, yMax = 7;
+
+        const toX = x => pad + (x - xMin) / (xMax - xMin) * pw;
+        const toY = y => h - pad - (y - yMin) / (yMax - yMin) * ph;
+
+        const c = {
+            bg: isLight ? '#fefefe' : '#0f1a24',
+            grid: isLight ? '#dce3ec' : '#2a3a4a',
+            axis: isLight ? '#5b7c9c' : '#8899aa',
+            text: isLight ? '#334155' : '#cbd5e1',
+            curve: '#a78bfa',
+            asym: '#a78bfa'
+        };
+
+        ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = c.grid; ctx.lineWidth = 0.8;
+        for (let x = -7; x <= 7; x++) {
+            const sx = toX(x);
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            if (x !== 0) ctx.fillText(x, sx, h - pad + 6);
+        }
+        for (let y = -7; y <= 7; y++) {
+            const sy = toY(y);
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+            ctx.fillStyle = c.text; ctx.font = '12px Inter,sans-serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            if (y !== 0) ctx.fillText(y, pad - 10, sy);
+        }
+
+        ctx.strokeStyle = c.axis; ctx.lineWidth = 2.2;
+        const ox = toY(0), oy = toX(0);
+        ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
+
+        ctx.strokeStyle = c.asym; ctx.lineWidth = 2.5;
+        ctx.setLineDash([8, 5]);
+        ctx.beginPath(); ctx.moveTo(toX(0), toY(0)); ctx.lineTo(toX(6), toY(6)); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(toX(0), toY(0)); ctx.lineTo(toX(-6), toY(6)); ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = c.asym; ctx.font = 'bold 14px Inter,sans-serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('y = x', toX(4.2), toY(4.2) - 8);
+        ctx.textAlign = 'right';
+        ctx.fillText('y = -x', toX(-4.2), toY(4.2) - 8);
+
+        ctx.strokeStyle = c.curve; ctx.lineWidth = 3;
+        ctx.beginPath();
+        let first = true;
+        const step = (xMax - xMin) / 1200;
+        for (let x = xMin + 0.02; x <= xMax; x += step) {
+            const y = Math.sqrt(x * x + 1);
+            if (y < yMin - 1 || y > yMax + 1) { first = true; continue; }
+            const sx = toX(x), sy = toY(y);
+            if (first) { ctx.moveTo(sx, sy); first = false; } else { ctx.lineTo(sx, sy); }
+        }
+        ctx.stroke();
+    }
+
+    function drawAllGraphs() {
+        drawVerticalAsymptote();
+        drawHorizontalAsymptote();
+        drawObliqueAsymptote();
+        drawRootAsymptote();
+    }
+
+    function initGraphs() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', drawAllGraphs);
+        } else {
+            drawAllGraphs();
+        }
+        window.addEventListener('load', drawAllGraphs);
+        setTimeout(drawAllGraphs, 1500);
+        setTimeout(drawAllGraphs, 3000);
+    }
+
+    initGraphs();
+
+    window.drawAllGraphs = drawAllGraphs;
+    window.addEventListener('resize', drawAllGraphs);
+
+    var observer = new MutationObserver(function () { drawAllGraphs(); });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
+</script>
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

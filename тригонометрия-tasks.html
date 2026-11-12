@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Профессиональные задачи: Тригонометрия</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #3b82f6; --example-bg: #162a38; --canvas-bg: #0f1a24;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --result-color: #4ade80; --danger-color: #f87171;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #3b82f6; --example-bg: #f8fafc;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --result-color: #059669; --danger-color: #dc2626;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+
+        h3 { color: var(--text) !important; font-size: 1.1rem; margin: 15px 0 10px 0; display: flex; align-items: center; gap: 8px; }
+
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding: 8px 40px; cursor: pointer; user-select: none; text-align: center; position: relative; border-radius: 0 12px 12px 0; transition: background 0.3s; }
+        .section-title:hover { background: linear-gradient(90deg, var(--special-border) 0%, rgba(59, 130, 246, 0.15) 30%, rgba(59, 130, 246, 0.05) 100%); }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+        .section.collapsed .section-title .main-title::after { transform: translateY(-50%) rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 4px; }
+        .section-content { max-height: 30000px; overflow: hidden; transition: max-height 0.5s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        /* Вложенные аккордеоны */
+        .sub-accordion { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+        .sub-accordion-title { background: var(--info-bg); padding: 12px 16px; cursor: pointer; user-select: none; transition: background 0.2s; display: flex; flex-direction: column; gap: 4px; }
+        .sub-accordion-title:hover { background: rgba(59, 130, 246, 0.1); }
+        .sub-accordion-title .title-main { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: 700; color: var(--text); }
+        .sub-accordion-title .title-main::after { content: "▼"; font-size: 0.8rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .sub-accordion.collapsed .sub-accordion-title .title-main::after { transform: rotate(-90deg); }
+        .sub-accordion-title .title-sub { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+
+        .sub-accordion-content { padding: 16px; background: var(--card-bg); max-height: 25000px; transition: max-height 0.4s ease; }
+        .sub-accordion.collapsed .sub-accordion-content { max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+
+        .formula-block, .example, .important {
+            position: relative; border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: none !important; padding-left: 20px !important; padding: 16px 20px;
+            background-color: var(--example-bg); margin-bottom: 16px; color: var(--text);
+            font-size: 0.95rem; line-height: 1.8;
+        }
+        .formula-block::before, .example::before, .important::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+            background: linear-gradient(180deg, var(--special-border) 0%, #0d9488 100%);
+            border-radius: 16px 0 0 16px; z-index: 1;
+        }
+        @media (hover: hover) {
+            .example:hover, .formula-block:hover, .important:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+        }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+
+        .spoiler-btn { display: inline-block; margin-top: 10px; padding: 8px 16px; background: var(--info-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.2s, color 0.2s; }
+        .spoiler-btn:hover { background: var(--special-border); color: #fff; }
+        .spoiler-content { display: none; margin-top: 12px; padding: 12px 16px; background: var(--card-bg); border-radius: 8px; border: 1px dashed var(--border); animation: fadeIn 0.3s ease; }
+        .spoiler-content.solution { border-left: 4px solid var(--result-color); background: rgba(74, 222, 128, 0.05); }
+        .spoiler-content.hint { border-left: 4px solid var(--warning-border); background: var(--warning-bg); }
+
+        .back-link { display: table !important; margin: 20px auto 10px auto; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; text-align: center; }
+        .back-link:hover { background: #2563eb; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+
+    <!-- Надежное подключение MathJax -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+            startup: {
+                typeset: true
+            }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise();
+                }
+            }, 100);
+        });
+    </script>
+
+    <style id="bottom-nav-base">
+        .bottom-nav { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px; background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900; transition: background 0.3s, border 0.3s, transform 0.3s; }
+        :root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+        .bottom-nav a, .bottom-nav button { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .bottom-nav a:hover, .bottom-nav button:hover { background: rgba(59,130,246,0.15); color: var(--accent); transform: translateY(-2px) scale(1.08); }
+        .bottom-nav.nav-hidden { transform: translate(-50%, 120%); opacity: 0; pointer-events: none; }
+        .ripple-host { position: relative !important; overflow: hidden !important; }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(59, 130, 246, 0.35); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 0; }
+        @keyframes rippleAnim { to { transform: scale(2.5); opacity: 0; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Профессиональные задачи: Тригонометрия</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Зачем это нужно в профессии?</span>
+        </div>
+        <div class="section-content">
+            <p>Тригонометрия — это не только синусы и косинусы в тетради. Это язык, на котором описывается всё, что вращается, колеблется или имеет угол. Электрик встречает её в переменном токе, автомеханик — в углах установки колёс, сварщик — при расчёте разделки кромок, а логист — при расчёте уклона дороги.</p>
+            <p>В этом практикуме собраны задачи, которые вам придётся решать на работе. Каждая — конкретная ситуация с замерами, углами и решениями, от которых зависит, поедет ли машина ровно, выдержит ли балка нагрузку и не сорвётся ли график.</p>
+            <div class="important">
+                <strong>💡 Как пользоваться:</strong><br>
+                Выберите свою специальность ниже. В каждой — 4 задачи с подробным разбором (показано, откуда берётся формула и как считаются шаги) и 8 задач для самостоятельной работы (с подсказками). Считайте так, как будто вы уже на смене: от ваших цифр зависит, примут ли деталь или пойдёт брак.
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЭРЭО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚡ ЭРЭО (Электрика)</span>
+            <span class="sub-title">Эксплуатация электрооборудования</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>На подстанции обслуживают трёхфазный генератор. При настройке защиты инженер замеряет мгновенное напряжение фазы: \( U = U_0 \cdot \sin(\omega t) \). При амплитуде \( U_0 = 380 \) В и фазе \( \omega t = \frac{7\pi}{12} \) защита должна сработать, если напряжение превышает 350 В. Инженер должен точно знать знак и величину напряжения: если он ошибётся с четвертью угла, защита либо не сработает, либо отключит исправный генератор. Вычислите \( \sin\left(\frac{7\pi}{12}\right) \), используя представление \( \frac{7\pi}{12} = \frac{\pi}{3} + \frac{\pi}{4} \), и определите, сработает ли защита.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Формула синуса суммы.</strong> \( \sin(\alpha+\beta) = \sin\alpha\cos\beta + \cos\alpha\sin\beta \).</p>
+                            <p><strong>Шаг 2. Подставляем.</strong> \( \sin\left(\frac{\pi}{3}\right)\cos\left(\frac{\pi}{4}\right) + \cos\left(\frac{\pi}{3}\right)\sin\left(\frac{\pi}{4}\right) = \frac{\sqrt{3}}{2}\cdot\frac{\sqrt{2}}{2} + \frac{1}{2}\cdot\frac{\sqrt{2}}{2} \).</p>
+                            <p><strong>Шаг 3. Упрощаем.</strong> \( \frac{\sqrt{6}+\sqrt{2}}{4} \approx \frac{2{,}449+1{,}414}{4} \approx 0{,}966 \).</p>
+                            <p><strong>Шаг 4. Напряжение.</strong> \( U = 380 \cdot 0{,}966 \approx 367 \) В.</p>
+                            <p><strong>Ответ:</strong> 367 В &gt; 350 В — защита сработает. Угол во второй четверти, синус положительный, ошибки в знаке нет.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>В цепи переменного тока с индуктивной нагрузкой ток отстаёт от напряжения на угол \( \varphi \), причём \( \cos\varphi = -0{,}6 \), а \( \varphi \) лежит во второй четверти. Для расчёта компенсации реактивной мощности инженеру нужно найти \( \sin\varphi \), а затем определить угол \( \varphi \) в радианах, чтобы выставить фазовращатель. Если \( \sin\varphi &lt; 0{,}7 \), компенсация недостаточна и нужно добавить конденсаторы.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Основное тождество.</strong> \( \sin^2\varphi = 1 - \cos^2\varphi = 1 - 0{,}36 = 0{,}64 \).</p>
+                            <p><strong>Шаг 2. Знак.</strong> Во второй четверти синус положительный: \( \sin\varphi = 0{,}8 \).</p>
+                            <p><strong>Шаг 3. Угол.</strong> \( \cos\varphi = -0{,}6 \), \( \sin\varphi = 0{,}8 \) соответствует углу \( \varphi = \pi - \arcsin(0{,}8) \approx \pi - 0{,}927 \approx 2{,}214 \) рад (около \( 126{,}9^\circ \)).</p>
+                            <p><strong>Ответ:</strong> \( \sin\varphi = 0{,}8 \) &gt; 0,7 — компенсации достаточно, конденсаторы добавлять не нужно.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При расчёте энергии в катушке индуктивности \( W = \frac{L I^2}{2} \) ток меняется по закону \( I = I_0 \sin(\omega t) \). Инженеру нужно найти момент времени, когда энергия впервые достигает половины максимальной. Известно, что \( I_0 = 10 \) А, \( L = 0{,}5 \) Гн, \( \omega = 100\pi \) рад/с. Если энергия превысит 25 Дж, катушка перегреется, поэтому важно точно знать момент. Решите уравнение \( \sin^2(\omega t) = \frac{1}{2} \) для наименьшего положительного \( t \).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Максимальная энергия.</strong> \( W_{max} = \frac{0{,}5 \cdot 10^2}{2} = 25 \) Дж. Половина — 12,5 Дж.</p>
+                            <p><strong>Шаг 2. Условие.</strong> \( \frac{L I_0^2 \sin^2(\omega t)}{2} = \frac{1}{2}W_{max} \Rightarrow \sin^2(\omega t) = \frac{1}{2} \).</p>
+                            <p><strong>Шаг 3. Наименьший положительный корень.</strong> \( \sin(\omega t) = \frac{1}{\sqrt{2}} \Rightarrow \omega t = \frac{\pi}{4} \).</p>
+                            <p><strong>Шаг 4. Время.</strong> \( t = \frac{\pi/4}{100\pi} = \frac{1}{400} = 0{,}0025 \) с.</p>
+                            <p><strong>Ответ:</strong> \( t = 2{,}5 \) мс. Энергия в этот момент 12,5 Дж, перегрева нет.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При настройке фазовращателя инженеру нужно найти все углы \( \alpha \in [0; 2\pi) \), при которых \( \tan\alpha = -\sqrt{3} \). От выбора правильного угла зависит задержка сигнала: если взять угол из неверной четверти, синхронизация нарушится и оборудование выйдет из строя. Найдите оба решения и укажите, какое из них соответствует запаздыванию сигнала (вторая четверть).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Основное решение.</strong> \( \tan\alpha = -\sqrt{3} \Rightarrow \) опорный угол \( \frac{\pi}{3} \).</p>
+                            <p><strong>Шаг 2. Четверти.</strong> Тангенс отрицателен во II и IV четвертях: \( \alpha_1 = \pi - \frac{\pi}{3} = \frac{2\pi}{3} \), \( \alpha_2 = 2\pi - \frac{\pi}{3} = \frac{5\pi}{3} \).</p>
+                            <p><strong>Шаг 3. Выбор.</strong> Запаздыванию (II четверть) соответствует \( \alpha_1 = \frac{2\pi}{3} \).</p>
+                            <p><strong>Ответ:</strong> \( \frac{2\pi}{3} \) и \( \frac{5\pi}{3} \); для задержки сигнала берём \( \frac{2\pi}{3} \).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Аварийный режим генератора.</strong> Напряжение на фазе меняется по закону \( U = 220\sin(\omega t) \). Дежурный зафиксировал фазу \( \omega t = \frac{5\pi}{6} \). Если напряжение превышает 100 В, линию нужно отключать. Вычислите \( \sin\left(\frac{5\pi}{6}\right) \) и определите напряжение. Не ошибётся ли дежурный, если перепутает четверть?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \sin\left(\frac{5\pi}{6}\right) = \sin\left(\pi - \frac{\pi}{6}\right) = \sin\frac{\pi}{6} = 0{,}5 \). \( U = 110 \) В &gt; 100 В — отключать. Если ошибиться и взять \( -\frac{1}{2} \), получится \( -110 \) В — знак важен.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Перегрузка трансформатора.</strong> При расчёте мощности инженер использует формулу \( \sin(2\alpha) \). Известно, что \( \sin\alpha = 0{,}6 \), \( \cos\alpha = 0{,}8 \), причём \( \alpha \) в первой четверти. Если \( \sin(2\alpha) &gt; 0{,}9 \), трансформатор перегружен. Вычислите \( \sin(2\alpha) \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \sin(2\alpha) = 2\sin\alpha\cos\alpha = 2 \cdot 0{,}6 \cdot 0{,}8 = 0{,}96 \) &gt; 0,9 — перегружен.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Сдвиг фаз.</strong> Инженер проверяет цепь, где \( \sin\alpha = 0{,}6 \), \( \cos\alpha = 0{,}8 \) (I четверть), \( \sin\beta = 0{,}8 \), \( \cos\beta = 0{,}6 \) (I четверть). Найдите \( \cos(\alpha+\beta) \). Если результат близок к 0, сдвиг фаз критический и нужно менять схему.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos(\alpha+\beta) = \cos\alpha\cos\beta - \sin\alpha\sin\beta = 0{,}48 - 0{,}48 = 0 \). Сдвиг критический.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Аварийное отключение.</strong> Решите уравнение \( \cos x = -0{,}5 \) на промежутке \( [0; 2\pi] \). Если хотя бы один корень попадает в третью четверть, режим считается аварийным и линию отключают. Найдите корни и определите, аварийный ли режим.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( x = \frac{2\pi}{3} \) (II четв.) и \( x = \frac{4\pi}{3} \) (III четв.). Есть корень в III четверти — режим аварийный.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Упрощение схемы.</strong> Для расчёта нагрузки нужно упростить выражение \( \frac{\sin(2x)}{2\sin x} \), если \( \sin x \neq 0 \). После упрощения подставьте \( x = \frac{\pi}{6} \) и проверьте, что результат совпадает с прямым вычислением.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \sin(2x) = 2\sin x\cos x \), выражение равно \( \cos x \). При \( x = \frac{\pi}{6} \) получаем \( \frac{\sqrt{3}}{2} \approx 0{,}866 \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Затухание сигнала.</strong> Амплитуда \( A = A_0 e^{-kt}\sin(\omega t) \). Найдите \( A \), если \( A_0 = 100 \), \( e^{-kt} = 0{,}8 \), \( \omega t = \frac{2\pi}{3} \). Если \( A &lt; 50 \) В, сигнал нужно усилить. Вычислите \( \sin\left(\frac{2\pi}{3}\right) \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \sin\left(\frac{2\pi}{3}\right) = \frac{\sqrt{3}}{2} \approx 0{,}866 \). \( A = 100 \cdot 0{,}8 \cdot 0{,}866 \approx 69{,}3 \) В &gt; 50 — усиливать не нужно.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Косинус двойного угла.</strong> Инженеру нужно найти \( \cos(2\alpha) \), если \( \cos\alpha = 0{,}8 \) и \( \alpha \) в первой четверти. Если \( \cos(2\alpha) &gt; 0{,}5 \), режим безопасен. Вычислите и проверьте, не противоречит ли результат тому, что \( \cos\alpha = 0{,}8 \) (угол около 36,9°).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos(2\alpha) = 2\cos^2\alpha - 1 = 2 \cdot 0{,}64 - 1 = 0{,}28 \) &lt; 0,5 — режим небезопасен.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Тангенс угла.</strong> Найдите \( \tan\alpha \), если \( \sin\alpha = 0{,}6 \), \( \cos\alpha = -0{,}8 \) (вторая четверть). Если тангенс отрицательный, ток отстаёт от напряжения — это норма для индуктивной нагрузки. Проверьте также, что \( \alpha \) действительно во второй четверти, оценив угол в градусах.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \tan\alpha = \frac{0{,}6}{-0{,}8} = -0{,}75 \). \( \alpha \approx 180^\circ - 36{,}9^\circ = 143{,}1^\circ \) — II четверть, всё верно.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТОА / АВТОМЕХАНИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚗 ТОА / Автомеханик</span>
+            <span class="sub-title">Техническое обслуживание автомобилей</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>На стенде сход-развала механик выставляет угол установки колеса. По технологии угол должен быть \( \alpha = \frac{\pi}{12} \), но при замере получилось \( \beta = \frac{\pi}{12} + \frac{\pi}{18} \). Отклонение \( \Delta = \beta - \alpha = \frac{\pi}{18} \) — это допуск. Механик должен вычислить \( \sin\Delta \) и \( \cos\Delta \), чтобы понять, насколько изменится пятно контакта шины с дорогой. Если \( \cos\Delta &lt; 0{,}98 \), шина будет изнашиваться неравномерно. Найдите \( \cos\left(\frac{\pi}{18}\right) \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Замечаем, что \( \frac{\pi}{18} = 10^\circ \).</strong> Точного табличного значения нет, поэтому оцениваем через известные углы: \( \frac{\pi}{18} = \frac{\pi}{12} - \frac{\pi}{36} \) неудобно. Используем \( \frac{\pi}{18} = \frac{\pi}{3} - \frac{5\pi}{18} \) — тоже неудобно.</p>
+                            <p><strong>Шаг 2. Приближённая оценка через формулу косинуса разности.</strong> Возьмём \( \frac{\pi}{18} = \frac{\pi}{12} - \frac{\pi}{36} \) — нет. Проще: \( \cos 10^\circ \approx 0{,}9848 \).</p>
+                            <p><strong>Шаг 3. Сравнение с порогом.</strong> \( 0{,}9848 &gt; 0{,}98 \), значит, допуск в норме.</p>
+                            <p><strong>Ответ:</strong> \( \cos\left(\frac{\pi}{18}\right) \approx 0{,}985 \) &gt; 0,98 — износ равномерный, регулировка верна.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При проверке тормозной системы механик замеряет замедление. Оказалось, что вектор замедления отклонён от продольной оси автомобиля на угол \( \alpha \), причём \( \tan\alpha = \frac{3}{4} \). Если \( \sin\alpha &gt; 0{,}7 \), одно из колёс тормозит сильнее и машину будет уводить в сторону. Найдите \( \sin\alpha \) и \( \cos\alpha \), учитывая, что угол острый (I четверть), и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Связь тангенса и синуса.</strong> \( \tan\alpha = \frac{\sin\alpha}{\cos\alpha} = \frac{3}{4} \).</p>
+                            <p><strong>Шаг 2. Через прямоугольный треугольник.</strong> Катеты 3 и 4, гипотенуза \( \sqrt{3^2+4^2}=5 \). Тогда \( \sin\alpha = \frac{3}{5} = 0{,}6 \), \( \cos\alpha = \frac{4}{5} = 0{,}8 \).</p>
+                            <p><strong>Шаг 3. Проверка четверти.</strong> Угол острый, оба значения положительны — верно.</p>
+                            <p><strong>Ответ:</strong> \( \sin\alpha = 0{,}6 \) &lt; 0,7 — увода нет, тормоза в норме.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Владелец загрузил машину неравномерно: центр масс сместился, и кузов наклонился на угол \( \alpha \). Механик знает, что \( \cos\alpha = 0{,}96 \) (угол малый, I четверть). Чтобы понять, не перегружена ли подвеска, нужно вычислить \( \sin(2\alpha) \): если \( \sin(2\alpha) &gt; 0{,}5 \), амортизаторы работают на пределе. Найдите \( \sin\alpha \), затем \( \sin(2\alpha) \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Синус через косинус.</strong> \( \sin^2\alpha = 1 - 0{,}96^2 = 1 - 0{,}9216 = 0{,}0784 \).</p>
+                            <p><strong>Шаг 2. Знак.</strong> Угол малый, I четверть: \( \sin\alpha = \sqrt{0{,}0784} = 0{,}28 \).</p>
+                            <p><strong>Шаг 3. Двойной угол.</strong> \( \sin(2\alpha) = 2\sin\alpha\cos\alpha = 2 \cdot 0{,}28 \cdot 0{,}96 = 0{,}5376 \).</p>
+                            <p><strong>Ответ:</strong> \( \sin(2\alpha) \approx 0{,}538 \) &gt; 0,5 — амортизаторы на пределе, груз нужно перераспределить.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При регулировке карбюратора механик использует коэффициент, зависящий от угла открытия дросселя \( \beta \). Известно, что \( \sin\beta = 0{,}8 \), \( \cos\beta = 0{,}6 \) (I четверть). Нужно вычислить \( \cos\left(\beta + \frac{\pi}{3}\right) \), чтобы подставить в таблицу настроек. Если результат отрицательный, смесь слишком богатая. Найдите значение и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Формула косинуса суммы.</strong> \( \cos\left(\beta+\frac{\pi}{3}\right) = \cos\beta\cos\frac{\pi}{3} - \sin\beta\sin\frac{\pi}{3} \).</p>
+                            <p><strong>Шаг 2. Подставляем.</strong> \( 0{,}6 \cdot 0{,}5 - 0{,}8 \cdot \frac{\sqrt{3}}{2} = 0{,}3 - 0{,}4\sqrt{3} \).</p>
+                            <p><strong>Шаг 3. Считаем.</strong> \( 0{,}4\sqrt{3} \approx 0{,}4 \cdot 1{,}732 = 0{,}6928 \). \( 0{,}3 - 0{,}6928 = -0{,}3928 \).</p>
+                            <p><strong>Ответ:</strong> \( \approx -0{,}393 \) &lt; 0 — смесь богатая, нужно обеднить.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Проверка давления в цилиндре.</strong> При диагностике двигателя механик измеряет угол поворота коленвала \( \alpha \), при котором давление максимально. Оказалось, \( \sin\alpha = \frac{5}{13} \), \( \cos\alpha = -\frac{12}{13} \) (II четверть). Найдите \( \tan\alpha \). Если \( \tan\alpha &lt; -0{,}5 \), угол выставлен неверно и двигатель теряет мощность.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \tan\alpha = \frac{5/13}{-12/13} = -\frac{5}{12} \approx -0{,}417 \) &gt; -0,5 — угол выставлен верно.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Подбор поршня.</strong> Для замены поршня нужно знать угол наклона шатуна \( \beta \). Известно, что \( \sin\beta = 0{,}28 \). Найдите \( \cos\beta \), если угол острый. Если \( \cos\beta &lt; 0{,}95 \), потребуется расточка цилиндра.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos\beta = \sqrt{1-0{,}28^2} = \sqrt{0{,}9216} = 0{,}96 \) &gt; 0,95 — расточка не нужна.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Работа с паспортом.</strong> В документации указан угол опережения зажигания \( \gamma = \frac{\pi}{18} \). Механик должен вычислить \( \sin\left(\frac{\pi}{18}\right) \) приближённо, используя формулу \( \sin\left(\frac{\pi}{12} - \frac{\pi}{36}\right) \), если значения для \( \frac{\pi}{36} \) взять из таблицы. Оцените, превышает ли угол 10° (0,1745 рад).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \frac{\pi}{18} = 10^\circ \), \( \sin 10^\circ \approx 0{,}1736 \), что чуть меньше 0,1745. Угол в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт остатка топлива.</strong> Бортовой компьютер показывает расход \( Q = \frac{100 V}{S} \). Водитель проехал 500 км и потратил 8 л на 100 км. Найдите объём \( V \), чтобы понять, сколько топлива он израсходовал на самом деле. Дополнительно: если угол наклона дороги \( \theta \) таков, что \( \sin\theta = 0{,}05 \), на сколько процентов увеличится расход? (Считаем, что добавка пропорциональна \( \sin\theta \)).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( V = \frac{8 \cdot 500}{100} = 40 \) л. Добавка за уклон: \( 0{,}05 \cdot 100\% = 5\% \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Последствия расточки.</strong> При капитальном ремонте радиус цилиндра увеличили, и объём изменился. Известно, что угол между образующей и осью цилиндра \( \alpha \) удовлетворяет \( \tan\alpha = \frac{r}{h} \). Если после расточки \( r \) увеличился в 2 раза, а \( h \) уменьшился в 4 раза, как изменится \( \tan\alpha \)? Увеличится ли угол в 8 раз?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \tan\alpha_{new} = \frac{2r}{h/4} = 8\tan\alpha \). Да, тангенс увеличится в 8 раз.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Тюнинг двигателя.</strong> Механик после доработки увеличил работу двигателя в 6 раз, но время выполнения сократил в 2 раза. Мощность \( N = \frac{A}{t} \). Во сколько раз выросла мощность? Дополнительно: если КПД выражается через угол \( \varphi \) как \( \eta = \cos\varphi \), а \( \cos\varphi \) упал с 0,9 до 0,8, на сколько процентов уменьшился КПД?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Мощность выросла в \( 6 / (1/2) = 12 \) раз. КПД упал: \( \frac{0{,}9-0{,}8}{0{,}9} \cdot 100\% \approx 11{,}1\% \).</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт нагрузки на генератор.</strong> При проверке генератора механик получает поправочный коэффициент \( \cos\left(\frac{\pi}{6}\right) \cdot \tan\left(\frac{\pi}{4}\right) \). Вычислите его, чтобы выставить реле-регулятор. Если коэффициент больше 0,8, генератор исправен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos\frac{\pi}{6} = \frac{\sqrt{3}}{2} \approx 0{,}866 \), \( \tan\frac{\pi}{4} = 1 \). Коэффициент \( \approx 0{,}866 \) &gt; 0,8 — генератор исправен.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Балансировка колеса.</strong> При балансировке колеса сила \( F = \frac{mv^2}{R} \). Найдите скорость \( v \), если \( F = 100 \) Н, \( m = 2 \) кг, \( R = 8 \) м. Дополнительно: если вектор силы отклонён от оси на угол \( \alpha \), причём \( \sin\alpha = 0{,}6 \), найдите \( \cos\alpha \) и определите, превышает ли боковая составляющая силы 60 Н.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( v^2 = \frac{100 \cdot 8}{2} = 400 \), \( v = 20 \) м/с. \( \cos\alpha = 0{,}8 \). Боковая составляющая \( F\sin\alpha = 100 \cdot 0{,}6 = 60 \) Н — ровно на пороге.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚙️ ТМ (Технология машиностроения)</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>В цех привезли партию стальных заготовок. Мастеру нужно настроить станок по углу наклона режущей кромки. По чертежу угол \( \alpha \) задан так, что \( \sin\alpha = \frac{4}{5} \), \( \cos\alpha = \frac{3}{5} \). Для настройки поворотного стола нужен угол \( \alpha + \frac{\pi}{4} \). Если \( \cos\left(\alpha+\frac{\pi}{4}\right) &lt; -0{,}1 \), стол нужно поворачивать в другую сторону, иначе деталь пойдёт в брак. Вычислите \( \cos\left(\alpha+\frac{\pi}{4}\right) \) и определите направление поворота.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Формула косинуса суммы.</strong> \( \cos\left(\alpha+\frac{\pi}{4}\right) = \cos\alpha\cos\frac{\pi}{4} - \sin\alpha\sin\frac{\pi}{4} \).</p>
+                            <p><strong>Шаг 2. Подставляем.</strong> \( \frac{3}{5}\cdot\frac{\sqrt{2}}{2} - \frac{4}{5}\cdot\frac{\sqrt{2}}{2} = \frac{3\sqrt{2}}{10} - \frac{4\sqrt{2}}{10} = -\frac{\sqrt{2}}{10} \).</p>
+                            <p><strong>Шаг 3. Считаем.</strong> \( -\frac{1{,}414}{10} \approx -0{,}1414 \).</p>
+                            <p><strong>Ответ:</strong> \( \approx -0{,}141 &lt; -0{,}1 \) — стол нужно поворачивать в другую сторону, иначе брак.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>По чертежу требуется изготовить кубическую деталь, но после термической обработки её грани повернулись на угол \( \varphi \), причём \( \cos\varphi = 0{,}28 \) (угол больше 45°). Технологу нужно найти \( \sin\varphi \) и \( \sin(2\varphi) \), чтобы оценить искажение геометрии. Если \( \sin(2\varphi) &gt; 0{,}9 \), деталь считается бракованной. Сделайте расчёт и вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Синус.</strong> \( \sin^2\varphi = 1 - 0{,}28^2 = 1 - 0{,}0784 = 0{,}9216 \).</p>
+                            <p><strong>Шаг 2. Знак.</strong> Угол больше 45°, но меньше 90°, синус положительный: \( \sin\varphi = 0{,}96 \).</p>
+                            <p><strong>Шаг 3. Двойной угол.</strong> \( \sin(2\varphi) = 2 \cdot 0{,}96 \cdot 0{,}28 = 0{,}5376 \).</p>
+                            <p><strong>Ответ:</strong> \( 0{,}538 \) &lt; 0,9 — искажение допустимое, деталь годна.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Инженер подбирает подшипник для нового узла. При вращении вала возникает вибрация, описываемая уравнением \( \sin(2x) = \cos(x) \). Если решение попадает в первую четверть, вибрация опасна для узла. Решите уравнение на промежутке \( [0; 2\pi] \) и определите, есть ли опасные режимы.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Формула двойного угла.</strong> \( \sin(2x) = 2\sin x\cos x \). Уравнение: \( 2\sin x\cos x = \cos x \).</p>
+                            <p><strong>Шаг 2. Переносим.</strong> \( 2\sin x\cos x - \cos x = 0 \Rightarrow \cos x(2\sin x - 1) = 0 \).</p>
+                            <p><strong>Шаг 3. Два случая.</strong> \( \cos x = 0 \Rightarrow x = \frac{\pi}{2}, \frac{3\pi}{2} \). \( \sin x = \frac{1}{2} \Rightarrow x = \frac{\pi}{6}, \frac{5\pi}{6} \).</p>
+                            <p><strong>Шаг 4. Проверка четверти.</strong> В I четверти \( x = \frac{\pi}{6} \) и \( x = \frac{\pi}{2} \).</p>
+                            <p><strong>Ответ:</strong> Опасные режимы есть: \( x = \frac{\pi}{6} \) и \( x = \frac{\pi}{2} \) (I четверть).</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Мастер получил деталь на проверку. Угол заточки резца \( \gamma \) должен удовлетворять уравнению \( \tan\gamma = 1 \). Но по технологии угол должен быть в третьей четверти (особая геометрия резца). Найдите все решения уравнения на промежутке \( [0; 2\pi) \) и укажите то, которое соответствует третьей четверти. Если мастер возьмёт угол из первой четверти, резец сломается.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Основное решение.</strong> \( \tan\gamma = 1 \Rightarrow \gamma = \frac{\pi}{4} \) (I четверть).</p>
+                            <p><strong>Шаг 2. Период тангенса \( \pi \).</strong> Второе решение: \( \gamma = \frac{\pi}{4} + \pi = \frac{5\pi}{4} \) (III четверть).</p>
+                            <p><strong>Шаг 3. Выбор.</strong> По технологии нужна III четверть: \( \gamma = \frac{5\pi}{4} \).</p>
+                            <p><strong>Ответ:</strong> \( \frac{\pi}{4} \) и \( \frac{5\pi}{4} \); берём \( \frac{5\pi}{4} \) (225°).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Проверка нагрузки на балку.</strong> При проектировании металлоконструкции инженер рассчитывает угол наклона балки. Известно, что \( \sin\alpha = 0{,}6 \), \( \cos\alpha = -0{,}8 \) (II четверть). Найдите \( \sin(2\alpha) \). Если \( \sin(2\alpha) &lt; -0{,}9 \), балка испытывает опасную нагрузку.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \sin(2\alpha) = 2 \cdot 0{,}6 \cdot (-0{,}8) = -0{,}96 \) &lt; -0,9 — нагрузка опасная.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт площади сечения.</strong> Для заказа металлопроката технологу нужно знать угол наклона сечения \( \beta \). Известно, что \( \tan\beta = \frac{5}{12} \) и \( \beta \) в I четверти. Найдите \( \sin\beta \) и \( \cos\beta \), затем вычислите \( \sin(2\beta) \). Если \( \sin(2\beta) &gt; 0{,}8 \), сечение ослаблено.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Гипотенуза \( \sqrt{25+144}=13 \). \( \sin\beta = \frac{5}{13} \), \( \cos\beta = \frac{12}{13} \). \( \sin(2\beta) = 2 \cdot \frac{5}{13} \cdot \frac{12}{13} = \frac{120}{169} \approx 0{,}710 \) &lt; 0,8 — сечение в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Работа с чертежом.</strong> В чертеже указан угол скоса кромки \( \delta = \frac{\pi}{12} \). Инженеру нужно вычислить \( \cos\left(\frac{\pi}{12}\right) \) через \( \cos\left(\frac{\pi}{3} - \frac{\pi}{4}\right) \). Если \( \cos\delta &lt; 0{,}96 \), кромку нужно обрабатывать заново.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos\left(\frac{\pi}{3} - \frac{\pi}{4}\right) = \cos\frac{\pi}{3}\cos\frac{\pi}{4} + \sin\frac{\pi}{3}\sin\frac{\pi}{4} = \frac{\sqrt{2}}{4} + \frac{\sqrt{6}}{4} \approx 0{,}966 \) &gt; 0,96 — кромка в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт толщины листа.</strong> На склад поступил стальной лист. Угол наклона листа к горизонтали \( \theta \) таков, что \( \sin\theta = 0{,}05 \). Масса листа 780 г, плотность 7,8 г/см³, площадь 100 см². Технологу нужно найти толщину \( h \) и проверить, не занижена ли она. Если \( h &lt; 0{,}9 \) см, поставщик занизил толщину.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( h = \frac{m}{\rho S} = \frac{780}{7{,}8 \cdot 100} = 1 \) см &gt; 0,9 — поставщик не занизил.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Оценка прочности после закалки.</strong> После термообработки прочность балки на изгиб пропорциональна кубу толщины. Инженер увеличил толщину в 2 раза. Во сколько раз вырастет прочность? Дополнительно: если угол наклона трещины \( \alpha \) удовлетворяет \( \tan\alpha = 2 \), найдите \( \sin\alpha \) и определите, превышает ли он 0,8 (опасный порог).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Прочность выросла в \( 2^3 = 8 \) раз. \( \sin\alpha = \frac{2}{\sqrt{5}} \approx 0{,}894 \) &gt; 0,8 — опасно.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт объёма после обработки.</strong> При токарной обработке вала радиус увеличили в 2 раза, а высоту уменьшили в 8 раз. Объём \( V = \pi R^2 H \). Как изменится объём? Дополнительно: если угол конусности \( \gamma \) удовлетворяет \( \sin\gamma = 0{,}28 \), найдите \( \cos\gamma \) и проверьте, не превышает ли он 0,95.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём: \( 2^2 / 8 = 0{,}5 \) — уменьшится в 2 раза. \( \cos\gamma = \sqrt{1-0{,}28^2} = 0{,}96 \) &gt; 0,95 — в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Проверка режима резания.</strong> Мастер проверяет расчётный коэффициент \( \cos\left(\frac{\pi}{4}\right) + \sin\left(\frac{\pi}{6}\right) \). Упростите выражение и вычислите. Если коэффициент больше 1,2, режим выбран верно и резец не сломается.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos\frac{\pi}{4} = \frac{\sqrt{2}}{2} \approx 0{,}707 \), \( \sin\frac{\pi}{6} = 0{,}5 \). Сумма \( \approx 1{,}207 \) &gt; 1,2 — режим верный.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт силы резания.</strong> При обработке детали мощность резания \( N = \frac{Pv}{1000} \). Мастеру нужно найти силу резания \( P \), если \( N = 4 \) кВт, \( v = 2 \) м/с. Дополнительно: если вектор силы отклонён от направления резания на угол \( \alpha \), причём \( \cos\alpha = 0{,}8 \), найдите полезную составляющую силы \( P\cos\alpha \). Если она меньше 1500 Н, резец не справится.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( P = \frac{4000}{2} = 2000 \) Н. \( P\cos\alpha = 2000 \cdot 0{,}8 = 1600 \) Н &gt; 1500 — резец справится.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ИМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">💻 ИМ (Информационные системы)</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>Программист компании оптимизирует алгоритм сжатия сигнала. Время его работы описывается формулой \( N = \frac{\sin(2x)}{\sin x} \), где \( x \) — угол поворота фазы в радианах. Заказчик требует, чтобы время обработки не превышало 1,5 мс. При \( x = \frac{\pi}{6} \) вычислите \( N \). Если \( N &gt; 1{,}5 \), нужно переписывать код, иначе сервис будет тормозить.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Формула двойного угла.</strong> \( \sin(2x) = 2\sin x\cos x \).</p>
+                            <p><strong>Шаг 2. Сокращаем.</strong> \( N = \frac{2\sin x\cos x}{\sin x} = 2\cos x \) (при \( \sin x \neq 0 \)).</p>
+                            <p><strong>Шаг 3. Подставляем \( x = \frac{\pi}{6} \).</strong> \( 2\cos\frac{\pi}{6} = 2 \cdot \frac{\sqrt{3}}{2} = \sqrt{3} \approx 1{,}732 \).</p>
+                            <p><strong>Ответ:</strong> \( N \approx 1{,}732 \) &gt; 1,5 — алгоритм не укладывается в лимит, нужна оптимизация.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При разработке нового формата хранения данных инженеру нужно закодировать сигнал, фаза которого меняется по закону \( \cos x = 0{,}6 \), причём \( x \) в первой четверти. Для кодирования нужно вычислить \( \sin(2x) \), чтобы не перерасходовать память. Если \( \sin(2x) &gt; 0{,}9 \), сигнал считается «широкополосным» и требует больше бит. Найдите \( \sin x \), затем \( \sin(2x) \) и сделайте вывод.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Синус.</strong> \( \sin^2 x = 1 - 0{,}6^2 = 0{,}64 \), \( \sin x = 0{,}8 \) (I четверть).</p>
+                            <p><strong>Шаг 2. Двойной угол.</strong> \( \sin(2x) = 2 \cdot 0{,}8 \cdot 0{,}6 = 0{,}96 \).</p>
+                            <p><strong>Ответ:</strong> \( 0{,}96 \) &gt; 0,9 — сигнал широкополосный, потребуется больше бит.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Время работы алгоритма \( T(n) = n^2 \). Если размер данных вырастет в 4 раза, во сколько раз дольше будет работать программа? Дополнительно: при тестировании обнаружено, что задержка зависит от угла \( \alpha \), причём \( \tan\alpha = \frac{3}{4} \). Найдите \( \sin(2\alpha) \). Если \( \sin(2\alpha) &gt; 0{,}9 \), сервер не справится с нагрузкой.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Время.</strong> \( T(4n) = (4n)^2 = 16n^2 \) — в 16 раз дольше.</p>
+                            <p><strong>Шаг 2. Треугольник.</strong> \( \tan\alpha = \frac{3}{4} \Rightarrow \sin\alpha = \frac{3}{5} \), \( \cos\alpha = \frac{4}{5} \).</p>
+                            <p><strong>Шаг 3. Двойной угол.</strong> \( \sin(2\alpha) = 2 \cdot \frac{3}{5} \cdot \frac{4}{5} = \frac{24}{25} = 0{,}96 \).</p>
+                            <p><strong>Ответ:</strong> Время выросло в 16 раз; \( \sin(2\alpha) = 0{,}96 \) &gt; 0,9 — сервер не справится, нужен апгрейд.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>В коде калькулятора, написанного коллегой, используется выражение \( \sin\left(x + \frac{\pi}{6}\right) + \sin\left(x - \frac{\pi}{6}\right) \). Коллега ушёл в отпуск, а вам нужно упростить это выражение, чтобы не сломать программу при рефакторинге. После упрощения подставьте \( x = \frac{\pi}{3} \) и проверьте результат.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Формулы синуса суммы и разности.</strong> \( \sin(x+\frac{\pi}{6}) = \sin x\cos\frac{\pi}{6} + \cos x\sin\frac{\pi}{6} \); \( \sin(x-\frac{\pi}{6}) = \sin x\cos\frac{\pi}{6} - \cos x\sin\frac{\pi}{6} \).</p>
+                            <p><strong>Шаг 2. Складываем.</strong> \( 2\sin x\cos\frac{\pi}{6} = 2 \cdot \frac{\sqrt{3}}{2}\sin x = \sqrt{3}\sin x \).</p>
+                            <p><strong>Шаг 3. Подставляем \( x = \frac{\pi}{3} \).</strong> \( \sqrt{3}\sin\frac{\pi}{3} = \sqrt{3} \cdot \frac{\sqrt{3}}{2} = \frac{3}{2} = 1{,}5 \).</p>
+                            <p><strong>Ответ:</strong> \( \sqrt{3}\sin x \); при \( x = \frac{\pi}{3} \) значение равно 1,5.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Сжатие лога.</strong> Программист обрабатывает серверный лог, коэффициент сжатия которого зависит от угла \( \alpha \): \( k = \cos^2\alpha - \sin^2\alpha \). Найдите \( k \), если \( \cos\alpha = 0{,}8 \), \( \alpha \) в I четверти. Если \( k &lt; 0{,}3 \), данные сожмутся хорошо.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( k = \cos(2\alpha) = 2\cos^2\alpha - 1 = 2 \cdot 0{,}64 - 1 = 0{,}28 \) &lt; 0,3 — сжатие хорошее.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Тестирование алгоритма.</strong> Инженер тестирует алгоритм поиска. Сложность зависит от угла \( \beta \): \( \sin\beta = 0{,}28 \). Найдите \( \cos\beta \) и \( \sin(2\beta) \), если угол острый. Если \( \sin(2\beta) &gt; 0{,}5 \), алгоритм придётся оптимизировать.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos\beta = \sqrt{1-0{,}28^2} = 0{,}96 \). \( \sin(2\beta) = 2 \cdot 0{,}28 \cdot 0{,}96 = 0{,}5376 \) &gt; 0,5 — нужна оптимизация.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Резервное копирование.</strong> Системный администратор настраивает резервное копирование. Время отправки данных \( t = \frac{S}{v} \). Найдите \( t \), если \( S = 2^{10} \) Мб, \( v = 2^5 \) Мб/с. Дополнительно: если канал работает с задержкой, зависящей от угла \( \varphi \), где \( \tan\varphi = 1 \), найдите \( \sin\varphi \) и проверьте, превышает ли задержка 0,7 (порог тревоги).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( t = 2^5 = 32 \) с. \( \tan\varphi = 1 \Rightarrow \sin\varphi = \frac{\sqrt{2}}{2} \approx 0{,}707 \) &gt; 0,7 — задержка на пороге тревоги.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Нагрузка на сервер видео.</strong> Разрешение \( 1920 \times 1080 \). Если обе стороны увеличить в 2 раза, как изменится количество пикселей? Дополнительно: если угол обзора камеры \( \alpha \) таков, что \( \cos\alpha = 0{,}6 \), найдите \( \sin(2\alpha) \). Если \( \sin(2\alpha) &gt; 0{,}9 \), нагрузка критическая.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Пикселей в 4 раза больше. \( \sin\alpha = 0{,}8 \), \( \sin(2\alpha) = 0{,}96 \) &gt; 0,9 — нагрузка критическая.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Разработка формата сжатия.</strong> При разработке формата программист использует коэффициент \( \frac{\sin(2x)}{\sin x} \) при \( x = \frac{\pi}{4} \). Вычислите его. Если коэффициент больше 1,3, качество изображения может пострадать.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \frac{\sin(2x)}{\sin x} = 2\cos x \). При \( x = \frac{\pi}{4} \): \( 2 \cdot \frac{\sqrt{2}}{2} = \sqrt{2} \approx 1{,}414 \) &gt; 1,3 — качество может пострадать.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Прогноз памяти.</strong> Объём блока данных \( V = a^3 \). Если размер \( a \) увеличить в 2 раза, как изменится объём? Дополнительно: если угол наклона графика памяти \( \theta \) удовлетворяет \( \sin\theta = 0{,}6 \), найдите \( \cos\theta \) и проверьте, превышает ли он 0,7.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём вырастет в \( 2^3 = 8 \) раз. \( \cos\theta = 0{,}8 \) &gt; 0,7 — в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Обработка пакета данных.</strong> Скорость обработки \( v = \sqrt{\frac{2E}{m}} \). Найдите \( E \), если \( v = 4 \), \( m = 2 \). Дополнительно: если направление скорости отклонено от оси на угол \( \alpha \), где \( \tan\alpha = \frac{5}{12} \), найдите \( \sin\alpha \) и проверьте, меньше ли он 0,5.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( E = 16 \). Гипотенуза \( \sqrt{25+144}=13 \), \( \sin\alpha = \frac{5}{13} \approx 0{,}385 \) &lt; 0,5 — в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Настройка канала связи.</strong> Канал имеет пропускную способность \( C \), зависящую от угла \( \varphi \): \( C = \cos^2\varphi - \sin^2\varphi \). Найдите \( C \), если \( \sin\varphi = 0{,}6 \), \( \varphi \) в I четверти. Если \( C &lt; 0{,}3 \), канал нужно перенастроить.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos\varphi = 0{,}8 \). \( C = 0{,}64 - 0{,}36 = 0{,}28 \) &lt; 0,3 — канал нужно перенастроить.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРЩИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔥 Сварщик</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>Сварщик получил срочный заказ на сварку тонкого листа. Угол разделки кромок задан так, что \( \sin\alpha = 0{,}8 \), \( \cos\alpha = 0{,}6 \). Для настройки аппарата нужно вычислить \( \cos\left(\alpha + \frac{\pi}{4}\right) \). Если результат отрицательный, угол слишком велик и металл прожжётся. Вычислите значение и решите, можно ли сразу начинать работу.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Формула косинуса суммы.</strong> \( \cos\left(\alpha+\frac{\pi}{4}\right) = \cos\alpha\cos\frac{\pi}{4} - \sin\alpha\sin\frac{\pi}{4} \).</p>
+                            <p><strong>Шаг 2. Подставляем.</strong> \( 0{,}6 \cdot \frac{\sqrt{2}}{2} - 0{,}8 \cdot \frac{\sqrt{2}}{2} = -0{,}2 \cdot \frac{\sqrt{2}}{2} = -0{,}1\sqrt{2} \).</p>
+                            <p><strong>Шаг 3. Считаем.</strong> \( -0{,}1 \cdot 1{,}414 \approx -0{,}1414 \).</p>
+                            <p><strong>Ответ:</strong> \( \approx -0{,}141 \) &lt; 0 — угол слишком велик, металл прожжётся. Нужно перенастроить аппарат.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Приёмщик ОТК проверяет сварной шов. По ГОСТу площадь сечения должна быть не менее 49 мм², но после сварки шов повернулся на угол \( \varphi \), причём \( \cos\varphi = 0{,}28 \) (угол больше 45°). Сварщик замерил катет 6,5 мм. Примут ли партию, если фактическая площадь \( S = a^2 \cos\varphi \)? И какой минимальный катет нужен, чтобы пройти проверку при том же угле?</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Синус угла.</strong> \( \sin\varphi = \sqrt{1-0{,}28^2} = 0{,}96 \).</p>
+                            <p><strong>Шаг 2. Фактическая площадь.</strong> \( S = 6{,}5^2 \cdot 0{,}28 = 42{,}25 \cdot 0{,}28 = 11{,}83 \) мм².</p>
+                            <p><strong>Шаг 3. Сравнение.</strong> 11,83 &lt; 49 — шов не примут, партию вернут на переделку.</p>
+                            <p><strong>Шаг 4. Минимальный катет.</strong> \( a^2 \cdot 0{,}28 \ge 49 \Rightarrow a^2 \ge 175 \Rightarrow a \ge \sqrt{175} \approx 13{,}2 \) мм.</p>
+                            <p><strong>Ответ:</strong> Не примут. Нужен катет не менее 13,2 мм.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Бригадир планирует закупку электродов. Объём наплавки \( V = S \cdot L \). Если длину шва увеличить в 5 раз, а площадь уменьшить в 2 раза, как изменится объём? Дополнительно: если угол наклона шва \( \alpha \) удовлетворяет \( \tan\alpha = \frac{3}{4} \), найдите \( \sin(2\alpha) \). Если \( \sin(2\alpha) &gt; 0{,}9 \), электродов потребуется больше расчётного.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Объём.</strong> \( V_{new} = \frac{S}{2} \cdot 5L = 2{,}5 \cdot SL \) — в 2,5 раза больше.</p>
+                            <p><strong>Шаг 2. Синус двойного угла.</strong> \( \tan\alpha = \frac{3}{4} \Rightarrow \sin\alpha = \frac{3}{5} \), \( \cos\alpha = \frac{4}{5} \).</p>
+                            <p><strong>Шаг 3. \( \sin(2\alpha) \).</strong> \( 2 \cdot \frac{3}{5} \cdot \frac{4}{5} = \frac{24}{25} = 0{,}96 \).</p>
+                            <p><strong>Ответ:</strong> Объём вырастет в 2,5 раза; \( \sin(2\alpha) = 0{,}96 \) &gt; 0,9 — электродов нужно больше расчётного.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Мастер вводит в контроллер сварочного аппарата коэффициент, зависящий от угла \( \gamma \). Известно, что \( \tan\gamma = -1 \), причём угол должен быть в четвёртой четверти (особый режим). Найдите все решения уравнения \( \tan\gamma = -1 \) на промежутке \( [0; 2\pi) \) и укажите то, которое соответствует IV четверти. Если мастер ошибётся с четвертью, режим собьётся.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Основное решение.</strong> \( \tan\gamma = -1 \Rightarrow \) опорный угол \( \frac{\pi}{4} \).</p>
+                            <p><strong>Шаг 2. Четверти.</strong> Тангенс отрицателен во II и IV: \( \gamma_1 = \pi - \frac{\pi}{4} = \frac{3\pi}{4} \), \( \gamma_2 = 2\pi - \frac{\pi}{4} = \frac{7\pi}{4} \).</p>
+                            <p><strong>Шаг 3. Выбор IV четверти.</strong> \( \gamma_2 = \frac{7\pi}{4} \).</p>
+                            <p><strong>Ответ:</strong> \( \frac{3\pi}{4} \) и \( \frac{7\pi}{4} \); для IV четверти берём \( \frac{7\pi}{4} \) (315°).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Подбор режима для нового сплава.</strong> Для сварки нового сплава нужен угол наклона электрода \( \alpha \), причём \( \sin\alpha = 0{,}6 \), \( \cos\alpha = 0{,}8 \). Найдите \( \sin(2\alpha) \). Если \( \sin(2\alpha) &gt; 0{,}9 \), шов не проварится.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \sin(2\alpha) = 2 \cdot 0{,}6 \cdot 0{,}8 = 0{,}96 \) &gt; 0,9 — шов не проварится, режим нужно менять.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Работа с техкартой.</strong> В техкарте указан угол скоса \( \beta = \frac{\pi}{12} \). Вычислите \( \sin\left(\frac{\pi}{12}\right) \) через \( \sin\left(\frac{\pi}{3} - \frac{\pi}{4}\right) \). Если \( \sin\beta &lt; 0{,}25 \), допуск нужно ужесточить.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \sin\left(\frac{\pi}{3} - \frac{\pi}{4}\right) = \frac{\sqrt{6}-\sqrt{2}}{4} \approx 0{,}259 \) &gt; 0,25 — допуск в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Проверка дуги перед сменой.</strong> Сварщик проверяет дугу. Напряжение \( U = 10 \) В, сопротивление \( R = 5 \) Ом. Найдите ток \( I = \frac{U}{R} \). Дополнительно: если вектор тока отклонён от оси на угол \( \alpha \), где \( \sin\alpha = 0{,}28 \), найдите \( \cos\alpha \) и проверьте, превышает ли он 0,95.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( I = 2 \) А. \( \cos\alpha = \sqrt{1-0{,}28^2} = 0{,}96 \) &gt; 0,95 — в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Планирование смены.</strong> Бригадир планирует смену. Скорость сварки \( v = \frac{L}{t} \). Найдите длину шва \( L \), если \( v = 3 \) мм/с, \( t = 4 \) с. Дополнительно: если угол наклона шва \( \theta \) удовлетворяет \( \tan\theta = \frac{5}{12} \), найдите \( \sin\theta \) и проверьте, меньше ли он 0,5.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( L = 12 \) мм. \( \sin\theta = \frac{5}{13} \approx 0{,}385 \) &lt; 0,5 — в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Оценка нагрева.</strong> При сварке выделяется теплота \( Q = I^2 R t \). Если ток увеличить в 3 раза, как изменится нагрев? Дополнительно: если угол сдвига фаз \( \varphi \) между током и напряжением таков, что \( \cos\varphi = 0{,}8 \), найдите \( \sin\varphi \) и проверьте, превышает ли он 0,5 (порог перегрева).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Нагрев вырастет в \( 3^2 = 9 \) раз. \( \sin\varphi = 0{,}6 \) &gt; 0,5 — перегрев возможен.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт массы электрода.</strong> Масса электрода \( m = \rho V \). Если объём увеличить в 4 раза, как изменится масса? Дополнительно: если угол наклона электрода \( \alpha \) удовлетворяет \( \sin\alpha = 0{,}28 \), найдите \( \sin(2\alpha) \) и проверьте, превышает ли он 0,5.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Масса вырастет в 4 раза. \( \cos\alpha = 0{,}96 \), \( \sin(2\alpha) = 0{,}5376 \) &gt; 0,5 — превышает.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Настройка оборудования.</strong> Для настройки аппарата нужно вычислить \( \sin\left(\frac{\pi}{6}\right) + \cos\left(\frac{\pi}{3}\right) \). Упростите и вычислите. Если результат больше 0,9, коэффициент введён верно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \sin\frac{\pi}{6} = 0{,}5 \), \( \cos\frac{\pi}{3} = 0{,}5 \). Сумма 1 &gt; 0,9 — верно.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Проверка параметров цепи.</strong> Перед началом работ нужно вычислить \( \tan\left(\frac{\pi}{4}\right) \cdot \cos\left(\frac{\pi}{6}\right) \). Если результат больше 0,8, аппарат исправен. Дополнительно: если фактический угол \( \alpha \) отличается от \( \frac{\pi}{4} \) на \( \frac{\pi}{12} \), найдите \( \sin\left(\frac{\pi}{4} + \frac{\pi}{12}\right) \).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 1 \cdot \frac{\sqrt{3}}{2} \approx 0{,}866 \) &gt; 0,8 — исправен. \( \frac{\pi}{4} + \frac{\pi}{12} = \frac{\pi}{3} \), \( \sin\frac{\pi}{3} = \frac{\sqrt{3}}{2} \approx 0{,}866 \).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРОЧНОЕ ПРОИЗВОДСТВО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🏭 Сварочное производство</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>На участке сварки заканчивается проволока. Мастеру нужно рассчитать объём наплавленного металла на партию. По техпроцессу объём зависит от угла разделки \( \alpha \): \( V = S \cdot L \cdot \cos\alpha \), где \( S = 9 \) см², \( L = 12 \) см, а \( \sin\alpha = 0{,}6 \) (\( \alpha \) в I четверти). Вычислите \( V \). Если \( V &gt; 100 \) см³, проволоки не хватит и нужно срочно подать заявку в снабжение.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Косинус.</strong> \( \cos^2\alpha = 1 - 0{,}36 = 0{,}64 \Rightarrow \cos\alpha = 0{,}8 \).</p>
+                            <p><strong>Шаг 2. Объём.</strong> \( V = 9 \cdot 12 \cdot 0{,}8 = 108 \cdot 0{,}8 = 86{,}4 \) см³.</p>
+                            <p><strong>Ответ:</strong> 86,4 см³ &lt; 100 — проволоки хватит, заявку подавать не нужно.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Технолог получил заказ на партию швов. Длина шва \( L = 12 \) см, площадь сечения \( S = 5 \) см². Но после сварки шов повернулся на угол \( \beta \), причём \( \cos\beta = 0{,}6 \). Фактический объём \( V_{факт} = S \cdot L \cdot \cos\beta \). Найдите \( V_{факт} \) и сравните с требуемым \( V = 60 \) см³. Если фактический объём меньше 50 см³, партию нужно переделать.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Фактический объём.</strong> \( V_{факт} = 5 \cdot 12 \cdot 0{,}6 = 36 \) см³.</p>
+                            <p><strong>Шаг 2. Сравнение.</strong> 36 &lt; 50 — партию нужно переделать.</p>
+                            <p><strong>Ответ:</strong> 36 см³ &lt; 50 см³ — брак, партию переделывают.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>При замене сварочного кабеля мастер увеличил длину в 3 раза, а сечение — в 3 раза. Сопротивление \( R = \rho\frac{L}{S} \). Изменится ли сопротивление? Дополнительно: если угол наклона кабеля \( \alpha \) удовлетворяет \( \tan\alpha = \frac{3}{4} \), найдите \( \sin(2\alpha) \). Если \( \sin(2\alpha) &gt; 0{,}9 \), кабель может перегреться.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Сопротивление.</strong> \( R_{new} = \rho\frac{3L}{3S} = \rho\frac{L}{S} = R \) — не изменилось.</p>
+                            <p><strong>Шаг 2. Двойной угол.</strong> \( \tan\alpha = \frac{3}{4} \Rightarrow \sin\alpha = \frac{3}{5} \), \( \cos\alpha = \frac{4}{5} \), \( \sin(2\alpha) = 0{,}96 \).</p>
+                            <p><strong>Ответ:</strong> Сопротивление не изменилось; \( \sin(2\alpha) = 0{,}96 \) &gt; 0,9 — кабель может перегреться, нужен контроль температуры.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Инженер ОТК проверяет расчётный коэффициент для новой партии. Коэффициент зависит от угла \( \gamma \): \( k = \frac{\sin(2\gamma)}{\sin\gamma} \) при \( \gamma = \frac{\pi}{6} \). Упростите выражение и вычислите. Если \( k &lt; 1{,}7 \), режим выбран верно и партию можно запускать.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Упрощение.</strong> \( \frac{\sin(2\gamma)}{\sin\gamma} = \frac{2\sin\gamma\cos\gamma}{\sin\gamma} = 2\cos\gamma \).</p>
+                            <p><strong>Шаг 2. Подстановка.</strong> \( 2\cos\frac{\pi}{6} = 2 \cdot \frac{\sqrt{3}}{2} = \sqrt{3} \approx 1{,}732 \).</p>
+                            <p><strong>Ответ:</strong> \( k \approx 1{,}732 \) &gt; 1,7 — режим выбран неверно, партию запускать нельзя.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Контроль площади шва.</strong> Площадь поперечного сечения шва \( S = a^2 \cos\alpha \). Найдите \( S \), если катет \( a = 6 \) мм, а \( \sin\alpha = 0{,}6 \) (\( \alpha \) в I четверти). Если \( S &lt; 30 \) мм², режим нужно менять.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos\alpha = 0{,}8 \). \( S = 36 \cdot 0{,}8 = 28{,}8 \) мм² &lt; 30 — режим нужно менять.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Запись в техкарту.</strong> Технолог проверяет угол скоса \( \delta = \frac{\pi}{12} \). Вычислите \( \cos\left(\frac{\pi}{12}\right) \) через \( \cos\left(\frac{\pi}{3} - \frac{\pi}{4}\right) \). Если \( \cos\delta &lt; 0{,}96 \), деталь нужно доработать.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos\left(\frac{\pi}{3} - \frac{\pi}{4}\right) = \frac{\sqrt{2}+\sqrt{6}}{4} \approx 0{,}966 \) &gt; 0,96 — деталь в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Проверка цепи перед сменой.</strong> Сила тока \( I = \frac{U}{R} \). Найдите \( U \), если \( I = 10 \) А, \( R = 2 \) Ом. Дополнительно: если угол сдвига фаз \( \varphi \) таков, что \( \cos\varphi = 0{,}6 \), найдите \( \sin\varphi \) и проверьте, превышает ли он 0,7 (порог перегрузки).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( U = 20 \) В. \( \sin\varphi = 0{,}8 \) &gt; 0,7 — перегрузка.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт производительности.</strong> Производительность \( P = \frac{V}{t} \). Найдите \( V \), если \( P = 5 \), \( t = 2 \). Дополнительно: если угол наклона шва \( \alpha \) удовлетворяет \( \tan\alpha = \frac{5}{12} \), найдите \( \sin\alpha \) и проверьте, меньше ли он 0,5.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( V = 10 \). \( \sin\alpha = \frac{5}{13} \approx 0{,}385 \) &lt; 0,5 — в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Влияние скорости на качество.</strong> Погонная энергия \( q = \frac{UI}{v} \). Если скорость \( v \) увеличить в 2 раза, как изменится \( q \)? Дополнительно: если угол наклона электрода \( \alpha \) удовлетворяет \( \sin\alpha = 0{,}28 \), найдите \( \sin(2\alpha) \) и проверьте, превышает ли он 0,5 (порог непровара).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( q \) уменьшится в 2 раза. \( \sin(2\alpha) = 0{,}5376 \) &gt; 0,5 — возможен непровар.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт массы наплавки.</strong> Масса \( m = \rho V \). Если плотность и объём увеличить в 2 раза, как изменится масса? Дополнительно: если угол наклона шва \( \theta \) удовлетворяет \( \cos\theta = 0{,}8 \), найдите \( \sin(2\theta) \) и проверьте, превышает ли он 0,9.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Масса вырастет в 4 раза. \( \sin\theta = 0{,}6 \), \( \sin(2\theta) = 0{,}96 \) &gt; 0,9 — превышает.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Настройка режима.</strong> Вычислите \( \sin\left(\frac{\pi}{6}\right) + \cos\left(\frac{\pi}{3}\right) \). Упростите и вычислите. Если результат больше 0,9, режим выставлен верно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 0{,}5 + 0{,}5 = 1 \) &gt; 0,9 — верно.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Планирование энергопотребления.</strong> Вычислите \( \cos\left(\frac{\pi}{4}\right) \cdot \tan\left(\frac{\pi}{4}\right) \). Если результат больше 0,7, лимит электроэнергии не превышен. Дополнительно: если фактический угол \( \alpha \) отличается от \( \frac{\pi}{4} \) на \( \frac{\pi}{12} \), найдите \( \cos\left(\frac{\pi}{4} + \frac{\pi}{12}\right) \).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \frac{\sqrt{2}}{2} \cdot 1 \approx 0{,}707 \) &gt; 0,7 — в норме. \( \frac{\pi}{4}+\frac{\pi}{12}=\frac{\pi}{3} \), \( \cos\frac{\pi}{3}=0{,}5 \).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЛОГИСТЫ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚚 Логисты</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять формулы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p>В компанию поступил срочный заказ на доставку груза. Логист рассчитывает стоимость перевозки по формуле \( C = C_0 \cdot \cos\alpha \), где \( C_0 = 50 \) у.е., а угол \( \alpha \) — угол наклона дороги, причём \( \sin\alpha = 0{,}6 \) (\( \alpha \) в I четверти). Если стоимость превышает 40 у.е., заказ считается убыточным. Вычислите \( C \) и примите решение — брать заказ или отказывать клиенту.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Косинус.</strong> \( \cos\alpha = \sqrt{1-0{,}36} = 0{,}8 \).</p>
+                            <p><strong>Шаг 2. Стоимость.</strong> \( C = 50 \cdot 0{,}8 = 40 \) у.е.</p>
+                            <p><strong>Ответ:</strong> 40 у.е. — ровно на границе, заказ можно принять, но без запаса.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>На складе скопился сыпучий груз. Логисту нужно подобрать контейнер. Угол естественного откоса груза \( \varphi \) таков, что \( \tan\varphi = \frac{3}{4} \). Объём контейнера \( V = \frac{1}{3}\pi R^2 H \), где \( R = 4 \) м, \( H = 3 \) м. Найдите \( \sin(2\varphi) \) и проверьте: если \( \sin(2\varphi) &gt; 0{,}9 \), груз может просыпаться при перевозке.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Синус и косинус.</strong> \( \tan\varphi = \frac{3}{4} \Rightarrow \sin\varphi = \frac{3}{5} \), \( \cos\varphi = \frac{4}{5} \).</p>
+                            <p><strong>Шаг 2. Двойной угол.</strong> \( \sin(2\varphi) = 2 \cdot \frac{3}{5} \cdot \frac{4}{5} = 0{,}96 \).</p>
+                            <p><strong>Ответ:</strong> \( 0{,}96 \) &gt; 0,9 — груз может просыпаться, нужен контейнер с крышкой.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Логист анализирует маршрут. Затраты на топливо зависят от угла подъёма \( \alpha \): \( C = C_0(1 + \sin\alpha) \). Если угол \( \alpha \) увеличить с \( 0 \) до \( \frac{\pi}{6} \), во сколько раз вырастут затраты? Дополнительно: если при этом угол поворота дороги \( \beta \) удовлетворяет \( \cos\beta = 0{,}8 \), найдите \( \sin(2\beta) \) и проверьте, превышает ли он 0,9.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Затраты при \( \alpha=0 \).</strong> \( C_1 = C_0(1+0) = C_0 \).</p>
+                            <p><strong>Шаг 2. Затраты при \( \alpha=\frac{\pi}{6} \).</strong> \( C_2 = C_0(1+0{,}5) = 1{,}5C_0 \).</p>
+                            <p><strong>Шаг 3. Рост.</strong> \( \frac{1{,}5C_0}{C_0} = 1{,}5 \) раза.</p>
+                            <p><strong>Шаг 4. Двойной угол.</strong> \( \sin\beta = 0{,}6 \), \( \sin(2\beta) = 2 \cdot 0{,}6 \cdot 0{,}8 = 0{,}96 \) &gt; 0,9.</p>
+                            <p><strong>Ответ:</strong> Затраты вырастут в 1,5 раза; \( \sin(2\beta) = 0{,}96 \) &gt; 0,9 — поворот опасен, нужен объезд.</p>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p>Для формирования нового тарифа логист использует коэффициент \( k = \cos^2\alpha - \sin^2\alpha \). Найдите \( k \), если \( \sin\alpha = 0{,}6 \) (\( \alpha \) в I четверти). Если \( k &lt; 0{,}3 \), тариф нужно пересчитать. Дополнительно: упростите \( k \) до \( \cos(2\alpha) \) и проверьте результат.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Косинус.</strong> \( \cos\alpha = 0{,}8 \).</p>
+                            <p><strong>Шаг 2. Коэффициент.</strong> \( k = 0{,}64 - 0{,}36 = 0{,}28 \).</p>
+                            <p><strong>Шаг 3. Через двойной угол.</strong> \( \cos(2\alpha) = 2\cos^2\alpha - 1 = 2 \cdot 0{,}64 - 1 = 0{,}28 \) — совпадает.</p>
+                            <p><strong>Ответ:</strong> \( k = 0{,}28 \) &lt; 0,3 — тариф нужно пересчитать.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (8)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+                    <div class="example">
+                        <p><strong>Срыв сроков доставки.</strong> Водитель должен доставить груз за 4 часа. Расстояние 240 км. С какой средней скоростью ему нужно ехать? Дополнительно: если угол подъёма дороги \( \alpha \) удовлетворяет \( \sin\alpha = 0{,}28 \), найдите \( \cos\alpha \) и проверьте, превышает ли он 0,95.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( v = 60 \) км/ч. \( \cos\alpha = \sqrt{1-0{,}28^2} = 0{,}96 \) &gt; 0,95 — в норме.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Перегрузка склада.</strong> После расширения склада вместимость выросла. Логист рассчитывает коэффициент роста нагрузки \( k = \sin^2\alpha + \cos^2\alpha + \sin(2\alpha) \). Найдите \( k \), если \( \sin\alpha = 0{,}6 \), \( \alpha \) в I четверти. Если \( k &gt; 1{,}9 \), площади не хватит.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \sin^2\alpha+\cos^2\alpha=1 \), \( \sin(2\alpha)=0{,}96 \). \( k = 1{,}96 \) &gt; 1,9 — площади не хватит.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Подбор помещения.</strong> Для хранения партии нужен склад площадью 144 м². Сторона квадратного склада \( x \). Дополнительно: если угол наклона крыши склада \( \alpha \) удовлетворяет \( \tan\alpha = \frac{3}{4} \), найдите \( \sin(2\alpha) \) и проверьте, превышает ли он 0,9.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( x = 12 \) м. \( \sin(2\alpha) = 0{,}96 \) &gt; 0,9 — крыша требует усиления.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Запись в договор.</strong> Тариф за перевозку 1 кг груза составляет 0,001 у.е. Представьте это значение в виде степени 10. Дополнительно: если скидка зависит от угла \( \alpha \), где \( \cos\alpha = 0{,}8 \), найдите \( \sin\alpha \) и проверьте, превышает ли скидка 50% (порог 0,5).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( 10^{-3} \). \( \sin\alpha = 0{,}6 \) &gt; 0,5 — скидка превышает 50%.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Модернизация цистерны.</strong> Цистерна \( V = \pi r^2 h \). Радиус увеличили в 2 раза, высоту уменьшили в 2 раза. Как изменится объём? Дополнительно: если угол наклона цистерны \( \beta \) удовлетворяет \( \sin\beta = 0{,}28 \), найдите \( \sin(2\beta) \) и проверьте, превышает ли он 0,5.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Объём вырастет в 2 раза. \( \cos\beta = 0{,}96 \), \( \sin(2\beta) = 0{,}5376 \) &gt; 0,5 — наклон опасен.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Расчёт массы груза.</strong> Стоимость \( C = m \cdot S \). Логист знает, что \( C = 1000 \) у.е., \( S = 50 \) км. Найдите массу \( m \). Дополнительно: если угол наклона дороги \( \alpha \) удовлетворяет \( \cos\alpha = 0{,}6 \), найдите \( \sin(2\alpha) \) и проверьте, превышает ли он 0,9.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( m = 20 \). \( \sin\alpha = 0{,}8 \), \( \sin(2\alpha) = 0{,}96 \) &gt; 0,9 — дорога опасна.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Загрузка склада.</strong> Логист проверяет загрузку по формуле \( \cos^2\alpha - \sin^2\alpha \). Найдите значение, если \( \sin\alpha = 0{,}6 \) (\( \alpha \) в I четверти). Если результат меньше 0,3, склад перегружен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">\( \cos^2\alpha-\sin^2\alpha = 0{,}64-0{,}36 = 0{,}28 \) &lt; 0,3 — склад перегружен.</div>
+                    </div>
+                    <div class="example">
+                        <p><strong>Перепланировка склада.</strong> Площадь \( S = a \cdot b \). Длину увеличили в 2 раза, ширину уменьшили в 4 раза. Как изменится площадь? Дополнительно: если угол между диагональю и стороной \( \alpha \) удовлетворяет \( \tan\alpha = \frac{5}{12} \), найдите \( \sin\alpha \) и проверьте, меньше ли он 0,5.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь уменьшится в 2 раза. \( \sin\alpha = \frac{5}{13} \approx 0{,}385 \) &lt; 0,5 — в норме.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="trigonometry.html" class="back-link">Назад</a>
+</div>
+
+<script>
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
+
+    function toggleSpoiler(button) {
+        const content = button.nextElementSibling;
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            button.textContent = button.textContent.includes('Подсказка') ? '💡 Подсказка' : 'Показать решение';
+        } else {
+            content.style.display = 'block';
+            button.textContent = button.textContent.includes('Подсказка') ? 'Скрыть подсказку' : 'Скрыть решение';
+
+            // ПРИНУДИТЕЛЬНАЯ ОТРИСОВКА MATHJAX
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([content]).catch(function (err) {
+                    console.log('MathJax error: ', err.message);
+                });
+            }
+        }
+    }
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+
+<script id="bottom-nav-autohide-script">
+    (function(){
+        var nav = document.querySelector('.bottom-nav');
+        if (!nav) return;
+        var lastY = window.scrollY;
+        var threshold = 8;
+        var ticking = false;
+        function onScroll(){
+            var y = window.scrollY;
+            if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+            if (y > lastY && y > 80) {
+                nav.classList.add('nav-hidden');
+            } else {
+                nav.classList.remove('nav-hidden');
+            }
+            lastY = y;
+            ticking = false;
+        }
+        window.addEventListener('scroll', function(){
+            if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+        }, { passive: true });
+    })();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+    (function() {
+        var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+        els.forEach(function(el) {
+            if (el.dataset.rippleBound) return;
+            el.dataset.rippleBound = '1';
+            el.classList.add('ripple-host');
+            el.addEventListener('pointerdown', function(e) {
+                var rect = el.getBoundingClientRect();
+                var size = Math.max(rect.width, rect.height);
+                var r = document.createElement('span');
+                r.className = 'ripple';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                el.appendChild(r);
+                setTimeout(function(){ r.remove(); }, 650);
+            });
+        });
+    })();
+</script>
+</body>
+</html>

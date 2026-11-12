@@ -1,0 +1,883 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тесты для проверки знаний</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --icon-color: #8ba5b8;
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --menu-card-bg: #1e3545;
+            --menu-item-bg: #1e3545;
+            --menu-item-hover: #233e50;
+            --group-header-bg: #2c4a6e;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #6a7e9c;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --icon-color: #1a2d3c;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --menu-card-bg: white;
+            --menu-item-bg: white;
+            --menu-item-hover: linear-gradient(95deg, #f8fafd, #ffffff);
+            --group-header-bg: #e2e8f0;
+        }
+
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;padding:32px 20px 48px;}
+        .container{max-width:720px;margin:0 auto;position:relative;}.theme-toggle:hover{transform:scale(1.1);}
+
+        .header{text-align:center;margin-bottom:32px;padding:24px 24px;background:var(--header-bg);border-radius:40px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);}
+        h1{font-size:1.5rem;font-weight:700;color:white;margin-bottom:6px;text-transform:uppercase;letter-spacing:2px;}
+        :root.light-mode h1{background:linear-gradient(135deg,#1a2a3f,#2c5a77);-webkit-background-clip:text;background-clip:text;color:transparent;}
+        .subtitle{color:var(--text-secondary);font-size:0.8rem;font-weight:500;}
+
+        .menu-card {
+    background: var(--menu-card-bg);
+    border-radius: 36px;
+    overflow: hidden;
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.05);
+    animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+        .group-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, var(--group-header-bg) 0%, var(--menu-card-bg) 100%);
+    position: relative;
+    overflow: hidden;
+}
+        .group-header:hover {
+    background: var(--menu-item-hover);
+    padding-left: 28px;
+}
+.group-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--accent);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+    transform-origin: center;
+}
+.group-header:hover::before {
+    transform: scaleY(1);
+}
+        .group-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    font-size: 24px;
+    color: var(--icon-color);
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    transition: all 0.3s ease;
+}
+.group-header:hover .group-icon {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.05) rotate(-5deg);
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+}
+        .group-content{flex:1;}
+        .group-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-0.2px;}
+        .group-desc{font-size:0.75rem;color:var(--text-secondary);line-height:1.4;}
+        .group-arrow{font-size:22px;color:var(--text-secondary);transition:transform 0.3s ease;flex-shrink:0;}
+        .group-header.open .group-arrow{transform:rotate(90deg);}
+        .submenu{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
+        .submenu.open{max-height:800px;}
+
+        .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px 16px 56px;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    background: var(--menu-item-bg);
+    color: var(--text);
+    position: relative;
+    margin: 4px 12px;
+    border-radius: 16px;
+    border: none;
+}
+.menu-item:hover {
+    background: var(--menu-item-hover);
+    transform: translateX(6px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.menu-item:last-child {
+    border-bottom: none;
+}
+        .menu-item:hover{background:var(--menu-item-hover);transform:translateX(4px);}
+        .menu-item:last-child{border-bottom:none;}
+        .menu-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    font-size: 20px;
+    color: var(--icon-color);
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    transition: all 0.25s ease;
+}
+.menu-item:hover .menu-icon {
+    color: var(--accent);
+    background: rgba(26, 188, 156, 0.1);
+    transform: scale(1.1);
+}
+        .menu-item:hover .menu-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    font-size: 20px;
+    color: var(--icon-color);
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    transition: all 0.25s ease;
+}
+.menu-item:hover .menu-icon {
+    color: var(--accent);
+    background: rgba(26, 188, 156, 0.1);
+    transform: scale(1.1);
+}
+        .item-content{flex:1;}
+        .item-title{font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+        .item-desc{font-size:0.7rem;color:var(--text-secondary);line-height:1.3;}
+        .menu-arrow {
+    font-size: 20px;
+    color: var(--text-secondary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+.menu-item:hover .menu-arrow {
+    transform: translateX(6px) scale(1.1);
+    color: var(--accent);
+    opacity: 1;
+}
+        .menu-item:hover .menu-arrow {
+    font-size: 20px;
+    color: var(--text-secondary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+.menu-item:hover .menu-arrow {
+    transform: translateX(6px) scale(1.1);
+    color: var(--accent);
+    opacity: 1;
+}
+
+        .footer{text-align:center;margin-top:20px;}
+        .back-link{display:inline-block;padding:12px 28px;background:var(--card-bg);border:1px solid var(--border);border-radius:40px;color:var(--text-secondary);text-decoration:none;font-weight:600;font-size:0.9rem;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+        .back-link:hover{background:var(--menu-item-hover);transform:translateY(-2px);border-color:var(--accent);}
+
+        @media (max-width:550px){body{padding:20px 14px 36px;}h1{font-size:1.3rem;}.group-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    font-size: 24px;
+    color: var(--icon-color);
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    transition: all 0.3s ease;
+}
+.group-header:hover .group-icon {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.05) rotate(-5deg);
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+}.group-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, var(--group-header-bg) 0%, var(--menu-card-bg) 100%);
+    position: relative;
+    overflow: hidden;
+}.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px 16px 56px;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    background: var(--menu-item-bg);
+    color: var(--text);
+    position: relative;
+    margin: 4px 12px;
+    border-radius: 16px;
+    border: none;
+}
+.menu-item:hover {
+    background: var(--menu-item-hover);
+    transform: translateX(6px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.menu-item:last-child {
+    border-bottom: none;
+}.menu-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    font-size: 20px;
+    color: var(--icon-color);
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    transition: all 0.25s ease;
+}
+.menu-item:hover .menu-icon {
+    color: var(--accent);
+    background: rgba(26, 188, 156, 0.1);
+    transform: scale(1.1);
+}.item-title{font-size:0.9rem;}.item-desc{font-size:0.65rem;}}
+
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+        .header{animation:fadeInUp 0.4s ease-out 0.05s backwards;}
+
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}/* ===== УБИРАЕМ РАМКИ, ДОБАВЛЯЕМ ПОВОРОТ И ЗЕЛЕНУЮ ПОДСВЕТКУ ===== */
+/* Иконки групп */
+.group-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    font-size: 24px;
+    color: var(--icon-color);
+    flex-shrink: 0;
+    background: transparent !important;
+    border-radius: 14px;
+    transition: all 0.3s ease;
+    border: none !important;
+}
+.group-header:hover .group-icon {
+    color: var(--accent);
+    transform: scale(1.15) rotate(-8deg);
+    filter: drop-shadow(0 0 5px rgba(26, 188, 156, 0.5));
+    background: transparent !important;
+}
+
+/* Иконки подменю */
+.menu-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    font-size: 22px;
+    color: var(--icon-color);
+    flex-shrink: 0;
+    background: transparent !important;
+    border-radius: 10px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none !important;
+}
+.menu-item:hover .menu-icon {
+    color: var(--accent);
+    transform: scale(1.15) rotate(-8deg);
+    filter: drop-shadow(0 0 5px rgba(26, 188, 156, 0.5));
+    background: transparent !important;
+}
+
+/* ===== ФИКС ЦВЕТА ЭМОДЗИ В ТЕМНОЙ ТЕМЕ ===== */
+/* Делаем фиолетовые эмодзи светлыми в темной теме */
+:root:not(.light-mode) .group-icon,
+:root:not(.light-mode) .menu-icon {
+    filter: invert(1) brightness(1.2);
+}
+
+/* При наведении делаем их зелеными */
+:root:not(.light-mode) .group-header:hover .group-icon,
+:root:not(.light-mode) .menu-item:hover .menu-icon {
+    filter: invert(1) brightness(1.2) sepia(1) hue-rotate(100deg) saturate(5);
+    transform: scale(1.15) rotate(-8deg);
+}
+
+/* В светлой теме просто зеленый при наведении без инверсии */
+:root.light-mode .group-header:hover .group-icon,
+:root.light-mode .menu-item:hover .menu-icon {
+    filter: sepia(1) hue-rotate(100deg) saturate(5);
+    transform: scale(1.15) rotate(-8deg);
+}
+/* ===== ВОЗВРАЩАЕМ АНИМАЦИЮ РАЗДЕЛОВ (как в индексе) ===== */
+.group-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, var(--group-header-bg) 0%, var(--menu-card-bg) 100%);
+    position: relative;
+    overflow: hidden;
+}
+.group-header:hover {
+    background: var(--menu-item-hover);
+    padding-left: 28px;
+}
+.group-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--accent);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+    transform-origin: center;
+}
+.group-header:hover::before {
+    transform: scaleY(1);
+}
+
+/* ===== УБИРАЕМ РАМКИ У ИКОНОК ===== */
+.group-icon, .menu-icon {
+    background: transparent !important;
+    border: none !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== БЕЛЫЕ ЭМОДЗИ В ТЕМНОЙ ТЕМЕ ===== */
+:root:not(.light-mode) .group-icon,
+:root:not(.light-mode) .menu-icon {
+    filter: brightness(0) invert(1); /* Делает абсолютно белым */
+}
+
+/* ===== ЗЕЛЕНЫЙ ЦВЕТ И ПОВОРОТ ПРИ НАВЕДЕНИИ ===== */
+:root:not(.light-mode) .group-header:hover .group-icon,
+:root:not(.light-mode) .menu-item:hover .menu-icon {
+    /* Формула для получения чистого зеленого из белого */
+    filter: brightness(0) invert(0.6) sepia(1) hue-rotate(90deg) saturate(5);
+    transform: scale(1.15) rotate(-8deg);
+    text-shadow: 0 0 8px rgba(26, 188, 156, 0.6); /* Свечение */
+}
+
+/* В светлой теме то же самое, но без начального инвертирования */
+:root.light-mode .group-header:hover .group-icon,
+:root.light-mode .menu-item:hover .menu-icon {
+    filter: brightness(0) invert(0.6) sepia(1) hue-rotate(90deg) saturate(5);
+    transform: scale(1.15) rotate(-8deg);
+    text-shadow: 0 0 8px rgba(26, 188, 156, 0.6);
+}
+/* ===== ЖЕСТКОЕ УДАЛЕНИЕ СИСТЕМНОГО ВЫДЕЛЕНИЯ ===== */
+* {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    outline: none !important;
+}
+a, button, .menu-item, .group-header, .submenu-item {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    outline: none !important;
+}
+/* Для активного состояния (когда палец нажат) */
+a:active, button:active, .menu-item:active, .group-header:active {
+    background-color: transparent !important; /* Или оставьте ваш цвет hover */
+}
+</style>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Тесты для проверки знаний</h1>
+        <div class="subtitle">Выберите тему — проверьте себя</div>
+    </div>
+
+    <div class="menu-card">
+
+        <!-- ===== АЛГЕБРА ===== -->
+        <div class="group-header" onclick="toggleGroup(this)">
+            <div class="group-icon">×</div>
+            <div class="group-content">
+                <div class="group-title">Алгебра</div>
+                <div class="group-desc">ФСУ, степени, логарифмы, показательная, тригонометрия</div>
+            </div>
+            <div class="group-arrow">›</div>
+        </div>
+        <div class="submenu">
+            <a href="test-formulas.html" class="menu-item">
+                <div class="menu-icon">×</div>
+                <div class="item-content">
+                    <div class="item-title">Формулы сокращённого умножения</div>
+                    <div class="item-desc">ФСУ, дискриминант, теорема Виета, квадратные уравнения</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+            <a href="test-powers.html" class="menu-item">
+                <div class="menu-icon">√</div>
+                <div class="item-content">
+                    <div class="item-title">Степени, корни и степенная функция</div>
+                    <div class="item-desc">Свойства степеней и корней, y = x^p</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+            <a href="test-logarithms.html" class="menu-item">
+                <div class="menu-icon">log</div>
+                <div class="item-content">
+                    <div class="item-title">Логарифмы и логарифмическая функция</div>
+                    <div class="item-desc">Определение, свойства, y = log_a x</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+            <a href="test-exponential.html" class="menu-item">
+                <div class="menu-icon">aˣ</div>
+                <div class="item-content">
+                    <div class="item-title">Показательная функция</div>
+                    <div class="item-desc">y = a^x, свойства, графики, уравнения</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+            <a href="test-trigonometry.html" class="menu-item">
+                <div class="menu-icon">△</div>
+                <div class="item-content">
+                    <div class="item-title">Тригонометрия</div>
+                    <div class="item-desc">Тождества, формулы, уравнения, таблицы</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+        </div>
+
+        <!-- ===== ГЕОМЕТРИЯ ===== -->
+        <div class="group-header" onclick="toggleGroup(this)">
+            <div class="group-icon">□</div>
+            <div class="group-content">
+                <div class="group-title">Геометрия</div>
+                <div class="group-desc">Многогранники, тела вращения, прямые и плоскости, векторы</div>
+            </div>
+            <div class="group-arrow">›</div>
+        </div>
+        <div class="submenu">
+            <a href="test-polyhedrons.html" class="menu-item">
+                <div class="menu-icon">◫</div>
+                <div class="item-content">
+                    <div class="item-title">Многогранники</div>
+                    <div class="item-desc">Призма, пирамида, параллелепипед, Платоновы тела</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+            <a href="test-solids.html" class="menu-item">
+                <div class="menu-icon">◯</div>
+                <div class="item-content">
+                    <div class="item-title">Тела вращения</div>
+                    <div class="item-desc">Цилиндр, конус, усечённый конус, шар, сфера</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+            <a href="test-lines-planes.html" class="menu-item">
+                <div class="menu-icon">∥</div>
+                <div class="item-content">
+                    <div class="item-title">Прямые и плоскости в пространстве</div>
+                    <div class="item-desc">Аксиомы, параллельность, перпендикулярность, теоремы</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+            <a href="test-vectors.html" class="menu-item">
+                <div class="menu-icon">→</div>
+                <div class="item-content">
+                    <div class="item-title">Координаты и векторы</div>
+                    <div class="item-desc">Векторы, координаты, длина, скалярное произведение</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+        </div>
+
+        <!-- ===== НАЧАЛА АНАЛИЗА ===== -->
+        <div class="group-header" onclick="toggleGroup(this)">
+            <div class="group-icon">∫</div>
+            <div class="group-content">
+                <div class="group-title">Начала анализа</div>
+                <div class="group-desc">Производная, первообразная, интеграл</div>
+            </div>
+            <div class="group-arrow">›</div>
+        </div>
+        <div class="submenu">
+            <a href="test-derivative.html" class="menu-item">
+                <div class="menu-icon">ƒ′</div>
+                <div class="item-content">
+                    <div class="item-title">Производная</div>
+                    <div class="item-desc">Таблица, правила, экстремумы, исследование</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+            <a href="test-integral.html" class="menu-item">
+                <div class="menu-icon">∫</div>
+                <div class="item-content">
+                    <div class="item-title">Первообразная и интеграл</div>
+                    <div class="item-desc">Таблица, правила, площадь криволинейной трапеции</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+        </div>
+
+        <!-- ===== КОМБИНАТОРИКА И СТАТИСТИКА ===== -->
+        <div class="group-header" onclick="toggleGroup(this)">
+            <div class="group-icon">⚄</div>
+            <div class="group-content">
+                <div class="group-title">Комбинаторика и статистика</div>
+                <div class="group-desc">Вероятность, случайные величины, статистика, диаграммы</div>
+            </div>
+            <div class="group-arrow">›</div>
+        </div>
+        <div class="submenu">
+            <a href="test-probability.html" class="menu-item">
+                <div class="menu-icon">!</div>
+                <div class="item-content">
+                    <div class="item-title">Комбинаторика и статистика</div>
+                    <div class="item-desc">Перестановки, вероятность, мат. ожидание, дисперсия, выборка</div>
+                </div>
+                <div class="menu-arrow">›</div>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <a href="index.html" class="back-link">← Назад в главное меню</a>
+    </div>
+</div>
+
+<script>
+    // ===== РАСКРЫТИЕ ГРУПП =====
+    function toggleGroup(header) {
+        header.classList.toggle('open');
+        var submenu = header.nextElementSibling;
+        if (submenu && submenu.classList.contains('submenu')) {
+            submenu.classList.toggle('open');
+        }
+    }
+
+    // ===== СОХРАНЕНИЕ СОСТОЯНИЯ ГРУПП =====
+    (function() {
+        var savedGroups = localStorage.getItem('testOpenGroups');
+        if (savedGroups) {
+            var openIndices = JSON.parse(savedGroups);
+            var groups = document.querySelectorAll('.group-header');
+            groups.forEach(function(group, idx) {
+                if (openIndices.includes(idx)) {
+                    group.classList.add('open');
+                    var submenu = group.nextElementSibling;
+                    if (submenu && submenu.classList.contains('submenu')) {
+                        submenu.classList.add('open');
+                    }
+                }
+            });
+        }
+    })();
+
+    document.querySelectorAll('.group-header').forEach(function(group, idx) {
+        group.addEventListener('click', function() {
+            setTimeout(function() {
+                var openGroups = [];
+                document.querySelectorAll('.group-header').forEach(function(g, i) {
+                    if (g.classList.contains('open')) openGroups.push(i);
+                });
+                localStorage.setItem('testOpenGroups', JSON.stringify(openGroups));
+            }, 50);
+        });
+    });
+
+    // ===== ТЕМА =====
+    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+
+    // ===== ИЗБРАННОЕ =====
+    const FAV_KEY='math_favorites';
+    function getFavorites(){const s=localStorage.getItem(FAV_KEY);return s?JSON.parse(s):[];}
+    function saveFavorites(f){localStorage.setItem(FAV_KEY,JSON.stringify(f));}
+    function isFavorite(){const u=window.location.pathname.split('/').pop();return getFavorites().includes(u);}
+    function toggleFavorite(){
+        const u=window.location.pathname.split('/').pop();
+        let f=getFavorites();
+        const btn=document.getElementById('favoriteBtn');
+        if(f.includes(u)){f=f.filter(x=>x!==u);btn.textContent='☆';btn.classList.remove('active');}
+        else{f.push(u);btn.textContent='★';btn.classList.add('active');}
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn(){
+        const btn=document.getElementById('favoriteBtn');
+        if(btn){
+            if(isFavorite()){btn.textContent='★';btn.classList.add('active');}
+            else{btn.textContent='☆';btn.classList.remove('active');}
+        }
+    }
+    updateFavoriteBtn();
+</script>
+<script src="favorites.js"></script>
+
+<script src="theme.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Находим все элементы с классом group-header и menu-item
+    var interactiveElements = document.querySelectorAll('.group-header, .menu-item, a');
+    
+    interactiveElements.forEach(function(el) {
+        // Добавляем role="button" и tabindex, чтобы браузер понял, что это интерактив
+        el.setAttribute('role', 'button');
+        el.setAttribute('tabindex', '0');
+        
+        // Блокируем выделение текста (системное)
+        el.style.webkitUserSelect = 'none';
+        el.style.userSelect = 'none';
+        el.style.webkitTapHighlightColor = 'transparent';
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Находим все элементы с классом group-header и menu-item
+    var interactiveElements = document.querySelectorAll('.group-header, .menu-item, a');
+    
+    interactiveElements.forEach(function(el) {
+        // Добавляем role="button" и tabindex, чтобы браузер понял, что это интерактив
+        el.setAttribute('role', 'button');
+        el.setAttribute('tabindex', '0');
+        
+        // Блокируем выделение текста (системное)
+        el.style.webkitUserSelect = 'none';
+        el.style.userSelect = 'none';
+        el.style.webkitTapHighlightColor = 'transparent';
+    });
+});
+</script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

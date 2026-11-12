@@ -1,0 +1,963 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Определённый интеграл</title>
+
+    <!-- ===== КОНФИГ MATHJAX (важно: до подключения tex-chtml.js) ===== -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTypes: 'script',
+                ignoreHtmlClass: 'no-mathjax'
+            },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --formula-card-bg: #1e3545;
+            --example-bg: #1e3545;
+            --example-border: #1abc9c;
+            --info-bg: #1e3545;
+            --special-bg: #1e3545;
+            --special-border: #2e8b57;
+            --property-bg: #1a2d3c;
+            --property-even: #1e3545;
+            --property-odd: #162a38;
+            --property-hover: #2a4a5a;
+            --warning-bg: rgba(251,191,36,0.15);
+            --warning-border: #fbbf24;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --formula-card-bg: linear-gradient(135deg, #f8fafc, #ffffff);
+            --example-bg: #f8fafc;
+            --example-border: #16a085;
+            --info-bg: #e8f0fe;
+            --special-bg: #e8f0fe;
+            --special-border: #2e8b57;
+            --property-bg: white;
+            --property-even: #f8fafc;
+            --property-odd: #f1f5f9;
+            --property-hover: #e2e8f0;
+            --warning-bg: #fffbeb;
+            --warning-border: #f59e0b;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; color: var(--text); }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; color: var(--text); }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid #2e8b57; text-align: center; }
+        h2 { font-size: 1.3rem; color: var(--text); margin: 10px 0 8px 0; padding-left: 10px; border-left: 4px solid var(--special-border); }
+        .section { margin-bottom: 14px; }
+        .section-title { font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; }
+        .section-title:hover { opacity: 0.8; }
+        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.9rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .section.collapsed .section-title::after { transform: rotate(-90deg); }
+        .section-content { max-height: 20000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 10px 0; }
+        .formula-card { background: var(--formula-card-bg); border-radius: 16px; padding: 14px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; }
+        .formula-card p { margin: 6px 0; font-family: 'Times New Roman', monospace; font-size: 1.1rem; font-weight: bold; color: var(--text); }
+        .def-card { background: var(--info-bg); border-left: 4px solid #2e8b57; border-radius: 14px; padding: 12px 14px; margin: 8px 0; }
+        .def-card p { margin: 4px 0; font-size: 0.95rem; line-height: 1.4; color: var(--text); }
+        .def-card strong { color: var(--text); }
+        .special-case { background: var(--special-bg); border-left: 5px solid var(--special-border); }
+        .special-badge { background: #2e8b57; color: white; font-size: 0.85rem; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; font-weight: 600; }
+
+        .property-card {
+            background: var(--property-bg);
+            border-radius: 16px;
+            padding: 14px 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            text-align: center;
+            border-left: 5px solid var(--special-border);
+            transition: background-color 0.2s ease;
+        }
+        .property-card:nth-child(even) { background-color: var(--property-even); }
+        .property-card:nth-child(odd) { background-color: var(--property-odd); }
+        .property-card:hover {
+            background-color: var(--property-hover) !important;
+            transition: background-color 0.1s ease;
+        }
+        .property-name { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+        .property-formula { font-family: 'Times New Roman', monospace; font-size: 1.1rem; font-weight: bold; color: var(--text); overflow-x: auto; white-space: nowrap; padding: 5px 0; }
+
+        .example-block { background: var(--example-bg); border-radius: 16px; padding: 12px 14px; margin: 10px 0; border: 1px solid var(--border); }
+        .example-block p { margin: 2px 0; font-size: 1rem; line-height: 1.5; color: var(--text); }
+        .example-block .step { color: var(--special-border); font-weight: 600; font-size: 0.95rem; }
+        .example-block .formula-used { background: var(--info-bg); display: inline-block; padding: 1px 6px; border-radius: 12px; font-size: 0.9rem; color: var(--text); }
+        .example-block .result { background: rgba(46, 139, 87, 0.2); display: inline-block; padding: 1px 6px; border-radius: 12px; font-size: 0.9rem; color: var(--text); font-weight: 600; }
+        .example-block .hint { font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px; }
+        .note-box { background: var(--info-bg); border-left: 4px solid #2e8b57; border-radius: 16px; padding: 12px 14px; margin: 12px 0; font-size: 0.95rem; line-height: 1.5; color: var(--text); }
+
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+
+        .back-link { display: inline-block; margin: 20px 0 10px; padding: 10px 20px; background: #2e8b57; color: white; text-decoration: none; font-weight: bold; border-radius: 20px; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+
+        /* ===== Раскрывающиеся подсказки и ответы (на <details>) ===== */
+        details.spoiler {
+            margin: 8px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--example-bg);
+        }
+
+        details.spoiler > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            background: var(--info-bg);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-left: 4px solid var(--special-border);
+            user-select: none;
+            transition: background-color 0.2s ease;
+        }
+
+        details.spoiler > summary::-webkit-details-marker { display: none; }
+        details.spoiler > summary::marker { content: ""; }
+
+        details.spoiler > summary::before {
+            content: "▶";
+            display: inline-block;
+            font-size: 0.75rem;
+            margin-right: 8px;
+            transition: transform 0.25s ease;
+            color: var(--text-secondary);
+        }
+
+        details.spoiler[open] > summary::before {
+            transform: rotate(90deg);
+        }
+
+        details.spoiler > summary:hover {
+            background: var(--property-hover);
+        }
+
+        details.spoiler > .spoiler-content {
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--example-bg);
+            animation: fadeInUp 0.25s ease-out;
+        }
+
+        details.spoiler > .spoiler-content p {
+            margin: 6px 0;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>📐 Определённый интеграл</h1>
+
+    <!-- ОПРЕДЕЛЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📘 Определение</div>
+        <div class="section-content">
+            <div class="def-card">
+                <p><strong>Определённый интеграл</strong> — это число, которое показывает, чему равна площадь под графиком функции \(f(x)\) на отрезке от \(a\) до \(b\).</p>
+                <p style="margin-top:6px;">Обозначается \(\int_a^b f(x)\,dx\). Число \(a\) — нижний предел (начало отрезка), \(b\) — верхний предел (конец отрезка).</p>
+                <p style="margin-top:6px;">Если функция принимает отрицательные значения, то площадь берётся со знаком «минус».</p>
+            </div>
+            <div class="def-card">
+                <p><strong>Простыми словами:</strong> разбиваем отрезок \([a, b]\) на много маленьких частей, считаем площадь каждого узкого прямоугольника под графиком, складываем — получаем интеграл.</p>
+            </div>
+            <div class="def-card">
+                <p><strong>Пример из жизни:</strong> если известна скорость тела в каждый момент времени, то определённый интеграл от скорости — это пройденный путь.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФОРМУЛА НЬЮТОНА-ЛЕЙБНИЦА -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📏 Формула Ньютона-Лейбница</div>
+        <div class="section-content">
+            <div class="formula-grid">
+                <div class="formula-card">
+                    <p>\(\displaystyle \int_a^b f(x)\,dx = F(x) \Big|_a^b = F(b) - F(a)\)</p>
+                    <p style="font-size:0.9rem;font-weight:normal;color:var(--text-secondary);">где \(F(x)\) — первообразная функции \(f(x)\), то есть \(F'(x) = f(x)\)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- АЛГОРИТМ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📋 Алгоритм вычисления</div>
+        <div class="section-content">
+            <div class="def-card">
+                <p><strong>1.</strong> Найти первообразную \(F(x)\) функции \(f(x)\). <span style="color: #c21820;">Константу \(C\) не добавлять.</span></p>
+                <p style="margin-top:6px;"><strong>2.</strong> Подставить верхний предел \(b\) и вычислить \(F(b)\).</p>
+                <p style="margin-top:6px;"><strong>3.</strong> Подставить нижний предел \(a\) и вычислить \(F(a)\).</p>
+                <p style="margin-top:6px;"><strong>4.</strong> Найти разность \(F(b) - F(a)\) — это и будет значение интеграла.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- СВОЙСТВА -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">⚙️ Основные свойства</div>
+        <div class="section-content">
+            <div class="formula-grid">
+                <div class="property-card">
+                    <div class="property-name">1. Интеграл суммы / разности</div>
+                    <div class="property-formula">\(\int_a^b (f(x) \pm g(x))dx = \int_a^b f(x)dx \pm \int_a^b g(x)dx\)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">2. Вынесение константы</div>
+                    <div class="property-formula">\(\int_a^b c \cdot f(x)dx = c \cdot \int_a^b f(x)dx\)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">3. Перестановка пределов</div>
+                    <div class="property-formula">\(\int_a^b f(x)dx = -\int_b^a f(x)dx\)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">4. Аддитивность</div>
+                    <div class="property-formula">\(\int_a^b f(x)dx = \int_a^c f(x)dx + \int_c^b f(x)dx\)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">5. Одинаковые пределы</div>
+                    <div class="property-formula">\(\int_a^a f(x)dx = 0\)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">6. Интеграл от константы</div>
+                    <div class="property-formula">\(\int_a^b c \,dx = c(b - a)\)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============== ПРИМЕРЫ =============== -->
+
+    <!-- БАЗОВЫЙ ПРИМЕР -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример 1. Базовый: \(\displaystyle \int_1^4 \frac{dx}{\sqrt{x}}\)</div>
+        <div class="section-content">
+            <div class="example-block">
+                <p><strong>Вычислить определённый интеграл:</strong></p>
+                <p style="text-align:center;font-size:1.3rem;margin:10px 0;">\(\displaystyle \int_1^4 \frac{dx}{\sqrt{x}}\)</p>
+                <p><span class="step">Шаг 1. Находим первообразную:</span></p>
+                <p>\(\displaystyle \int \frac{dx}{\sqrt{x}} = \int x^{-\frac{1}{2}} dx = \frac{x^{\frac{1}{2}}}{\frac{1}{2}} = 2\sqrt{x}\)</p>
+                <p class="hint">✓ \(F(x) = 2\sqrt{x}\). Константу \(C\) не пишем.</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Подставляем верхний предел \(b = 4\):</span></p>
+                <p>\(F(4) = 2\sqrt{4} = 2 \cdot 2 = 4\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем нижний предел \(a = 1\):</span></p>
+                <p>\(F(1) = 2\sqrt{1} = 2 \cdot 1 = 2\)</p>
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Находим разность:</span></p>
+                <p>\(\displaystyle \int_1^4 \frac{dx}{\sqrt{x}} = F(4) - F(1) = 4 - 2 = 2\)</p>
+                <p style="margin-top:10px;"><span class="result">Ответ: \(\displaystyle \int_1^4 \frac{dx}{\sqrt{x}} = 2\)</span></p>
+                <p class="hint">💡 Геометрический смысл: площадь под графиком \(y = \frac{1}{\sqrt{x}}\) на \([1; 4]\) равна 2.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 2: сумма, многочлен -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример 2. Сумма: \(\displaystyle \int_0^1 (3x^2 + 2x)\,dx\)</div>
+        <div class="section-content">
+            <div class="example-block">
+                <p><strong>Вычислить:</strong> \(\displaystyle \int_0^1 (3x^2 + 2x)\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Используем свойство суммы интегралов:</span></p>
+                <p>\(\displaystyle \int_0^1 (3x^2 + 2x)\,dx = \int_0^1 3x^2\,dx + \int_0^1 2x\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Выносим константы и находим первообразные:</span></p>
+                <p>\(\displaystyle \int 3x^2\,dx = 3 \cdot \frac{x^3}{3} = x^3, \qquad \int 2x\,dx = 2 \cdot \frac{x^2}{2} = x^2\)</p>
+                <p class="hint">✓ Использовали правило \(\int x^n dx = \frac{x^{n+1}}{n+1}\) при \(n \ne -1\).</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем пределы в каждую часть:</span></p>
+                <p>\(F_1(x) = x^3 \Rightarrow F_1(1) - F_1(0) = 1 - 0 = 1\)</p>
+                <p>\(F_2(x) = x^2 \Rightarrow F_2(1) - F_2(0) = 1 - 0 = 1\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Складываем:</span></p>
+                <p>\(\displaystyle \int_0^1 (3x^2 + 2x)\,dx = 1 + 1 = 2\)</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(2\)</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 3: отрицательные степени -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример 3. Отрицательные степени: \(\displaystyle \int_1^2 \left(\frac{2}{x^2} + x\right)dx\)</div>
+        <div class="section-content">
+            <div class="example-block">
+                <p><strong>Вычислить:</strong> \(\displaystyle \int_1^2 \left(\frac{2}{x^2} + x\right)dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Перепишем \(\frac{2}{x^2}\) как \(2x^{-2}\):</span></p>
+                <p>\(\displaystyle \int_1^2 (2x^{-2} + x)\,dx = \int_1^2 2x^{-2}\,dx + \int_1^2 x\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Находим первообразные:</span></p>
+                <p>\(\displaystyle \int 2x^{-2}\,dx = 2 \cdot \frac{x^{-1}}{-1} = -\frac{2}{x}\)</p>
+                <p>\(\displaystyle \int x\,dx = \frac{x^2}{2}\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем пределы:</span></p>
+                <p>Для первой части: \(\displaystyle \left(-\frac{2}{x}\right)\Bigg|_1^2 = \left(-\frac{2}{2}\right) - \left(-\frac{2}{1}\right) = -1 - (-2) = 1\)</p>
+                <p>Для второй части: \(\displaystyle \left.\frac{x^2}{2}\right|_1^2 = \frac{4}{2} - \frac{1}{2} = 2 - 0{,}5 = 1{,}5\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Складываем:</span></p>
+                <p>\(1 + 1{,}5 = 2{,}5\)</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(\displaystyle 2{,}5\) (или \(\frac{5}{2}\))</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 4: тригонометрия -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример 4. Тригонометрия: \(\displaystyle \int_0^{\pi/2} (2\sin x + \cos x)\,dx\)</div>
+        <div class="section-content">
+            <div class="example-block">
+                <p><strong>Вычислить:</strong> \(\displaystyle \int_0^{\pi/2} (2\sin x + \cos x)\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Разбиваем на два интеграла:</span></p>
+                <p>\(\displaystyle \int_0^{\pi/2} 2\sin x\,dx + \int_0^{\pi/2} \cos x\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Находим первообразные:</span></p>
+                <p>\(\displaystyle \int 2\sin x\,dx = -2\cos x\)</p>
+                <p>\(\displaystyle \int \cos x\,dx = \sin x\)</p>
+                <p class="hint">✓ Использовали: \((\cos x)' = -\sin x\), \((\sin x)' = \cos x\).</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем пределы:</span></p>
+                <p>Для первой части: \(\displaystyle \left(-2\cos x\right)\Big|_0^{\pi/2} = -2\cos\frac{\pi}{2} - (-2\cos 0) = -2\cdot 0 + 2\cdot 1 = 2\)</p>
+                <p>Для второй части: \(\displaystyle \left.\sin x\right|_0^{\pi/2} = \sin\frac{\pi}{2} - \sin 0 = 1 - 0 = 1\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Складываем:</span></p>
+                <p>\(2 + 1 = 3\)</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(3\)</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕР 5: отрицательный предел -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">📌 Пример 5. Отрицательный предел: \(\displaystyle \int_{-1}^{2} (x^3 - x)\,dx\)</div>
+        <div class="section-content">
+            <div class="example-block">
+                <p><strong>Вычислить:</strong> \(\displaystyle \int_{-1}^{2} (x^3 - x)\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 1. Разбиваем на два интеграла:</span></p>
+                <p>\(\displaystyle \int_{-1}^{2} x^3\,dx - \int_{-1}^{2} x\,dx\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 2. Находим первообразные:</span></p>
+                <p>\(\displaystyle \int x^3\,dx = \frac{x^4}{4}\)</p>
+                <p>\(\displaystyle \int x\,dx = \frac{x^2}{2}\)</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 3. Подставляем пределы (аккуратно со знаками):</span></p>
+                <p>\(\displaystyle \left.\frac{x^4}{4}\right|_{-1}^{2} = \frac{16}{4} - \frac{1}{4} = 4 - 0{,}25 = 3{,}75\)</p>
+                <p>\(\displaystyle \left.\frac{x^2}{2}\right|_{-1}^{2} = \frac{4}{2} - \frac{1}{2} = 2 - 0{,}5 = 1{,}5\)</p>
+                <p class="hint">💡 Обрати внимание: \((-1)^4 = 1\), \((-1)^2 = 1\) — минус «исчезает» при чётной степени.</p>
+
+                <p style="margin-top:8px;"><span class="step">Шаг 4. Вычитаем:</span></p>
+                <p>\(3{,}75 - 1{,}5 = 2{,}25\)</p>
+
+                <p style="margin-top:10px;"><span class="result">Ответ: \(\displaystyle 2{,}25\) (или \(\frac{9}{4}\))</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРИМЕРЫ ДЛЯ САМОСТОЯТЕЛЬНОГО РЕШЕНИЯ -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">✍️ Примеры для самостоятельного решения</div>
+        <div class="section-content">
+
+            <div class="note-box">
+                📝 Попробуйте решить каждый пример самостоятельно. Если возникнут трудности — откройте <strong>подсказку</strong>. Сверьте свой ответ с <strong>ответом</strong>. Помните: определённый интеграл — это <strong>число</strong>, константу \(C\) писать не нужно!<br>
+                🔥 В примерах <strong>8–10</strong> встречаются сложные функции вида \(f(kx+b)\) — сначала найдите первообразную по формуле \(\int f(kx+b)\,dx = \frac{1}{k}F(kx+b)\), а затем подставьте пределы.
+            </div>
+
+            <!-- ПРИМЕР 1 -->
+            <div class="example-block">
+                <p><span class="step">Пример 1.</span> Вычислить: \(\displaystyle \int_0^2 (3x^2 + 4x)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на два интеграла: \(\int_0^2 3x^2\,dx + \int_0^2 4x\,dx\). Вынесите константы и найдите первообразные: \(\int x^2 dx = \frac{x^3}{3}\), \(\int x\,dx = \frac{x^2}{2}\). Затем подставьте пределы: сначала \(x = 2\), потом \(x = 0\), и найдите разность.</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(16\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 2 -->
+            <div class="example-block">
+                <p><span class="step">Пример 2.</span> Вычислить: \(\displaystyle \int_1^3 \frac{dx}{x^2}\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Перепишите подынтегральную функцию как \(x^{-2}\). Первообразная: \(\int x^{-2} dx = \frac{x^{-1}}{-1} = -\frac{1}{x}\). Затем подставьте пределы: \(F(3) - F(1)\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{2}{3}\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 3 -->
+            <div class="example-block">
+                <p><span class="step">Пример 3.</span> Вычислить: \(\displaystyle \int_0^1 (4x^3 - 2x + 1)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на три интеграла. Первообразные: \(\int x^3 dx = \frac{x^4}{4}\), \(\int x\,dx = \frac{x^2}{2}\), \(\int 1\,dx = x\). Не забудьте вынести константы 4 и 2. Подставьте пределы \(0\) и \(1\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(1\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 4 -->
+            <div class="example-block">
+                <p><span class="step">Пример 4.</span> Вычислить: \(\displaystyle \int_1^4 \left(\sqrt{x} + \frac{1}{\sqrt{x}}\right)dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Перепишите корни как степени: \(\sqrt{x} = x^{1/2}\), \(\frac{1}{\sqrt{x}} = x^{-1/2}\). Первообразные: \(\int x^{1/2} dx = \frac{2}{3}x^{3/2}\), \(\int x^{-1/2} dx = 2\sqrt{x}\). Подставьте пределы \(1\) и \(4\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{20}{3}\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 5 -->
+            <div class="example-block">
+                <p><span class="step">Пример 5.</span> Вычислить: \(\displaystyle \int_0^{\pi} (3\sin x + 2\cos x)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на два интеграла. Первообразные: \(\int \sin x\,dx = -\cos x\), \(\int \cos x\,dx = \sin x\). Подставьте пределы \(0\) и \(\pi\). Помните: \(\sin\pi = 0\), \(\cos\pi = -1\), \(\sin 0 = 0\), \(\cos 0 = 1\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(6\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 6 -->
+            <div class="example-block">
+                <p><span class="step">Пример 6.</span> Вычислить: \(\displaystyle \int_{-2}^{1} (x^2 - 3x)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на два интеграла. Первообразные: \(\int x^2 dx = \frac{x^3}{3}\), \(\int x\,dx = \frac{x^2}{2}\). Аккуратно подставьте отрицательный предел: \((-2)^3 = -8\), \((-2)^2 = 4\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{15}{2}\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 7 -->
+            <div class="example-block">
+                <p><span class="step">Пример 7.</span> Вычислить: \(\displaystyle \int_1^2 \left(\frac{3}{x} + 2x\right)dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Разбейте на два интеграла. Первообразные: \(\int \frac{1}{x}dx = \ln|x|\), \(\int x\,dx = \frac{x^2}{2}\). Подставьте пределы: \(\ln 2 - \ln 1 = \ln 2\) (так как \(\ln 1 = 0\)).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(3\ln 2 + 3\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 8 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 8.</span> Вычислить: \(\displaystyle \int_0^{\pi/6} \cos(3x)\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = \cos(\cdot)\), \(k = 3\), \(b = 0\). Первообразная: \(\int \cos(3x)\,dx = \frac{\sin(3x)}{3}\). Затем подставьте пределы: сначала \(x = \pi/6\), потом \(x = 0\). Учтите, что \(3 \cdot \frac{\pi}{6} = \frac{\pi}{2}\), а \(\sin\frac{\pi}{2} = 1\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{1}{3}\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 9 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 9.</span> Вычислить: \(\displaystyle \int_0^1 e^{2x+1}\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = e^{(\cdot)}\), \(k = 2\), \(b = 1\). Первообразная: \(\int e^{2x+1}\,dx = \frac{e^{2x+1}}{2}\). Подставьте пределы: \(F(1) - F(0) = \frac{e^3}{2} - \frac{e^1}{2}\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(\frac{e^3 - e}{2}\)</p>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ПРИМЕР 10 · сложная функция -->
+            <div class="example-block">
+                <p><span class="step">Пример 10.</span> Вычислить: \(\displaystyle \int_0^2 (2x+1)^3\,dx\)</p>
+
+                <details class="spoiler">
+                    <summary>💡 Подсказка</summary>
+                    <div class="spoiler-content">
+                        <p>Это сложная функция вида \(f(kx+b)\), где \(f(\cdot) = (\cdot)^3\), \(k = 2\), \(b = 1\). Первообразная по формуле \(\int (kx+b)^n dx = \frac{(kx+b)^{n+1}}{k(n+1)}\): здесь \(n = 3\), \(k = 2\), значит \(\int (2x+1)^3 dx = \frac{(2x+1)^4}{8}\). Подставьте пределы \(0\) и \(2\): \(F(2) = \frac{5^4}{8}\), \(F(0) = \frac{1}{8}\).</p>
+                    </div>
+                </details>
+
+                <details class="spoiler">
+                    <summary>✅ Ответ</summary>
+                    <div class="spoiler-content">
+                        <p>\(78\)</p>
+                    </div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="note-box">
+        <strong>📌 Запомните:</strong><br>
+        • Определённый интеграл — это <strong>число</strong><br>
+        • Первообразную находим без константы \(C\)<br>
+        • Формула Ньютона-Лейбница: \(\int_a^b f(x)dx = F(b) - F(a)\)<br>
+        • Геометрический смысл — площадь под графиком<br>
+        • Если внутри есть «функция и её производная» — попробуй замену
+    </div>
+
+    <!-- ===== ИСПРАВЛЕННАЯ ВРЕЗКА ПРО ОШИБКУ ===== -->
+    <div class="important">
+        <strong>⚠️ Частая ошибка:</strong> в определённом интеграле <strong>не нужно писать «+ C»</strong>. Потому что ответ — это <strong>число</strong>, а не семейство функций. Константа бы всё равно сократилась: \((F(b) + C) - (F(a) + C) = F(b) - F(a)\). Поэтому в вычислениях \(C\) просто опускают.
+    </div>
+
+    <a href="integral.html" class="back-link">← назад в меню</a>
+</div>
+
+<script>
+    function toggleSection(el){el.closest('.section').classList.toggle('collapsed');}
+    (function(){var t=localStorage.getItem('mathTheme');if(t==='light'){document.documentElement.classList.add('light-mode');var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';}})();
+    function toggleTheme(){var h=document.documentElement;var b=document.getElementById('themeBtn');if(h.classList.contains('light-mode')){h.classList.remove('light-mode');localStorage.setItem('mathTheme','dark');if(b)b.textContent='🌙';}else{h.classList.add('light-mode');localStorage.setItem('mathTheme','light');if(b)b.textContent='☀️';}}
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

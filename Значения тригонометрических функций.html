@@ -1,0 +1,554 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тригонометрия — Полная таблица значений (0°–360°)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1a2d3c;
+            --card-bg: #1e3545;
+            --text: #ffffff;
+            --text-secondary: #8ba5b8;
+            --accent: #1abc9c;
+            --border: rgba(46, 204, 113, 0.1);
+            --header-bg: linear-gradient(135deg, #1e3545, #162a38);
+            --table-bg: #1e3545;
+            --table-even: #233e50;
+            --table-odd: #1e3545;
+            --angle-col-bg: #233e50;
+            --info-bg: #1e3545;
+            --example-bg: #162a38;
+            --example-text: #ffffff;
+        }
+
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%);
+            --card-bg: white;
+            --text: #1a2a3f;
+            --text-secondary: #5a7a94;
+            --accent: #1abc9c;
+            --border: #eff3f8;
+            --header-bg: linear-gradient(135deg, #ffffff, #f8fafc);
+            --table-bg: white;
+            --table-even: #f0f4fa;
+            --table-odd: white;
+            --angle-col-bg: #e8f0fe;
+            --info-bg: #e8f0fe;
+            --example-bg: #f8fafc;
+            --example-text: #1a2a3f;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; }
+        .container { max-width: 100%; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 14px 10px; padding-top: 50px; overflow-x: auto; position: relative; }
+
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 10px auto; padding-bottom: 8px; border-bottom: 4px solid #2980b9; text-align: center; }
+
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 10px 0; border-radius: 16px; }
+        .values-table { width: 100%; min-width: 500px; border-collapse: collapse; background: var(--table-bg); border-radius: 16px; overflow: hidden; font-size: 1.05rem; text-align: center; }
+        .values-table th { background: #1a2d3c; color: white; padding: 15px 3px; font-weight: 700; font-size: 0.9rem; word-wrap: break-word; }
+        .values-table td { padding: 15px 3px; border: 1px solid var(--border); font-family: 'Times New Roman', monospace; color: var(--text); word-wrap: break-word; }
+        .values-table tr:nth-child(even) { background: var(--table-even); }
+        .values-table tr:nth-child(odd) { background: var(--table-odd); }
+        .values-table th:first-child, .values-table td:first-child { width: 28%; }
+        .values-table th:not(:first-child), .values-table td:not(:first-child) { width: 18%; }
+        .angle-col { font-weight: 700; background: var(--angle-col-bg); }
+
+        .note { background: var(--info-bg); border-left: 4px solid #2980b9; border-radius: 16px; padding: 12px 14px; margin: 12px 0; font-size: 0.9rem; line-height: 1.6; color: var(--text); }
+        .note a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); }
+        .note a:hover { opacity: 0.8; }
+
+        .example-block { background: var(--example-bg); border-radius: 16px; padding: 14px 16px; margin: 12px 0; border: 1px solid var(--border); overflow-x: auto; word-wrap: break-word; }
+        .example-block p { margin: 4px 0; font-size: 1rem; line-height: 1.6; color: var(--example-text); word-wrap: break-word; overflow-wrap: break-word; }
+        .example-block .step { color: #a78bfa; font-weight: 600; }
+        .example-block .result { background: #d1fae5; display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.9rem; color: #065f46; font-weight: 600; }
+        .example-block .formula-used { background: var(--info-bg); display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.9rem; color: #1a5276; }
+        .example-block mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+
+        .section { margin-bottom: 14px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; border-left: 4px solid #e67e22; padding-left: 12px; cursor: pointer; user-select: none; }
+        .section-title:hover { opacity: 0.8; }
+        .section-title::after { content: "▼"; margin-left: auto; font-size: 0.9rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .section.collapsed .section-title::after { transform: rotate(-90deg); }
+        .section-content { max-height: 3000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: #2980b9; color: white; text-decoration: none; font-weight: bold; border-radius: 20px; }
+
+        mjx-container { font-size: 1.35em !important; overflow-x: visible !important; max-width: 100% !important; }
+
+        @media (max-width: 600px) {
+            .values-table { font-size: 0.9rem; min-width: 400px; }
+            .values-table th { font-size: 0.75rem; padding: 10px 2px; }
+            .values-table td { padding: 10px 2px; }
+            h1 { font-size: 1.3rem; }
+            .example-block { padding: 10px 12px; }
+            .example-block p { font-size: 0.9rem; }
+            .container { padding: 10px 6px; }
+        }
+    
+/* ===== Убираем прямоугольную подсветку кнопок, оставляем форму ===== */
+button, .btn, .mode-btn, .angle-btn, .diff-btn, .history-clear,
+[class*="btn"], [class*="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+/* ===== Убираем прямоугольную подсветку для ссылок и селектов ===== */
+a, select, option, input, textarea,
+.back-link, .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
+
+select:focus, a:focus, input:focus, textarea:focus {
+    outline: none;
+}
+
+
+
+
+
+
+
+
+/* ===== ФИНАЛЬНЫЙ ФИКС: центрирование заголовков и градиент ===== */
+.section-title {
+    display: flex !important;
+    flex-direction: column !important; /* Элементы друг под другом */
+    align-items: center !important;    /* Центрируем по горизонтали */
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    padding: 8px 40px !important; /* Отступы по бокам (40px справа для стрелки) */
+    margin-bottom: 8px !important;
+    border-left: 4px solid var(--special-border, #3b82f6) !important;
+    background: transparent !important;
+    border-radius: 0 12px 12px 0 !important;
+    transition: background 0.3s ease, color 0.2s ease !important;
+    box-shadow: none !important; /* Убираем свечение */
+}
+
+/* Наведение: градиентный фон */
+.section-title:hover {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.15) 30%, 
+        rgba(13, 148, 136, 0.05) 100%) !important;
+}
+.section-title:active {
+    background: linear-gradient(90deg, 
+        var(--special-border, #3b82f6) 0%, 
+        rgba(13, 148, 136, 0.25) 30%, 
+        rgba(13, 148, 136, 0.1) 100%) !important;
+}
+
+/* Псевдоэлемент ::before больше не нужен, скрываем */
+.section-title::before {
+    display: none !important;
+}
+
+/* Центрируем внутренние элементы (заголовок и подзаголовок) */
+.section-title .main-title,
+.section-title > span:not(.sub-title) {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.section-title .sub-title {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+/* Стрелка ▼ строго справа по центру высоты */
+.section-title::after {
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+}
+.section.collapsed .section-title::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+}
+/* ===== Парение, тень и градиент для карточек ===== */
+.example, .formula-block, .theorem-text, .important, .interval-card, .def-card, .note-box, .task-block, .task-condition, .task-given-find {
+    position: relative !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-left: none !important;
+    padding-left: 20px !important;
+    background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important;
+    margin-bottom: 16px !important;
+}
+
+/* Градиентная полоска слева */
+.example::before, .formula-block::before, .theorem-text::before, .important::before, .interval-card::before, .def-card::before, .note-box::before, .task-block::before, .task-condition::before, .task-given-find::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5px !important;
+    background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important;
+    border-radius: 16px 0 0 16px !important;
+    z-index: 1 !important;
+}
+
+/* Эффект парения при наведении (только на ПК) */
+@media (hover: hover) {
+    .example:hover, .formula-block:hover, .theorem-text:hover, .important:hover, .interval-card:hover, .def-card:hover, .note-box:hover, .task-block:hover, .task-condition:hover, .task-given-find:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+/* ===== Жесткое центрирование кнопки Назад ===== */
+a.back-link, .back-link {
+    display: table !important;       /* Сжимает по ширине текста и позволяет margin: auto */
+    margin-left: auto !important;    /* Центрирование по горизонтали */
+    margin-right: auto !important;
+    margin-top: 20px !important;     /* Отступ сверху */
+    margin-bottom: 10px !important;  /* Отступ снизу */
+    text-align: center !important;
+    float: none !important;          /* На случай, если есть float */
+}</style>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                macros: { tg: '\\mathop{\\mathrm{tg}}', ctg: '\\mathop{\\mathrm{ctg}}' }
+            },
+            chtml: { scale: 1.25 }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+<style id="bottom-nav-base">
+/* Базовые стили для панели, если их нет */
+.bottom-nav {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px;
+    background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0);
+    box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900;
+    transition: background 0.3s, border 0.3s;
+}
+:root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+.bottom-nav a, .bottom-nav button {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 14px;
+    border: none; background: transparent; color: var(--text-secondary, #8ba5b8);
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.bottom-nav a:hover, .bottom-nav button:hover {
+    background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px);
+}
+/* Жёлтая звезда в избранном */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important;
+}
+/* Скрываем на главной */
+</style>
+<style id="bottom-nav-autohide">
+/* Автоскрытие нижней панели при скролле вниз */
+.bottom-nav {
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s;
+}
+.bottom-nav.nav-hidden {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+    pointer-events: none;
+}
+/* На главной панель всегда видна */
+body.is-index .bottom-nav.nav-hidden {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+<style id="math-nav-animation">
+/* Плавная анимация кнопок нижней панели (как в физике) */
+.bottom-nav a,
+.bottom-nav button {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.2s ease,
+                color 0.2s ease !important;
+}
+
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+.bottom-nav a:active,
+.bottom-nav button:active {
+    transform: translateY(0) scale(0.92) !important;
+}
+
+/* Желтая кнопка избранного - тоже пружинит */
+.bottom-nav a[href="favorites.html"].active {
+    background: rgba(250, 204, 21, 0.20) !important;
+    color: #facc15 !important;
+    transform: translateY(-3px) scale(1.08) !important;
+}
+
+/* Ripple-эффект при нажатии (появление волны) */
+.ripple-host {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(26, 188, 156, 0.35); /* Зеленоватый акцент для математики */
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+@keyframes rippleAnim {
+    to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Таблица значений (0°–360°)</h1>
+
+    <div class="table-wrapper">
+        <table class="values-table">
+            <thead>
+            <tr>
+                <th>Угол</th><th>\(\sin\alpha\)</th><th>\(\cos\alpha\)</th><th>\(\tg\alpha\)</th><th>\(\ctg\alpha\)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr><td class="angle-col">\(0^\circ\;(0)\)</td><td>\(0\)</td><td>\(1\)</td><td>\(0\)</td><td>—</td></tr>
+            <tr><td class="angle-col">\(30^\circ\;(\frac{\pi}{6})\)</td><td>\(\frac{1}{2}\)</td><td>\(\frac{\sqrt{3}}{2}\)</td><td>\(\frac{\sqrt{3}}{3}\)</td><td>\(\sqrt{3}\)</td></tr>
+            <tr><td class="angle-col">\(45^\circ\;(\frac{\pi}{4})\)</td><td>\(\frac{\sqrt{2}}{2}\)</td><td>\(\frac{\sqrt{2}}{2}\)</td><td>\(1\)</td><td>\(1\)</td></tr>
+            <tr><td class="angle-col">\(60^\circ\;(\frac{\pi}{3})\)</td><td>\(\frac{\sqrt{3}}{2}\)</td><td>\(\frac{1}{2}\)</td><td>\(\sqrt{3}\)</td><td>\(\frac{\sqrt{3}}{3}\)</td></tr>
+            <tr><td class="angle-col">\(90^\circ\;(\frac{\pi}{2})\)</td><td>\(1\)</td><td>\(0\)</td><td>—</td><td>\(0\)</td></tr>
+            <tr><td class="angle-col">\(120^\circ\;(\frac{2\pi}{3})\)</td><td>\(\frac{\sqrt{3}}{2}\)</td><td>\(-\frac{1}{2}\)</td><td>\(-\sqrt{3}\)</td><td>\(-\frac{\sqrt{3}}{3}\)</td></tr>
+            <tr><td class="angle-col">\(135^\circ\;(\frac{3\pi}{4})\)</td><td>\(\frac{\sqrt{2}}{2}\)</td><td>\(-\frac{\sqrt{2}}{2}\)</td><td>\(-1\)</td><td>\(-1\)</td></tr>
+            <tr><td class="angle-col">\(150^\circ\;(\frac{5\pi}{6})\)</td><td>\(\frac{1}{2}\)</td><td>\(-\frac{\sqrt{3}}{2}\)</td><td>\(-\frac{\sqrt{3}}{3}\)</td><td>\(-\sqrt{3}\)</td></tr>
+            <tr><td class="angle-col">\(180^\circ\;(\pi)\)</td><td>\(0\)</td><td>\(-1\)</td><td>\(0\)</td><td>—</td></tr>
+            <tr><td class="angle-col">\(210^\circ\;(\frac{7\pi}{6})\)</td><td>\(-\frac{1}{2}\)</td><td>\(-\frac{\sqrt{3}}{2}\)</td><td>\(\frac{\sqrt{3}}{3}\)</td><td>\(\sqrt{3}\)</td></tr>
+            <tr><td class="angle-col">\(225^\circ\;(\frac{5\pi}{4})\)</td><td>\(-\frac{\sqrt{2}}{2}\)</td><td>\(-\frac{\sqrt{2}}{2}\)</td><td>\(1\)</td><td>\(1\)</td></tr>
+            <tr><td class="angle-col">\(240^\circ\;(\frac{4\pi}{3})\)</td><td>\(-\frac{\sqrt{3}}{2}\)</td><td>\(-\frac{1}{2}\)</td><td>\(\sqrt{3}\)</td><td>\(\frac{\sqrt{3}}{3}\)</td></tr>
+            <tr><td class="angle-col">\(270^\circ\;(\frac{3\pi}{2})\)</td><td>\(-1\)</td><td>\(0\)</td><td>—</td><td>\(0\)</td></tr>
+            <tr><td class="angle-col">\(300^\circ\;(\frac{5\pi}{3})\)</td><td>\(-\frac{\sqrt{3}}{2}\)</td><td>\(\frac{1}{2}\)</td><td>\(-\sqrt{3}\)</td><td>\(-\frac{\sqrt{3}}{3}\)</td></tr>
+            <tr><td class="angle-col">\(315^\circ\;(\frac{7\pi}{4})\)</td><td>\(-\frac{\sqrt{2}}{2}\)</td><td>\(\frac{\sqrt{2}}{2}\)</td><td>\(-1\)</td><td>\(-1\)</td></tr>
+            <tr><td class="angle-col">\(330^\circ\;(\frac{11\pi}{6})\)</td><td>\(-\frac{1}{2}\)</td><td>\(\frac{\sqrt{3}}{2}\)</td><td>\(-\frac{\sqrt{3}}{3}\)</td><td>\(-\sqrt{3}\)</td></tr>
+            <tr><td class="angle-col">\(360^\circ\;(2\pi)\)</td><td>\(0\)</td><td>\(1\)</td><td>\(0\)</td><td>—</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="note">
+        <strong>Примечания:</strong><br>
+        • «—» означает, что функция не определена (деление на ноль)<br>
+        • Для углов > 180° знаки определяются по четвертям (см. раздел <a href="Знаки тригонометрических функций.html">«Знаки по четвертям»</a>)<br>
+        • \(\frac{\sqrt{2}}{2} \approx 0.7071,\; \frac{\sqrt{3}}{2} \approx 0.8660,\; \sqrt{3} \approx 1.732\)
+    </div>
+
+    <a href="trigonometry.html" class="back-link">← Назад к тригонометрии</a>
+</div>
+
+<script>
+    (function() {
+        var t = localStorage.getItem('mathTheme');
+        if (t === 'light') {
+            document.documentElement.classList.add('light-mode');
+            var b = document.getElementById('themeBtn');
+            if (b) b.textContent = '☀️';
+        }
+    })();
+
+     else {
+            h.classList.add('light-mode');
+            localStorage.setItem('mathTheme', 'light');
+            if (b) b.textContent = '☀️';
+        }
+    }
+
+    function toggleSection(el) {
+        el.closest('.section').classList.toggle('collapsed');
+    }
+
+    const FAV_KEY = 'math_favorites';
+
+    function getFavorites() {
+        const s = localStorage.getItem(FAV_KEY);
+        return s ? JSON.parse(s) : [];
+    }
+
+    function saveFavorites(f) {
+        localStorage.setItem(FAV_KEY, JSON.stringify(f));
+    }
+
+    function isFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        return getFavorites().includes(u);
+    }
+
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) {
+            f = f.filter(x => x !== u);
+            btn.textContent = '☆';
+            btn.classList.remove('active');
+        } else {
+            f.push(u);
+            btn.textContent = '★';
+            btn.classList.add('active');
+        }
+        saveFavorites(f);
+    }
+
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) {
+                btn.textContent = '★';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '☆';
+                btn.classList.remove('active');
+            }
+        }
+    }
+    updateFavoriteBtn();
+</script>
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+<script id="bottom-nav-autohide-script">
+/* Автоскрытие нижней панели при скролле */
+(function(){
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = window.scrollY;
+    var threshold = 8;
+    var ticking = false;
+    function onScroll(){
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+        if (y > lastY && y > 80) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+        if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+})();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+/* Добавляем Ripple (волну) при нажатии на кнопки панели */
+(function() {
+    var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    els.forEach(function(el) {
+        if (el.dataset.rippleBound) return;
+        el.dataset.rippleBound = '1';
+        el.classList.add('ripple-host');
+        el.addEventListener('pointerdown', function(e) {
+            var rect = el.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var r = document.createElement('span');
+            r.className = 'ripple';
+            r.style.width = r.style.height = size + 'px';
+            r.style.left = (e.clientX - rect.left - size/2) + 'px';
+            r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            el.appendChild(r);
+            setTimeout(function(){ r.remove(); }, 650);
+        });
+    });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
