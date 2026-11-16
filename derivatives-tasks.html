@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Профессиональные задачи: Производная и её приложения</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #2980b9; --example-bg: #162a38; --canvas-bg: #0f1a24;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --result-color: #4ade80; --danger-color: #f87171;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #2980b9; --example-bg: #f8fafc;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --result-color: #059669; --danger-color: #dc2626;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding: 8px 40px; cursor: pointer; user-select: none; text-align: center; position: relative; border-radius: 0 12px 12px 0; transition: background 0.3s; }
+        .section-title:hover { background: linear-gradient(90deg, var(--special-border) 0%, rgba(59, 130, 246, 0.15) 30%, rgba(59, 130, 246, 0.05) 100%); }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+        .section.collapsed .section-title .main-title::after { transform: translateY(-50%) rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 4px; }
+        .section-content { max-height: 30000px; overflow: hidden; transition: max-height 0.5s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .sub-accordion { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+        .sub-accordion-title { background: var(--info-bg); padding: 12px 16px; cursor: pointer; user-select: none; transition: background 0.2s; display: flex; flex-direction: column; gap: 4px; }
+        .sub-accordion-title:hover { background: rgba(59, 130, 246, 0.1); }
+        .sub-accordion-title .title-main { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: 700; color: var(--text); }
+        .sub-accordion-title .title-main::after { content: "▼"; font-size: 0.8rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .sub-accordion.collapsed .sub-accordion-title .title-main::after { transform: rotate(-90deg); }
+        .sub-accordion-title .title-sub { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+
+        .sub-accordion-content { padding: 16px; background: var(--card-bg); max-height: 25000px; transition: max-height 0.4s ease; }
+        .sub-accordion.collapsed .sub-accordion-content { max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+
+        .formula-block, .example, .important {
+            position: relative; border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: none !important; padding-left: 20px !important; padding: 16px 20px;
+            background-color: var(--example-bg); margin-bottom: 16px; color: var(--text);
+            font-size: 0.95rem; line-height: 1.8;
+        }
+        .formula-block::before, .example::before, .important::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+            background: linear-gradient(180deg, var(--special-border) 0%, #0d9488 100%);
+            border-radius: 16px 0 0 16px; z-index: 1;
+        }
+        @media (hover: hover) {
+            .example:hover, .formula-block:hover, .important:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+        }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+
+        .spoiler-btn { display: inline-block; margin-top: 10px; padding: 8px 16px; background: var(--info-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.2s, color 0.2s; }
+        .spoiler-btn:hover { background: var(--special-border); color: #fff; }
+        .spoiler-content { display: none; margin-top: 12px; padding: 12px 16px; background: var(--card-bg); border-radius: 8px; border: 1px dashed var(--border); animation: fadeIn 0.3s ease; }
+        .spoiler-content.solution { border-left: 4px solid var(--result-color); background: rgba(74, 222, 128, 0.05); }
+        .spoiler-content.hint { border-left: 4px solid var(--warning-border); background: var(--warning-bg); }
+
+        .back-link { display: table !important; margin: 20px auto 10px auto; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; text-align: center; }
+        .back-link:hover { background: #1c6ea4; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .bottom-nav { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px; background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900; transition: background 0.3s, border 0.3s, transform 0.3s; }
+        :root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+        .bottom-nav a, .bottom-nav button { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .bottom-nav a:hover, .bottom-nav button:hover { background: rgba(59,130,246,0.15); color: var(--accent); transform: translateY(-2px) scale(1.08); }
+        .bottom-nav.nav-hidden { transform: translate(-50%, 120%); opacity: 0; pointer-events: none; }
+        .ripple-host { position: relative !important; overflow: hidden !important; }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(59, 130, 246, 0.35); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 0; }
+        @keyframes rippleAnim { to { transform: scale(2.5); opacity: 0; } }
+    </style>
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] },
+            startup: { typeset: true }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise();
+                }
+            }, 100);
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Профессиональные задачи: Производная</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Зачем это нужно в профессии?</span>
+        </div>
+        <div class="section-content">
+            <p>Производная — это не просто штрих в тетради. Это <strong>скорость изменения любой величины</strong>. Когда вы следите за тем, как остывает деталь, как падает напряжение в сети, как меняется нагрузка на кран или как ускоряется автомобиль, вы имеете дело именно с производной.</p>
+            <p>Электрик использует производную для расчёта тока (ток — это скорость изменения заряда). Автомеханик — для ускорения. Сварщик — для контроля скорости остывания шва. Технолог — для нахождения оптимальных режимов резания. И везде важно не просто посчитать, а сделать вывод: <strong>пройдёт ли деталь контроль, выдержит ли конструкция, не сорвётся ли график</strong>.</p>
+            <div class="important">
+                <strong>💡 Как пользоваться:</strong><br>
+                Выберите свою специальность ниже. В каждой — 4 задачи с подробным разбором и 7 задач для самостоятельной работы (с подсказками). Считайте так, как будто вы уже на объекте.
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЭРЭО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚡ ЭРЭО (Электрика)</span>
+            <span class="sub-title">Скорость изменения тока, напряжения и нагрева</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять производную на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>При включении двигателя сила тока в обмотке меняется по закону $I(t) = 5t^2 + 2t$ (А), где $t$ — время в секундах. Инженеру нужно найти скорость изменения тока в момент $t = 3$ с. Если она превышает $35$ А/с, сработает защита.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Находим производную.</strong> Скорость изменения тока — это производная $I'(t) = 10t + 2$.</p>
+                            <p><strong>Шаг 2. Подставляем $t = 3$.</strong> $I'(3) = 10 \cdot 3 + 2 = 32$ А/с.</p>
+                            <p><strong>Ответ:</strong> $32$ А/с &lt; $35$ А/с. Защита не сработает.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>При нагреве кабеля его сопротивление меняется по закону $R(t) = 0{,}1t^3 - 0{,}5t^2 + 2$ (Ом), где $t$ — температура в десятках градусов. Технологу нужно найти момент времени (температуру), когда сопротивление растёт максимально быстро. Если скорость роста превысит $2$ Ом/ед., изоляция начнёт плавиться.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Скорость роста.</strong> $R'(t) = 0{,}3t^2 - t$.</p>
+                            <p><strong>Шаг 2. Максимальная скорость.</strong> Это экстремум производной. Найдём $R''(t) = 0{,}6t - 1$. Приравняем к нулю: $0{,}6t = 1 \Rightarrow t \approx 1{,}67$.</p>
+                            <p><strong>Шаг 3. Проверяем значение.</strong> $R'(1{,}67) = 0{,}3 \cdot 2{,}79 - 1{,}67 = 0{,}837 - 1{,}67 \approx -0{,}83$ Ом/ед. (это минимум, скорость роста на самом деле отрицательная, то есть сопротивление падает). Проверим границы: при $t=0$ $R'=0$, при $t=3$ $R'=2{,}7 - 3 = -0{,}3$. Скорость роста нигде не превышает $2$.</p>
+                            <p><strong>Ответ:</strong> Максимальная скорость роста (по модулю) не превышает $2$ Ом/ед. Изоляция в норме.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Электрик измеряет скорость изменения напряжения в цепи. Напряжение задано функцией $U(t) = t^3 - 6t^2 + 9t + 2$ (В). Нужно найти моменты времени, когда скорость изменения напряжения равна нулю (переходные процессы). Если хотя бы в один из этих моментов напряжение падает ниже $2$ В, оборудование отключится.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $U'(t) = 3t^2 - 12t + 9$.</p>
+                            <p><strong>Шаг 2. Приравниваем к нулю.</strong> $3t^2 - 12t + 9 = 0 \Rightarrow t^2 - 4t + 3 = 0$. Корни: $t = 1$ и $t = 3$.</p>
+                            <p><strong>Шаг 3. Значения напряжения.</strong> $U(1) = 1 - 6 + 9 + 2 = 6$ В. $U(3) = 27 - 54 + 27 + 2 = 2$ В.</p>
+                            <p><strong>Ответ:</strong> В момент $t = 3$ напряжение равно $2$ В (на границе). Оборудование может отключиться, если падение продолжится.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>При зарядке конденсатора энергия меняется по закону $W(t) = 0{,}5t^2 + 2t$ (Дж). Найдите ускорение изменения энергии (вторую производную) в момент $t = 2$ с. Если ускорение больше $1{,}5$ Дж/с², конденсатор может выйти из строя.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Первая производная (скорость).</strong> $W'(t) = t + 2$.</p>
+                            <p><strong>Шаг 2. Вторая производная (ускорение).</strong> $W''(t) = 1$.</p>
+                            <p><strong>Шаг 3. Значение.</strong> $W''(2) = 1$ Дж/с².</p>
+                            <p><strong>Ответ:</strong> Ускорение $1$ Дж/с² &lt; $1{,}5$ Дж/с². Конденсатор в норме.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Скорость изменения тока.</strong> Сила тока в цепи меняется по закону $I(t) = 3t^2 + 5t - 1$. Найдите скорость изменения тока при $t = 2$ с. Если она больше $20$ А/с, нужен предохранитель.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$I'(t) = 6t + 5$. $I'(2) = 12 + 5 = 17$ А/с. $17 < 20$, предохранитель не нужен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Остывание нагревателя.</strong> Температура нагревателя после выключения меняется по закону $T(t) = 120 \cdot e^{-0{,}1t}$ (в градусах, $t$ — минуты). Найдите скорость остывания при $t = 10$ мин. Если она меньше $-5$ °C/мин, нагреватель остывает слишком медленно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$T'(t) = 120 \cdot (-0{,}1)e^{-0{,}1t} = -12e^{-0{,}1t}$. При $t=10$: $-12e^{-1} \approx -4{,}4$ °C/мин. По модулю $4{,}4 < 5$, остывает медленно.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Максимум мощности.</strong> Мощность в цепи зависит от сопротивления: $P(R) = \frac{100R}{(R+5)^2}$. Найдите сопротивление, при котором мощность максимальна (производная равна нулю). Если это сопротивление больше $10$ Ом, схему нужно пересмотреть.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$P'(R) = \frac{100(R+5)^2 - 100R \cdot 2(R+5)}{(R+5)^4} = \frac{100(R+5) - 200R}{(R+5)^3} = \frac{500 - 100R}{(R+5)^3}$. Приравниваем к нулю: $R = 5$ Ом. $5 < 10$, схема в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Переходный процесс.</strong> Напряжение меняется по закону $U(t) = t^3 - 3t^2 + 4$. Найдите моменты, когда скорость изменения напряжения отрицательна (напряжение падает). Если падение длится более $2$ секунд, оборудование может отключиться.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$U'(t) = 3t^2 - 6t = 3t(t - 2)$. $U'(t) < 0$ на интервале $(0; 2)$. Длительность падения $2$ с, ровно на границе.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Вторая производная (ускорение).</strong> Заряд конденсатора меняется по закону $q(t) = 2t^3 - 3t^2 + t$. Найдите ускорение изменения заряда при $t = 1$ с (вторую производную). Если оно больше $5$ Кл/с², конденсатор перегреется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$q'(t) = 6t^2 - 6t + 1$, $q''(t) = 12t - 6$. $q''(1) = 12 - 6 = 6$ Кл/с². $6 > 5$, перегрев возможен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Оптимальная нагрузка.</strong> КПД трансформатора $\eta(x) = \frac{x}{x^2 + 4}$ (в долях). Найдите нагрузку $x$, при которой КПД максимален. Если оптимальная нагрузка меньше $1$, трансформатор неэффективен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\eta'(x) = \frac{x^2+4 - x \cdot 2x}{(x^2+4)^2} = \frac{4 - x^2}{(x^2+4)^2}$. Приравниваем к нулю: $x = 2$. $2 > 1$, трансформатор эффективен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Скорость изменения сопротивления.</strong> Сопротивление провода при нагреве: $R(t) = 0{,}02t^2 + 0{,}3t + 10$. Найдите скорость изменения сопротивления при $t = 5$ (в градусах). Если она больше $0{,}5$ Ом/град, провод перегреется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$R'(t) = 0{,}04t + 0{,}3$. $R'(5) = 0{,}2 + 0{,}3 = 0{,}5$ Ом/град. Ровно на границе.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТОА / АВТОМЕХАНИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚗 ТОА / Автомеханик</span>
+            <span class="sub-title">Скорость, ускорение и оптимальные режимы</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять производную на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>При разгоне автомобиля его путь меняется по закону $S(t) = 2t^2 + 3t$ (м). Найдите скорость через $4$ секунды после старта (производная пути). Если скорость превысит $20$ м/с, водитель превысил ограничение.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Скорость — производная пути.</strong> $v(t) = S'(t) = 4t + 3$.</p>
+                            <p><strong>Шаг 2. Подставляем $t = 4$.</strong> $v(4) = 16 + 3 = 19$ м/с.</p>
+                            <p><strong>Ответ:</strong> $19$ м/с &lt; $20$ м/с. Нарушения нет.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>При торможении скорость автомобиля меняется по закону $v(t) = 20 - 4t$ (м/с). Найдите ускорение (производную скорости) и определите, за какое время автомобиль полностью остановится. Если ускорение по модулю превышает $5$ м/с², пассажиры получат травмы.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Ускорение — производная скорости.</strong> $a(t) = v'(t) = -4$ м/с².</p>
+                            <p><strong>Шаг 2. Время остановки.</strong> $v(t) = 0 \Rightarrow 20 - 4t = 0 \Rightarrow t = 5$ с.</p>
+                            <p><strong>Ответ:</strong> Ускорение по модулю $4$ м/с² &lt; $5$ м/с². Остановка через $5$ с, травм не будет.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Расход топлива автомобиля зависит от скорости: $Q(v) = 0{,}01v^2 - 0{,}8v + 30$ (л/100 км). Найдите скорость, при которой расход минимален (производная равна нулю). Если эта скорость меньше $30$ км/ч, автомобиль неэффективен на трассе.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $Q'(v) = 0{,}02v - 0{,}8$.</p>
+                            <p><strong>Шаг 2. Приравниваем к нулю.</strong> $0{,}02v = 0{,}8 \Rightarrow v = 40$ км/ч.</p>
+                            <p><strong>Ответ:</strong> $40$ км/ч &gt; $30$ км/ч. Автомобиль эффективен на трассе.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Мощность двигателя меняется по закону $N(t) = 100t - 5t^2$ (л.с.). Найдите момент, когда мощность максимальна, и определите, насколько она превышает паспортные $400$ л.с. Если максимум меньше $400$, двигатель неисправен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $N'(t) = 100 - 10t$.</p>
+                            <p><strong>Шаг 2. Максимум.</strong> $N'(t) = 0 \Rightarrow t = 10$ с. Максимум $N(10) = 1000 - 500 = 500$ л.с.</p>
+                            <p><strong>Ответ:</strong> Максимум $500$ л.с. &gt; $400$ л.с. Двигатель в норме (даже мощнее паспорта).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Скорость автомобиля.</strong> Путь задан $S(t) = t^3 - 3t^2 + 4t$. Найдите скорость при $t = 2$ с. Если она больше $10$ м/с, водитель превышает.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$v(t) = 3t^2 - 6t + 4$. $v(2) = 12 - 12 + 4 = 4$ м/с. $4 < 10$, нарушения нет.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Ускорение.</strong> Скорость $v(t) = 3t^2 - 2t + 1$. Найдите ускорение при $t = 3$ с. Если оно больше $15$ м/с², перегрузка.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$a(t) = 6t - 2$. $a(3) = 18 - 2 = 16$ м/с². $16 > 15$, перегрузка.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Оптимальная скорость.</strong> Расход топлива $Q(v) = 0{,}02v^2 - 1{,}2v + 25$. Найдите скорость минимального расхода. Если она меньше $25$ км/ч, автомобиль неэффективен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$Q'(v) = 0{,}04v - 1{,}2$. Приравниваем: $v = 30$ км/ч. $30 > 25$, эффективен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Максимум мощности.</strong> $N(t) = 50t - 2t^2$. Найдите момент максимальной мощности. Если максимум меньше $300$ л.с., двигатель слабый.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$N'(t) = 50 - 4t = 0 \Rightarrow t = 12{,}5$. Максимум $N = 625 - 312{,}5 = 312{,}5$ л.с. $312{,}5 > 300$, двигатель в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Тормозной путь.</strong> Скорость при торможении $v(t) = 15 - 3t$. Найдите путь до остановки (интеграл не нужен, просто момент остановки). Если остановка позже $4$ с, тормоза слабые.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$v = 0 \Rightarrow t = 5$ с. $5 > 4$, тормоза слабые.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Скорость изменения расхода.</strong> Расход топлива $Q(t) = 0{,}5t^2 - 2t + 10$. Найдите скорость изменения расхода при $t = 3$ с. Если она больше $2$ л/с, водитель слишком резко давит на газ.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$Q'(t) = t - 2$. $Q'(3) = 1$ л/с. $1 < 2$, режим нормальный.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Вторая производная (ускорение).</strong> Путь $S(t) = t^3 - 6t^2 + 9t$. Найдите ускорение при $t = 2$ с. Если оно отрицательное, автомобиль замедляется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$v(t) = 3t^2 - 12t + 9$, $a(t) = 6t - 12$. $a(2) = 12 - 12 = 0$. Ускорение нулевое, автомобиль движется равномерно.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚙️ ТМ (Технология машиностроения)</span>
+            <span class="sub-title">Скорость обработки, износ резца и оптимальные режимы</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять производную на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>При точении детали температура резца меняется по закону $T(t) = 20 + 5t^2 - 0{,}5t^3$ (в градусах, $t$ — минуты). Найдите скорость изменения температуры при $t = 2$ мин. Если она больше $15$ °C/мин, резец перегреется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $T'(t) = 10t - 1{,}5t^2$.</p>
+                            <p><strong>Шаг 2. Подставляем $t = 2$.</strong> $T'(2) = 20 - 6 = 14$ °C/мин.</p>
+                            <p><strong>Ответ:</strong> $14$ °C/мин &lt; $15$ °C/мин. Резец в норме.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Износ резца зависит от скорости резания: $I(v) = 0{,}02v^2 - 0{,}4v + 5$ (в мкм/мин). Найдите скорость резания, при которой износ минимален (производная равна нулю). Если эта скорость меньше $8$ м/мин, режим выбран неверно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $I'(v) = 0{,}04v - 0{,}4$.</p>
+                            <p><strong>Шаг 2. Приравниваем к нулю.</strong> $0{,}04v = 0{,}4 \Rightarrow v = 10$ м/мин.</p>
+                            <p><strong>Ответ:</strong> $10$ м/мин &gt; $8$ м/мин. Режим выбран верно.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Скорость съёма металла зависит от подачи: $V(s) = 4s^2 - s^3$ (см³/мин). Найдите подачу, при которой скорость съёма максимальна. Если она меньше $2$ мм/об, станок работает неэффективно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $V'(s) = 8s - 3s^2$.</p>
+                            <p><strong>Шаг 2. Приравниваем к нулю.</strong> $s(8 - 3s) = 0 \Rightarrow s = 0$ или $s = \frac{8}{3} \approx 2{,}67$ мм/об.</p>
+                            <p><strong>Ответ:</strong> $2{,}67$ мм/об &gt; $2$ мм/об. Станок работает эффективно.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Мощность резания меняется по закону $N(t) = 10t - 0{,}5t^2$ (кВт). Найдите ускорение изменения мощности (вторую производную) в момент $t = 3$ мин. Если ускорение по модулю больше $1{,}5$ кВт/мин², станок вибрирует.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Первая производная.</strong> $N'(t) = 10 - t$.</p>
+                            <p><strong>Шаг 2. Вторая производная.</strong> $N''(t) = -1$ кВт/мин².</p>
+                            <p><strong>Ответ:</strong> Ускорение по модулю $1$ кВт/мин² &lt; $1{,}5$ кВт/мин². Вибрации нет.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Скорость нагрева.</strong> Температура резца $T(t) = 25 + 3t^2$. Найдите скорость нагрева при $t = 3$ мин. Если она больше $20$ °C/мин, резец перегреется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$T'(t) = 6t$. $T'(3) = 18$ °C/мин. $18 < 20$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Минимальный износ.</strong> Износ $I(v) = 0{,}05v^2 - 0{,}8v + 10$. Найдите скорость минимального износа. Если она меньше $5$ м/мин, режим неверный.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$I'(v) = 0{,}1v - 0{,}8 = 0 \Rightarrow v = 8$ м/мин. $8 > 5$, режим верный.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Максимум производительности.</strong> $V(s) = 6s^2 - s^3$. Найдите подачу максимума. Если она меньше $3$ мм/об, станок неэффективен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$V'(s) = 12s - 3s^2 = 0 \Rightarrow s = 4$ мм/об. $4 > 3$, эффективен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Скорость изменения мощности.</strong> $N(t) = 8t - 0{,}2t^2$. Найдите скорость изменения при $t = 5$. Если она меньше $5$ кВт/мин, станок теряет мощность.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$N'(t) = 8 - 0{,}4t$. $N'(5) = 8 - 2 = 6$ кВт/мин. $6 > 5$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Ускорение изменения мощности.</strong> $N(t) = 12t - 0{,}5t^2$. Найдите вторую производную при $t = 2$. Если ускорение по модулю больше $1{,}2$, станок вибрирует.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$N'(t) = 12 - t$, $N''(t) = -1$. По модулю $1 < 1{,}2$, вибрации нет.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Оптимальный угол.</strong> Сила резания $F(\alpha) = 10\sin\alpha + 5\cos\alpha$ (условно). Найдите угол (в градусах), при котором сила максимальна. (Подсказка: производная по углу). Если угол больше $45^\circ$, резец может сломаться.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$F'(\alpha) = 10\cos\alpha - 5\sin\alpha = 0 \Rightarrow \tan\alpha = 2 \Rightarrow \alpha \approx 63{,}4^\circ$. $63{,}4 > 45$, резец под угрозой.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Скорость остывания.</strong> Температура детали после обработки: $T(t) = 150e^{-0{,}05t}$. Найдите скорость остывания при $t = 20$ мин. Если она меньше $-2$ °C/мин, деталь остывает слишком медленно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$T'(t) = -7{,}5e^{-0{,}05t}$. При $t=20$: $-7{,}5e^{-1} \approx -2{,}76$ °C/мин. По модулю $2{,}76 > 2$, остывает нормально.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ИМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">💻 ИМ (Информационные системы)</span>
+            <span class="sub-title">Скорость работы алгоритмов, рост данных и оптимизация</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять производную на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Время работы алгоритма зависит от размера данных: $T(n) = 2n^2 + 5n$ (мс). Разработчику нужно найти скорость роста времени при $n = 10$ (производную). Если она больше $50$ мс/ед., сервер не справится.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $T'(n) = 4n + 5$.</p>
+                            <p><strong>Шаг 2. Подставляем $n = 10$.</strong> $T'(10) = 40 + 5 = 45$ мс/ед.</p>
+                            <p><strong>Ответ:</strong> $45$ мс/ед. &lt; $50$ мс/ед. Сервер справится.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Количество запросов к базе данных растёт по закону $Q(t) = 100t^2 - 20t^3$ (тыс. запросов в час), где $t$ — часы. Найдите момент времени, когда скорость роста запросов максимальна. Если она превышает $200$ тыс./ч², база данных перегружена.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Скорость роста.</strong> $Q'(t) = 200t - 60t^2$.</p>
+                            <p><strong>Шаг 2. Ускорение (для нахождения максимума скорости).</strong> $Q''(t) = 200 - 120t = 0 \Rightarrow t \approx 1{,}67$ ч.</p>
+                            <p><strong>Шаг 3. Значение скорости.</strong> $Q'(1{,}67) = 333{,}3 - 166{,}7 = 166{,}6$ тыс./ч².</p>
+                            <p><strong>Ответ:</strong> Максимальная скорость $166{,}6$ тыс./ч² &lt; $200$ тыс./ч². База данных в норме.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Стоимость хранения данных зависит от объёма: $C(v) = 0{,}01v^2 + 50v$ (руб.). Найдите объём, при котором стоимость хранения растёт с минимальной скоростью (производная минимальна). Если оптимальный объём меньше $100$ ГБ, система неэффективна.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $C'(v) = 0{,}02v + 50$. Она линейно растёт, минимум на границе $v = 0$.</p>
+                            <p><strong>Шаг 2. Уточнение.</strong> Стоимость растёт всегда, но минимальная скорость — при $v=0$. Это некорректная постановка, переформулируем: минимальная цена на единицу объёма $\frac{C(v)}{v} = 0{,}01v + 50$. Её минимум тоже при $v=0$. В реальности объём не может быть нулевым.</p>
+                            <p><strong>Ответ:</strong> Экономически выгодно хранить как можно меньше данных, но это противоречит задаче. Для оптимизации нужно уточнить критерий (например, минимум $\frac{C}{v}$ при $v \ge 100$). В рамках задачи: оптимальный объём — $100$ ГБ (граница).</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Время отклика сервера меняется по закону $R(t) = 50e^{-0{,}1t} + 10$ (мс), где $t$ — время после перезагрузки. Найдите скорость изменения времени отклика при $t = 5$ с. Если скорость по модулю больше $3$ мс/с, сервер нестабилен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $R'(t) = 50 \cdot (-0{,}1)e^{-0{,}1t} = -5e^{-0{,}1t}$.</p>
+                            <p><strong>Шаг 2. Подставляем $t = 5$.</strong> $R'(5) = -5e^{-0{,}5} \approx -5 \cdot 0{,}6065 \approx -3{,}03$ мс/с.</p>
+                            <p><strong>Ответ:</strong> По модулю $3{,}03 &gt; 3$. Сервер нестабилен, нужно проверить.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Скорость работы алгоритма.</strong> $T(n) = 3n^2 + 2n$. Найдите скорость роста при $n = 5$. Если больше $40$ мс/ед., нужен апгрейд.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$T'(n) = 6n + 2$. $T'(5) = 32$ мс/ед. $32 < 40$, апгрейд не нужен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Рост базы данных.</strong> $Q(t) = 50t^2 - 10t^3$. Найдите момент максимальной скорости роста. Если он меньше $2$ ч, база данных перегрузится.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$Q'(t) = 100t - 30t^2$, $Q''(t) = 100 - 60t = 0 \Rightarrow t \approx 1{,}67$ ч. $1{,}67 < 2$, перегрузится.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Стоимость хранения.</strong> $C(v) = 0{,}02v^2 + 10v$. Найдите скорость роста стоимости при $v = 200$ ГБ. Если она больше $10$ руб./ГБ, нужно менять тариф.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$C'(v) = 0{,}04v + 10$. $C'(200) = 8 + 10 = 18$ руб./ГБ. $18 > 10$, тариф нужно менять.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Время отклика.</strong> $R(t) = 100e^{-0{,}2t} + 5$. Найдите скорость изменения при $t = 3$. Если по модулю больше $5$ мс/с, сервер нестабилен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$R'(t) = -20e^{-0{,}2t}$. $R'(3) = -20e^{-0{,}6} \approx -10{,}98$ мс/с. По модулю $10{,}98 > 5$, нестабилен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Оптимизация алгоритма.</strong> $T(n) = n^3 - 6n^2 + 9n$. Найдите минимальное время на интервале $[0; 4]$. Если минимум меньше $5$ мс, алгоритм быстрый.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$T'(n) = 3n^2 - 12n + 9 = 0 \Rightarrow n=1, n=3$. $T(1) = 4$, $T(3) = 0$. Минимум $0 < 5$, алгоритм быстрый.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Ускорение отклика.</strong> $R(t) = 80 - 10t + 0{,}5t^2$. Найдите ускорение при $t = 4$. Если оно больше $2$ мс/с², сервер разгоняется слишком быстро.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$R'(t) = -10 + t$, $R''(t) = 1$ мс/с². $1 < 2$, разгон нормальный.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Скорость изменения нагрузки.</strong> $L(t) = 20t - t^2$. Найдите момент, когда нагрузка перестаёт расти (производная = 0). Если это происходит позже $15$ мин, сервер перегреется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$L'(t) = 20 - 2t = 0 \Rightarrow t = 10$ мин. $10 < 15$, сервер в норме.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРЩИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔥 Сварщик</span>
+            <span class="sub-title">Скорость остывания шва, расход электродов и режимы</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять производную на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Сварной шов остывает по закону $T(t) = 800e^{-0{,}15t}$ (°C), где $t$ — минуты. Найдите скорость остывания при $t = 5$ мин. Если она меньше $-40$ °C/мин, шов остывает слишком быстро (может треснуть).</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $T'(t) = 800 \cdot (-0{,}15)e^{-0{,}15t} = -120e^{-0{,}15t}$.</p>
+                            <p><strong>Шаг 2. Подставляем $t = 5$.</strong> $T'(5) = -120e^{-0{,}75} \approx -120 \cdot 0{,}472 \approx -56{,}7$ °C/мин.</p>
+                            <p><strong>Ответ:</strong> По модулю $56{,}7 &gt; 40$. Шов остывает слишком быстро, возможна трещина.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Расход электродов зависит от длины шва: $M(L) = 0{,}5L^2 + 2L$ (граммов). Найдите скорость расхода при длине $L = 10$ см. Если она превышает $12$ г/см, сварщик работает слишком быстро.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $M'(L) = L + 2$.</p>
+                            <p><strong>Шаг 2. Подставляем $L = 10$.</strong> $M'(10) = 10 + 2 = 12$ г/см.</p>
+                            <p><strong>Ответ:</strong> Ровно $12$ г/см (на границе). Нужно следить за скоростью.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Скорость плавления электрода $v(t) = 3t^2 - 12t + 15$ (мм/с). Найдите минимальную скорость плавления и момент, когда она достигается. Если минимум меньше $3$ мм/с, электрод плавится слишком медленно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $v'(t) = 6t - 12 = 0 \Rightarrow t = 2$ с.</p>
+                            <p><strong>Шаг 2. Значение.</strong> $v(2) = 12 - 24 + 15 = 3$ мм/с.</p>
+                            <p><strong>Ответ:</strong> Минимум $3$ мм/с ровно на границе. Медленно, но допустимо.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Прочность шва растёт по закону $S(t) = 100 + 20t - t^2$ (МПа), где $t$ — часы после сварки. Найдите момент максимальной прочности и проверьте, превышает ли она $180$ МПа. Если нет — шов нужно усилить.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $S'(t) = 20 - 2t = 0 \Rightarrow t = 10$ ч.</p>
+                            <p><strong>Шаг 2. Значение.</strong> $S(10) = 100 + 200 - 100 = 200$ МПа.</p>
+                            <p><strong>Ответ:</strong> Максимум $200$ МПа &gt; $180$ МПа. Шов выдержит.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Скорость остывания.</strong> $T(t) = 600e^{-0{,}2t}$. Найдите скорость остывания при $t = 3$ мин. Если по модулю больше $50$ °C/мин, шов может треснуть.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$T'(t) = -120e^{-0{,}2t}$. $T'(3) = -120e^{-0{,}6} \approx -65{,}8$ °C/мин. По модулю $65{,}8 > 50$, риск трещины.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Расход электродов.</strong> $M(L) = 0{,}3L^2 + 1{,}5L$. Найдите скорость расхода при $L = 15$ см. Если больше $10$ г/см, режим неверный.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$M'(L) = 0{,}6L + 1{,}5$. $M'(15) = 9 + 1{,}5 = 10{,}5$ г/см. $10{,}5 > 10$, режим неверный.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Минимальная скорость плавления.</strong> $v(t) = t^2 - 6t + 12$. Найдите минимум. Если он меньше $2$ мм/с, электрод плавится медленно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$v'(t) = 2t - 6 = 0 \Rightarrow t = 3$. $v(3) = 9 - 18 + 12 = 3$ мм/с. $3 > 2$, нормально.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Максимальная прочность.</strong> $S(t) = 80 + 24t - 2t^2$. Найдите момент максимума. Если максимум больше $150$ МПа, шов надёжен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$S'(t) = 24 - 4t = 0 \Rightarrow t = 6$ ч. $S(6) = 80 + 144 - 72 = 152$ МПа. $152 > 150$, надёжен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Скорость изменения температуры.</strong> $T(t) = 200 - 15t + 0{,}5t^2$. Найдите скорость при $t = 10$ мин. Если она положительная (нагрев), это ошибка режима.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$T'(t) = -15 + t$. $T'(10) = -5$ °C/мин. Отрицательная, остывание идёт нормально.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Ускорение остывания.</strong> $T(t) = 500e^{-0{,}1t}$. Найдите вторую производную при $t = 0$. Если ускорение (по модулю) больше $10$, процесс нестабилен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$T'(t) = -50e^{-0{,}1t}$, $T''(t) = 5e^{-0{,}1t}$. $T''(0) = 5 < 10$, стабильно.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Оптимальный ток.</strong> КПД сварки $\eta(I) = -0{,}01I^2 + 0{,}6I$. Найдите ток, при котором КПД максимален. Если он меньше $20$ А, режим неверный.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\eta'(I) = -0{,}02I + 0{,}6 = 0 \Rightarrow I = 30$ А. $30 > 20$, режим верный.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРОЧНОЕ ПРОИЗВОДСТВО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🏭 Сварочное производство</span>
+            <span class="sub-title">Скорость выпуска, брак и экономика</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять производную на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Выпуск деталей на участке меняется по закону $V(t) = 50t - t^2$ (деталей в час), где $t$ — часы смены. Найдите момент максимальной производительности. Если она меньше $600$ деталей/час, смена неэффективна.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $V'(t) = 50 - 2t = 0 \Rightarrow t = 25$ ч (это больше смены, значит, на смене 8 ч производная положительна, производительность растёт).</p>
+                            <p><strong>Шаг 2. Проверим на границе $t=8$.</strong> $V(8) = 400 - 64 = 336$ деталей/час. Максимум на смене — 336.</p>
+                            <p><strong>Ответ:</strong> $336 &lt; 600$, смена неэффективна.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Доля брака зависит от скорости сварки: $B(v) = 0{,}1v^2 - 2v + 15$ (%). Найдите скорость, при которой брак минимален. Если она меньше $10$ м/ч, режим неверный.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $B'(v) = 0{,}2v - 2 = 0 \Rightarrow v = 10$ м/ч.</p>
+                            <p><strong>Шаг 2. Значение.</strong> $B(10) = 10 - 20 + 15 = 5\%$.</p>
+                            <p><strong>Ответ:</strong> $10$ м/ч (на границе). Минимальный брак $5\%$, режим допустим.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Прибыль предприятия зависит от объёма выпуска: $P(x) = -0{,}1x^2 + 100x - 500$ (тыс. руб.). Найдите объём, при котором прибыль максимальна. Если он меньше $400$ ед., нужно расширять производство.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $P'(x) = -0{,}2x + 100 = 0 \Rightarrow x = 500$ ед.</p>
+                            <p><strong>Шаг 2. Значение.</strong> $P(500) = -25000 + 50000 - 500 = 24500$ тыс. руб.</p>
+                            <p><strong>Ответ:</strong> $500 &gt; 400$. Производство расширять не нужно, максимум прибыли достигается при $500$ ед.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Себестоимость детали зависит от партии: $C(x) = \frac{1000}{x} + 5x$ (руб.). Найдите размер партии, при котором себестоимость минимальна. Если он меньше $10$ деталей, партия слишком маленькая.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $C'(x) = -\frac{1000}{x^2} + 5 = 0 \Rightarrow \frac{1000}{x^2} = 5 \Rightarrow x^2 = 200 \Rightarrow x \approx 14{,}14$.</p>
+                            <p><strong>Шаг 2. Округляем.</strong> Оптимальная партия $14$ деталей.</p>
+                            <p><strong>Ответ:</strong> $14 > 10$. Партия оптимальная.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Производительность.</strong> $V(t) = 40t - 2t^2$. Найдите момент максимума. Если он больше $8$ ч (смена), максимум не достигается.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$V'(t) = 40 - 4t = 0 \Rightarrow t = 10$ ч. $10 > 8$, за смену максимум не достигается (производительность растёт всю смену).</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Минимальный брак.</strong> $B(v) = 0{,}05v^2 - v + 10$. Найдите скорость минимального брака. Если она меньше $8$ м/ч, режим неверный.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$B'(v) = 0{,}1v - 1 = 0 \Rightarrow v = 10$ м/ч. $10 > 8$, режим верный.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Максимальная прибыль.</strong> $P(x) = -0{,}05x^2 + 80x - 200$. Найдите объём максимума. Если он больше $1000$ ед., производство не справится.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$P'(x) = -0{,}1x + 80 = 0 \Rightarrow x = 800$ ед. $800 < 1000$, справится.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Минимальная себестоимость.</strong> $C(x) = \frac{500}{x} + 2x$. Найдите оптимальную партию. Если она меньше $15$ деталей, партия маленькая.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$C'(x) = -\frac{500}{x^2} + 2 = 0 \Rightarrow x^2 = 250 \Rightarrow x \approx 15{,}8$. $15{,}8 > 15$, партия нормальная.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Скорость роста брака.</strong> $B(t) = 0{,}5t^2 - 2t + 5$. Найдите скорость изменения брака при $t = 4$ ч. Если она больше $3$ %/ч, партия под угрозой.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$B'(t) = t - 2$. $B'(4) = 2$ %/ч. $2 < 3$, партия в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Ускорение роста брака.</strong> $B(t) = t^2 - 4t + 10$. Найдите вторую производную. Если она больше $2$ %/ч², процесс нестабилен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$B'(t) = 2t - 4$, $B''(t) = 2$ %/ч². Ровно $2$, на границе стабильности.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Точка безубыточности.</strong> Прибыль $P(x) = 0{,}2x^2 - 10x + 100$. Найдите объём, при котором прибыль минимальна (убыток). Если убыток больше $50$ тыс. руб., производство нужно останавливать.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$P'(x) = 0{,}4x - 10 = 0 \Rightarrow x = 25$. $P(25) = 125 - 250 + 100 = -25$ тыс. руб. Убыток $25 < 50$, производство можно продолжать (но нужна оптимизация).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЛОГИСТЫ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚚 Логисты</span>
+            <span class="sub-title">Скорость доставки, расход топлива и оптимальные маршруты</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять производную на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Расход топлива грузовика зависит от скорости: $Q(v) = 0{,}01v^2 - 0{,}6v + 25$ (л/100 км). Найдите скорость, при которой расход минимален. Если она меньше $30$ км/ч, маршрут убыточен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $Q'(v) = 0{,}02v - 0{,}6 = 0 \Rightarrow v = 30$ км/ч.</p>
+                            <p><strong>Шаг 2. Значение.</strong> $Q(30) = 9 - 18 + 25 = 16$ л/100 км.</p>
+                            <p><strong>Ответ:</strong> Ровно $30$ км/ч (на границе). Маршрут не убыточен, но и не оптимален.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Стоимость доставки зависит от времени: $C(t) = 2t^2 - 8t + 50$ (у.е.). Найдите время, при котором стоимость минимальна. Если минимум меньше $40$ у.е., маршрут выгоден.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $C'(t) = 4t - 8 = 0 \Rightarrow t = 2$ ч.</p>
+                            <p><strong>Шаг 2. Значение.</strong> $C(2) = 8 - 16 + 50 = 42$ у.е.</p>
+                            <p><strong>Ответ:</strong> $42 > 40$. Маршрут дорогой, но не убыточный.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Объём доставленного груза растёт по закону $V(t) = 100 + 20t - t^2$ (тонн/день). Найдите момент, когда рост объёма прекращается. Если это происходит раньше $10$ дней, план поставок не выполняется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $V'(t) = 20 - 2t = 0 \Rightarrow t = 10$ дней.</p>
+                            <p><strong>Ответ:</strong> Рост прекращается ровно на $10$-й день (на границе). План на грани срыва.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Затраты на перевозку зависят от расстояния: $Z(S) = 0{,}5S + \frac{1000}{S}$ (у.е.). Найдите расстояние, при котором затраты минимальны. Если оно больше $50$ км, маршрут неэффективен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Производная.</strong> $Z'(S) = 0{,}5 - \frac{1000}{S^2} = 0 \Rightarrow \frac{1000}{S^2} = 0{,}5 \Rightarrow S^2 = 2000 \Rightarrow S \approx 44{,}7$ км.</p>
+                            <p><strong>Ответ:</strong> $44{,}7$ км &lt; $50$ км. Маршрут эффективен.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Минимальный расход.</strong> $Q(v) = 0{,}02v^2 - 1{,}2v + 30$. Найдите скорость минимального расхода. Если она меньше $25$ км/ч, маршрут неэффективен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$Q'(v) = 0{,}04v - 1{,}2 = 0 \Rightarrow v = 30$ км/ч. $30 > 25$, эффективен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Минимальная стоимость.</strong> $C(t) = 3t^2 - 12t + 40$. Найдите время минимальной стоимости. Если оно больше $3$ ч, доставка затягивается.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$C'(t) = 6t - 12 = 0 \Rightarrow t = 2$ ч. $2 < 3$, доставка быстрая.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Рост объёма.</strong> $V(t) = 50 + 10t - 0{,}5t^2$. Найдите момент остановки роста. Если он позже $15$ дней, план перевыполняется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$V'(t) = 10 - t = 0 \Rightarrow t = 10$ дней. $10 < 15$, план выполняется раньше.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Оптимальное расстояние.</strong> $Z(S) = 0{,}2S + \frac{800}{S}$. Найдите оптимальное расстояние. Если оно больше $60$ км, маршрут неэффективен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$Z'(S) = 0{,}2 - \frac{800}{S^2} = 0 \Rightarrow S^2 = 4000 \Rightarrow S \approx 63{,}2$ км. $63{,}2 > 60$, неэффективен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Скорость изменения затрат.</strong> $Z(t) = t^2 - 6t + 20$. Найдите скорость изменения затрат при $t = 4$ ч. Если она больше $2$ у.е./ч, затраты растут слишком быстро.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$Z'(t) = 2t - 6$. $Z'(4) = 2$ у.е./ч. Ровно $2$, на границе.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Ускорение затрат.</strong> $Z(t) = 0{,}5t^2 - 2t + 15$. Найдите вторую производную. Если она больше $1{,}5$ у.е./ч², процесс нестабилен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$Z'(t) = t - 2$, $Z''(t) = 1$ у.е./ч². $1 < 1{,}5$, стабильно.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Максимальная прибыль от доставки.</strong> $P(t) = -2t^2 + 24t - 50$. Найдите время максимальной прибыли. Если максимум меньше $20$ у.е., маршрут убыточен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$P'(t) = -4t + 24 = 0 \Rightarrow t = 6$ ч. $P(6) = -72 + 144 - 50 = 22$ у.е. $22 > 20$, маршрут прибыльный.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="derivative.html" class="back-link">Назад к разделу «Производная»</a>
+</div>
+
+<script>
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
+
+    function toggleSpoiler(button) {
+        const content = button.nextElementSibling;
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            button.textContent = button.textContent.includes('Подсказка') ? '💡 Подсказка' : 'Показать решение';
+        } else {
+            content.style.display = 'block';
+            button.textContent = button.textContent.includes('Подсказка') ? 'Скрыть подсказку' : 'Скрыть решение';
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([content]).catch(function (err) {
+                    console.log('MathJax error: ', err.message);
+                });
+            }
+        }
+    }
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+
+<script id="bottom-nav-autohide-script">
+    (function(){
+        var nav = document.querySelector('.bottom-nav');
+        if (!nav) return;
+        var lastY = window.scrollY;
+        var threshold = 8;
+        var ticking = false;
+        function onScroll(){
+            var y = window.scrollY;
+            if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+            if (y > lastY && y > 80) {
+                nav.classList.add('nav-hidden');
+            } else {
+                nav.classList.remove('nav-hidden');
+            }
+            lastY = y;
+            ticking = false;
+        }
+        window.addEventListener('scroll', function(){
+            if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+        }, { passive: true });
+    })();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+    (function() {
+        var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+        els.forEach(function(el) {
+            if (el.dataset.rippleBound) return;
+            el.dataset.rippleBound = '1';
+            el.classList.add('ripple-host');
+            el.addEventListener('pointerdown', function(e) {
+                var rect = el.getBoundingClientRect();
+                var size = Math.max(rect.width, rect.height);
+                var r = document.createElement('span');
+                r.className = 'ripple';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                el.appendChild(r);
+                setTimeout(function(){ r.remove(); }, 650);
+            });
+        });
+    })();
+</script>
+</body>
+</html>

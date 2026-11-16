@@ -962,9 +962,20 @@ body.is-index .bottom-nav.nav-hidden {
         const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
         camera.position.set(3.5, 2.5, 4.5);
 
+        // ===== Инициализация качества 3D =====
+        let quality3D = 'high';
+        if (window.Android && window.Android.getQuality3D) {
+            quality3D = window.Android.getQuality3D();
+        } else {
+            const saved = localStorage.getItem('quality3d');
+            if (saved) quality3D = saved;
+        }
+        window.quality3D = quality3D;
+        // =====================================
+
         const renderer = new THREE.WebGLRenderer({ canvas: canvasElem, alpha: true, antialias: true });
 
-        // ===== Настройка качества 3D (Вставлено скриптом) =====
+        // ===== Настройка качества 3D =====
         if (typeof window.quality3D !== 'undefined') {
             if (window.quality3D === 'low') {
                 renderer.setPixelRatio(0.75);
@@ -1274,26 +1285,36 @@ body.is-index .bottom-nav.nav-hidden {
                 camera.position.set(3.0, 2.0, 4.0);
                 camera.lookAt(0, 0, 0);
 
+                // ===== Инициализация качества 3D =====
+                let quality3D = 'high';
+                if (window.Android && window.Android.getQuality3D) {
+                    quality3D = window.Android.getQuality3D();
+                } else {
+                    const saved = localStorage.getItem('quality3d');
+                    if (saved) quality3D = saved;
+                }
+                window.quality3D = quality3D;
+                // =====================================
+
                 const renderer = new THREE.WebGLRenderer({
-
-        // ===== Настройка качества 3D (Вставлено скриптом) =====
-        if (typeof window.quality3D !== 'undefined') {
-            if (window.quality3D === 'low') {
-                renderer.setPixelRatio(0.75);
-                renderer.shadowMap.enabled = false;
-                renderer.antialias = false;
-            } else if (window.quality3D === 'medium') {
-                renderer.setPixelRatio(1);
-            } else {
-                renderer.setPixelRatio(window.devicePixelRatio || 1);
-            }
-        }
-        // ======================================================
-
                     canvas: canvas,
                     alpha: true,
                     antialias: true
                 });
+
+                // ===== Настройка качества 3D =====
+                if (typeof window.quality3D !== 'undefined') {
+                    if (window.quality3D === 'low') {
+                        renderer.setPixelRatio(0.75);
+                        renderer.shadowMap.enabled = false;
+                        renderer.antialias = false;
+                    } else if (window.quality3D === 'medium') {
+                        renderer.setPixelRatio(1);
+                    } else {
+                        renderer.setPixelRatio(window.devicePixelRatio || 1);
+                    }
+                }
+                // ======================================================
         
 
                 const labelRenderer2 = new THREE.CSS2DRenderer();

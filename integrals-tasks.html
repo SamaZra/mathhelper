@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Профессиональные задачи: Интегралы</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #2980b9; --example-bg: #162a38; --canvas-bg: #0f1a24;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --result-color: #4ade80; --danger-color: #f87171;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #2980b9; --example-bg: #f8fafc;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --result-color: #059669; --danger-color: #dc2626;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding: 8px 40px; cursor: pointer; user-select: none; text-align: center; position: relative; border-radius: 0 12px 12px 0; transition: background 0.3s; }
+        .section-title:hover { background: linear-gradient(90deg, var(--special-border) 0%, rgba(59, 130, 246, 0.15) 30%, rgba(59, 130, 246, 0.05) 100%); }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+        .section.collapsed .section-title .main-title::after { transform: translateY(-50%) rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; margin-top: 4px; }
+        .section-content { max-height: 30000px; overflow: hidden; transition: max-height 0.5s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .sub-accordion { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+        .sub-accordion-title { background: var(--info-bg); padding: 12px 16px; cursor: pointer; user-select: none; transition: background 0.2s; display: flex; flex-direction: column; gap: 4px; }
+        .sub-accordion-title:hover { background: rgba(59, 130, 246, 0.1); }
+        .sub-accordion-title .title-main { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: 700; color: var(--text); }
+        .sub-accordion-title .title-main::after { content: "▼"; font-size: 0.8rem; transition: transform 0.3s; color: var(--text-secondary); }
+        .sub-accordion.collapsed .sub-accordion-title .title-main::after { transform: rotate(-90deg); }
+        .sub-accordion-title .title-sub { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+
+        .sub-accordion-content { padding: 16px; background: var(--card-bg); max-height: 25000px; transition: max-height 0.4s ease; }
+        .sub-accordion.collapsed .sub-accordion-content { max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+
+        .formula-block, .example, .important {
+            position: relative; border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: none !important; padding-left: 20px !important; padding: 16px 20px;
+            background-color: var(--example-bg); margin-bottom: 16px; color: var(--text);
+            font-size: 0.95rem; line-height: 1.8;
+        }
+        .formula-block::before, .example::before, .important::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+            background: linear-gradient(180deg, var(--special-border) 0%, #0d9488 100%);
+            border-radius: 16px 0 0 16px; z-index: 1;
+        }
+        @media (hover: hover) {
+            .example:hover, .formula-block:hover, .important:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+        }
+
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+
+        .spoiler-btn { display: inline-block; margin-top: 10px; padding: 8px 16px; background: var(--info-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.2s, color 0.2s; }
+        .spoiler-btn:hover { background: var(--special-border); color: #fff; }
+        .spoiler-content { display: none; margin-top: 12px; padding: 12px 16px; background: var(--card-bg); border-radius: 8px; border: 1px dashed var(--border); animation: fadeIn 0.3s ease; }
+        .spoiler-content.solution { border-left: 4px solid var(--result-color); background: rgba(74, 222, 128, 0.05); }
+        .spoiler-content.hint { border-left: 4px solid var(--warning-border); background: var(--warning-bg); }
+
+        .back-link { display: table !important; margin: 20px auto 10px auto; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; text-align: center; }
+        .back-link:hover { background: #1c6ea4; }
+
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .bottom-nav { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px; background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900; transition: background 0.3s, border 0.3s, transform 0.3s; }
+        :root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+        .bottom-nav a, .bottom-nav button { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .bottom-nav a:hover, .bottom-nav button:hover { background: rgba(59,130,246,0.15); color: var(--accent); transform: translateY(-2px) scale(1.08); }
+        .bottom-nav.nav-hidden { transform: translate(-50%, 120%); opacity: 0; pointer-events: none; }
+        .ripple-host { position: relative !important; overflow: hidden !important; }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(59, 130, 246, 0.35); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 0; }
+        @keyframes rippleAnim { to { transform: scale(2.5); opacity: 0; } }
+    </style>
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] },
+            startup: { typeset: true }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise();
+                }
+            }, 100);
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Профессиональные задачи: Интегралы</h1>
+
+    <!-- ВВЕДЕНИЕ -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Зачем это нужно в профессии?</span>
+        </div>
+        <div class="section-content">
+            <p>Интеграл — это инструмент, который позволяет найти <strong>сумму бесконечно малых изменений</strong>. На производстве это незаменимая вещь: чтобы узнать общий расход энергии, пройденный путь, объём выкопанного грунта или площадь сложной детали, нужно уметь интегрировать.</p>
+            <p>Электрик через интеграл считает работу тока и заряд конденсатора. Автомеханик — тормозной путь. Сварщик — общую массу наплавки на длинном шве с меняющимся сечением. Логист — общий расход топлива на маршруте с переменным уклоном.</p>
+            <div class="important">
+                <strong>💡 Как пользоваться:</strong><br>
+                Выберите свою специальность ниже. В каждой — 4 задачи с подробным разбором и 7 задач для самостоятельной работы (с подсказками). Считайте так, как будто вы уже на объекте.
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЭРЭО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚡ ЭРЭО (Электрика)</span>
+            <span class="sub-title">Работа тока, заряд, энергия и площадь сигналов</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять интегралы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>При зарядке конденсатора сила тока меняется по закону $I(t) = 3t^2 + 2t$ (А). Инженеру нужно найти заряд $q$, накопленный за первые $4$ секунды. Заряд — это интеграл от тока: $q = \int_0^4 I(t) dt$. Если заряд превысит $100$ Кл, конденсатор пробьёт.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Составляем интеграл.</strong> $q = \int_0^4 (3t^2 + 2t) dt$.</p>
+                            <p><strong>Шаг 2. Находим первообразную.</strong> $F(t) = \frac{3t^3}{3} + \frac{2t^2}{2} = t^3 + t^2$.</p>
+                            <p><strong>Шаг 3. Применяем формулу Ньютона-Лейбница.</strong> $q = (4^3 + 4^2) - (0^3 + 0^2) = 64 + 16 = 80$ Кл.</p>
+                            <p><strong>Ответ:</strong> Заряд $80$ Кл &lt; $100$ Кл. Конденсатор выдержит.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Для расчёта нагрева кабеля нужно найти работу тока за $10$ секунд. Мощность меняется по закону $P(t) = 100 - 5t$ (Вт). Работа $A = \int_0^{10} P(t) dt$. Если работа превышает $800$ Дж, кабель перегреется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $A = \int_0^{10} (100 - 5t) dt$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(t) = 100t - \frac{5t^2}{2}$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $A = \left(100 \cdot 10 - \frac{5 \cdot 100}{2}\right) - 0 = 1000 - 250 = 750$ Дж.</p>
+                            <p><strong>Ответ:</strong> Работа $750$ Дж &lt; $800$ Дж. Кабель в норме.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>При передаче сигнала его амплитуда описывается функцией $f(x) = 2x - x^2$ на отрезке $[0; 2]$. Энергия сигнала — это площадь под графиком: $E = \int_0^2 (2x - x^2) dx$. Если энергия меньше $1$, сигнал слишком слабый.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $E = \int_0^2 (2x - x^2) dx$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(x) = x^2 - \frac{x^3}{3}$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $E = \left(4 - \frac{8}{3}\right) - 0 = \frac{12}{3} - \frac{8}{3} = \frac{4}{3} \approx 1{,}33$.</p>
+                            <p><strong>Ответ:</strong> Энергия $1{,}33 &gt; 1$. Сигнал достаточно мощный.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>В цепи переменного тока сила тока $I(t) = \sin t$. Инженеру нужно найти среднее значение тока за полпериода от $0$ до $\pi$. Среднее значение — это $\frac{1}{\pi - 0} \int_0^\pi \sin t \, dt$. Если среднее значение больше $0{,}5$ А, трансформатор перегружен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $\int_0^\pi \sin t \, dt = [-\cos t]_0^\pi = (-\cos\pi) - (-\cos 0) = 1 - (-1) = 2$.</p>
+                            <p><strong>Шаг 2. Среднее.</strong> $\frac{2}{\pi} \approx 0{,}637$.</p>
+                            <p><strong>Ответ:</strong> Среднее значение $0{,}637$ А &gt; $0{,}5$ А. Трансформатор перегружен.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Заряд конденсатора.</strong> Ток $I(t) = 2t + 1$. Найдите заряд за первые $3$ секунды. Если он больше $15$ Кл, конденсатор пробьёт.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^3 (2t + 1) dt = [t^2 + t]_0^3 = 9 + 3 = 12$ Кл. $12 < 15$, конденсатор выдержит.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Работа тока.</strong> Мощность $P(t) = 50 + 2t$. Найдите работу за $5$ секунд. Если она больше $300$ Дж, кабель перегреется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 (50 + 2t) dt = [50t + t^2]_0^5 = 250 + 25 = 275$ Дж. $275 < 300$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Энергия сигнала.</strong> Амплитуда $f(x) = x - x^2$ на $[0; 1]$. Найдите энергию (площадь под графиком). Если она меньше $0{,}1$, сигнал слабый.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^1 (x - x^2) dx = [\frac{x^2}{2} - \frac{x^3}{3}]_0^1 = \frac{1}{2} - \frac{1}{3} = \frac{1}{6} \approx 0{,}167$. $0{,}167 > 0{,}1$, сигнал хороший.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь треугольника.</strong> График тока образует треугольник с осями от $0$ до $4$ с высотой $6$ А. Найдите заряд (площадь). Если он больше $15$ Кл, нужен предохранитель.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">Площадь треугольника $S = \frac{1}{2} \cdot 4 \cdot 6 = 12$. $12 < 15$, предохранитель не нужен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Средняя мощность.</strong> Мощность $P(t) = 10t - t^2$ на $[0; 5]$. Найдите среднее значение. Если оно меньше $5$ Вт, оборудование неэффективно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 (10t - t^2) dt = [5t^2 - \frac{t^3}{3}]_0^5 = 125 - \frac{125}{3} = \frac{250}{3} \approx 83{,}3$. Среднее: $\frac{83{,}3}{5} \approx 16{,}7$. $16{,}7 > 5$, эффективно.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Работа переменного тока.</strong> Мощность $P(t) = \sin t$ на $[0; \pi]$. Найдите работу. Если она меньше $1{,}5$, тока не хватает.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^\pi \sin t \, dt = 2$. $2 > 1{,}5$, тока достаточно.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь под параболой.</strong> Ток $I(t) = t^2$ на $[0; 3]$. Найдите заряд. Если он больше $10$ Кл, нужен более мощный конденсатор.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^3 t^2 dt = [\frac{t^3}{3}]_0^3 = 9$. $9 < 10$, конденсатор справится.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТОА / АВТОМЕХАНИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚗 ТОА / Автомеханик</span>
+            <span class="sub-title">Путь, тормозной путь и расход топлива</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять интегралы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Скорость автомобиля при разгоне меняется по закону $v(t) = 3t^2 + 2t$ (м/с). Механику нужно найти путь, пройденный за первые $3$ секунды. Путь — это интеграл от скорости: $S = \int_0^3 v(t) dt$. Если путь больше $50$ м, водитель превысил норму разгона.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $S = \int_0^3 (3t^2 + 2t) dt$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(t) = t^3 + t^2$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $S = (27 + 9) - 0 = 36$ м.</p>
+                            <p><strong>Ответ:</strong> Путь $36$ м &lt; $50$ м. Норма не превышена.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>При торможении скорость падает по закону $v(t) = 20 - 4t$ (м/с). Найдите тормозной путь до полной остановки. Остановка при $v=0 \Rightarrow t = 5$ с. Путь: $S = \int_0^5 (20 - 4t) dt$. Если путь больше $60$ м, тормоза неисправны.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $S = \int_0^5 (20 - 4t) dt$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(t) = 20t - 2t^2$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $S = (100 - 50) - 0 = 50$ м.</p>
+                            <p><strong>Ответ:</strong> Путь $50$ м &lt; $60$ м. Тормоза в норме.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Расход топлива зависит от скорости: $q(v) = 0{,}5v + 10$ (л/ч). Найдите общий расход за время, когда скорость росла от $10$ до $20$ км/ч по закону $v(t) = 10 + 2t$ (за $5$ часов). Интеграл: $\int_0^5 (0{,}5(10+2t) + 10) dt$. Если расход больше $100$ л, водитель едет неэкономно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Упростим подынтегральное выражение.</strong> $0{,}5(10+2t) + 10 = 5 + t + 10 = 15 + t$.</p>
+                            <p><strong>Шаг 2. Интеграл.</strong> $\int_0^5 (15 + t) dt = [15t + \frac{t^2}{2}]_0^5 = 75 + 12{,}5 = 87{,}5$ л.</p>
+                            <p><strong>Ответ:</strong> Расход $87{,}5$ л &lt; $100$ л. Режим экономный.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>При проверке двигателя мощность меняется по закону $P(t) = 100 - 2t^2$ (л.с.). Найдите среднюю мощность на интервале $[0; 5]$ с. Среднее = $\frac{1}{5} \int_0^5 (100 - 2t^2) dt$. Если средняя мощность меньше $80$ л.с., двигатель изношен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $\int_0^5 (100 - 2t^2) dt = [100t - \frac{2t^3}{3}]_0^5 = 500 - \frac{250}{3} = \frac{1250}{3} \approx 416{,}7$.</p>
+                            <p><strong>Шаг 2. Среднее.</strong> $\frac{416{,}7}{5} \approx 83{,}3$ л.с.</p>
+                            <p><strong>Ответ:</strong> $83{,}3 &gt; 80$. Двигатель в норме.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Путь при разгоне.</strong> Скорость $v(t) = 2t + 1$. Найдите путь за $4$ с. Если больше $20$ м, превышение.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^4 (2t+1) dt = [t^2 + t]_0^4 = 16 + 4 = 20$ м. Ровно $20$, на границе.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Тормозной путь.</strong> $v(t) = 15 - 3t$. Найдите путь до остановки ($t=5$). Если больше $40$ м, тормоза слабые.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 (15-3t) dt = [15t - 1{,}5t^2]_0^5 = 75 - 37{,}5 = 37{,}5$ м. $37{,}5 < 40$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Расход топлива.</strong> $q(t) = 5 + 2t$ (л/ч). Найдите расход за $3$ часа. Если больше $25$ л, неэкономно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^3 (5+2t) dt = [5t + t^2]_0^3 = 15 + 9 = 24$ л. $24 < 25$, экономно.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Средняя мощность.</strong> $P(t) = 80 - t^2$ на $[0; 3]$. Найдите среднее. Если меньше $70$ л.с., двигатель слабый.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^3 (80 - t^2) dt = [80t - \frac{t^3}{3}]_0^3 = 240 - 9 = 231$. Среднее $\frac{231}{3} = 77$ л.с. $77 > 70$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Ускорение.</strong> Скорость $v(t) = t^2 + t$. Найдите путь за $2$ с. Если больше $5$ м, водитель резко стартует.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^2 (t^2 + t) dt = [\frac{t^3}{3} + \frac{t^2}{2}]_0^2 = \frac{8}{3} + 2 = 4{,}67$ м. $4{,}67 < 5$, старт плавный.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Работа двигателя.</strong> Мощность $P(t) = 50 + 10t$ на $[0; 4]$. Найдите работу. Если больше $300$ Дж, перегрузка.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^4 (50+10t) dt = [50t + 5t^2]_0^4 = 200 + 80 = 280$ Дж. $280 < 300$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь графика.</strong> График скорости образует треугольник: основание $6$ с, высота $10$ м/с. Найдите путь (площадь). Если он больше $35$ м, превышение.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$S = \frac{1}{2} \cdot 6 \cdot 10 = 30$ м. $30 < 35$, в норме.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ТМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚙️ ТМ (Технология машиностроения)</span>
+            <span class="sub-title">Объёмы деталей, масса стружки и площадь поверхностей</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять интегралы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>При точении детали скорость съёма металла меняется по закону $V(t) = 4t + 2$ (см³/мин). Технологу нужно найти общий объём снятого металла за первые $5$ минут. Объём — это интеграл от скорости: $V_{общ} = \int_0^5 (4t + 2) dt$. Если объём больше $60$ см³, резец износился.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $V_{общ} = \int_0^5 (4t + 2) dt$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(t) = 2t^2 + 2t$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $V_{общ} = (50 + 10) - 0 = 60$ см³.</p>
+                            <p><strong>Ответ:</strong> Объём $60$ см³ — ровно на границе. Нужно следить за износом.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Кривая износа резца задана функцией $y = 3x^2$ на отрезке $[0; 2]$. Площадь под кривой (интеграл) показывает, насколько сильно сточился резец. Найдите площадь: $\int_0^2 3x^2 dx$. Если площадь больше $8$, резец нужно менять.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $\int_0^2 3x^2 dx = [x^3]_0^2 = 8$.</p>
+                            <p><strong>Ответ:</strong> Площадь ровно $8$ — на границе. Резец ещё можно использовать, но лучше заменить.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Для расчёта массы цилиндрической заготовки нужно найти объём через интеграл от площади сечения: $V = \int_0^4 \pi (2 + 0{,}5x)^2 dx$. Если объём больше $100$ см³, масса превысит допустимую.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Раскрываем скобки.</strong> $(2 + 0{,}5x)^2 = 4 + 2x + 0{,}25x^2$.</p>
+                            <p><strong>Шаг 2. Интеграл.</strong> $V = \pi \int_0^4 (4 + 2x + 0{,}25x^2) dx = \pi [4x + x^2 + \frac{0{,}25x^3}{3}]_0^4$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $4 \cdot 4 + 16 + \frac{0{,}25 \cdot 64}{3} = 16 + 16 + 5{,}33 = 37{,}33$. Умножаем на $\pi$: $V \approx 117{,}3$ см³.</p>
+                            <p><strong>Ответ:</strong> $117{,}3 &gt; 100$ см³. Масса превысит допустимую, нужен другой режим.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>При обработке вала толщина стружки меняется по закону $h(x) = 0{,}5 + 0{,}1x$ (мм). Длина вала $10$ см. Найдите объём стружки (интеграл от площади сечения). Если объём больше $3$ см³, это превышает норму.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Переводим в см.</strong> $h(x) = 0{,}05 + 0{,}01x$ см.</p>
+                            <p><strong>Шаг 2. Интеграл.</strong> $V = \int_0^{10} (0{,}05 + 0{,}01x) dx = [0{,}05x + 0{,}005x^2]_0^{10} = 0{,}5 + 0{,}5 = 1$ см³.</p>
+                            <p><strong>Ответ:</strong> Объём $1$ см³ &lt; $3$ см³. В норме.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Объём стружки.</strong> $V(t) = 3t + 1$. Найдите объём за $4$ мин. Если больше $30$ см³, резец износился.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^4 (3t+1) dt = [1{,}5t^2 + t]_0^4 = 24 + 4 = 28$ см³. $28 < 30$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Износ резца.</strong> $y = 2x$ на $[0; 3]$. Найдите площадь. Если больше $10$, резец менять.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^3 2x dx = [x^2]_0^3 = 9$. $9 < 10$, резец ещё годен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Объём детали.</strong> $V = \int_0^2 \pi x^2 dx$. Найдите объём. Если больше $10$ см³, деталь тяжёлая.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^2 x^2 dx = [\frac{x^3}{3}]_0^2 = \frac{8}{3} \approx 2{,}67$. $V = \pi \cdot 2{,}67 \approx 8{,}38$ см³. $8{,}38 < 10$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Толщина стружки.</strong> $h(x) = 0{,}1x$ на длине $5$ см. Найдите объём. Если больше $1$ см³, режим неверный.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 0{,}1x dx = [0{,}05x^2]_0^5 = 1{,}25$ см³. $1{,}25 > 1$, режим неверный.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь поверхности.</strong> $S = \int_0^3 (2x + 1) dx$. Найдите площадь. Если больше $15$, деталь большая.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^3 (2x+1) dx = [x^2 + x]_0^3 = 9 + 3 = 12$. $12 < 15$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Средняя толщина.</strong> $h(x) = x^2$ на $[0; 2]$. Найдите среднее (интеграл делить на $2$). Если больше $1{,}5$, брак.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^2 x^2 dx = \frac{8}{3} \approx 2{,}67$. Среднее: $\frac{2{,}67}{2} = 1{,}33$. $1{,}33 < 1{,}5$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Работа станка.</strong> $P(t) = 10 + 2t$ на $[0; 5]$. Найдите работу. Если больше $80$, перегрузка.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 (10+2t) dt = [10t + t^2]_0^5 = 50 + 25 = 75$. $75 < 80$, в норме.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ИМ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">💻 ИМ (Информационные системы)</span>
+            <span class="sub-title">Объём данных, площадь графиков и нагрузка на сеть</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять интегралы в IT-сфере.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Скорость передачи данных в сети меняется по закону $v(t) = 100 - 10t$ (Мбит/с). Разработчику нужно найти объём переданных данных за $5$ секунд. Объём — это интеграл: $V = \int_0^5 (100 - 10t) dt$. Если объём меньше $300$ Мбит, канал не справляется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $V = \int_0^5 (100 - 10t) dt$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(t) = 100t - 5t^2$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $V = (500 - 125) - 0 = 375$ Мбит.</p>
+                            <p><strong>Ответ:</strong> Объём $375$ Мбит &gt; $300$ Мбит. Канал справляется.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Нагрузка на сервер описывается функцией $f(x) = 4 - x^2$ на отрезке $[-2; 2]$. Площадь под графиком — это средняя нагрузка. Найдите площадь: $\int_{-2}^2 (4 - x^2) dx$. Если площадь больше $10$, сервер перегружен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $\int_{-2}^2 (4 - x^2) dx$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(x) = 4x - \frac{x^3}{3}$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $F(2) = 8 - \frac{8}{3} = \frac{16}{3}$. $F(-2) = -8 + \frac{8}{3} = -\frac{16}{3}$. Разность: $\frac{16}{3} - \left(-\frac{16}{3}\right) = \frac{32}{3} \approx 10{,}67$.</p>
+                            <p><strong>Ответ:</strong> Площадь $10{,}67 &gt; 10$. Сервер перегружен.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Количество запросов к базе данных растёт по закону $Q(t) = 3t^2$ (тыс. в час). Найдите общее количество запросов за $4$ часа. Интеграл: $\int_0^4 3t^2 dt$. Если больше $60$ тыс., база данных перегружена.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $\int_0^4 3t^2 dt = [t^3]_0^4 = 64$ тыс.</p>
+                            <p><strong>Ответ:</strong> $64$ тыс. &gt; $60$ тыс. База данных перегружена, нужна оптимизация.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>При сжатии файла скорость сжатия меняется по закону $v(t) = 20 - t$ (МБ/с). Найдите объём данных, сжатых за $10$ секунд. Интеграл: $\int_0^{10} (20 - t) dt$. Если объём меньше $150$ МБ, алгоритм неэффективен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $V = \int_0^{10} (20 - t) dt = [20t - \frac{t^2}{2}]_0^{10} = 200 - 50 = 150$ МБ.</p>
+                            <p><strong>Ответ:</strong> Объём $150$ МБ — ровно на границе. Алгоритм работает на пределе.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Объём данных.</strong> $v(t) = 50 - 2t$. Найдите объём за $10$ с. Если меньше $300$ Мбит, канал слабый.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^{10} (50-2t) dt = [50t - t^2]_0^{10} = 500 - 100 = 400$ Мбит. $400 > 300$, канал хороший.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Нагрузка на сервер.</strong> $f(x) = 9 - x^2$ на $[-3; 3]$. Найдите площадь. Если больше $30$, перегрузка.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_{-3}^3 (9 - x^2) dx = 2 \int_0^3 (9 - x^2) dx = 2 [9x - \frac{x^3}{3}]_0^3 = 2(27 - 9) = 36$. $36 > 30$, перегрузка.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Количество запросов.</strong> $Q(t) = 2t$. Найдите общее за $5$ ч. Если больше $20$ тыс., перегрузка.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 2t dt = [t^2]_0^5 = 25$ тыс. $25 > 20$, перегрузка.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Скорость сжатия.</strong> $v(t) = 15 - t$. Найдите объём за $5$ с. Если меньше $50$ МБ, алгоритм медленный.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 (15-t) dt = [15t - \frac{t^2}{2}]_0^5 = 75 - 12{,}5 = 62{,}5$ МБ. $62{,}5 > 50$, алгоритм быстрый.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Средняя нагрузка.</strong> $f(x) = x^2$ на $[0; 3]$. Найдите среднее. Если больше $3$, сервер перегружен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^3 x^2 dx = 9$. Среднее: $\frac{9}{3} = 3$. Ровно $3$, на границе.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь под графиком.</strong> $f(x) = 2x$ на $[0; 4]$. Найдите площадь. Если больше $15$, нагрузка высокая.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^4 2x dx = [x^2]_0^4 = 16$. $16 > 15$, нагрузка высокая.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Работа алгоритма.</strong> $P(t) = 10 + t$ на $[0; 4]$. Найдите работу. Если больше $45$, алгоритм долгий.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^4 (10+t) dt = [10t + \frac{t^2}{2}]_0^4 = 40 + 8 = 48$. $48 > 45$, алгоритм долгий.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРЩИК ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔥 Сварщик</span>
+            <span class="sub-title">Масса наплавки, площадь шва и расход электродов</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять интегралы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>При сварке длинного шва площадь сечения меняется по закону $S(x) = 2 + 0{,}1x$ (см²). Длина шва $10$ см. Мастеру нужно найти объём наплавленного металла: $V = \int_0^{10} (2 + 0{,}1x) dx$. Если объём больше $30$ см³, электродов не хватит.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $V = \int_0^{10} (2 + 0{,}1x) dx$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(x) = 2x + 0{,}05x^2$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $V = (20 + 5) - 0 = 25$ см³.</p>
+                            <p><strong>Ответ:</strong> Объём $25$ см³ &lt; $30$ см³. Электродов хватит.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Скорость плавления электрода меняется по закону $v(t) = 3t + 1$ (мм/с). Найдите массу расплавленного металла за $4$ секунды. Масса — это интеграл от скорости, умноженный на плотность. Плотность $7{,}8$ мг/мм. Сначала находим объём: $V = \int_0^4 (3t + 1) dt$. Если масса больше $100$ мг, электрод перегреется.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл для объёма.</strong> $V = \int_0^4 (3t + 1) dt = [1{,}5t^2 + t]_0^4 = 24 + 4 = 28$ мм³.</p>
+                            <p><strong>Шаг 2. Масса.</strong> $m = V \cdot \rho = 28 \cdot 7{,}8 = 218{,}4$ мг.</p>
+                            <p><strong>Ответ:</strong> $218{,}4 &gt; 100$ мг. Электрод перегреется, нужно снизить ток.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Площадь поперечного сечения шва задана кривой $y = 4 - x^2$ на $[-2; 2]$. Найдите площадь сечения (интеграл). Если площадь меньше $8$, шов будет непрочным.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $S = \int_{-2}^2 (4 - x^2) dx$.</p>
+                            <p><strong>Шаг 2. В силу симметрии.</strong> $S = 2 \int_0^2 (4 - x^2) dx = 2 [4x - \frac{x^3}{3}]_0^2$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $2 (8 - \frac{8}{3}) = 2 \cdot \frac{16}{3} = \frac{32}{3} \approx 10{,}67$.</p>
+                            <p><strong>Ответ:</strong> Площадь $10{,}67 &gt; 8$. Шов прочный.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Температура шва при остывании: $T(t) = 800e^{-0{,}1t}$. Найдите среднюю температуру за первые $10$ секунд. Среднее = $\frac{1}{10}\int_0^{10} 800e^{-0{,}1t} dt$. Если средняя температура меньше $400$ °C, шов остывает слишком быстро.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $\int_0^{10} 800e^{-0{,}1t} dt = \left[\frac{800}{-0{,}1}e^{-0{,}1t}\right]_0^{10} = -8000(e^{-1} - 1) = 8000(1 - e^{-1})$.</p>
+                            <p><strong>Шаг 2. Вычисляем.</strong> $e^{-1} \approx 0{,}3679$, $1 - e^{-1} \approx 0{,}6321$. Интеграл $\approx 5056{,}8$.</p>
+                            <p><strong>Шаг 3. Среднее.</strong> $\frac{5056{,}8}{10} \approx 505{,}7$ °C.</p>
+                            <p><strong>Ответ:</strong> Средняя температура $505{,}7$ °C &gt; $400$ °C. Остывание нормальное.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Объём наплавки.</strong> $S(x) = 1 + 0{,}2x$ на длине $5$ см. Найдите объём. Если больше $10$ см³, электродов мало.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 (1 + 0{,}2x) dx = [x + 0{,}1x^2]_0^5 = 5 + 2{,}5 = 7{,}5$ см³. $7{,}5 < 10$, электродов хватит.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Масса электрода.</strong> $V = \int_0^3 (2t) dt$. Найдите объём, затем массу при плотности $7{,}8$. Если масса больше $80$, перегрев.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^3 2t dt = 9$. Масса $9 \cdot 7{,}8 = 70{,}2$. $70{,}2 < 80$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь шва.</strong> $y = 9 - x^2$ на $[-3; 3]$. Найдите площадь. Если меньше $25$, шов непрочный.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$S = 2\int_0^3 (9 - x^2) dx = 2[9x - \frac{x^3}{3}]_0^3 = 2(27 - 9) = 36$. $36 > 25$, шов прочный.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Средняя температура.</strong> $T(t) = 500e^{-0{,}2t}$ на $[0; 5]$. Найдите среднее. Если меньше $300$, шов остывает быстро.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 500e^{-0{,}2t} dt = \frac{500}{-0{,}2}(e^{-1} - 1) = 2500(1 - e^{-1}) \approx 1580$. Среднее $\frac{1580}{5} = 316$. $316 > 300$, нормально.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Расход электродов.</strong> $v(t) = t + 2$ на $[0; 3]$. Найдите объём. Если больше $10$, электродов мало.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^3 (t+2) dt = [\frac{t^2}{2} + 2t]_0^3 = 4{,}5 + 6 = 10{,}5$. $10{,}5 > 10$, электродов мало.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Работа сварки.</strong> $P(t) = 50 + 10t$ на $[0; 4]$. Найдите работу. Если больше $250$, перегрузка.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^4 (50+10t) dt = [50t + 5t^2]_0^4 = 200 + 80 = 280$. $280 > 250$, перегрузка.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь под кривой.</strong> $y = x^2$ на $[0; 2]$. Найдите площадь. Если больше $2$, шов широкий.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^2 x^2 dx = \frac{8}{3} \approx 2{,}67$. $2{,}67 > 2$, шов широкий.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СВАРОЧНОЕ ПРОИЗВОДСТВО ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🏭 Сварочное производство</span>
+            <span class="sub-title">Экономика, общий выпуск и площади деталей</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять интегралы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Производительность участка меняется по закону $V(t) = 50 + 10t$ (деталей/час). Мастеру нужно найти общий выпуск за $8$ часов смены. Выпуск — это интеграл: $N = \int_0^8 (50 + 10t) dt$. Если выпуск больше $600$ деталей, план перевыполнен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $N = \int_0^8 (50 + 10t) dt$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(t) = 50t + 5t^2$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $N = (400 + 320) - 0 = 720$ деталей.</p>
+                            <p><strong>Ответ:</strong> $720 &gt; 600$. План перевыполнен.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Доля брака зависит от времени: $B(t) = 5 - 0{,}5t$ (%). Найдите общее количество бракованных деталей за $6$ часов, если выпуск был $100$ деталей/час. Сначала находим средний процент брака: $\frac{1}{6}\int_0^6 (5 - 0{,}5t) dt$. Если брак превышает $20$ деталей, партия под угрозой.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $\int_0^6 (5 - 0{,}5t) dt = [5t - 0{,}25t^2]_0^6 = 30 - 9 = 21$.</p>
+                            <p><strong>Шаг 2. Средний процент.</strong> $\frac{21}{6} = 3{,}5\%$.</p>
+                            <p><strong>Шаг 3. Количество брака.</strong> $100$ дет/ч $\cdot 6$ ч $\cdot 3{,}5\% = 600 \cdot 0{,}035 = 21$ деталь.</p>
+                            <p><strong>Ответ:</strong> $21 &gt; 20$. Брак превышает норму, партия под угрозой.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Площадь детали, вырезанной из листа, задана кривой $y = 2x$ на $[0; 3]$. Найдите площадь заготовки (интеграл). Если площадь больше $10$, потребуется больше металла, чем планировалось.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $S = \int_0^3 2x dx = [x^2]_0^3 = 9$.</p>
+                            <p><strong>Ответ:</strong> Площадь $9 &lt; 10$. Металла хватит.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Прибыль предприятия меняется по закону $P'(x) = 100 - 2x$ (тыс. руб./ед.). Найдите общую прибыль от продажи $50$ единиц. Прибыль — это интеграл: $P = \int_0^{50} (100 - 2x) dx$. Если прибыль меньше $3000$ тыс., производство убыточно.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $P = \int_0^{50} (100 - 2x) dx = [100x - x^2]_0^{50} = 5000 - 2500 = 2500$ тыс.</p>
+                            <p><strong>Ответ:</strong> $2500 &lt; 3000$. Производство убыточно.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Общий выпуск.</strong> $V(t) = 40 + 5t$ на $[0; 6]$. Найдите общий выпуск. Если меньше $300$, план не выполнен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^6 (40+5t) dt = [40t + 2{,}5t^2]_0^6 = 240 + 90 = 330$. $330 > 300$, план выполнен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Средний брак.</strong> $B(t) = 4 - 0{,}2t$ на $[0; 5]$. Найдите среднее. Если больше $4$, брак высокий.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 (4 - 0{,}2t) dt = [4t - 0{,}1t^2]_0^5 = 20 - 2{,}5 = 17{,}5$. Среднее $\frac{17{,}5}{5} = 3{,}5\%$. $3{,}5 < 4$, брак в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь детали.</strong> $y = 3x$ на $[0; 2]$. Найдите площадь. Если больше $5$, металла мало.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^2 3x dx = [1{,}5x^2]_0^2 = 6$. $6 > 5$, металла мало.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Прибыль.</strong> $P'(x) = 80 - x$ на $[0; 40]$. Найдите общую прибыль. Если меньше $2000$, убыток.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^{40} (80-x) dx = [80x - \frac{x^2}{2}]_0^{40} = 3200 - 800 = 2400$. $2400 > 2000$, прибыль есть.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Работа участка.</strong> $P(t) = 20 + 3t$ на $[0; 4]$. Найдите работу. Если больше $100$, перегрузка.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^4 (20+3t) dt = [20t + 1{,}5t^2]_0^4 = 80 + 24 = 104$. $104 > 100$, перегрузка.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь под кривой.</strong> $y = x^2 + 1$ на $[0; 2]$. Найдите площадь. Если больше $4$, деталь большая.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^2 (x^2+1) dx = [\frac{x^3}{3} + x]_0^2 = \frac{8}{3} + 2 = 4{,}67$. $4{,}67 > 4$, деталь большая.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Общая стоимость.</strong> $C'(x) = 10 + 2x$ на $[0; 10]$. Найдите общую стоимость. Если больше $200$, перерасход.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^{10} (10+2x) dx = [10x + x^2]_0^{10} = 100 + 100 = 200$. Ровно $200$, на границе.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ЛОГИСТЫ ================= -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🚚 Логисты</span>
+            <span class="sub-title">Расход топлива, общий пробег и площадь складов</span>
+        </div>
+        <div class="section-content">
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">📘 Задачи с подробным решением (4)</div>
+                    <div class="title-sub">Изучите эти примеры, чтобы понять, как применять интегралы на практике.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <!-- Задача 1 -->
+                    <div class="example">
+                        <p>Расход топлива грузовика меняется по закону $q(t) = 10 + 2t$ (л/ч). Логисту нужно найти общий расход за $5$ часов пути. Расход — это интеграл: $Q = \int_0^5 (10 + 2t) dt$. Если расход больше $80$ л, маршрут убыточен.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $Q = \int_0^5 (10 + 2t) dt$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(t) = 10t + t^2$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $Q = (50 + 25) - 0 = 75$ л.</p>
+                            <p><strong>Ответ:</strong> $75 &lt; 80$ л. Маршрут не убыточен.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 2 -->
+                    <div class="example">
+                        <p>Скорость грузовика меняется по закону $v(t) = 60 - 5t$ (км/ч). Найдите общий путь за $8$ часов (если скорость не станет отрицательной). Путь: $S = \int_0^8 (60 - 5t) dt$. Если путь больше $400$ км, водителю нужен отдых.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $S = \int_0^8 (60 - 5t) dt$.</p>
+                            <p><strong>Шаг 2. Первообразная.</strong> $F(t) = 60t - 2{,}5t^2$.</p>
+                            <p><strong>Шаг 3. Вычисляем.</strong> $S = (480 - 160) - 0 = 320$ км.</p>
+                            <p><strong>Ответ:</strong> $320 &lt; 400$ км. Отдых не требуется.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 3 -->
+                    <div class="example">
+                        <p>Стоимость доставки зависит от времени: $C(t) = 20 + 5t$ (у.е./ч). Найдите общую стоимость за $6$ часов. Интеграл: $C_{общ} = \int_0^6 (20 + 5t) dt$. Если стоимость больше $200$ у.е., доставка слишком дорогая.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $C_{общ} = \int_0^6 (20 + 5t) dt = [20t + 2{,}5t^2]_0^6 = 120 + 90 = 210$ у.е.</p>
+                            <p><strong>Ответ:</strong> $210 &gt; 200$. Доставка дорогая.</p>
+                        </div>
+                    </div>
+
+                    <!-- Задача 4 -->
+                    <div class="example">
+                        <p>Площадь склада имеет форму, ограниченную кривой $y = 2x$ и осью $x$ на отрезке $[0; 5]$. Найдите площадь склада: $S = \int_0^5 2x dx$. Если площадь больше $30$ м², аренда будет дорогой.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">Показать решение</button>
+                        <div class="spoiler-content solution">
+                            <p><strong>Шаг 1. Интеграл.</strong> $S = \int_0^5 2x dx = [x^2]_0^5 = 25$ м².</p>
+                            <p><strong>Ответ:</strong> $25 &lt; 30$ м². Аренда приемлемая.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-accordion collapsed">
+                <div class="sub-accordion-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="title-main">✍️ Задачи для самостоятельной работы (7)</div>
+                    <div class="title-sub">Время проверить себя! Решите задачи в тетради, а если возникнут трудности — загляните в подсказки.</div>
+                </div>
+                <div class="sub-accordion-content">
+
+                    <div class="example">
+                        <p><strong>Расход топлива.</strong> $q(t) = 8 + t$ на $[0; 6]$. Найдите расход. Если больше $60$, убыток.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^6 (8+t) dt = [8t + \frac{t^2}{2}]_0^6 = 48 + 18 = 66$ л. $66 > 60$, убыток.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Общий путь.</strong> $v(t) = 50 - 2t$ на $[0; 10]$. Найдите путь. Если больше $300$, нужен отдых.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^{10} (50-2t) dt = [50t - t^2]_0^{10} = 500 - 100 = 400$ км. $400 > 300$, отдых нужен.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Стоимость доставки.</strong> $C(t) = 15 + 3t$ на $[0; 4]$. Найдите стоимость. Если больше $80$, дорого.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^4 (15+3t) dt = [15t + 1{,}5t^2]_0^4 = 60 + 24 = 84$. $84 > 80$, дорого.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь склада.</strong> $y = x$ на $[0; 6]$. Найдите площадь. Если больше $15$, аренда дорогая.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^6 x dx = [\frac{x^2}{2}]_0^6 = 18$ м². $18 > 15$, аренда дорогая.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Работа транспорта.</strong> $P(t) = 30 + 2t$ на $[0; 5]$. Найдите работу. Если больше $150$, перегрузка.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^5 (30+2t) dt = [30t + t^2]_0^5 = 150 + 25 = 175$. $175 > 150$, перегрузка.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Средняя скорость.</strong> $v(t) = 40 + t$ на $[0; 4]$. Найдите среднее. Если больше $45$, превышение.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^4 (40+t) dt = [40t + \frac{t^2}{2}]_0^4 = 160 + 8 = 168$. Среднее $\frac{168}{4} = 42$. $42 < 45$, в норме.</div>
+                    </div>
+
+                    <div class="example">
+                        <p><strong>Площадь под кривой.</strong> $y = x^2$ на $[0; 3]$. Найдите площадь. Если больше $10$, склад большой.</p>
+                        <button class="spoiler-btn" onclick="toggleSpoiler(this)">💡 Подсказка</button>
+                        <div class="spoiler-content hint">$\int_0^3 x^2 dx = [\frac{x^3}{3}]_0^3 = 9$. $9 < 10$, склад нормальный.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="integral.html" class="back-link">Назад к разделу «Интегралы»</a>
+</div>
+
+<script>
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
+
+    function toggleSpoiler(button) {
+        const content = button.nextElementSibling;
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            button.textContent = button.textContent.includes('Подсказка') ? '💡 Подсказка' : 'Показать решение';
+        } else {
+            content.style.display = 'block';
+            button.textContent = button.textContent.includes('Подсказка') ? 'Скрыть подсказку' : 'Скрыть решение';
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([content]).catch(function (err) {
+                    console.log('MathJax error: ', err.message);
+                });
+            }
+        }
+    }
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9.5 21v-6h5v6"/>
+        </svg>
+    </a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+        </svg>
+    </button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/>
+        </svg>
+    </a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+</nav>
+
+<script id="bottom-nav-autohide-script">
+    (function(){
+        var nav = document.querySelector('.bottom-nav');
+        if (!nav) return;
+        var lastY = window.scrollY;
+        var threshold = 8;
+        var ticking = false;
+        function onScroll(){
+            var y = window.scrollY;
+            if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+            if (y > lastY && y > 80) {
+                nav.classList.add('nav-hidden');
+            } else {
+                nav.classList.remove('nav-hidden');
+            }
+            lastY = y;
+            ticking = false;
+        }
+        window.addEventListener('scroll', function(){
+            if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
+        }, { passive: true });
+    })();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+    (function() {
+        var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+        els.forEach(function(el) {
+            if (el.dataset.rippleBound) return;
+            el.dataset.rippleBound = '1';
+            el.classList.add('ripple-host');
+            el.addEventListener('pointerdown', function(e) {
+                var rect = el.getBoundingClientRect();
+                var size = Math.max(rect.width, rect.height);
+                var r = document.createElement('span');
+                r.className = 'ripple';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                el.appendChild(r);
+                setTimeout(function(){ r.remove(); }, 650);
+            });
+        });
+    })();
+</script>
+</body>
+</html>
