@@ -109,9 +109,20 @@
         .graph-container canvas { max-width: 100%; height: auto; border-radius: 12px; display: inline-block; background: var(--canvas-bg); transition: background 0.2s; width: 100%; touch-action: none; }
         .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; }
         .graph-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 6px; align-items: center; }
-        .graph-controls input[type="range"] { width: 180px; max-width: 100%; cursor: pointer; background: var(--slider-bg); -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px; outline: none; }
-        .graph-controls input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--special-border); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .graph-controls input[type="range"] { width: 180px; max-width: 100%; cursor: pointer; -webkit-appearance: none; appearance: none; height: 8px; border-radius: 4px; outline: none; background: #2a4459; border: 1px solid #3b5b74; }
+        .graph-controls input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--special-border); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: transform 0.15s ease; }
+        .graph-controls input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.12); }
+        .graph-controls input[type="range"]::-moz-range-track { height: 8px; border-radius: 4px; background: #2a4459; border: 1px solid #3b5b74; }
+        .graph-controls input[type="range"]::-moz-range-progress { height: 8px; border-radius: 4px; background: var(--special-border); }
+        .graph-controls input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--special-border); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        :root.light-mode .graph-controls input[type="range"] { background: #d0d8e0; border-color: #a0b0c0; }
+        :root.light-mode .graph-controls input[type="range"]::-moz-range-track { background: #d0d8e0; border-color: #a0b0c0; }
         .graph-controls .param-value { font-weight: 700; color: #fbbf24; font-size: 0.9rem; min-width: 40px; }
+                .graph-controls button { display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--special-border); background: transparent; color: var(--text); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; -webkit-tap-highlight-color: transparent; }
+        .graph-controls button:hover { background: rgba(139,92,246,0.2); }
+        .graph-controls button:active { transform: scale(0.95); }
+        :root.light-mode .graph-controls button { border-color: var(--special-border); color: var(--text); }
+        :root.light-mode .graph-controls button:hover { background: rgba(124,58,237,0.12); }
         .graph-controls .param-label { color: var(--text-secondary); font-size: 0.8rem; }
 
         @media (max-width: 700px) {
@@ -712,9 +723,9 @@ body.is-index .bottom-nav.nav-hidden {
         ctx.stroke();
         ctx.fillStyle = '#fbbf24';
         ctx.font = 'bold 10px sans-serif';
-        ctx.textAlign = 'left';
+        ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText('вершина (' + a.toFixed(1) + '; -1)', vx + 8, vy - 4);
+        ctx.fillText('вершина', vx, vy - 12);
 
         // Корни: a-1 и a+1
         const x1 = a - 1, x2 = a + 1;
@@ -773,11 +784,6 @@ body.is-index .bottom-nav.nav-hidden {
     }
 
     // ===== ТЕМА =====
-        updateLegendColors();
-        const a = parseFloat(slider.value);
-        drawViz(a);
-    }
-
     function updateLegendColors() {
         const isLight = document.documentElement.classList.contains('light-mode');
         const legend = document.querySelector('.legend');

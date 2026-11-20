@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Функция y = sin x — 10-11 класс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #3b82f6; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --canvas-bg: #0f1a24; --canvas-fill: #0f1a24; --grid-color: #2a3a4a;
+            --axis-color: #8899aa; --axis-text: #cbdbe6;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #3b82f6; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --canvas-bg: #fefefe; --canvas-fill: #fefefe; --grid-color: #dce3ec;
+            --axis-color: #5b7c9c; --axis-text: #1e3a5f;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 4px solid var(--special-border); padding-left: 12px; cursor: pointer; user-select: none; text-align: center; position: relative; }
+        .section-title .main-title { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .section-title .main-title::after { content: "▼"; margin-left: auto; font-size: 0.85rem; transition: transform 0.3s; color: var(--text-secondary); position: absolute; right: 12px; }
+        .section.collapsed .section-title .main-title::after { transform: rotate(-90deg); }
+        .section-title .sub-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; font-style: italic; }
+        .section-title:hover { opacity: 0.8; }
+        .section-content { max-height: 20000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; border-left: 5px solid var(--special-border); word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; border-left: 5px solid var(--special-border); font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--warning-bg); border-left: 4px solid var(--warning-border); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .back-link { display: inline-block; margin: 16px 0 8px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; }
+        .back-link:hover { background: #2563eb; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 10px 0; }
+        .formula-card { background: var(--formula-bg); border-radius: 16px; padding: 14px 10px; text-align: center; border: 1px solid var(--border); border-left: 4px solid var(--accent); word-wrap: break-word; }
+        .formula-card p { margin: 6px 0; font-size: 1.15rem; font-weight: 600; color: var(--text); font-family: 'Times New Roman', monospace; }
+        .graph-container { text-align: center; margin: 12px 0; background: var(--canvas-bg); border-radius: 16px; padding: 8px; transition: background 0.2s; }
+        .graph-container canvas { max-width: 100%; height: auto; border-radius: 12px; display: inline-block; background: var(--canvas-fill); transition: background 0.2s; }
+        .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; }
+        .nav-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; justify-content: center; }
+        .nav-links a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); font-size: 0.9rem; padding: 4px 0; }
+        .nav-links a:hover { opacity: 0.8; }
+
+        /* ===== Ползунки ===== */
+        .controls-panel { background: var(--info-bg); border-radius: 16px; padding: 14px 16px; margin: 12px 0; display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--border); }
+        .control-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .control-row label { color: var(--text); font-size: 0.85rem; font-weight: 600; min-width: 120px; }
+        .control-row input[type="range"] { flex: 1; min-width: 140px; height: 6px; -webkit-appearance: none; appearance: none; background: var(--border); border-radius: 3px; outline: none; }
+        .control-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--special-border); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+        .control-row input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--special-border); cursor: pointer; border: 2px solid var(--card-bg); }
+        .control-value { color: var(--special-border); font-size: 0.9rem; font-weight: 700; min-width: 70px; text-align: right; }
+        .control-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+        .btn-reset { background: #666; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .btn-reset:hover { background: #555; }
+
+        /* ===== Кликабельные свойства ===== */
+        .property-list { list-style: none; padding: 0; margin: 0; }
+        .property-list li { margin: 12px 0; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+        .property-list li:last-child { border-bottom: none; }
+        .property-link { color: var(--text); text-decoration: none; font-weight: 700; cursor: pointer; transition: color 0.2s; display: inline-block; margin-bottom: 6px; }
+        .property-link:hover { color: var(--accent); }
+        .property-link.active { color: var(--accent); }
+        .property-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-top: 4px; }
+        .property-disabled { opacity: 0.45; cursor: default; }
+        .property-disabled .property-link { pointer-events: none; cursor: default; }
+        .property-hint { font-size: 0.85rem; color: var(--text-secondary); font-style: italic; margin-top: 12px; }
+        .property-info { background: var(--info-bg); border-radius: 12px; padding: 10px 14px; margin-top: 10px; font-size: 0.9rem; color: var(--text); display: none; }
+        .property-info.show { display: block; }
+
+        button, .btn, [class*="btn"], [class*="button"] { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-appearance: none; appearance: none; outline: none; }
+        a, select, option, input, textarea, .back-link, .contact-link { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; outline: none; }
+        select:focus, a:focus, input:focus, textarea:focus { outline: none; }
+        .section-title { display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; text-align: center !important; position: relative !important; padding: 8px 40px !important; margin-bottom: 8px !important; border-left: 4px solid var(--special-border, #3b82f6) !important; background: transparent !important; border-radius: 0 12px 12px 0 !important; transition: background 0.3s ease, color 0.2s ease !important; box-shadow: none !important; }
+        .section-title:hover { background: linear-gradient(90deg, var(--special-border, #3b82f6) 0%, rgba(13, 148, 136, 0.15) 30%, rgba(13, 148, 136, 0.05) 100%) !important; }
+        .section-title:active { background: linear-gradient(90deg, var(--special-border, #3b82f6) 0%, rgba(13, 148, 136, 0.25) 30%, rgba(13, 148, 136, 0.1) 100%) !important; }
+        .section-title::before { display: none !important; }
+        .section-title .main-title, .section-title > span:not(.sub-title) { display: block !important; width: 100% !important; text-align: center !important; justify-content: center !important; font-size: 1.1rem !important; margin: 0 !important; }
+        .section-title .sub-title { display: block !important; width: 100% !important; text-align: center !important; font-size: 0.85rem !important; color: var(--text-secondary) !important; margin-top: 4px !important; }
+        .section-title::after { position: absolute !important; right: 16px !important; top: 50% !important; transform: translateY(-50%) !important; margin: 0 !important; }
+        .section.collapsed .section-title::after { transform: translateY(-50%) rotate(-90deg) !important; }
+        .example, .formula-block, .important { position: relative !important; border-radius: 16px !important; box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important; transition: transform 0.2s ease, box-shadow 0.2s ease !important; border-left: none !important; padding-left: 20px !important; background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38))) !important; margin-bottom: 16px !important; }
+        .example::before, .formula-block::before, .important::before { content: "" !important; position: absolute !important; left: 0 !important; top: 0 !important; bottom: 0 !important; width: 5px !important; background: linear-gradient(180deg, var(--special-border, #ef4444) 0%, #0d9488 100%) !important; border-radius: 16px 0 0 16px !important; z-index: 1 !important; }
+        @media (hover: hover) { .example:hover, .formula-block:hover, .important:hover { transform: translateY(-3px) !important; box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important; } }
+        a.back-link, .back-link { display: table !important; margin-left: auto !important; margin-right: auto !important; margin-top: 20px !important; margin-bottom: 10px !important; text-align: center !important; float: none !important; }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true,
+                   macros: { tg: '\\mathop{\\mathrm{tg}}', ctg: '\\mathop{\\mathrm{ctg}}' } },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+    <style id="bottom-nav-base">
+        .bottom-nav { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px; background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900; transition: background 0.3s, border 0.3s; }
+        :root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+        .bottom-nav a, .bottom-nav button { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent; color: var(--text-secondary, #8ba5b8); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .bottom-nav a:hover, .bottom-nav button:hover { background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px); }
+        .bottom-nav a[href="favorites.html"].active { background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important; }
+    </style>
+    <style id="bottom-nav-autohide">
+        .bottom-nav { transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s; }
+        .bottom-nav.nav-hidden { transform: translate(-50%, 120%); opacity: 0; pointer-events: none; }
+        body.is-index .bottom-nav.nav-hidden { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+    </style>
+    <style id="math-nav-animation">
+        .bottom-nav a, .bottom-nav button { transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s ease, color 0.2s ease !important; }
+        .bottom-nav a:hover, .bottom-nav button:hover { transform: translateY(-3px) scale(1.08) !important; }
+        .bottom-nav a:active, .bottom-nav button:active { transform: translateY(0) scale(0.92) !important; }
+        .bottom-nav a[href="favorites.html"].active { background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important; transform: translateY(-3px) scale(1.08) !important; }
+        .ripple-host { position: relative !important; overflow: hidden !important; }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(26, 188, 156, 0.35); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 0; }
+        @keyframes rippleAnim { to { transform: scale(2.5); opacity: 0; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Функция $y = \sin x$</h1>
+
+    <!-- ===== 1. ЖИВОЕ ВВЕДЕНИЕ ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📖 Что такое синус — живое введение</span>
+        </div>
+        <div class="section-content">
+            <p>Представьте точку, которая бежит по единичной окружности против часовой стрелки. Её <strong>ордината</strong> (проекция на ось $OY$) — это и есть <strong>синус</strong> угла поворота. Когда точка проходит полный круг, её проекция описывает одну и ту же волну — <strong>синусоиду</strong>.</p>
+            <div class="important">
+                <strong>💡 Главная идея:</strong> синус — это «тень» точки на ось $y$. Поэтому $|\sin x| \le 1$ всегда: точка на окружности не может выйти за её пределы. А график $y = \sin x$ — это та же проекция, но для любого угла $x$ (в радианах).
+            </div>
+            <p>Посмотрите на мини-график: он показывает синусоиду от $-\pi$ до $\pi$. В точке $0$ — ноль ($\sin 0 = 0$), в точке $\pi/2$ — максимум ($\sin\frac{\pi}{2} = 1$), в точке $\pi$ — снова ноль, в точке $-\pi/2$ — минимум ($\sin(-\frac{\pi}{2}) = -1$).</p>
+            <div class="graph-container">
+                <canvas id="graph_intro" width="600" height="220"></canvas>
+                <div class="graph-label">$y = \sin x$ на отрезке $[-\pi; \pi]$ — «тень» точки на окружности</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 2. СВОЙСТВА (кликабельные) ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📐 Свойства функции $y = \sin x$</span>
+            <span class="sub-title">нажмите на название — оно подсветится на графике ниже</span>
+        </div>
+        <div class="section-content">
+            <p>Нажимайте на свойства — на графике ниже подсветится соответствующий участок.</p>
+            <ul class="property-list">
+                <li>
+                    <a class="property-link" data-prop="domain">1. Область определения</a>
+                    <div class="property-desc">$D(y) = \mathbb{R}$ — синус определён для любого угла.</div>
+                </li>
+                <li>
+                    <a class="property-link" data-prop="range">2. Область значений</a>
+                    <div class="property-desc">$E(y) = [-1; 1]$ — значения синуса всегда лежат в этом отрезке.</div>
+                </li>
+                <li>
+                    <a class="property-link" data-prop="odd">3. Нечётность</a>
+                    <div class="property-desc">$\sin(-x) = -\sin x$ — функция нечётная. График симметричен относительно начала координат.</div>
+                </li>
+                <li>
+                    <a class="property-link" data-prop="period">4. Период</a>
+                    <div class="property-desc">$T = 2\pi$, то есть $\sin(x + 2\pi) = \sin x$. График повторяется каждые $2\pi$.</div>
+                </li>
+                <li>
+                    <a class="property-link" data-prop="zeros">5. Нули функции</a>
+                    <div class="property-desc">$\sin x = 0$ при $x = \pi k$, $k \in \mathbb{Z}$.</div>
+                </li>
+                <li>
+                    <a class="property-link" data-prop="sign">6. Промежутки знакопостоянства</a>
+                    <div class="property-desc">$\sin x > 0$ при $x \in \left(2\pi k; \pi + 2\pi k\right)$;<br>$\sin x < 0$ при $x \in \left(\pi + 2\pi k; 2\pi + 2\pi k\right)$, $k \in \mathbb{Z}$.</div>
+                </li>
+                <li>
+                    <a class="property-link" data-prop="mono">7. Монотонность</a>
+                    <div class="property-desc">Возрастает на $\left[-\dfrac{\pi}{2} + 2\pi k; \dfrac{\pi}{2} + 2\pi k\right]$;<br>убывает на $\left[\dfrac{\pi}{2} + 2\pi k; \dfrac{3\pi}{2} + 2\pi k\right]$, $k \in \mathbb{Z}$.</div>
+                </li>
+                <li class="property-disabled">
+                    <a class="property-link">8. Экстремумы <em>(изучается позже)</em></a>
+                    <div class="property-desc">Максимум $\sin x = 1$ при $x = \dfrac{\pi}{2} + 2\pi k$; минимум $\sin x = -1$ при $x = -\dfrac{\pi}{2} + 2\pi k$.</div>
+                </li>
+            </ul>
+            <div class="property-info" id="property-info"></div>
+        </div>
+    </div>
+
+    <!-- ===== 3. ОСНОВНОЙ ГРАФИК (только подсветка) ===== -->
+    <div class="section">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📈 График $y = \sin x$</span>
+            <span class="sub-title">синусоида</span>
+        </div>
+        <div class="section-content">
+            <p>График функции $y = \sin x$ называется <strong>синусоидой</strong>. Это та же косинусоида, но сдвинутая вправо на $\dfrac{\pi}{2}$: $\sin x = \cos\left(x - \dfrac{\pi}{2}\right)$.</p>
+            <div class="graph-container">
+                <canvas id="graph_main" width="800" height="420"></canvas>
+                <div class="graph-label" id="graph_main_label">$y = \sin x$</div>
+            </div>
+            <div class="example">
+                <strong>📌 Как читать график:</strong><br>
+                • В точке $x = 0$ значение равно нулю: $\sin 0 = 0$.<br>
+                • При $x = \dfrac{\pi}{2}$ максимум: $\sin\dfrac{\pi}{2} = 1$.<br>
+                • При $x = \pi$ снова ноль: $\sin\pi = 0$.<br>
+                • При $x = \dfrac{3\pi}{2}$ минимум: $\sin\dfrac{3\pi}{2} = -1$.<br>
+                • Дальше всё повторяется каждые $2\pi$.
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 4. ПРЕОБРАЗОВАНИЯ ГРАФИКА ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">🔧 Преобразования графика</span>
+            <span class="sub-title">ползунки: сжатие, сдвиг, амплитуда</span>
+        </div>
+        <div class="section-content">
+            <p>Из базового графика $y = \sin x$ можно получить множество других, меняя три параметра в формуле:</p>
+            <div class="formula-block">$y = A\sin(kx + \varphi)$</div>
+            <ul>
+                <li><strong>$A$ — амплитуда.</strong> Растягивает/сжимает график по оси $OY$. Если $A > 1$ — выше, если $0 < A < 1$ — ниже. Если $A < 0$ — график переворачивается.</li>
+                <li><strong>$k$ — сжатие/растяжение по $OX$.</strong> Если $k > 1$ — сжимается (период $T = 2\pi/k$ уменьшается), если $k < 1$ — растягивается.</li>
+                <li><strong>$\varphi$ — сдвиг по $OX$.</strong> График едет влево (при $\varphi > 0$) или вправо (при $\varphi < 0$) на $\varphi$ единиц.</li>
+            </ul>
+            <div class="graph-container">
+                <canvas id="graph_transform" width="800" height="420"></canvas>
+                <div class="graph-label" id="graph_transform_label">$y = \sin x$</div>
+            </div>
+            <div class="controls-panel">
+                <div class="control-row">
+                    <label for="slider_A">Амплитуда (A):</label>
+                    <input type="range" id="slider_A" min="0.2" max="2.5" step="0.05" value="1">
+                    <span class="control-value" id="value_A">A = 1,00</span>
+                </div>
+                <div class="control-row">
+                    <label for="slider_k">Сжатие (k):</label>
+                    <input type="range" id="slider_k" min="0.33" max="3" step="0.01" value="1">
+                    <span class="control-value" id="value_k">k = 1,00</span>
+                </div>
+                <div class="control-row">
+                    <label for="slider_phi">Сдвиг (φ):</label>
+                    <input type="range" id="slider_phi" min="-3.14159265" max="3.14159265" step="0.52359877" value="0">
+                    <span class="control-value" id="value_phi">φ = 0</span>
+                </div>
+                <div class="control-buttons">
+                    <button class="btn-reset" onclick="resetControls()">⟳ Сброс</button>
+                </div>
+            </div>
+            <div class="formula-grid">
+                <div class="formula-card"><p>$y = 2\sin x$</p></div>
+                <div class="formula-card"><p>$y = \sin(x - \pi/6)$</p></div>
+                <div class="formula-card"><p>$y = \sin(2x)$</p></div>
+                <div class="formula-card"><p>$y = \sin(x/2)$</p></div>
+            </div>
+            <div class="example">
+                <strong>📌 Пример:</strong> как из $y = \sin x$ получить $y = 2\sin(x - \pi/6)$?<br><br>
+                <span class="step">Шаг 1.</span> Сдвигаем график $y = \sin x$ вправо на $\pi/6$.<br>
+                <span class="step">Шаг 2.</span> Растягиваем по $OY$ в 2 раза (амплитуда становится 2).<br>
+                <span class="result">Результат: $y = 2\sin(x - \pi/6)$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 5. ПРИМЕРЫ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">📝 Примеры применения</span>
+        </div>
+        <div class="section-content">
+            <div class="example">
+                <strong>Пример 1 (вычисление).</strong> Найти $\sin\dfrac{2\pi}{3}$.<br><br>
+                <span class="step">Шаг 1. Приводим к острому углу.</span>
+                $\dfrac{2\pi}{3} = \pi - \dfrac{\pi}{3}$, вторая четверть.<br>
+                <span class="step">Шаг 2. Формула приведения.</span>
+                $\sin\left(\pi - \dfrac{\pi}{3}\right) = \sin\dfrac{\pi}{3}$.<br>
+                <span class="step">Шаг 3. Табличное значение.</span>
+                $\sin\dfrac{\pi}{3} = \dfrac{\sqrt{3}}{2}$.<br>
+                <span class="result">Ответ: $\dfrac{\sqrt{3}}{2}$.</span>
+            </div>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 2 (уравнение).</strong> Решить $\sin x = \dfrac{1}{2}$.<br><br>
+                <span class="step">Шаг 1. Общая формула.</span>
+                $x = (-1)^k\arcsin\dfrac{1}{2} + \pi k = (-1)^k\dfrac{\pi}{6} + \pi k$.<br>
+                <span class="result">Ответ: $x = (-1)^k\dfrac{\pi}{6} + \pi k$, $k \in \mathbb{Z}$.</span>
+            </div>
+            <div class="example" style="margin-top:12px;">
+                <strong>Пример 3 (нечётность).</strong> Вычислить $\sin(-30°)$.<br><br>
+                <span class="step">Решение.</span>
+                $\sin(-30°) = -\sin 30° = -\dfrac{1}{2}$.<br>
+                <span class="result">Ответ: $-\dfrac{1}{2}$.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 6. НА ЧТО ОБРАТИТЬ ВНИМАНИЕ ===== -->
+    <div class="section collapsed">
+        <div class="section-title" onclick="this.closest('.section').classList.toggle('collapsed')">
+            <span class="main-title">⚠️ На что обратить внимание</span>
+        </div>
+        <div class="section-content">
+            <ul>
+                <li><strong>Синус нечётный, косинус — чётный.</strong> $\sin(-x) = -\sin x$, а $\cos(-x) = \cos x$.</li>
+                <li><strong>Область значений — $[-1; 1]$.</strong> Не бывает $\sin x = 2$.</li>
+                <li><strong>В точке $0$ ноль.</strong> $\sin 0 = 0$, а не $1$ (в отличие от косинуса).</li>
+                <li><strong>Период $2\pi$, а не $\pi$.</strong></li>
+                <li><strong>График проходит через начало координат.</strong> Это следствие нечётности.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="nav-links">
+        <a href="функция-косинус.html">📐 Функция y = cos x</a>
+        <a href="функция-тангенс-котангенс.html">📐 Тангенс и котангенс</a>
+        <a href="Тождества.html">🧩 Основные тождества</a>
+    </div>
+
+    <a href="trigonometry.html" class="back-link">← Назад к тригонометрии</a>
+</div>
+
+<script>
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
+        }
+    })();
+
+    const FAV_KEY = 'math_favorites';
+    function getFavorites() { const s = localStorage.getItem(FAV_KEY); return s ? JSON.parse(s) : []; }
+    function saveFavorites(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+    function isFavorite() { const u = window.location.pathname.split('/').pop(); return getFavorites().includes(u); }
+    function toggleFavorite() {
+        const u = window.location.pathname.split('/').pop();
+        let f = getFavorites();
+        const btn = document.getElementById('favoriteBtn');
+        if (f.includes(u)) { f = f.filter(x => x !== u); btn.textContent = '☆'; btn.classList.remove('active'); }
+        else { f.push(u); btn.textContent = '★'; btn.classList.add('active'); }
+        saveFavorites(f);
+    }
+    function updateFavoriteBtn() {
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            if (isFavorite()) { btn.textContent = '★'; btn.classList.add('active'); }
+            else { btn.textContent = '☆'; btn.classList.remove('active'); }
+        }
+    }
+    updateFavoriteBtn();
+
+    // ===== УТИЛИТЫ =====
+    function fracPi(x) {
+        const eps = 1e-6;
+        const num = Math.round(x / (Math.PI / 6));
+        if (Math.abs(num) < eps) return '0';
+        const sign = num < 0 ? '−' : '';
+        const abs = Math.abs(num);
+        if (abs === 6) return sign + 'π';
+        if (abs === 12) return sign + '2π';
+        if (abs === 18) return sign + '3π';
+        if (abs === 24) return sign + '4π';
+        if (abs === 3) return sign + 'π/2';
+        if (abs === 9) return sign + '3π/2';
+        if (abs === 2) return sign + 'π/3';
+        if (abs === 4) return sign + '2π/3';
+        if (abs === 8) return sign + '4π/3';
+        if (abs === 10) return sign + '5π/3';
+        if (abs === 1) return sign + 'π/6';
+        if (abs === 5) return sign + '5π/6';
+        if (abs === 7) return sign + '7π/6';
+        if (abs === 11) return sign + '11π/6';
+        return sign + abs + 'π/6';
+    }
+
+    // ===== ОТРИСОВКА ГРАФИКА С РАДИАНАМИ =====
+    function drawGraphRad(canvasId, functions, xMin, xMax, yMin, yMax, highlight) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return false;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 40;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const gridColor = isLight ? '#dce3ec' : '#2a3a4a';
+        const axisColor = isLight ? '#5b7c9c' : '#8899aa';
+        const axisText = isLight ? '#1e3a5f' : '#cbdbe6';
+        const subText = isLight ? '#5a7a94' : '#8ba5b8';
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        if (highlight) {
+            if (highlight.type === 'axis-x') {
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.18)';
+                ctx.fillRect(pad, toY(0) - 10, pw, 20);
+            } else if (highlight.type === 'axis-y-range' && highlight.range) {
+                const [a, b] = highlight.range;
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.18)';
+                ctx.fillRect(pad, toY(b), pw, toY(a) - toY(b));
+            } else if (highlight.type === 'band' && highlight.x1 !== undefined) {
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.15)';
+                const x1 = Math.max(highlight.x1, xMin);
+                const x2 = Math.min(highlight.x2, xMax);
+                if (x2 > x1) ctx.fillRect(toX(x1), pad, toX(x2) - toX(x1), ph);
+            } else if (highlight.type === 'points' && highlight.points) {
+                highlight.points.forEach(pt => {
+                    if (pt.x < xMin || pt.x > xMax) return;
+                    ctx.fillStyle = 'rgba(34, 197, 94, 0.35)';
+                    ctx.beginPath();
+                    ctx.arc(toX(pt.x), toY(pt.y), 8, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.strokeStyle = '#22c55e';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                });
+            } else if (highlight.type === 'mono') {
+                const bands = [
+                    { x1: -2*Math.PI, x2: -1.5*Math.PI, color: 'rgba(239,68,68,0.15)' },
+                    { x1: -1.5*Math.PI, x2: -0.5*Math.PI, color: 'rgba(34,197,94,0.18)' },
+                    { x1: -0.5*Math.PI, x2: 0.5*Math.PI, color: 'rgba(34,197,94,0.18)' },
+                    { x1: 0.5*Math.PI, x2: 1.5*Math.PI, color: 'rgba(239,68,68,0.15)' },
+                    { x1: 1.5*Math.PI, x2: 2*Math.PI, color: 'rgba(34,197,94,0.18)' }
+                ];
+                bands.forEach(b => {
+                    const x1 = Math.max(b.x1, xMin), x2 = Math.min(b.x2, xMax);
+                    if (x2 > x1) {
+                        ctx.fillStyle = b.color;
+                        ctx.fillRect(toX(x1), pad, toX(x2) - toX(x1), ph);
+                    }
+                });
+            } else if (highlight.type === 'sign') {
+                const bands = [
+                    { x1: -2*Math.PI, x2: -Math.PI, color: 'rgba(239,68,68,0.15)' },
+                    { x1: -Math.PI, x2: 0, color: 'rgba(34,197,94,0.18)' },
+                    { x1: 0, x2: Math.PI, color: 'rgba(34,197,94,0.18)' },
+                    { x1: Math.PI, x2: 2*Math.PI, color: 'rgba(239,68,68,0.15)' }
+                ];
+                bands.forEach(b => {
+                    const x1 = Math.max(b.x1, xMin), x2 = Math.min(b.x2, xMax);
+                    if (x2 > x1) {
+                        ctx.fillStyle = b.color;
+                        ctx.fillRect(toX(x1), pad, toX(x2) - toX(x1), ph);
+                    }
+                });
+            }
+        }
+
+        ctx.strokeStyle = gridColor;
+        ctx.lineWidth = 1;
+        const stepX = Math.PI / 6;
+        const startX = Math.ceil(xMin / stepX) * stepX;
+        for (let x = startX; x <= xMax + 1e-6; x += stepX) {
+            const sx = toX(x);
+            ctx.beginPath();
+            ctx.moveTo(sx, pad);
+            ctx.lineTo(sx, h - pad);
+            ctx.stroke();
+        }
+        const stepY = 0.5;
+        const startY = Math.ceil(yMin / stepY) * stepY;
+        for (let y = startY; y <= yMax + 1e-6; y += stepY) {
+            const sy = toY(y);
+            ctx.beginPath();
+            ctx.moveTo(pad, sy);
+            ctx.lineTo(w - pad, sy);
+            ctx.stroke();
+        }
+
+        ctx.strokeStyle = axisColor;
+        ctx.lineWidth = 2;
+        const ox = toY(0), oy = toX(0);
+        if (ox >= pad && ox <= h - pad) {
+            ctx.beginPath();
+            ctx.moveTo(pad, ox);
+            ctx.lineTo(w - pad, ox);
+            ctx.stroke();
+        }
+        if (oy >= pad && oy <= w - pad) {
+            ctx.beginPath();
+            ctx.moveTo(oy, pad);
+            ctx.lineTo(oy, h - pad);
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = axisColor;
+        ctx.beginPath();
+        ctx.moveTo(w - pad, ox);
+        ctx.lineTo(w - pad - 10, ox - 5);
+        ctx.lineTo(w - pad - 10, ox + 5);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(oy, pad);
+        ctx.lineTo(oy - 5, pad + 10);
+        ctx.lineTo(oy + 5, pad + 10);
+        ctx.fill();
+
+        ctx.font = '14px "Segoe UI", sans-serif';
+        ctx.fillStyle = axisText;
+        ctx.fillText('x', w - pad - 14, ox - 10);
+        ctx.fillText('y', oy + 10, pad + 14);
+        ctx.fillText('0', oy - 14, ox + 16);
+
+        ctx.font = '12px "Segoe UI", sans-serif';
+        ctx.fillStyle = subText;
+        ctx.textAlign = 'center';
+        const labelStep = Math.PI / 2;
+        const startLabel = Math.ceil(xMin / labelStep) * labelStep;
+        for (let x = startLabel; x <= xMax + 1e-6; x += labelStep) {
+            if (Math.abs(x) < 1e-6) continue;
+            const sx = toX(x);
+            const label = fracPi(x);
+            ctx.fillText(label, sx, ox + 18);
+        }
+        ctx.textAlign = 'right';
+        const yLabels = [-2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2];
+        yLabels.forEach(y => {
+            if (y < yMin || y > yMax) return;
+            const sy = toY(y);
+            ctx.fillText(String(y).replace('.', ','), oy - 6, sy + 4);
+        });
+
+        functions.forEach(fn => {
+            ctx.strokeStyle = fn.color;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            let first = true;
+            const totalSteps = 2000;
+            const dx = (xMax - xMin) / totalSteps;
+            for (let x = xMin; x <= xMax; x += dx) {
+                if (fn.domain && !fn.domain(x)) { first = true; continue; }
+                let y;
+                try { y = fn.f(x); } catch(e) { first = true; continue; }
+                if (y === null || y === undefined || isNaN(y) || !isFinite(y)) { first = true; continue; }
+                if (y < yMin - 0.5 || y > yMax + 0.5) { first = true; continue; }
+                const sx = toX(x), sy = toY(y);
+                if (first) { ctx.moveTo(sx, sy); first = false; }
+                else ctx.lineTo(sx, sy);
+            }
+            ctx.stroke();
+        });
+
+        ctx.font = '13px "Segoe UI", sans-serif';
+        ctx.textAlign = 'left';
+        functions.forEach((fn, i) => {
+            if (!fn.label) return;
+            const textX = pad + 10;
+            const textY = pad + 18 + i * 20;
+            ctx.fillStyle = fn.color;
+            ctx.fillRect(textX, textY - 8, 14, 4);
+            ctx.fillStyle = axisText;
+            ctx.fillText(fn.label, textX + 20, textY);
+        });
+
+        return true;
+    }
+
+    // ===== СОСТОЯНИЕ =====
+    let transformState = { k: 1, phi: 0, A: 1 };
+    let activeProperty = null;
+
+    // ===== ОТРИСОВКА ВСЕГО =====
+    function redrawAll() {
+        // 1. Мини-график введения (без ползунков)
+        drawGraphRad('graph_intro', [
+            { f: x => Math.sin(x), color: '#3b82f6', label: 'y = sin x' }
+        ], -Math.PI, Math.PI, -1.4, 1.4);
+
+        // 2. Основной график — с подсветкой свойств
+        drawGraphRad('graph_main', [
+            { f: x => Math.sin(x), color: '#3b82f6', label: 'y = sin x' }
+        ], -2 * Math.PI, 2 * Math.PI, -2.5, 2.5, activeProperty ? getHighlight(activeProperty) : null);
+
+        // 3. График преобразований — с ползунками
+        const tf = x => transformState.A * Math.sin(transformState.k * (x - transformState.phi));
+        const tfLabel = `y = ${transformState.A.toFixed(2).replace('.', ',')}·sin(${transformState.k.toFixed(2).replace('.', ',')}·(x − ${fracPi(transformState.phi)}))`;
+        drawGraphRad('graph_transform', [
+            { f: tf, color: '#3b82f6', label: tfLabel }
+        ], -2 * Math.PI, 2 * Math.PI, -3, 3);
+
+        const tfLabelEl = document.getElementById('graph_transform_label');
+        if (tfLabelEl) tfLabelEl.innerHTML = '$' + tfLabel + '$';
+        if (window.MathJax && MathJax.typesetPromise && tfLabelEl) {
+            MathJax.typesetPromise([tfLabelEl]).catch(() => {});
+        }
+    }
+
+    // ===== ПОДСВЕТКА СВОЙСТВ =====
+    function getHighlight(prop) {
+        switch (prop) {
+            case 'domain':
+                return { type: 'axis-x' };
+            case 'range':
+                return { type: 'axis-y-range', range: [-1, 1] };
+            case 'odd':
+                return { type: 'points', points: [
+                    { x: -Math.PI/2, y: -1 }, { x: Math.PI/2, y: 1 },
+                    { x: -Math.PI, y: 0 }, { x: Math.PI, y: 0 },
+                    { x: -2*Math.PI, y: 0 }, { x: 2*Math.PI, y: 0 }
+                ] };
+            case 'period':
+                return { type: 'band', x1: 0, x2: 2*Math.PI };
+            case 'zeros':
+                return { type: 'points', points: [
+                    { x: -2*Math.PI, y: 0 }, { x: -Math.PI, y: 0 },
+                    { x: 0, y: 0 }, { x: Math.PI, y: 0 }, { x: 2*Math.PI, y: 0 }
+                ] };
+            case 'sign':
+                return { type: 'sign' };
+            case 'mono':
+                return { type: 'mono' };
+            default:
+                return null;
+        }
+    }
+
+    // ===== ОБРАБОТЧИКИ СВОЙСТВ =====
+    document.querySelectorAll('.property-link[data-prop]').forEach(el => {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            const prop = this.dataset.prop;
+            if (activeProperty === prop) {
+                activeProperty = null;
+                this.classList.remove('active');
+            } else {
+                document.querySelectorAll('.property-link').forEach(x => x.classList.remove('active'));
+                this.classList.add('active');
+                activeProperty = prop;
+            }
+            const graphMain = document.getElementById('graph_main');
+            if (graphMain) graphMain.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            redrawAll();
+            showPropertyInfo(activeProperty);
+        });
+    });
+
+    function showPropertyInfo(prop) {
+        const info = document.getElementById('property-info');
+        if (!info) return;
+        if (!prop) { info.classList.remove('show'); info.innerHTML = ''; return; }
+        const texts = {
+            domain: 'Зелёная полоса вдоль оси OX — синус определён при любом x.',
+            range: 'Зелёная полоса от −1 до 1 по оси OY — значения синуса всегда в этом отрезке.',
+            odd: 'Зелёные точки: график симметричен относительно начала координат: sin(−x) = −sin(x).',
+            period: 'Зелёная полоса от 0 до 2π — один полный период. Дальше график повторяется.',
+            zeros: 'Зелёные точки — где sin x = 0: 0, π, 2π, −π, −2π.',
+            sign: 'Зелёный — sin x > 0, красный — sin x < 0.',
+            mono: 'Зелёный — возрастает, красный — убывает. На [−π/2; π/2] возрастает; на [π/2; 3π/2] убывает.'
+        };
+        info.innerHTML = texts[prop] || '';
+        info.classList.add('show');
+    }
+
+    // ===== ПОЛЗУНКИ ПРЕОБРАЗОВАНИЙ =====
+    const sliderK = document.getElementById('slider_k');
+    const sliderPhi = document.getElementById('slider_phi');
+    const sliderA = document.getElementById('slider_A');
+    const valK = document.getElementById('value_k');
+    const valPhi = document.getElementById('value_phi');
+    const valA = document.getElementById('value_A');
+
+    function updateLabels() {
+        valK.textContent = 'k = ' + transformState.k.toFixed(2).replace('.', ',');
+        valPhi.textContent = 'φ = ' + fracPi(transformState.phi);
+        valA.textContent = 'A = ' + transformState.A.toFixed(2).replace('.', ',');
+    }
+
+    sliderK.addEventListener('input', () => {
+        transformState.k = parseFloat(sliderK.value);
+        updateLabels();
+        redrawAll();
+    });
+    sliderPhi.addEventListener('input', () => {
+        transformState.phi = parseFloat(sliderPhi.value);
+        updateLabels();
+        redrawAll();
+    });
+    sliderA.addEventListener('input', () => {
+        transformState.A = parseFloat(sliderA.value);
+        updateLabels();
+        redrawAll();
+    });
+
+    function resetControls() {
+        transformState = { k: 1, phi: 0, A: 1 };
+        sliderK.value = 1; sliderPhi.value = 0; sliderA.value = 1;
+        updateLabels();
+        redrawAll();
+    }
+    window.resetControls = resetControls;
+
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    function initGraphs() {
+        updateLabels();
+        redrawAll();
+        window.addEventListener('load', redrawAll);
+        setTimeout(redrawAll, 500);
+        setTimeout(redrawAll, 1500);
+    }
+    initGraphs();
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg></a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/></svg></a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+</nav>
+<script id="bottom-nav-autohide-script">
+    (function(){
+        var nav = document.querySelector('.bottom-nav'); if (!nav) return;
+        var lastY = window.scrollY, threshold = 8, ticking = false;
+        function onScroll(){
+            var y = window.scrollY;
+            if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+            if (y > lastY && y > 80) nav.classList.add('nav-hidden');
+            else nav.classList.remove('nav-hidden');
+            lastY = y; ticking = false;
+        }
+        window.addEventListener('scroll', function(){ if (!ticking) { requestAnimationFrame(onScroll); ticking = true; } }, { passive: true });
+    })();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+    (function() {
+        var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+        els.forEach(function(el) {
+            if (el.dataset.rippleBound) return;
+            el.dataset.rippleBound = '1';
+            el.classList.add('ripple-host');
+            el.addEventListener('pointerdown', function(e) {
+                var rect = el.getBoundingClientRect();
+                var size = Math.max(rect.width, rect.height);
+                var r = document.createElement('span');
+                r.className = 'ripple';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                el.appendChild(r);
+                setTimeout(function(){ r.remove(); }, 650);
+            });
+        });
+    })();
+</script>
+</body>
+</html>
