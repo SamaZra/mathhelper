@@ -259,6 +259,9 @@
             <div class="graph-container">
                 <canvas id="graph_main" width="800" height="420"></canvas>
                 <div class="graph-label" id="graph_main_label">$y = \sin x$</div>
+                <div style="display:flex;justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap;">
+                    <button id="toggleCosBtn" type="button" class="btn-reset" onclick="toggleCosOnMain()">👁 Показать косинусоиду</button>
+                </div>
             </div>
             <div class="example">
                 <strong>📌 Как читать график:</strong><br>
@@ -508,7 +511,8 @@
         return sign + abs + 'π/6';
     }
 
-    function drawGraphRad(canvasId, functions, xMin, xMax, yMin, yMax, highlight) {
+    function drawGraphRad(canvasId, functions, xMin, xMax, yMin, yMax, highlight, options) {
+        options = options || {};
         const canvas = document.getElementById(canvasId);
         if (!canvas) return false;
         const ctx = canvas.getContext('2d');
@@ -604,7 +608,22 @@
             const sy = toY(y);
             ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
         }
-
+        // горизонтальные опорные линии y = 1, y = -1
+        if (options.hlines && options.hlines.length) {
+            ctx.save();
+            ctx.setLineDash([6, 6]);
+            ctx.lineWidth = 1.5;
+            options.hlines.forEach(hl => {
+                if (hl.y < yMin || hl.y > yMax) return;
+                ctx.strokeStyle = hl.color || '#888';
+                const sy = toY(hl.y);
+                ctx.beginPath();
+                ctx.moveTo(pad, sy);
+                ctx.lineTo(w - pad, sy);
+                ctx.stroke();
+            });
+            ctx.restore();
+        }
         // оси
         ctx.strokeStyle = axisColor;
         ctx.lineWidth = 2;
@@ -695,8 +714,10 @@
                 return;
             }
             // обычная отрисовка
+            ctx.save();
+            if (fn.dashed) ctx.setLineDash([8, 6]);
             ctx.strokeStyle = fn.color;
-            ctx.lineWidth = 2.5;
+            ctx.lineWidth = fn.dashed ? 2.2 : 2.5;
             ctx.beginPath();
             let first = true;
             const totalSteps = 2000;
@@ -712,6 +733,7 @@
                 else ctx.lineTo(sx, sy);
             }
             ctx.stroke();
+            ctx.restore();
         });
 
         // легенда
@@ -725,6 +747,23 @@
             ctx.fillRect(textX, textY - 8, 14, 4);
             ctx.fillStyle = axisText;
             ctx.fillText(fn.label, textX + 20, textY);
+                    // подписи опорных линий
+        if (options.hlines && options.hlines.length) {
+            let ly = pad + 18 + functions.length * 20;
+            options.hlines.forEach(hl => {
+                ctx.strokeStyle = hl.color || '#888';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([6, 6]);
+                ctx.beginPath();
+                ctx.moveTo(pad + 10, ly - 8);
+                ctx.lineTo(pad + 24, ly - 8);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = axisText;
+                ctx.fillText(hl.label, pad + 30, ly);
+                ly += 20;
+            });
+        }
         });
 
         return true;
@@ -733,15 +772,38 @@
     let transformState = { k: 1, phi: 0, A: 1 };
     let activeProperty = null;
 
+    let showCosOnMain = false;
+    window.toggleCosOnMain = function () {
+        showCosOnMain = !showCosOnMain;
+        const btn = document.getElementById('toggleCosBtn');
+        if (btn) btn.textContent = showCosOnMain ? '👁 Скрыть косинусоиду' : '👁 Показать косинусоиду';
+        redrawAll();
+    };
+
     function redrawAll() {
         const highlight = activeProperty ? getHighlight(activeProperty) : null;
-        const mainFn = {
-            f: x => Math.sin(x),
-            color: '#3b82f6',
-            label: 'y = sin x',
-            segments: (highlight && highlight.segments) ? highlight.segments : null
-        };
-        drawGraphRad('graph_main', [mainFn], -2 * Math.PI, 2 * Math.PI, -2.5, 2.5, highlight);
+        const fns = [
+            {
+                f: x => Math.sin(x),
+                color: '#3b82f6',
+                label: 'y = sin x',
+                segments: (highlight && highlight.segments) ? highlight.segments : null
+            }
+        ];
+        if (showCosOnMain) {
+            fns.push({
+                f: x => Math.cos(x),
+                color: '#a855f7',           // фиолетовый — хорошо виден на фоне
+                label: 'y = cos x (пунктир)',
+                dashed: true
+            });
+        }
+        drawGraphRad('graph_main', fns, -2 * Math.PI, 2 * Math.PI, -2.5, 2.5, highlight, {
+            hlines: [
+                { y: 1, color: '#22c55e', label: 'y = 1' },
+                { y: -1, color: '#ef4444', label: 'y = −1' }
+            ]
+        });
 
         const tf = x => transformState.A * Math.sin(transformState.k * (x - transformState.phi));
         const tfLabel = `y = ${transformState.A.toFixed(2).replace('.', ',')}·sin(${transformState.k.toFixed(2).replace('.', ',')}·(x − ${fracPi(transformState.phi)}))`;
