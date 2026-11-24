@@ -120,6 +120,159 @@
         @media (hover: hover) {
             .example:hover, .formula-block:hover, .important:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
         }
+
+        /* --- Стили для прокрутки и фуллскрина --- */
+        .graph-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background: var(--canvas-bg);
+            border-radius: 16px;
+            padding: 8px;
+            margin: 12px 0;
+        }
+        .graph-scroll canvas {
+            display: block;
+            border-radius: 12px;
+            background: var(--canvas-fill);
+        }
+        @media (max-width: 750px) {
+            .graph-scroll canvas#graph_main {
+                min-width: 900px;
+            }
+        }
+        .btn-fullscreen {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            background: var(--info-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-fullscreen:hover { background: var(--border); }
+
+        /* Стили для модального окна фуллскрина */
+        .fullscreen-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9); z-index: 9999;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .fullscreen-overlay.show { display: flex; opacity: 1; }
+        .fullscreen-content {
+            position: relative;
+            width: 100vw; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--canvas-bg);
+        }
+        .fullscreen-content canvas {
+            width: 100%; height: 100%;
+            max-width: 100vw; max-height: 100vh;
+            display: block;
+        }
+        .btn-close-fullscreen {
+            position: fixed; top: 16px; right: 16px;
+            background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.35);
+            color: white; font-size: 22px; width: 48px; height: 48px; border-radius: 50%;
+            cursor: pointer; z-index: 10001;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+            transition: background 0.2s, transform 0.15s;
+        }
+        .btn-close-fullscreen:hover { background: rgba(239,68,68,0.85); transform: scale(1.06); }
+        .btn-close-fullscreen:active { transform: scale(0.94); }
+
+        /* Принудительный ландшафт для iOS */
+        .force-landscape {
+            width: 100vh; height: 100vw;
+            transform: rotate(90deg);
+            transform-origin: center center;
+            position: absolute;
+            top: 50%; left: 50%;
+            margin-top: -50vw; margin-left: -50vh;
+        }
+
+        /* --- Стили для интерактивной формулы --- */
+        .formula-input-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            color: var(--text);
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+        .formula-input-container input {
+            width: 60px;
+            padding: 6px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--formula-bg);
+            color: var(--special-border);
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .formula-input-container input:focus {
+            border-color: var(--special-border);
+        }
+        .formula-input-container span {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        /* --- Интерактивный плоттер преобразований --- */
+        .plot-wrap {
+            position: relative;
+            height: 420px;
+            min-height: 300px;
+            padding: 0;
+            overflow: hidden;
+            touch-action: none;
+            background: var(--canvas-bg);
+        }
+        .plot-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            background: var(--canvas-fill);
+            border-radius: 12px;
+        }
+        .plot-canvas:active { cursor: grabbing; }
+        .plot-zoom-btn {
+            position: absolute; bottom: 12px; right: 12px;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(0,0,0,0.6); color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+            font-size: 18px; cursor: pointer; z-index: 5;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .plot-zoom-btn:hover { background: var(--accent); }
+        .graph-controls-bottom {
+            display: flex; justify-content: center; gap: 8px;
+            margin: 8px 0 14px; flex-wrap: wrap;
+        }
+        .graph-controls-bottom button {
+            padding: 10px 18px; border-radius: 22px;
+            border: 1px solid var(--border);
+            background: var(--info-bg); color: var(--text);
+            font-size: 0.95rem; font-weight: 700; cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+        }
+        .graph-controls-bottom button:hover { background: var(--accent); color: #fff; }
+        .graph-controls-bottom button:active { transform: scale(0.95); }
+        .graph-controls-bottom .reset-btn { font-size: 0.85rem; }
     </style>
     <script>
         MathJax = {
@@ -158,21 +311,22 @@
     <!-- ===== 1. ВВЕДЕНИЕ: ОКРУЖНОСТЬ → ГРАФИК ===== -->
     <div class="section">
         <div class="section-title" role="button" tabindex="0" aria-expanded="true" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
-            <span class="main-title">📖 От единичной окружности — к графику синуса</span>
+            <span class="main-title">📖 Как круг превращается в график</span>
         </div>
         <div class="section-content">
-            <p>Синус родился из простой задачи: <strong>как связаны угол и положение точки на окружности?</strong> Возьмём единичную окружность (радиус 1) с центром в начале координат. Пусть точка $M$ бежит по ней против часовой стрелки, а угол поворота равен $\alpha$ (в радианах). Тогда:</p>
+            <p>До этого мы работали с углами и треугольниками. Но в математике есть мощный инструмент — <strong>функции</strong>. Давайте посмотрим, как синус превращается из геометрического отрезка в полноценную функцию.</p>
+            <p>Представьте себе <strong>единичную окружность</strong> (радиус 1). Если мы будем крутить точку $M$ по этой окружности, то её <strong>высота</strong> (координата $y$) будет постоянно меняться. Функция $y = \sin x$ — это машина, которая берёт угол поворота $x$ и выдаёт высоту точки $M$.</p>
+
             <ul>
-                <li><strong>абсцисса</strong> точки $M$ — это $\cos\alpha$;</li>
-                <li><strong>ордината</strong> точки $M$ — это $\sin\alpha$.</li>
+                <li><strong>Вход функции:</strong> угол поворота $x$ (в радианах).</li>
+                <li><strong>Выход функции:</strong> ордината точки $M$, то есть $\sin x$.</li>
             </ul>
-            <p>То есть синус — это «тень» точки $M$ на ось $OY$. Когда точка делает полный оборот, её тень пробегает отрезок $[-1; 1]$ туда и обратно, а если откладывать угол $\alpha$ по горизонтальной оси, а синус — по вертикальной, получится <strong>синусоида</strong>.</p>
 
             <div class="important">
-                <strong>💡 Главная идея:</strong> график $y = \sin x$ — это развёртка единичной окружности. Каждому углу $\alpha$ соответствует точка на окружности, а её ордината — точка на графике. Поэтому $|\sin x| \le 1$: точка на окружности не может выйти за её пределы.
+                <strong>💡 Как круг связан с графиком:</strong> Круг показывает, <em>почему</em> синус меняется. А график показывает, <em>как</em> он меняется. Если мы «развернём» движение точки по окружности на горизонтальную ось, мы получим волнообразную кривую — <strong>синусоиду</strong>.
             </div>
 
-            <p>Подвигайте ползунок угла $\alpha$ — точка на окружности и соответствующая точка на графике двигаются синхронно. Видно, как «тень» точки на ось $OY$ превращается в координату $y$ графика синуса.</p>
+            <p>Подвигайте ползунок угла $\alpha$ — точка на окружности и соответствующая точка на графике двигаются синхронно.</p>
 
             <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:12px 0;">
                 <div class="graph-container" style="flex:1 1 320px;min-width:280px;">
@@ -197,8 +351,6 @@
                     <button class="btn-reset" type="button" onclick="resetAngle()">⟳ Сброс</button>
                 </div>
             </div>
-
-            <p><strong>Зачем это нужно?</strong> Синус описывает всё, что колеблется: маятник, переменный ток, звуковую волну, приливы. Везде, где есть периодический процесс, появляется синусоида. А ещё синус — это связующее звено между геометрией (углы, стороны треугольников) и алгеброй (функции, графики, уравнения).</p>
         </div>
     </div>
 
@@ -256,13 +408,16 @@
         </div>
         <div class="section-content">
             <p>График функции $y = \sin x$ называется <strong>синусоидой</strong>. Это та же косинусоида, но сдвинутая вправо на $\dfrac{\pi}{2}$: $\sin x = \cos\left(x - \dfrac{\pi}{2}\right)$.</p>
-            <div class="graph-container">
-                <canvas id="graph_main" width="800" height="420"></canvas>
-                <div class="graph-label" id="graph_main_label">$y = \sin x$</div>
-                <div style="display:flex;justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap;">
-                    <button id="toggleCosBtn" type="button" class="btn-reset" onclick="toggleCosOnMain()">👁 Показать косинусоиду</button>
-                </div>
+            <div class="graph-scroll">
+                <canvas id="graph_main" width="1000" height="460"></canvas>
             </div>
+            <div class="graph-label">$y = \sin x$ — основной график (можно прокручивать)</div>
+
+            <div style="display:flex;justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap;">
+                <button class="btn-fullscreen" type="button" onclick="openFullscreen()">⛶ Развернуть на весь экран</button>
+                <button id="toggleCosBtn" type="button" class="btn-fullscreen" onclick="toggleCosOnMain()">👁 Показать косинусоиду</button>
+            </div>
+
             <div class="example">
                 <strong>📌 Как читать график:</strong><br>
                 • В точке $x = 0$ значение равно нулю: $\sin 0 = 0$.<br>
@@ -278,40 +433,37 @@
     <div class="section collapsed">
         <div class="section-title" role="button" tabindex="0" aria-expanded="false" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
             <span class="main-title">🔧 Преобразования графика</span>
-            <span class="sub-title">ползунки: сжатие, сдвиг, амплитуда</span>
+            <span class="sub-title">введите коэффициенты в формулу</span>
         </div>
         <div class="section-content">
-            <p>Из базового графика $y = \sin x$ можно получить множество других, меняя три параметра в формуле:</p>
-            <div class="formula-block">$y = A\sin\big(k(x - \varphi)\big)$</div>
-            <ul>
-                <li><strong>$A$ — амплитуда.</strong> Растягивает/сжимает график по оси $OY$. Если $A > 1$ — выше, если $0 < A < 1$ — ниже. Если $A < 0$ — график переворачивается.</li>
-                <li><strong>$k$ — сжатие/растяжение по $OX$.</strong> Если $k > 1$ — сжимается (период $T = 2\pi/k$ уменьшается), если $k < 1$ — растягивается.</li>
-                <li><strong>$\varphi$ — сдвиг по $OX$.</strong> График едет вправо (при $\varphi > 0$) или влево (при $\varphi < 0$) на $\varphi$ единиц.</li>
-            </ul>
-            <div class="graph-container">
-                <canvas id="graph_transform" width="800" height="420"></canvas>
-                <div class="graph-label" id="graph_transform_label">$y = \sin x$</div>
+            <p>Из базового графика $y = \sin x$ можно получить множество других, меняя коэффициенты в формуле:</p>
+
+            <div class="formula-input-container">
+                <span>y =</span>
+                <input type="text" id="inp_A" value="1" oninput="updateTransform()" aria-label="Амплитуда A">
+                <span>· sin(</span>
+                <input type="text" id="inp_k" value="1" oninput="updateTransform()" aria-label="Коэффициент k при x">
+                <span>x +</span>
+                <input type="text" id="inp_phi" value="0" oninput="updateTransform()" aria-label="Сдвиг фазы φ (радианы)">
+                <span>) +</span>
+                <input type="text" id="inp_B" value="0" oninput="updateTransform()" aria-label="Вертикальный сдвиг B">
             </div>
-            <div class="controls-panel">
-                <div class="control-row">
-                    <label for="slider_A">Амплитуда (A):</label>
-                    <input type="range" id="slider_A" min="0.2" max="2.5" step="0.05" value="1">
-                    <span class="control-value" id="value_A">A = 1,00</span>
-                </div>
-                <div class="control-row">
-                    <label for="slider_k">Сжатие (k):</label>
-                    <input type="range" id="slider_k" min="0.33" max="3" step="0.01" value="1">
-                    <span class="control-value" id="value_k">k = 1,00</span>
-                </div>
-                <div class="control-row">
-                    <label for="slider_phi">Сдвиг (φ):</label>
-                    <input type="range" id="slider_phi" min="-3.14159265" max="3.14159265" step="0.52359877" value="0">
-                    <span class="control-value" id="value_phi">φ = 0</span>
-                </div>
-                <div class="control-buttons">
-                    <button class="btn-reset" type="button" onclick="resetControls()">⟳ Сброс</button>
-                </div>
+            <div class="graph-label" style="margin-bottom:6px;">
+                φ можно вводить в радианах: <code>0.5</code>, <code>-1.2</code>, <code>pi/2</code>, <code>π/3</code>, <code>2*pi</code>
             </div>
+
+            <div class="graph-container plot-wrap" id="transformPlotWrap">
+                <canvas id="graph_transform" class="plot-canvas"></canvas>
+                <button class="plot-zoom-btn" type="button" onclick="resetTransformView()" title="Сброс вида">⟳</button>
+            </div>
+            <div class="graph-label" id="graph_transform_label">$y = \sin x$</div>
+
+            <div class="graph-controls-bottom">
+                <button type="button" onclick="zoomTransform(1.25)" title="Приблизить">＋</button>
+                <button type="button" onclick="zoomTransform(0.8)" title="Отдалить">−</button>
+                <button type="button" class="reset-btn" onclick="resetTransformView()" title="Вернуть исходный вид">⟳ Сброс</button>
+            </div>
+
             <div class="formula-grid">
                 <div class="formula-card"><p>$y = 2\sin x$</p></div>
                 <div class="formula-card"><p>$y = \sin(x - \pi/6)$</p></div>
@@ -468,26 +620,16 @@
     <a href="trigonometry.html" class="back-link">← Назад к тригонометрии</a>
 </div>
 
-<!-- ===== ОСНОВНОЙ СКРИПТ ===== -->
+<!-- Оверлей для полноэкранного режима -->
+<div id="fullscreenOverlay" class="fullscreen-overlay">
+    <button class="btn-close-fullscreen" type="button" onclick="closeFullscreen()" aria-label="Закрыть полноэкранный режим">✕</button>
+    <div id="fullscreenContent" class="fullscreen-content">
+        <canvas id="fullscreen_canvas"></canvas>
+    </div>
+</div>
+
 <script>
-    (function () {
-        if (localStorage.getItem('mathTheme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
-        }
-    })();
-
-    function toggleSection(titleEl) {
-        const section = titleEl.closest('.section');
-        if (!section) return;
-        section.classList.toggle('collapsed');
-        titleEl.setAttribute('aria-expanded', String(!section.classList.contains('collapsed')));
-        setTimeout(redrawAll, 450);
-    }
-    function handleSectionKey(e, titleEl) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection(titleEl); }
-    }
-
+    // === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
     function fracPi(x) {
         const eps = 1e-6;
         const num = Math.round(x / (Math.PI / 6));
@@ -525,8 +667,16 @@
         const axisText = isLight ? '#1e3a5f' : '#cbdbe6';
         const subText = isLight ? '#5a7a94' : '#8ba5b8';
 
-        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
-        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+        // Квадратная клетка
+        const scaleX = pw / (xMax - xMin);
+        const scaleY = ph / (yMax - yMin);
+        const scale = Math.min(scaleX, scaleY);
+
+        const offsetX = pad + (pw - (xMax - xMin) * scale) / 2;
+        const offsetY = pad + (ph - (yMax - yMin) * scale) / 2;
+
+        function toX(x) { return offsetX + (x - xMin) * scale; }
+        function toY(y) { return offsetY + (yMax - y) * scale; }
 
         ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
         ctx.fillRect(0, 0, w, h);
@@ -534,16 +684,16 @@
         if (highlight) {
             if (highlight.type === 'axis-x') {
                 ctx.fillStyle = 'rgba(34, 197, 94, 0.18)';
-                ctx.fillRect(pad, toY(0) - 10, pw, 20);
+                ctx.fillRect(offsetX, toY(0) - 10, (xMax - xMin) * scale, 20);
             } else if (highlight.type === 'axis-y-range' && highlight.range) {
                 const [a, b] = highlight.range;
                 ctx.fillStyle = 'rgba(34, 197, 94, 0.18)';
-                ctx.fillRect(pad, toY(b), pw, toY(a) - toY(b));
+                ctx.fillRect(offsetX, toY(b), (xMax - xMin) * scale, toY(a) - toY(b));
             } else if (highlight.type === 'band' && highlight.x1 !== undefined) {
                 ctx.fillStyle = 'rgba(34, 197, 94, 0.15)';
                 const x1 = Math.max(highlight.x1, xMin);
                 const x2 = Math.min(highlight.x2, xMax);
-                if (x2 > x1) ctx.fillRect(toX(x1), pad, toX(x2) - toX(x1), ph);
+                if (x2 > x1) ctx.fillRect(toX(x1), offsetY, toX(x2) - toX(x1), (yMax - yMin) * scale);
             } else if ((highlight.type === 'points' || highlight.type === 'even-symmetry') && highlight.points) {
                 highlight.points.forEach(pt => {
                     if (pt.x < xMin || pt.x > xMax) return;
@@ -590,6 +740,23 @@
                     ctx.closePath();
                     ctx.fill();
                 }
+            } else if (highlight.type === 'segments' && highlight.segments) {
+                highlight.segments.forEach(seg => {
+                    const a = Math.max(seg.x1, xMin), b = Math.min(seg.x2, xMax);
+                    if (b <= a) return;
+                    ctx.strokeStyle = seg.color;
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    let first = true;
+                    const steps = 500, dx = (b - a) / steps;
+                    for (let x = a; x <= b; x += dx) {
+                        let y = functions(x);
+                        if (!isFinite(y) || y < yMin - 0.5 || y > yMax + 0.5) { first = true; continue; }
+                        const sx = toX(x), sy = toY(y);
+                        if (first) { ctx.moveTo(sx, sy); first = false; } else ctx.lineTo(sx, sy);
+                    }
+                    ctx.stroke();
+                });
             }
         }
 
@@ -600,13 +767,13 @@
         const startX = Math.ceil(xMin / stepX) * stepX;
         for (let x = startX; x <= xMax + 1e-6; x += stepX) {
             const sx = toX(x);
-            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(sx, offsetY); ctx.lineTo(sx, offsetY + (yMax - yMin) * scale); ctx.stroke();
         }
         const stepY = 0.5;
         const startY = Math.ceil(yMin / stepY) * stepY;
         for (let y = startY; y <= yMax + 1e-6; y += stepY) {
             const sy = toY(y);
-            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(offsetX, sy); ctx.lineTo(offsetX + (xMax - xMin) * scale, sy); ctx.stroke();
         }
         // горизонтальные опорные линии y = 1, y = -1
         if (options.hlines && options.hlines.length) {
@@ -618,8 +785,8 @@
                 ctx.strokeStyle = hl.color || '#888';
                 const sy = toY(hl.y);
                 ctx.beginPath();
-                ctx.moveTo(pad, sy);
-                ctx.lineTo(w - pad, sy);
+                ctx.moveTo(offsetX, sy);
+                ctx.lineTo(offsetX + (xMax - xMin) * scale, sy);
                 ctx.stroke();
             });
             ctx.restore();
@@ -628,23 +795,23 @@
         ctx.strokeStyle = axisColor;
         ctx.lineWidth = 2;
         const ox = toY(0), oy = toX(0);
-        if (ox >= pad && ox <= h - pad) {
-            ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        if (ox >= offsetY && ox <= offsetY + (yMax - yMin) * scale) {
+            ctx.beginPath(); ctx.moveTo(offsetX, ox); ctx.lineTo(offsetX + (xMax - xMin) * scale, ox); ctx.stroke();
         }
-        if (oy >= pad && oy <= w - pad) {
-            ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
+        if (oy >= offsetX && oy <= offsetX + (xMax - xMin) * scale) {
+            ctx.beginPath(); ctx.moveTo(oy, offsetY); ctx.lineTo(oy, offsetY + (yMax - yMin) * scale); ctx.stroke();
         }
 
         // стрелки
         ctx.fillStyle = axisColor;
-        ctx.beginPath(); ctx.moveTo(w - pad, ox); ctx.lineTo(w - pad - 10, ox - 5); ctx.lineTo(w - pad - 10, ox + 5); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy - 5, pad + 10); ctx.lineTo(oy + 5, pad + 10); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(offsetX + (xMax - xMin) * scale, ox); ctx.lineTo(offsetX + (xMax - xMin) * scale - 10, ox - 5); ctx.lineTo(offsetX + (xMax - xMin) * scale - 10, ox + 5); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(oy, offsetY); ctx.lineTo(oy - 5, offsetY + 10); ctx.lineTo(oy + 5, offsetY + 10); ctx.fill();
 
         // подписи осей
         ctx.font = '14px "Segoe UI", sans-serif';
         ctx.fillStyle = axisText;
-        ctx.fillText('x', w - pad - 14, ox - 10);
-        ctx.fillText('y', oy + 10, pad + 14);
+        ctx.fillText('x', offsetX + (xMax - xMin) * scale - 14, ox - 10);
+        ctx.fillText('y', oy + 10, offsetY + 14);
         ctx.fillText('0', oy - 14, ox + 16);
 
         // подписи по x
@@ -653,241 +820,609 @@
         ctx.textAlign = 'center';
         const labelStep = Math.PI / 2;
         const startLabel = Math.ceil(xMin / labelStep) * labelStep;
+        let lastLabelX = -Infinity;
         for (let x = startLabel; x <= xMax + 1e-6; x += labelStep) {
             if (Math.abs(x) < 1e-6) continue;
             const sx = toX(x);
+            if (sx - lastLabelX < 30) continue;
             ctx.fillText(fracPi(x), sx, ox + 18);
+            lastLabelX = sx;
         }
 
         // подписи по y
         ctx.textAlign = 'right';
-        const yLabels = [-2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2];
+        const yLabels = [-3, -2.5, -2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2, 2.5, 3];
         yLabels.forEach(y => {
             if (y < yMin || y > yMax) return;
-            const sy = toY(y);
-            ctx.fillText(String(y).replace('.', ','), oy - 6, sy + 4);
+            ctx.fillText(String(y).replace('.', ','), oy - 6, toY(y) + 4);
         });
 
-        // отрисовка функций
-        functions.forEach(fn => {
-            if (fn.segments && fn.segments.length) {
-                const totalSteps = 2000;
-                const dx = (xMax - xMin) / totalSteps;
-                // основная линия
-                ctx.strokeStyle = fn.color;
-                ctx.lineWidth = 2.5;
+        // кривые
+        if (Array.isArray(functions)) {
+            functions.forEach(fn => {
+                ctx.strokeStyle = fn.color || '#3b82f6';
+                ctx.lineWidth = fn.width || 2.5;
+                if (fn.dash) ctx.setLineDash(fn.dash); else ctx.setLineDash([]);
                 ctx.beginPath();
                 let first = true;
+                const totalSteps = 2000, dx = (xMax - xMin) / totalSteps;
                 for (let x = xMin; x <= xMax; x += dx) {
-                    if (fn.domain && !fn.domain(x)) { first = true; continue; }
-                    let y;
-                    try { y = fn.f(x); } catch(e) { first = true; continue; }
-                    if (y === null || y === undefined || isNaN(y) || !isFinite(y)) { first = true; continue; }
-                    if (y < yMin - 0.5 || y > yMax + 0.5) { first = true; continue; }
+                    if (options.domain && !options.domain(x)) { first = true; continue; }
+                    let y = fn.fn(x);
+                    if (!isFinite(y) || y < yMin - 0.5 || y > yMax + 0.5) { first = true; continue; }
                     const sx = toX(x), sy = toY(y);
-                    if (first) { ctx.moveTo(sx, sy); first = false; }
-                    else ctx.lineTo(sx, sy);
+                    if (first) { ctx.moveTo(sx, sy); first = false; } else ctx.lineTo(sx, sy);
                 }
                 ctx.stroke();
-
-                // цветные сегменты
-                fn.segments.forEach(seg => {
-                    ctx.strokeStyle = seg.color;
-                    ctx.lineWidth = 3.5;
-                    ctx.beginPath();
-                    let first2 = true;
-                    const a = Math.max(seg.x1, xMin);
-                    const b = Math.min(seg.x2, xMax);
-                    if (b <= a) return;
-                    const steps = Math.max(50, Math.floor((b - a) / (xMax - xMin) * totalSteps));
-                    const sdx = (b - a) / steps;
-                    for (let x = a; x <= b; x += sdx) {
-                        let y;
-                        try { y = fn.f(x); } catch(e) { first2 = true; continue; }
-                        if (y === null || y === undefined || isNaN(y) || !isFinite(y)) { first2 = true; continue; }
-                        const sx = toX(x), sy = toY(y);
-                        if (first2) { ctx.moveTo(sx, sy); first2 = false; }
-                        else ctx.lineTo(sx, sy);
-                    }
-                    ctx.stroke();
-                });
-                return;
-            }
-            // обычная отрисовка
-            ctx.save();
-            if (fn.dashed) ctx.setLineDash([8, 6]);
-            ctx.strokeStyle = fn.color;
-            ctx.lineWidth = fn.dashed ? 2.2 : 2.5;
+                ctx.setLineDash([]);
+            });
+        } else {
+            ctx.strokeStyle = options.color || '#3b82f6';
+            ctx.lineWidth = options.width || 2.5;
             ctx.beginPath();
             let first = true;
-            const totalSteps = 2000;
-            const dx = (xMax - xMin) / totalSteps;
+            const totalSteps = 2000, dx = (xMax - xMin) / totalSteps;
             for (let x = xMin; x <= xMax; x += dx) {
-                if (fn.domain && !fn.domain(x)) { first = true; continue; }
-                let y;
-                try { y = fn.f(x); } catch(e) { first = true; continue; }
-                if (y === null || y === undefined || isNaN(y) || !isFinite(y)) { first = true; continue; }
-                if (y < yMin - 0.5 || y > yMax + 0.5) { first = true; continue; }
+                if (options.domain && !options.domain(x)) { first = true; continue; }
+                let y = functions(x);
+                if (!isFinite(y) || y < yMin - 0.5 || y > yMax + 0.5) { first = true; continue; }
                 const sx = toX(x), sy = toY(y);
-                if (first) { ctx.moveTo(sx, sy); first = false; }
-                else ctx.lineTo(sx, sy);
+                if (first) { ctx.moveTo(sx, sy); first = false; } else ctx.lineTo(sx, sy);
             }
             ctx.stroke();
-            ctx.restore();
-        });
-
-        // легенда
-        ctx.font = '13px "Segoe UI", sans-serif';
-        ctx.textAlign = 'left';
-        functions.forEach((fn, i) => {
-            if (!fn.label) return;
-            const textX = pad + 10;
-            const textY = pad + 18 + i * 20;
-            ctx.fillStyle = fn.color;
-            ctx.fillRect(textX, textY - 8, 14, 4);
-            ctx.fillStyle = axisText;
-            ctx.fillText(fn.label, textX + 20, textY);
-                    // подписи опорных линий
-        if (options.hlines && options.hlines.length) {
-            let ly = pad + 18 + functions.length * 20;
-            options.hlines.forEach(hl => {
-                ctx.strokeStyle = hl.color || '#888';
-                ctx.lineWidth = 1.5;
-                ctx.setLineDash([6, 6]);
-                ctx.beginPath();
-                ctx.moveTo(pad + 10, ly - 8);
-                ctx.lineTo(pad + 24, ly - 8);
-                ctx.stroke();
-                ctx.setLineDash([]);
-                ctx.fillStyle = axisText;
-                ctx.fillText(hl.label, pad + 30, ly);
-                ly += 20;
-            });
         }
-        });
-
         return true;
     }
 
-    let transformState = { k: 1, phi: 0, A: 1 };
-    let activeProperty = null;
-
-    let showCosOnMain = false;
-    window.toggleCosOnMain = function () {
-        showCosOnMain = !showCosOnMain;
-        const btn = document.getElementById('toggleCosBtn');
-        if (btn) btn.textContent = showCosOnMain ? '👁 Скрыть косинусоиду' : '👁 Показать косинусоиду';
-        redrawAll();
-    };
-
-    function redrawAll() {
-        const highlight = activeProperty ? getHighlight(activeProperty) : null;
-        const fns = [
-            {
-                f: x => Math.sin(x),
-                color: '#3b82f6',
-                label: 'y = sin x',
-                segments: (highlight && highlight.segments) ? highlight.segments : null
-            }
-        ];
-        if (showCosOnMain) {
-            fns.push({
-                f: x => Math.cos(x),
-                color: '#a855f7',           // фиолетовый — хорошо виден на фоне
-                label: 'y = cos x (пунктир)',
-                dashed: true
-            });
-        }
-        drawGraphRad('graph_main', fns, -2 * Math.PI, 2 * Math.PI, -2.5, 2.5, highlight, {
-            hlines: [
-                { y: 1, color: '#22c55e', label: 'y = 1' },
-                { y: -1, color: '#ef4444', label: 'y = −1' }
-            ]
-        });
-
-        const tf = x => transformState.A * Math.sin(transformState.k * (x - transformState.phi));
-        const tfLabel = `y = ${transformState.A.toFixed(2).replace('.', ',')}·sin(${transformState.k.toFixed(2).replace('.', ',')}·(x − ${fracPi(transformState.phi)}))`;
-        drawGraphRad('graph_transform', [
-            { f: tf, color: '#3b82f6', label: tfLabel }
-        ], -2 * Math.PI, 2 * Math.PI, -3, 3);
-
-        const tfLabelEl = document.getElementById('graph_transform_label');
-        if (tfLabelEl) tfLabelEl.innerHTML = '$' + tfLabel + '$';
-        if (window.MathJax && MathJax.typesetPromise && tfLabelEl) {
-            MathJax.typesetPromise([tfLabelEl]).catch(() => {});
-        }
-    }
+    // === СОСТОЯНИЕ И ЛОГИКА ===
+    let activeProp = null;
+    let showCosine = false;
 
     function getHighlight(prop) {
         switch (prop) {
-            case 'domain':
-                return { type: 'axis-x' };
-            case 'range':
-                return { type: 'axis-y-range', range: [-1, 1] };
-            case 'odd':
-                return {
-                    type: 'even-symmetry',
-                    segments: [
-                        { x1: -2 * Math.PI, x2: 0, color: '#ef4444' },
-                        { x1: 0, x2: 2 * Math.PI, color: '#3b82f6' }
-                    ],
-                    points: [
-                        { x: -Math.PI/2, y: -1 }, { x: Math.PI/2, y: 1 },
-                        { x: -Math.PI, y: 0 }, { x: Math.PI, y: 0 },
-                        { x: -2*Math.PI, y: 0 }, { x: 2*Math.PI, y: 0 }
-                    ],
-                    pairs: [
-                        [{x: -Math.PI/2, y: -1}, {x: Math.PI/2, y: 1}],
-                        [{x: -Math.PI, y: 0}, {x: Math.PI, y: 0}],
-                        [{x: -2*Math.PI, y: 0}, {x: 2*Math.PI, y: 0}]
-                    ]
-                };
-            case 'period':
-                return { type: 'band', x1: 0, x2: 2*Math.PI };
-            case 'zeros':
-                return { type: 'points', points: [
-                    { x: -2*Math.PI, y: 0 }, { x: -Math.PI, y: 0 },
-                    { x: 0, y: 0 }, { x: Math.PI, y: 0 }, { x: 2*Math.PI, y: 0 }
-                ] };
-            case 'sign':
-                return { type: 'signarea', fn: x => Math.sin(x) };
-            case 'mono':
-                return {
-                    type: 'mono',
-                    segments: [
-                        { x1: -2 * Math.PI, x2: -1.5 * Math.PI, color: '#22c55e' }, // возрастает
-                        { x1: -1.5 * Math.PI, x2: -0.5 * Math.PI, color: '#ef4444' }, // убывает
-                        { x1: -0.5 * Math.PI, x2: 0.5 * Math.PI, color: '#22c55e' },  // возрастает
-                        { x1: 0.5 * Math.PI, x2: 1.5 * Math.PI, color: '#ef4444' },   // убывает
-                        { x1: 1.5 * Math.PI, x2: 2 * Math.PI, color: '#22c55e' }      // возрастает
-                    ]
-                };
-            default:
-                return null;
+            case 'domain':   return { type: 'axis-x' };
+            case 'range':    return { type: 'axis-y-range', range: [-1, 1] };
+            case 'odd':      return { type: 'even-symmetry', points: [
+                { x: -Math.PI/2, y: -1 }, { x: Math.PI/2, y: 1 },
+                { x: -Math.PI/6, y: -0.5 }, { x: Math.PI/6, y: 0.5 },
+                { x: 0, y: 0 }
+            ], pairs: [
+                [{x: -Math.PI/2, y: -1}, {x: Math.PI/2, y: 1}],
+                [{x: -Math.PI/6, y: -0.5}, {x: Math.PI/6, y: 0.5}]
+            ] };
+            case 'period':   return { type: 'band', x1: 0, x2: 2*Math.PI };
+            case 'zeros':    return { type: 'points', points: [
+                { x: -2*Math.PI, y: 0 }, { x: -Math.PI, y: 0 }, { x: 0, y: 0 }, { x: Math.PI, y: 0 }, { x: 2*Math.PI, y: 0 }
+            ] };
+            case 'sign':     return { type: 'signarea', fn: x => Math.sin(x) };
+            case 'mono':     return { type: 'segments', segments: [
+                { x1: -2.5*Math.PI, x2: -1.5*Math.PI, color: '#22c55e' },
+                { x1: -0.5*Math.PI, x2: 0.5*Math.PI, color: '#22c55e' },
+                { x1: 1.5*Math.PI, x2: 2.5*Math.PI, color: '#22c55e' },
+                { x1: -1.5*Math.PI, x2: -0.5*Math.PI, color: '#ef4444' },
+                { x1: 0.5*Math.PI, x2: 1.5*Math.PI, color: '#ef4444' }
+            ] };
+            default: return null;
         }
     }
 
+    function drawMainGraph() {
+        drawGraphRad('graph_main', Math.sin, -2*Math.PI, 2*Math.PI, -2, 2, activeProp ? getHighlight(activeProp) : null, {
+            hlines: [{ y: 1, color: '#ef4444' }, { y: -1, color: '#ef4444' }]
+        });
+        if (showCosine) {
+            drawGraphRad('graph_main', [
+                { fn: Math.sin, color: '#3b82f6', width: 2.5 },
+                { fn: Math.cos, color: '#a855f7', width: 2, dash: [5, 5] }
+            ], -2*Math.PI, 2*Math.PI, -2, 2, activeProp ? getHighlight(activeProp) : null, {
+                hlines: [{ y: 1, color: '#ef4444' }, { y: -1, color: '#ef4444' }]
+            });
+        }
+        // фуллскрин тоже обновить, если открыт
+        if (document.getElementById('fullscreenOverlay').classList.contains('show')) {
+            drawFullscreenGraph();
+        }
+    }
+
+    function toggleCosOnMain() {
+        showCosine = !showCosine;
+        const btn = document.getElementById('toggleCosBtn');
+        if (btn) btn.textContent = showCosine ? '🙈 Скрыть косинусоиду' : '👁 Показать косинусоиду';
+        drawMainGraph();
+    }
+
+    function redrawAll() {
+        drawMainGraph();
+        drawTransformPlot();
+    }
+
+    // === УПРАВЛЕНИЕ СЕКЦИЯМИ ===
+    function toggleSection(titleEl) {
+        const section = titleEl.closest('.section');
+        if (!section) return;
+        section.classList.toggle('collapsed');
+        titleEl.setAttribute('aria-expanded', String(!section.classList.contains('collapsed')));
+        setTimeout(redrawAll, 450);
+    }
+    function handleSectionKey(e, titleEl) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection(titleEl); }
+    }
+
+    // === ИНТЕРАКТИВ (КРУГ И РАЗВЁРТКА) ===
+    let animId = null;
+    function renderInteractive() {
+        const circleCanvas = document.getElementById('circle_canvas');
+        const unfoldCanvas = document.getElementById('sin_unfold_canvas');
+        const slider = document.getElementById('angle_slider');
+        const valEl = document.getElementById('angle_value');
+        if (!circleCanvas || !unfoldCanvas || !slider) return;
+
+        const alpha = parseFloat(slider.value);
+        if (valEl) valEl.textContent = 'α = ' + alpha.toFixed(2).replace('.', ',') + ' рад';
+
+        // Рисуем круг
+        const cCtx = circleCanvas.getContext('2d');
+        const cW = circleCanvas.width, cH = circleCanvas.height;
+        const light = document.documentElement.classList.contains('light-mode');
+        cCtx.clearRect(0, 0, cW, cH);
+        cCtx.fillStyle = light ? '#fefefe' : '#0f1a24';
+        cCtx.fillRect(0, 0, cW, cH);
+
+        const cx = cW / 2, cy = cH / 2, r = Math.min(cW, cH) * 0.35;
+
+        // Сетка
+        cCtx.strokeStyle = light ? '#dce3ec' : '#2a3a4a';
+        cCtx.lineWidth = 1;
+        cCtx.beginPath(); cCtx.arc(cx, cy, r, 0, 2*Math.PI); cCtx.stroke();
+        cCtx.beginPath(); cCtx.moveTo(cx - r - 30, cy); cCtx.lineTo(cx + r + 30, cy); cCtx.stroke();
+        cCtx.beginPath(); cCtx.moveTo(cx, cy - r - 30); cCtx.lineTo(cx, cy + r + 30); cCtx.stroke();
+
+        // Подписи осей
+        cCtx.fillStyle = light ? '#5a7a94' : '#8ba5b8';
+        cCtx.font = '12px "Segoe UI", sans-serif';
+        cCtx.textAlign = 'center';
+        cCtx.fillText('1', cx + r, cy + 16);
+        cCtx.fillText('-1', cx - r, cy + 16);
+        cCtx.fillText('1', cx - 16, cy - r + 4);
+        cCtx.fillText('-1', cx - 16, cy + r + 12);
+
+        const px = cx + r * Math.cos(alpha);
+        const py = cy - r * Math.sin(alpha);
+
+        // Зеленая подсветка на оси OY
+        cCtx.strokeStyle = '#22c55e';
+        cCtx.lineWidth = 4;
+        cCtx.beginPath(); cCtx.moveTo(cx, cy); cCtx.lineTo(cx, py); cCtx.stroke();
+
+        // Угол
+        cCtx.fillStyle = 'rgba(245,158,11,0.2)';
+        cCtx.beginPath(); cCtx.moveTo(cx, cy); cCtx.arc(cx, cy, r*0.4, 0, -alpha, true); cCtx.fill();
+        cCtx.strokeStyle = '#f59e0b'; cCtx.lineWidth = 2;
+        cCtx.beginPath(); cCtx.arc(cx, cy, r*0.4, 0, -alpha, true); cCtx.stroke();
+
+        // Радиус
+        cCtx.strokeStyle = '#f59e0b'; cCtx.lineWidth = 2;
+        cCtx.beginPath(); cCtx.moveTo(cx, cy); cCtx.lineTo(px, py); cCtx.stroke();
+
+        // Подпись угла
+        cCtx.fillStyle = '#f59e0b';
+        cCtx.fillText('α', cx + Math.max(16, r*0.4 + 10), cy - 6);
+
+        // Проекция
+        cCtx.setLineDash([4, 4]);
+        cCtx.strokeStyle = '#22c55e'; cCtx.lineWidth = 2;
+        cCtx.beginPath(); cCtx.moveTo(px, py); cCtx.lineTo(cx, py); cCtx.stroke();
+        cCtx.setLineDash([]);
+
+        // Подпись sin
+        cCtx.fillStyle = '#22c55e';
+        cCtx.font = 'bold 13px "Segoe UI", sans-serif';
+        cCtx.fillText('sin α', cx + 30, py + 4);
+
+        // Точка
+        cCtx.fillStyle = '#ef4444';
+        cCtx.beginPath(); cCtx.arc(px, py, 6, 0, 2*Math.PI); cCtx.fill();
+        cCtx.fillStyle = light ? '#1e3a5f' : '#cbdbe6';
+        cCtx.font = 'bold 14px "Segoe UI", sans-serif';
+        cCtx.fillText('M', px + 10, py - 10);
+
+        // Рисуем развёртку
+        const uCtx = unfoldCanvas.getContext('2d');
+        const uW = unfoldCanvas.width, uH = unfoldCanvas.height;
+        uCtx.clearRect(0, 0, uW, uH);
+        uCtx.fillStyle = light ? '#fefefe' : '#0f1a24';
+        uCtx.fillRect(0, 0, uW, uH);
+
+        const padU = 40, pwU = uW - 2*padU, phU = uH - 2*padU;
+        const scaleU = Math.min(pwU / (2*Math.PI), phU / 2);
+        const offsetXU = padU + (pwU - (2*Math.PI) * scaleU) / 2;
+        const offsetYU = padU + (phU - 2 * scaleU) / 2;
+
+        const uToX = (x) => offsetXU + x * scaleU;
+        const uToY = (y) => offsetYU + (1 - y) * scaleU;
+
+        // Оси
+        uCtx.strokeStyle = light ? '#5b7c9c' : '#8899aa';
+        uCtx.lineWidth = 1.5;
+        const uox = uToY(0), uoy = uToX(0);
+        uCtx.beginPath(); uCtx.moveTo(offsetXU, uox); uCtx.lineTo(offsetXU + 2*Math.PI*scaleU, uox); uCtx.stroke();
+        uCtx.beginPath(); uCtx.moveTo(uoy, offsetYU); uCtx.lineTo(uoy, offsetYU + 2*scaleU); uCtx.stroke();
+
+        // Подписи
+        uCtx.fillStyle = light ? '#5a7a94' : '#8ba5b8';
+        uCtx.font = '12px "Segoe UI", sans-serif';
+        uCtx.textAlign = 'center';
+        uCtx.fillText('0', uoy, uox + 16);
+        uCtx.fillText('π/2', uToX(Math.PI/2), uox + 16);
+        uCtx.fillText('π', uToX(Math.PI), uox + 16);
+        uCtx.fillText('3π/2', uToX(3*Math.PI/2), uox + 16);
+        uCtx.fillText('2π', uToX(2*Math.PI), uox + 16);
+
+        uCtx.textAlign = 'right';
+        uCtx.fillText('1', uoy - 6, uToY(1) + 4);
+        uCtx.fillText('-1', uoy - 6, uToY(-1) + 4);
+
+        // Синусоида
+        uCtx.strokeStyle = '#3b82f6'; uCtx.lineWidth = 2.5;
+        uCtx.beginPath();
+        for (let x = 0; x <= 2*Math.PI; x += 0.05) {
+            const sx = uToX(x), sy = uToY(Math.sin(x));
+            if (x === 0) uCtx.moveTo(sx, sy); else uCtx.lineTo(sx, sy);
+        }
+        uCtx.stroke();
+
+        // Линия проекции на графике
+        uCtx.setLineDash([4, 4]);
+        uCtx.strokeStyle = '#22c55e'; uCtx.lineWidth = 2;
+        uCtx.beginPath(); uCtx.moveTo(uToX(alpha), uToY(Math.sin(alpha))); uCtx.lineTo(uToX(alpha), uToY(0)); uCtx.stroke();
+        uCtx.setLineDash([]);
+
+        // Точка на графике
+        uCtx.fillStyle = '#ef4444';
+        uCtx.beginPath(); uCtx.arc(uToX(alpha), uToY(Math.sin(alpha)), 6, 0, 2*Math.PI); uCtx.fill();
+
+        uCtx.fillStyle = '#22c55e';
+        uCtx.font = 'bold 12px "Segoe UI", sans-serif';
+        uCtx.textAlign = 'left';
+        uCtx.fillText('sin α = ' + Math.sin(alpha).toFixed(2).replace('.', ','), uToX(alpha) + 8, uToY(Math.sin(alpha)) - 8);
+    }
+
+    function playAngleAnimation() {
+        stopAngleAnimation();
+        const slider = document.getElementById('angle_slider');
+        const t0 = performance.now();
+        const duration = 4000;
+        function step(now) {
+            const t = (now - t0) / duration;
+            if (t >= 1) { slider.value = 2 * Math.PI; renderInteractive(); return; }
+            slider.value = t * 2 * Math.PI;
+            renderInteractive();
+            animId = requestAnimationFrame(step);
+        }
+        animId = requestAnimationFrame(step);
+    }
+    function stopAngleAnimation() {
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
+    }
+    function resetAngle() {
+        stopAngleAnimation();
+        document.getElementById('angle_slider').value = 0.8;
+        renderInteractive();
+    }
+
+    // === ПРЕОБРАЗОВАНИЯ (НОВЫЙ БЛОК) ===
+    function parseMathInput(val) {
+        if (val === null || val === undefined) return 0;
+        val = String(val).trim().toLowerCase();
+        if (!val) return 0;
+        // Радианы: π и pi → Math.PI, поддержка выражений вида 2*pi, pi/3, -pi/2
+        val = val.replace(/π/g, 'pi').replace(/pi/g, String(Math.PI));
+        // Разрешаем только цифры, точку, запятую, + - * / ( ) пробелы
+        if (!/^[\d\s.,+\-*/()]+$/.test(val)) return 0;
+        val = val.replace(/,/g, '.').replace(/\s+/g, '');
+        try {
+            // Безопасное вычисление арифметического выражения
+            const res = Function('"use strict";return (' + val + ')')();
+            return (typeof res === 'number' && isFinite(res)) ? res : 0;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    // === ИНТЕРАКТИВНЫЙ ПЛОТТЕР ПРЕОБРАЗОВАНИЙ ===
+    const T_XMIN0 = -2 * Math.PI, T_XMAX0 = 2 * Math.PI;
+    const T_YMIN0 = -3, T_YMAX0 = 3;
+    let tView = { xMin: T_XMIN0, xMax: T_XMAX0, yMin: T_YMIN0, yMax: T_YMAX0 };
+    let tDragging = false, tDragX = 0, tDragY = 0;
+    let tCoef = { A: 1, k: 1, phi: 0, B: 0 };
+
+    function evalTransform(x) {
+        const { A, k, phi, B } = tCoef;
+        const y = A * Math.sin(k * x + phi) + B;
+        return isFinite(y) ? y : NaN;
+    }
+
+    function sizeTransformCanvas() {
+        const cv = document.getElementById('graph_transform');
+        if (!cv) return;
+        const rect = cv.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        cv.width = Math.max(1, Math.round(rect.width * dpr));
+        cv.height = Math.max(1, Math.round(rect.height * dpr));
+    }
+
+    function tXToPx(x) {
+        const cv = document.getElementById('graph_transform');
+        return (x - tView.xMin) / (tView.xMax - tView.xMin) * cv.width;
+    }
+    function tYToPx(y) {
+        const cv = document.getElementById('graph_transform');
+        return (tView.yMax - y) / (tView.yMax - tView.yMin) * cv.height;
+    }
+    function tPxToX(px) {
+        const cv = document.getElementById('graph_transform');
+        return tView.xMin + px / cv.width * (tView.xMax - tView.xMin);
+    }
+    function tPxToY(py) {
+        const cv = document.getElementById('graph_transform');
+        return tView.yMax - py / cv.height * (tView.yMax - tView.yMin);
+    }
+
+    function fmtPi(x) {
+        if (Math.abs(x) < 1e-9) return '0';
+        const n = Math.round(x / (Math.PI / 2));
+        if (Math.abs(x - n * Math.PI / 2) > 1e-6) return x.toFixed(1).replace('.', ',');
+        const m = Math.abs(n), s = n < 0 ? '−' : '';
+        if (m === 1) return s + 'π/2';
+        if (m === 2) return s + 'π';
+        if (m === 3) return s + '3π/2';
+        if (m === 4) return s + '2π';
+        if (m % 2 === 0) return s + (m / 2) + 'π';
+        return s + m + 'π/2';
+    }
+
+    function drawTransformPlot() {
+        const cv = document.getElementById('graph_transform');
+        if (!cv) return;
+        const ctx = cv.getContext('2d');
+        const W = cv.width, H = cv.height;
+
+        // === Квадратные клетки: π/2 по x = 1 по y ===
+        // (xMax-xMin)/W * (π/2) = (yMax-yMin)/H * 1
+        const targetYRange = (tView.xMax - tView.xMin) * (H / W) * (Math.PI / 2);
+        const cyMid = (tView.yMin + tView.yMax) / 2;
+        tView.yMin = cyMid - targetYRange / 2;
+        tView.yMax = cyMid + targetYRange / 2;
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const gridColor = isLight ? '#dce3ec' : '#2a3a4a';
+        const axisColor = isLight ? '#5b7c9c' : '#8899aa';
+        const textColor = isLight ? '#5a7a94' : '#8ba5b8';
+
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, W, H);
+
+        // Сетка: шаг по x — π/2, по y — 1
+        const xStep = Math.PI / 2;
+        ctx.strokeStyle = gridColor;
+        ctx.lineWidth = 1;
+        const x0 = Math.ceil(tView.xMin / xStep) * xStep;
+        for (let x = x0; x <= tView.xMax; x += xStep) {
+            const px = tXToPx(x);
+            ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke();
+        }
+        const y0 = Math.ceil(tView.yMin);
+        for (let y = y0; y <= tView.yMax; y++) {
+            const py = tYToPx(y);
+            ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(W, py); ctx.stroke();
+        }
+
+        // Оси
+        ctx.strokeStyle = axisColor; ctx.lineWidth = 2;
+        const ox = tYToPx(0), oy = tXToPx(0);
+        if (ox >= 0 && ox <= H) { ctx.beginPath(); ctx.moveTo(0, ox); ctx.lineTo(W, ox); ctx.stroke(); }
+        if (oy >= 0 && oy <= W) { ctx.beginPath(); ctx.moveTo(oy, 0); ctx.lineTo(oy, H); ctx.stroke(); }
+
+        // Подписи x
+        ctx.fillStyle = textColor;
+        ctx.font = '12px "Segoe UI", sans-serif';
+        ctx.textAlign = 'center';
+        for (let x = x0; x <= tView.xMax; x += xStep) {
+            if (Math.abs(x) < 1e-9) continue;
+            ctx.fillText(fmtPi(x), tXToPx(x), ox + 16);
+        }
+        // Подписи y
+        ctx.textAlign = 'right';
+        for (let y = y0; y <= tView.yMax; y++) {
+            if (y === 0) continue;
+            ctx.fillText(String(y).replace('.', ','), oy - 6, tYToPx(y) + 4);
+        }
+
+        // Базовая sin(x) пунктиром
+        ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        let first = true;
+        for (let px = 0; px <= W; px += 1) {
+            const y = Math.sin(tPxToX(px));
+            const py = tYToPx(y);
+            if (!isFinite(py) || py < -H || py > 2 * H) { first = true; continue; }
+            if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+        }
+        ctx.stroke(); ctx.setLineDash([]);
+
+        // Текущая функция
+        ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 3;
+        ctx.beginPath(); first = true;
+        for (let px = 0; px <= W; px += 1) {
+            const y = evalTransform(tPxToX(px));
+            const py = tYToPx(y);
+            if (!isFinite(py) || py < -H || py > 2 * H) { first = true; continue; }
+            if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        // Подпись формулы
+        const { A, k, phi, B } = tCoef;
+        let s = 'y = ';
+        s += (A === 1 ? '' : A === -1 ? '−' : A) + 'sin(';
+        s += (k === 1 ? '' : k === -1 ? '−' : k) + 'x';
+        if (phi) s += (phi > 0 ? ' + ' : ' − ') + Math.abs(phi).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
+        s += ')';
+        if (B) s += (B > 0 ? ' + ' : ' − ') + Math.abs(B).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
+        const lbl = document.getElementById('graph_transform_label');
+        if (lbl) lbl.textContent = s;
+    }
+
+    function updateTransform() {
+        tCoef.A = parseMathInput(document.getElementById('inp_A').value);
+        tCoef.k = parseMathInput(document.getElementById('inp_k').value) || 1;
+        tCoef.phi = parseMathInput(document.getElementById('inp_phi').value);
+        tCoef.B = parseMathInput(document.getElementById('inp_B').value);
+        drawTransformPlot();
+    }
+
+    function zoomTransform(factor) {
+        const cx = (tView.xMin + tView.xMax) / 2;
+        const cy = (tView.yMin + tView.yMax) / 2;
+        const hw = (tView.xMax - tView.xMin) / 2 / factor;
+        const hh = (tView.yMax - tView.yMin) / 2 / factor;
+        tView.xMin = cx - hw; tView.xMax = cx + hw;
+        tView.yMin = cy - hh; tView.yMax = cy + hh;
+        drawTransformPlot();
+    }
+
+    function resetTransformView() {
+        tView = { xMin: T_XMIN0, xMax: T_XMAX0, yMin: T_YMIN0, yMax: T_YMAX0 };
+        drawTransformPlot();
+    }
+
+    (function bindTransformInteractions() {
+        const cv = document.getElementById('graph_transform');
+        if (!cv) return;
+
+        cv.addEventListener('pointerdown', e => {
+            tDragging = true; tDragX = e.clientX; tDragY = e.clientY;
+            cv.setPointerCapture(e.pointerId);
+        });
+        cv.addEventListener('pointermove', e => {
+            if (!tDragging) return;
+            const rect = cv.getBoundingClientRect();
+            const dx = (e.clientX - tDragX) / rect.width * (tView.xMax - tView.xMin);
+            const dy = (e.clientY - tDragY) / rect.height * (tView.yMax - tView.yMin);
+            tView.xMin -= dx; tView.xMax -= dx;
+            tView.yMin += dy; tView.yMax += dy;
+            tDragX = e.clientX; tDragY = e.clientY;
+            drawTransformPlot();
+        });
+        cv.addEventListener('pointerup', e => {
+            tDragging = false;
+            try { cv.releasePointerCapture(e.pointerId); } catch (_) {}
+        });
+        cv.addEventListener('wheel', e => {
+            e.preventDefault();
+            const rect = cv.getBoundingClientRect();
+            const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+            const wx = tPxToX(mx), wy = tPxToY(my);
+            const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+            tView.xMin = wx + (tView.xMin - wx) / factor;
+            tView.xMax = wx + (tView.xMax - wx) / factor;
+            tView.yMin = wy + (tView.yMin - wy) / factor;
+            tView.yMax = wy + (tView.yMax - wy) / factor;
+            drawTransformPlot();
+        }, { passive: false });
+        cv.addEventListener('dblclick', resetTransformView);
+
+        const ro = new ResizeObserver(() => {
+            sizeTransformCanvas();
+            drawTransformPlot();
+        });
+        ro.observe(cv.parentElement);
+    })();
+
+    // === ФУЛЛСКРИН ===
+    async function openFullscreen() {
+        const overlay = document.getElementById('fullscreenOverlay');
+        const content = document.getElementById('fullscreenContent');
+        overlay.classList.add('show');
+
+        // Закрытие по Esc
+        const escHandler = (ev) => {
+            if (ev.key === 'Escape') {
+                closeFullscreen();
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
+
+        try {
+            if (screen.orientation && screen.orientation.lock) {
+                await screen.orientation.lock('landscape');
+            }
+        } catch (e) {
+            console.log('Блокировка ориентации не поддерживается');
+        }
+
+        if (window.innerHeight > window.innerWidth) {
+            content.classList.add('force-landscape');
+        } else {
+            content.classList.remove('force-landscape');
+        }
+
+        setTimeout(drawFullscreenGraph, 350);
+    }
+
+    function drawFullscreenGraph() {
+        const content = document.getElementById('fullscreenContent');
+        const canvas = document.getElementById('fullscreen_canvas');
+
+        if (content.classList.contains('force-landscape')) {
+            canvas.width = window.innerHeight;
+            canvas.height = window.innerWidth;
+        } else {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        const funcs = [{ fn: Math.sin, color: '#3b82f6', width: 4 }];
+        if (showCosine) funcs.push({ fn: Math.cos, color: '#a855f7', width: 3, dash: [8, 8] });
+
+        drawGraphRad('fullscreen_canvas', funcs, -2*Math.PI, 2*Math.PI, -2, 2, activeProp ? getHighlight(activeProp) : null, {
+            hlines: [{ y: 1, color: '#ef4444' }, { y: -1, color: '#ef4444' }]
+        });
+    }
+
+    function closeFullscreen() {
+        const overlay = document.getElementById('fullscreenOverlay');
+        const content = document.getElementById('fullscreenContent');
+        overlay.classList.remove('show');
+        content.classList.remove('force-landscape');
+
+        if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+        }
+    }
+
+    // === СВОЙСТВА КЛИКОМ ===
     document.querySelectorAll('.property-link[data-prop]').forEach(el => {
         el.addEventListener('click', function(e) {
             e.preventDefault();
             const prop = this.dataset.prop;
-            if (activeProperty === prop) {
-                activeProperty = null;
+            if (activeProp === prop) {
+                activeProp = null;
                 this.classList.remove('active');
-                this.setAttribute('aria-pressed', 'false');
+                this.setAttribute('aria-pressed','false');
             } else {
                 document.querySelectorAll('.property-link').forEach(x => {
-                    x.classList.remove('active');
-                    x.setAttribute('aria-pressed', 'false');
+                    x.classList.remove('active'); x.setAttribute('aria-pressed','false');
                 });
                 this.classList.add('active');
-                this.setAttribute('aria-pressed', 'true');
-                activeProperty = prop;
+                this.setAttribute('aria-pressed','true');
+                activeProp = prop;
             }
-            const graphMain = document.getElementById('graph_main');
-            if (graphMain) graphMain.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            redrawAll();
-            showPropertyInfo(activeProperty);
+            showPropertyInfo(activeProp);
+            drawMainGraph();
+            const target = document.getElementById('graph_main');
+            if (target) target.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
     });
 
@@ -896,327 +1431,71 @@
         if (!info) return;
         if (!prop) { info.classList.remove('show'); info.innerHTML = ''; return; }
         const texts = {
-            domain: 'Зелёная полоса вдоль оси OX — синус определён при любом x.',
-            range: 'Зелёная полоса от −1 до 1 по оси OY — значения синуса всегда в этом отрезке.',
-            odd: 'Левая половина графика (x < 0) — красная, правая (x > 0) — синяя. Они зеркальны относительно начала координат: sin(−x) = −sin(x).',
-            period: 'Зелёная полоса от 0 до 2π — один полный период. Дальше график повторяется.',
-            zeros: 'Зелёные точки — где sin x = 0: 0, π, 2π, −π, −2π.',
-            sign: 'Зелёная область — где sin x > 0 (график выше оси OX), красная — где sin x < 0 (график ниже оси OX).',
-            mono: 'Сама кривая покрашена: зелёный — возрастает, красный — убывает. На (−2π; −3π/2), (−π/2; π/2) и (3π/2; 2π) — возрастает; на (−3π/2; −π/2) и (π/2; 3π/2) — убывает.'
+            domain: 'Синус определён для любого угла: $x \\in (-\\infty; +\\infty)$',
+            range: 'Значения синуса всегда лежат в отрезке $[-1; 1]$.',
+            odd: 'Функция нечётная: $\\sin(-x) = -\\sin x$. График симметричен относительно начала координат.',
+            period: 'Период $T = 2\\pi$. График повторяется каждые $2\\pi$.',
+            zeros: 'Нули функции: $x = \\pi n, n \\in \\mathbb{Z}$.',
+            sign: 'Зелёная область — где $\\sin x > 0$, красная — где $\\sin x < 0$.',
+            mono: 'Зелёные сегменты — возрастание, красные — убывание.'
         };
         info.innerHTML = texts[prop] || '';
         info.classList.add('show');
     }
 
-    const sliderK = document.getElementById('slider_k');
-    const sliderPhi = document.getElementById('slider_phi');
-    const sliderA = document.getElementById('slider_A');
-    const valK = document.getElementById('value_k');
-    const valPhi = document.getElementById('value_phi');
-    const valA = document.getElementById('value_A');
-
-    function updateLabels() {
-        if (valK) valK.textContent = 'k = ' + transformState.k.toFixed(2).replace('.', ',');
-        if (valPhi) valPhi.textContent = 'φ = ' + fracPi(transformState.phi);
-        if (valA) valA.textContent = 'A = ' + transformState.A.toFixed(2).replace('.', ',');
-    }
-
-    if (sliderK) sliderK.addEventListener('input', () => { transformState.k = parseFloat(sliderK.value); updateLabels(); redrawAll(); });
-    if (sliderPhi) sliderPhi.addEventListener('input', () => { transformState.phi = parseFloat(sliderPhi.value); updateLabels(); redrawAll(); });
-    if (sliderA) sliderA.addEventListener('input', () => { transformState.A = parseFloat(sliderA.value); updateLabels(); redrawAll(); });
-
-    function resetControls() {
-        transformState = { k: 1, phi: 0, A: 1 };
-        if (sliderK) sliderK.value = 1;
-        if (sliderPhi) sliderPhi.value = 0;
-        if (sliderA) sliderA.value = 1;
-        updateLabels();
-        redrawAll();
-    }
-    window.resetControls = resetControls;
-
-    function initGraphs() {
-        updateLabels();
-        redrawAll();
-        window.addEventListener('load', redrawAll);
-        setTimeout(redrawAll, 500);
-        setTimeout(redrawAll, 1500);
-    }
-    initGraphs();
-</script>
-
-<!-- ===== ИНТЕРАКТИВ: ОКРУЖНОСТЬ → СИНУСОИДА ===== -->
-<script>
-    (function () {
-        function initInteractive() {
-            const circleCanvas = document.getElementById('circle_canvas');
-            const graphCanvas = document.getElementById('sin_unfold_canvas');
-            const slider = document.getElementById('angle_slider');
-            const angleVal = document.getElementById('angle_value');
-            if (!circleCanvas || !graphCanvas || !slider) return;
-
-            const cctx = circleCanvas.getContext('2d');
-            const gctx = graphCanvas.getContext('2d');
-            let animId = null;
-            let alpha = parseFloat(slider.value) || 0.8;
-
-            function isLight() { return document.documentElement.classList.contains('light-mode'); }
-
-            function drawCircle() {
-                const w = circleCanvas.width, h = circleCanvas.height;
-                const cx = w / 2, cy = h / 2;
-                const R = Math.min(w, h) * 0.36;
-                const light = isLight();
-                const axisColor = light ? '#5b7c9c' : '#8899aa';
-                const gridColor = light ? '#dce3ec' : '#2a3a4a';
-                const textColor = light ? '#1e3a5f' : '#cbdbe6';
-                const subColor = light ? '#5a7a94' : '#8ba5b8';
-
-                cctx.clearRect(0, 0, w, h);
-                cctx.fillStyle = light ? '#fefefe' : '#0f1a24';
-                cctx.fillRect(0, 0, w, h);
-
-                cctx.strokeStyle = gridColor;
-                cctx.lineWidth = 1;
-                for (let i = -1; i <= 1; i += 0.5) {
-                    if (i === 0) continue;
-                    cctx.beginPath();
-                    cctx.moveTo(cx + i * R, 20); cctx.lineTo(cx + i * R, h - 20); cctx.stroke();
-                    cctx.beginPath();
-                    cctx.moveTo(20, cy - i * R); cctx.lineTo(w - 20, cy - i * R); cctx.stroke();
-                }
-
-                cctx.strokeStyle = '#3b82f6';
-                cctx.lineWidth = 2;
-                cctx.beginPath();
-                cctx.arc(cx, cy, R, 0, 2 * Math.PI);
-                cctx.stroke();
-
-                cctx.strokeStyle = axisColor;
-                cctx.lineWidth = 1.5;
-                cctx.beginPath(); cctx.moveTo(20, cy); cctx.lineTo(w - 20, cy); cctx.stroke();
-                cctx.beginPath(); cctx.moveTo(cx, 20); cctx.lineTo(cx, h - 20); cctx.stroke();
-
-                cctx.fillStyle = textColor;
-                cctx.font = '13px "Segoe UI", sans-serif';
-                cctx.textAlign = 'center';
-                cctx.fillText('1', cx + R, cy + 16);
-                cctx.fillText('−1', cx - R, cy + 16);
-                cctx.textAlign = 'left';
-                cctx.fillText('1', cx + 6, cy - R + 4);
-                cctx.fillText('−1', cx + 6, cy + R + 4);
-                cctx.textAlign = 'right';
-                cctx.fillStyle = subColor;
-                cctx.fillText('0', cx - 6, cy + 16);
-
-                const px = cx + R * Math.cos(alpha);
-                const py = cy - R * Math.sin(alpha);
-
-                // проекция на OY — это sin α
-                cctx.strokeStyle = 'rgba(26,188,156,0.9)';
-                cctx.lineWidth = 2;
-                cctx.setLineDash([4, 4]);
-                cctx.beginPath();
-                cctx.moveTo(px, py);
-                cctx.lineTo(cx, py);
-                cctx.stroke();
-                cctx.setLineDash([]);
-
-                // отрезок от центра до проекции — sin α
-                cctx.strokeStyle = '#1abc9c';
-                cctx.lineWidth = 3;
-                cctx.beginPath();
-                cctx.moveTo(cx, cy);
-                cctx.lineTo(cx, py);
-                cctx.stroke();
-
-                // радиус
-                cctx.strokeStyle = '#f59e0b';
-                cctx.lineWidth = 2;
-                cctx.beginPath();
-                cctx.moveTo(cx, cy);
-                cctx.lineTo(px, py);
-                cctx.stroke();
-
-                cctx.fillStyle = '#ef4444';
-                cctx.beginPath();
-                cctx.arc(px, py, 6, 0, 2 * Math.PI);
-                cctx.fill();
-                cctx.strokeStyle = '#fff';
-                cctx.lineWidth = 1.5;
-                cctx.stroke();
-
-                cctx.fillStyle = textColor;
-                cctx.font = 'bold 13px "Segoe UI", sans-serif';
-                cctx.textAlign = 'left';
-                cctx.fillText('M', px + 10, py - 6);
-
-                // дуга угла
-                cctx.strokeStyle = '#f59e0b';
-                cctx.lineWidth = 2;
-                cctx.beginPath();
-                cctx.arc(cx, cy, R * 0.25, 0, -alpha, true);
-                cctx.stroke();
-
-                // подпись sin α
-                cctx.fillStyle = '#1abc9c';
-                cctx.font = 'bold 13px "Segoe UI", sans-serif';
-                cctx.textAlign = 'left';
-                cctx.fillText('sin α', cx + 8, (cy + py) / 2);
-            }
-
-            function drawGraph() {
-                const w = graphCanvas.width, h = graphCanvas.height;
-                const pad = 40;
-                const pw = w - 2 * pad, ph = h - 2 * pad;
-                const xMin = 0, xMax = 2 * Math.PI;
-                const yMin = -1.5, yMax = 1.5;
-                const light = isLight();
-                const axisColor = light ? '#5b7c9c' : '#8899aa';
-                const gridColor = light ? '#dce3ec' : '#2a3a4a';
-                const textColor = light ? '#1e3a5f' : '#cbdbe6';
-                const subColor = light ? '#5a7a94' : '#8ba5b8';
-
-                function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
-                function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
-
-                gctx.clearRect(0, 0, w, h);
-                gctx.fillStyle = light ? '#fefefe' : '#0f1a24';
-                gctx.fillRect(0, 0, w, h);
-
-                gctx.strokeStyle = gridColor;
-                gctx.lineWidth = 1;
-                for (let x = 0; x <= 2 * Math.PI + 1e-6; x += Math.PI / 2) {
-                    const sx = toX(x);
-                    gctx.beginPath(); gctx.moveTo(sx, pad); gctx.lineTo(sx, h - pad); gctx.stroke();
-                }
-                for (let y = -1.5; y <= 1.5 + 1e-6; y += 0.5) {
-                    const sy = toY(y);
-                    gctx.beginPath(); gctx.moveTo(pad, sy); gctx.lineTo(w - pad, sy); gctx.stroke();
-                }
-
-                gctx.strokeStyle = axisColor;
-                gctx.lineWidth = 2;
-                const ox = toY(0), oy = toX(0);
-                gctx.beginPath(); gctx.moveTo(pad, ox); gctx.lineTo(w - pad, ox); gctx.stroke();
-                gctx.beginPath(); gctx.moveTo(oy, pad); gctx.lineTo(oy, h - pad); gctx.stroke();
-
-                gctx.fillStyle = subColor;
-                gctx.font = '12px "Segoe UI", sans-serif';
-                gctx.textAlign = 'center';
-                const labels = [
-                    { v: 0, t: '0' }, { v: Math.PI / 2, t: 'π/2' }, { v: Math.PI, t: 'π' },
-                    { v: 3 * Math.PI / 2, t: '3π/2' }, { v: 2 * Math.PI, t: '2π' }
-                ];
-                labels.forEach(l => {
-                    const sx = toX(l.v);
-                    gctx.fillText(l.t, sx, ox + 18);
-                });
-                gctx.textAlign = 'right';
-                [-1, -0.5, 0.5, 1].forEach(y => {
-                    const sy = toY(y);
-                    gctx.fillText(String(y).replace('.', ','), oy - 6, sy + 4);
-                });
-
-                gctx.strokeStyle = '#3b82f6';
-                gctx.lineWidth = 2.5;
-                gctx.beginPath();
-                for (let i = 0; i <= 400; i++) {
-                    const x = (xMax - xMin) * i / 400;
-                    const y = Math.sin(x);
-                    const sx = toX(x), sy = toY(y);
-                    if (i === 0) gctx.moveTo(sx, sy); else gctx.lineTo(sx, sy);
-                }
-                gctx.stroke();
-
-                const gx = toX(alpha);
-                const gy = toY(Math.sin(alpha));
-
-                gctx.strokeStyle = 'rgba(26,188,156,0.9)';
-                gctx.lineWidth = 1.5;
-                gctx.setLineDash([4, 4]);
-                gctx.beginPath();
-                gctx.moveTo(gx, ox);
-                gctx.lineTo(gx, gy);
-                gctx.stroke();
-                gctx.setLineDash([]);
-
-                gctx.strokeStyle = 'rgba(26,188,156,0.6)';
-                gctx.lineWidth = 1.5;
-                gctx.setLineDash([4, 4]);
-                gctx.beginPath();
-                gctx.moveTo(oy, gy);
-                gctx.lineTo(gx, gy);
-                gctx.stroke();
-                gctx.setLineDash([]);
-
-                gctx.fillStyle = '#ef4444';
-                gctx.beginPath();
-                gctx.arc(gx, gy, 6, 0, 2 * Math.PI);
-                gctx.fill();
-                gctx.strokeStyle = '#fff';
-                gctx.lineWidth = 1.5;
-                gctx.stroke();
-
-                gctx.fillStyle = textColor;
-                gctx.font = 'bold 12px "Segoe UI", sans-serif';
-                gctx.textAlign = 'left';
-                gctx.fillText('sin α = ' + Math.sin(alpha).toFixed(2).replace('.', ','), gx + 8, gy - 8);
-            }
-
-            function render() {
-                alpha = parseFloat(slider.value) || 0;
-                if (angleVal) angleVal.textContent = 'α = ' + alpha.toFixed(2).replace('.', ',') + ' рад';
-                drawCircle();
-                drawGraph();
-            }
-
-            slider.addEventListener('input', render);
-
-            window.playAngleAnimation = function () {
-                stopAngleAnimation();
-                let t0 = performance.now();
-                const start = parseFloat(slider.value);
-                const duration = 6000;
-                function step(now) {
-                    const t = (now - t0) / duration;
-                    if (t >= 1) {
-                        slider.value = (2 * Math.PI).toFixed(2);
-                        render();
-                        return;
+    // === ИНИЦИАЛИЗАЦИЯ ===
+    (function watchTheme() {
+        const root = document.documentElement;
+        const obs = new MutationObserver(function (mutations) {
+            mutations.forEach(function (m) {
+                if (m.attributeName === 'class') {
+                    drawMainGraph();
+                    renderInteractive();
+                    updateTransform();
+                    if (document.getElementById('fullscreenOverlay').classList.contains('show')) {
+                        drawFullscreenGraph();
                     }
-                    const a = (start + 2 * Math.PI * t) % (2 * Math.PI);
-                    slider.value = a;
-                    render();
-                    animId = requestAnimationFrame(step);
                 }
-                animId = requestAnimationFrame(step);
-            };
-
-            window.stopAngleAnimation = function () {
-                if (animId) { cancelAnimationFrame(animId); animId = null; }
-            };
-
-            window.resetAngle = function () {
-                stopAngleAnimation();
-                slider.value = 0.8;
-                render();
-            };
-
-            render();
-            setTimeout(render, 100);
-            setTimeout(render, 500);
-            setTimeout(render, 1500);
-            window.addEventListener('load', render);
-            window.addEventListener('resize', render);
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initInteractive);
-        } else {
-            initInteractive();
-        }
+            });
+        });
+        obs.observe(root, { attributes: true, attributeFilter: ['class'] });
     })();
+
+    window.addEventListener('resize', () => {
+        const overlay = document.getElementById('fullscreenOverlay');
+        if (overlay.classList.contains('show')) {
+            const content = document.getElementById('fullscreenContent');
+            if (window.innerWidth > window.innerHeight) {
+                content.classList.remove('force-landscape');
+            } else {
+                content.classList.add('force-landscape');
+            }
+            setTimeout(drawFullscreenGraph, 100);
+        }
+    });
+
+    function init() {
+        document.getElementById('angle_slider').addEventListener('input', renderInteractive);
+
+        drawMainGraph();
+        renderInteractive();
+        sizeTransformCanvas();
+        updateTransform();
+
+        window.addEventListener('load', () => {
+            drawMainGraph();
+            renderInteractive();
+            sizeTransformCanvas();
+            updateTransform();
+        });
+        setTimeout(() => {
+            drawMainGraph();
+            renderInteractive();
+            sizeTransformCanvas();
+            updateTransform();
+        }, 500);
+    }
+    init();
 </script>
 
 <script src="favorites.js"></script>
