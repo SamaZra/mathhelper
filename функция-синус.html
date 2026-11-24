@@ -274,13 +274,18 @@
         .graph-controls-bottom button:active { transform: scale(0.95); }
         .graph-controls-bottom .reset-btn { font-size: 0.85rem; }
                 /* --- Графики для задач --- */
-        .task-graph {
+                .task-graph {
             background: var(--canvas-bg);
             border-radius: 12px;
-            padding: 8px;
-            margin: 12px 0;
+            padding: 4px; /* Уменьшили padding */
+            margin: 10px 0;
             text-align: center;
             border: 1px solid var(--border);
+            overflow: hidden;
+            /* Ограничиваем максимальную ширину, чтобы график не растягивался на весь экран ПК */
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .task-graph canvas {
             max-width: 100%;
@@ -659,7 +664,7 @@
             <div class="example">
                 <strong>Задача №1.</strong> Найти пределы изменения функции $y = \sin t$ на отрезке $\left[\dfrac{\pi}{6}; \dfrac{\pi}{2}\right]$.<br><br>
                 <div class="task-graph">
-                    <canvas id="task_canvas_1" width="400" height="200"></canvas>
+                    <canvas id="task_canvas_1" width="400" height="300"></canvas>
                 </div>
                 <span class="step">Решение.</span>
                 Функция монотонно возрастает на указанном промежутке, значит, наименьшее значение — на левом конце $y\left(\dfrac{\pi}{6}\right) = \dfrac{1}{2}$, наибольшее — на правом $y\left(\dfrac{\pi}{2}\right) = 1$.<br>
@@ -669,7 +674,7 @@
             <div class="example" style="margin-top:12px;">
                 <strong>Задача №2.</strong> Найти наибольшее и наименьшее значение функции $y = \sin t$ на отрезке $\left[\dfrac{\pi}{3}; \dfrac{7\pi}{6}\right]$.<br><br>
                 <div class="task-graph">
-                    <canvas id="task_canvas_2" width="400" height="200"></canvas>
+                    <canvas id="task_canvas_2" width="400" height="300"></canvas>
                 </div>
                 <span class="step">Решение.</span>
                 На данном промежутке функция немонотонна: возрастает до $\dfrac{\pi}{2}$, затем убывает. Наибольшее значение — в точке максимума $y\left(\dfrac{\pi}{2}\right) = 1$, наименьшее — на правом конце $y\left(\dfrac{7\pi}{6}\right) = -\dfrac{1}{2}$.<br>
@@ -679,7 +684,7 @@
             <div class="example" style="margin-top:12px;">
                 <strong>Задача №3.</strong> Решить уравнение $\sin x = x^2 + 1$.<br><br>
                 <div class="task-graph">
-                    <canvas id="task_canvas_3" width="400" height="200"></canvas>
+                    <canvas id="task_canvas_3" width="400" height="300"></canvas>
                 </div>
                 <span class="step">Решение.</span>
                 Правая часть $x^2 + 1 \ge 1$, а $\sin x \le 1$. Равенство возможно только при $x = 0$ и $\sin 0 = 1$ — противоречие.<br>
@@ -689,7 +694,7 @@
             <div class="example" style="margin-top:12px;">
                 <strong>Задача №4.</strong> Найти число корней уравнения $x^2 = \sin x$.<br><br>
                 <div class="task-graph">
-                    <canvas id="task_canvas_4" width="400" height="200"></canvas>
+                    <canvas id="task_canvas_4" width="400" height="300"></canvas>
                 </div>
                 <span class="step">Решение.</span>
                 При $x < 0$ правая часть $\sin x \le 0$, левая $x^2 \ge 0$ — корни возможны только при $x = 0$. Но $\sin 0 = 0 = 0^2$ — да, $x = 0$ подходит. На $(0; 1)$ $\sin x > x^2$ при малых $x$ и $\sin x < x^2$ при $x$ близком к 1 — есть ещё один корень. При $x > 1$ $x^2 > 1 \ge \sin x$ — корней нет.<br>
@@ -699,7 +704,7 @@
             <div class="example" style="margin-top:12px;">
                 <strong>Задача №5.</strong> Построить график функции $y = \sin 3x$.<br><br>
                 <div class="task-graph">
-                    <canvas id="task_canvas_5" width="400" height="200"></canvas>
+                    <canvas id="task_canvas_5" width="400" height="300"></canvas>
                 </div>
                 <span class="step">Решение.</span>
                 Синус — нечётная функция, строим график на участке $\left[0; \dfrac{\pi}{3}\right]$, затем симметрично отображаем относительно начала координат и получаем график на $\left[-\dfrac{\pi}{3}; \dfrac{\pi}{3}\right]$, длина которого равна периоду. График сжимается к оси $Oy$ в 3 раза.<br>
@@ -962,14 +967,14 @@
         ctx.beginPath(); ctx.moveTo(oy, offsetY); ctx.lineTo(oy - 5, offsetY + 10); ctx.lineTo(oy + 5, offsetY + 10); ctx.fill();
 
         // подписи осей
-        ctx.font = '14px "Segoe UI", sans-serif';
+        ctx.font = 'bold 16px "Segoe UI", sans-serif'; // БЫЛО 14px
         ctx.fillStyle = axisText;
-        ctx.fillText('x', offsetX + (xMax - xMin) * scale - 14, ox - 10);
-        ctx.fillText('y', oy + 10, offsetY + 14);
-        ctx.fillText('0', oy - 14, ox + 16);
+        ctx.fillText('x', offsetX + (xMax - xMin) * scale - 18, ox - 10);
+        ctx.fillText('y', oy + 10, offsetY + 18);
+        ctx.fillText('0', oy - 16, ox + 20);
 
         // подписи по x
-        ctx.font = '12px "Segoe UI", sans-serif';
+        ctx.font = 'bold 15px "Segoe UI", sans-serif'; // БЫЛО 12px
         ctx.fillStyle = subText;
         ctx.textAlign = 'center';
         const labelStep = Math.PI / 2;
@@ -978,8 +983,8 @@
         for (let x = startLabel; x <= xMax + 1e-6; x += labelStep) {
             if (Math.abs(x) < 1e-6) continue;
             const sx = toX(x);
-            if (sx - lastLabelX < 30) continue;
-            ctx.fillText(fracPi(x), sx, ox + 18);
+            if (sx - lastLabelX < 40) continue; // Чуть больше места между подписями
+            ctx.fillText(fracPi(x), sx, ox + 22);
             lastLabelX = sx;
         }
 
@@ -988,7 +993,7 @@
         const yLabels = [-3, -2.5, -2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2, 2.5, 3];
         yLabels.forEach(y => {
             if (y < yMin || y > yMax) return;
-            ctx.fillText(String(y).replace('.', ','), oy - 6, toY(y) + 4);
+            ctx.fillText(String(y).replace('.', ','), oy - 8, toY(y) + 5);
         });
 
         // кривые
@@ -1707,6 +1712,17 @@
     }
         // === ОТРИСОВКА ГРАФИКОВ ДЛЯ ЗАДАЧ ===
     function drawTaskGraphs() {
+        // Принудительно задаем размеры, чтобы графики не были 0x0 в свернутой секции
+        const setSize = (id) => {
+            const el = document.getElementById(id);
+            if (el) { el.width = 400; el.height = 300; }
+        };
+        setSize('task_canvas_1');
+        setSize('task_canvas_2');
+        setSize('task_canvas_3');
+        setSize('task_canvas_4');
+        setSize('task_canvas_5');
+
         // Задача 1: y = sin t на [π/6; π/2]
         drawGraphRad('task_canvas_1', Math.sin, -0.5, 2.5, -1.5, 1.5, {
             type: 'band', x1: Math.PI/6, x2: Math.PI/2
