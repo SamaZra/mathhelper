@@ -273,6 +273,87 @@
         .graph-controls-bottom button:hover { background: var(--accent); color: #fff; }
         .graph-controls-bottom button:active { transform: scale(0.95); }
         .graph-controls-bottom .reset-btn { font-size: 0.85rem; }
+                /* --- Карточки с описанием коэффициентов --- */
+        .coeff-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+            margin: 16px 0 20px;
+        }
+        .coeff-card {
+            background: var(--example-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .coeff-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text);
+            margin-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px;
+        }
+        .coeff-var {
+            color: var(--special-border);
+            font-size: 1.1rem;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            margin-right: 4px;
+        }
+        .coeff-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .coeff-desc b {
+            color: var(--text);
+            font-weight: 600;
+        }
+                /* --- Общая формула над полями ввода --- */
+        .formula-template {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 1.15rem;
+        }
+        .ft-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .ft-eq {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            color: var(--text);
+            background: var(--formula-bg);
+            padding: 6px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .ft-var {
+            color: var(--special-border);
+            font-weight: 700;
+            font-size: 1.2rem;
+            padding: 0 2px;
+        }
+                .ft-hint {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-family: monospace;
+            margin-left: auto;
+            float: right;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+        .ft-hint b {
+            color: var(--special-border);
+        }
     </style>
     <script>
         MathJax = {
@@ -438,6 +519,18 @@
         <div class="section-content">
             <p>Из базового графика $y = \sin x$ можно получить множество других, меняя коэффициенты в формуле:</p>
 
+            <!-- ОБЩАЯ ФОРМУЛА -->
+            <div class="formula-template">
+                <span class="ft-label">Общий вид:</span>
+                <span class="ft-eq">y =
+                    <span class="ft-var">A</span> · sin(
+                    <span class="ft-var">k</span>x +
+                    <span class="ft-var">φ</span>
+                    ) +
+                    <span class="ft-var">B</span>
+                </span>
+            </div>
+
             <div class="formula-input-container">
                 <span>y =</span>
                 <input type="text" id="inp_A" value="1" oninput="updateTransform()" aria-label="Амплитуда A">
@@ -448,8 +541,40 @@
                 <span>) +</span>
                 <input type="text" id="inp_B" value="0" oninput="updateTransform()" aria-label="Вертикальный сдвиг B">
             </div>
-            <div class="graph-label" style="margin-bottom:6px;">
-                φ можно вводить в радианах: <code>0.5</code>, <code>-1.2</code>, <code>pi/2</code>, <code>π/3</code>, <code>2*pi</code>
+
+            <div class="graph-label" style="margin-bottom:12px;">
+                φ (радианы) можно вводить так: <code>0.5</code>, <code>-1.2</code>, <code>pi/2</code>, <code>π/3</code>, <code>2*pi</code>
+            </div>
+
+            <!-- НОВЫЙ БЛОК С ОПИСАНИЕМ КОЭФФИЦИЕНТОВ -->
+            <div class="coeff-info-grid">
+                <div class="coeff-card">
+                    <div class="coeff-title"><span class="coeff-var">A</span> — Амплитуда <span class="ft-hint">(y = <b>A</b>·sin(...))</span></div>
+                    <div class="coeff-desc">Растягивает или сжимает график по вертикали (по оси <i>OY</i>).<br>
+                    Если <b>A &gt; 1</b> — растяжение (график выше).<br>
+                    Если <b>0 &lt; A &lt; 1</b> — сжатие.<br>
+                    Если <b>A &lt; 0</b> — график переворачивается (отражение от оси <i>OX</i>).</div>
+                </div>
+                <div class="coeff-card">
+                    <div class="coeff-title"><span class="coeff-var">k</span> — Частота <span class="ft-hint">(y = sin(<b>k</b>·x ...))</span></div>
+                    <div class="coeff-desc">Сжимает или растягивает график по горизонтали (по оси <i>OX</i>).<br>
+                    Если <b>k &gt; 1</b> — сжатие (график "чаще").<br>
+                    Если <b>0 &lt; k &lt; 1</b> — растяжение ("реже").<br>
+                    Период новой функции: <b>T = 2π / |k|</b>.</div>
+                </div>
+                <div class="coeff-card">
+                    <div class="coeff-title"><span class="coeff-var">φ</span> — Сдвиг по фазе <span class="ft-hint">(y = sin(x + <b>φ</b>))</span></div>
+                    <div class="coeff-desc">Двигает график влево или вправо по оси <i>OX</i>.<br>
+                    Если <b>φ &gt; 0</b> — сдвиг влево (опережение).<br>
+                    Если <b>φ &lt; 0</b> — сдвиг вправо (запаздывание).</div>
+                </div>
+                <div class="coeff-card">
+                    <div class="coeff-title"><span class="coeff-var">B</span> — Вертикальный сдвиг <span class="ft-hint">(y = ... + <b>B</b>)</span></div>
+                    <div class="coeff-desc">Двигает весь график вверх или вниз по оси <i>OY</i>.<br>
+                    Если <b>B &gt; 0</b> — сдвиг вверх.<br>
+                    Если <b>B &lt; 0</b> — сдвиг вниз.<br>
+                    Область значений становится <b>[B - |A|; B + |A|]</b>.</div>
+                </div>
             </div>
 
             <div class="graph-container plot-wrap" id="transformPlotWrap">
@@ -514,7 +639,6 @@
     <div class="section collapsed">
         <div class="section-title" role="button" tabindex="0" aria-expanded="false" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
             <span class="main-title">🧮 Решение задач</span>
-            <span class="sub-title">по аналогии с косинусом</span>
         </div>
         <div class="section-content">
             <div class="example">
@@ -1170,15 +1294,22 @@
 
     function fmtPi(x) {
         if (Math.abs(x) < 1e-9) return '0';
-        const n = Math.round(x / (Math.PI / 2));
-        if (Math.abs(x - n * Math.PI / 2) > 1e-6) return x.toFixed(1).replace('.', ',');
-        const m = Math.abs(n), s = n < 0 ? '−' : '';
-        if (m === 1) return s + 'π/2';
-        if (m === 2) return s + 'π';
-        if (m === 3) return s + '3π/2';
-        if (m === 4) return s + '2π';
-        if (m % 2 === 0) return s + (m / 2) + 'π';
-        return s + m + 'π/2';
+        // Проверяем, является ли x красивой дробью от π (шаг 1/12, то есть π/12)
+        const n = Math.round(x / (Math.PI / 12));
+        if (Math.abs(x - n * Math.PI / 12) > 1e-4) {
+            return x.toFixed(2).replace('.', ','); // Если не дробь π, выводим число
+        }
+        const m = Math.abs(n);
+        const sign = n < 0 ? '−' : '';
+
+        // Упрощаем дробь m/12
+        if (m === 0) return '0';
+        if (m % 12 === 0) return sign + (m / 12) + 'π';
+        if (m % 6 === 0) return sign + (m / 6 === 1 ? '' : m / 6) + 'π/2';
+        if (m % 4 === 0) return sign + (m / 4 === 1 ? '' : m / 4) + 'π/3';
+        if (m % 3 === 0) return sign + (m / 3 === 1 ? '' : m / 3) + 'π/4';
+        if (m % 2 === 0) return sign + (m / 2 === 1 ? '' : m / 2) + 'π/6';
+        return sign + m + 'π/12';
     }
 
     function drawTransformPlot() {
@@ -1187,9 +1318,8 @@
         const ctx = cv.getContext('2d');
         const W = cv.width, H = cv.height;
 
-        // === Квадратные клетки: π/2 по x = 1 по y ===
-        // (xMax-xMin)/W * (π/2) = (yMax-yMin)/H * 1
-        const targetYRange = (tView.xMax - tView.xMin) * (H / W) * (Math.PI / 2);
+        // === Квадратные клетки (пиксельный масштаб по X = по Y) ===
+        const targetYRange = (tView.xMax - tView.xMin) * (H / W);
         const cyMid = (tView.yMin + tView.yMax) / 2;
         tView.yMin = cyMid - targetYRange / 2;
         tView.yMax = cyMid + targetYRange / 2;
@@ -1202,8 +1332,19 @@
         ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
         ctx.fillRect(0, 0, W, H);
 
-        // Сетка: шаг по x — π/2, по y — 1
-        const xStep = Math.PI / 2;
+        // === Адаптивный шаг сетки по X в зависимости от масштаба ===
+        const pxPerPi = W / ((tView.xMax - tView.xMin) / Math.PI);
+        let xStep, labelStep;
+        if (pxPerPi > 900)      { xStep = Math.PI / 12; labelStep = Math.PI / 12; }
+        else if (pxPerPi > 500) { xStep = Math.PI / 12; labelStep = Math.PI / 6; }
+        else if (pxPerPi > 300) { xStep = Math.PI / 6;  labelStep = Math.PI / 4; }
+        else if (pxPerPi > 180) { xStep = Math.PI / 4;  labelStep = Math.PI / 3; }
+        else if (pxPerPi > 90)  { xStep = Math.PI / 2;  labelStep = Math.PI / 2; }
+        else                    { xStep = Math.PI;      labelStep = Math.PI; }
+
+        const yStep = 0.5;
+
+        // Линии сетки
         ctx.strokeStyle = gridColor;
         ctx.lineWidth = 1;
         const x0 = Math.ceil(tView.xMin / xStep) * xStep;
@@ -1211,8 +1352,8 @@
             const px = tXToPx(x);
             ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke();
         }
-        const y0 = Math.ceil(tView.yMin);
-        for (let y = y0; y <= tView.yMax; y++) {
+        const y0 = Math.ceil(tView.yMin / yStep) * yStep;
+        for (let y = y0; y <= tView.yMax; y += yStep) {
             const py = tYToPx(y);
             ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(W, py); ctx.stroke();
         }
@@ -1223,20 +1364,48 @@
         if (ox >= 0 && ox <= H) { ctx.beginPath(); ctx.moveTo(0, ox); ctx.lineTo(W, ox); ctx.stroke(); }
         if (oy >= 0 && oy <= W) { ctx.beginPath(); ctx.moveTo(oy, 0); ctx.lineTo(oy, H); ctx.stroke(); }
 
-        // Подписи x
+        // Подписи X (адаптивные, с выделением основных)
         ctx.fillStyle = textColor;
-        ctx.font = '12px "Segoe UI", sans-serif';
         ctx.textAlign = 'center';
-        for (let x = x0; x <= tView.xMax; x += xStep) {
+        const xLabel0 = Math.ceil(tView.xMin / labelStep) * labelStep;
+        for (let x = xLabel0; x <= tView.xMax; x += labelStep) {
             if (Math.abs(x) < 1e-9) continue;
-            ctx.fillText(fmtPi(x), tXToPx(x), ox + 16);
+
+            // Проверяем, является ли значение "основным" (кратным π/2)
+            const n2 = Math.round(x / (Math.PI / 2));
+            const isMain = Math.abs(x - n2 * Math.PI / 2) < 1e-6;
+
+            if (isMain) {
+                ctx.font = 'bold 14px "Segoe UI", sans-serif';
+                ctx.fillStyle = isLight ? '#1e3a5f' : '#ffffff';
+            } else {
+                ctx.font = '12px "Segoe UI", sans-serif';
+                ctx.fillStyle = textColor;
+            }
+
+            ctx.fillText(fmtPi(x), tXToPx(x), ox + (isMain ? 18 : 16));
         }
-        // Подписи y
+        // Возвращаем базовые стили для дальнейшей отрисовки
+        ctx.font = '12px "Segoe UI", sans-serif';
+        ctx.fillStyle = textColor;
+        // Подписи Y (целые жирнее, половинки обычные)
         ctx.textAlign = 'right';
-        for (let y = y0; y <= tView.yMax; y++) {
+        const yLabel0 = Math.ceil(tView.yMin);
+        for (let y = yLabel0; y <= tView.yMax; y++) {
             if (y === 0) continue;
+            const isMain = Number.isInteger(y);
+            if (isMain) {
+                ctx.font = 'bold 14px "Segoe UI", sans-serif';
+                ctx.fillStyle = isLight ? '#1e3a5f' : '#ffffff';
+            } else {
+                ctx.font = '12px "Segoe UI", sans-serif';
+                ctx.fillStyle = textColor;
+            }
             ctx.fillText(String(y).replace('.', ','), oy - 6, tYToPx(y) + 4);
         }
+        // Возвращаем базовые стили
+        ctx.font = '12px "Segoe UI", sans-serif';
+        ctx.fillStyle = textColor;
 
         // Базовая sin(x) пунктиром
         ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
@@ -1275,9 +1444,14 @@
 
     function updateTransform() {
         tCoef.A = parseMathInput(document.getElementById('inp_A').value);
-        tCoef.k = parseMathInput(document.getElementById('inp_k').value) || 1;
+
+        // Защита от k = 0, чтобы график не превращался в прямую
+        let kVal = parseMathInput(document.getElementById('inp_k').value);
+        tCoef.k = (kVal === 0) ? 1 : kVal;
+
         tCoef.phi = parseMathInput(document.getElementById('inp_phi').value);
         tCoef.B = parseMathInput(document.getElementById('inp_B').value);
+
         drawTransformPlot();
     }
 
