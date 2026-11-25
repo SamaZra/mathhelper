@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Функции y = tg x и y = ctg x — свойства и графики (10–11 класс)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #1a2d3c; --card-bg: #1e3545; --text: #ffffff; --text-secondary: #8ba5b8;
+            --border: rgba(59,130,246,0.1); --formula-bg: #1a2d3c; --info-bg: #1e3545;
+            --special-border: #3b82f6; --example-bg: #162a38;
+            --formula-color: #fbbf24; --result-color: #4ade80; --danger-color: #f87171;
+            --accent: #1abc9c; --warning-bg: rgba(251,191,36,0.15); --warning-border: #fbbf24;
+            --canvas-bg: #0f1a24; --canvas-fill: #0f1a24; --grid-color: #2a3a4a;
+            --axis-color: #8899aa; --axis-text: #cbdbe6;
+        }
+        :root.light-mode {
+            --bg: linear-gradient(145deg, #f5f7fc 0%, #eef2f8 100%); --card-bg: white;
+            --text: #1a2a3f; --text-secondary: #5a7a94; --border: #eff3f8; --formula-bg: #f8fafc;
+            --info-bg: #e8f0fe; --special-border: #3b82f6; --example-bg: #f8fafc;
+            --formula-color: #b45309; --result-color: #059669; --danger-color: #dc2626;
+            --accent: #1abc9c; --warning-bg: #fffbeb; --warning-border: #f59e0b;
+            --canvas-bg: #fefefe; --canvas-fill: #fefefe; --grid-color: #dce3ec;
+            --axis-color: #5b7c9c; --axis-text: #1e3a5f;
+        }
+        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: var(--bg); padding: 8px; margin: 0; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; padding: 16px; padding-top: 50px; position: relative; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.5rem; color: var(--text); margin: 0 auto 16px auto; padding-bottom: 8px; border-bottom: 4px solid var(--special-border); text-align: center; }
+        .section { margin-bottom: 12px; }
+        .section-title {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; position: relative; padding: 8px 40px; margin-bottom: 8px;
+            border-left: 4px solid var(--special-border); background: transparent;
+            border-radius: 0 12px 12px 0; cursor: pointer; user-select: none;
+            color: var(--text); font-size: 1.1rem; font-weight: 700;
+            transition: background 0.3s ease, color 0.2s ease;
+        }
+        .section-title:hover { background: linear-gradient(90deg, var(--special-border) 0%, rgba(13,148,136,0.15) 30%, rgba(13,148,136,0.05) 100%); }
+        .section-title:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .section-title .main-title { display: block; width: 100%; text-align: center; font-size: 1.1rem; margin: 0; }
+        .section-title .sub-title { display: block; width: 100%; text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; font-weight: 400; font-style: italic; }
+        .section-title::after {
+            content: "▼"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+            font-size: 0.85rem; color: var(--text-secondary); transition: transform 0.3s;
+        }
+        .section.collapsed .section-title::after { transform: translateY(-50%) rotate(-90deg); }
+        .section-content { max-height: 20000px; overflow: hidden; transition: max-height 0.4s ease; }
+        .section.collapsed .section-content { max-height: 0; }
+
+        .formula-block { background: var(--formula-bg); padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; margin: 10px 0; word-break: break-word; overflow-x: auto; line-height: 2.2; color: var(--text); }
+        .example { background: var(--example-bg); padding: 16px 20px; border-radius: 14px; margin-top: 10px; font-size: 0.95rem; line-height: 2.0; color: var(--text); }
+        .example .step { font-weight: 700; color: var(--danger-color); margin-top: 12px; margin-bottom: 4px; }
+        .example .result { margin-top: 10px; font-weight: 600; color: var(--result-color); }
+        .example .hint { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin: 4px 0 4px 12px; border-left: 3px solid var(--accent); padding-left: 8px; }
+        p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        ul { padding-left: 20px; margin: 8px 0; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+        .important { background: var(--warning-bg); border-radius: 14px; padding: 12px 16px; margin: 12px 0; color: var(--text); }
+        .important strong { color: var(--warning-border); }
+        .back-link { display: table; margin: 20px auto 10px; padding: 10px 20px; background: var(--special-border); color: white; text-decoration: none; font-weight: bold; border-radius: 20px; font-size: 0.95rem; transition: background 0.2s; text-align: center; }
+        .back-link:hover { background: #2563eb; }
+        mjx-container { font-size: 1em !important; overflow-x: auto !important; max-width: 100% !important; }
+        @media (max-width: 700px) {
+            .container { padding: 12px; padding-top: 44px; }
+            h1 { font-size: 1.25rem; }
+            .section-title { font-size: 1rem; }
+            .example { padding: 12px 14px; }
+        }
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 10px 0; }
+        .formula-card { background: var(--formula-bg); border-radius: 16px; padding: 14px 10px; text-align: center; border: 1px solid var(--border); border-left: 4px solid var(--accent); word-wrap: break-word; }
+        .formula-card p { margin: 6px 0; font-size: 1.15rem; font-weight: 600; color: var(--text); font-family: 'Times New Roman', monospace; }
+        .graph-container { text-align: center; margin: 12px 0; background: var(--canvas-bg); border-radius: 16px; padding: 8px; transition: background 0.2s; }
+        .graph-container canvas { max-width: 100%; height: auto; border-radius: 12px; display: inline-block; background: var(--canvas-fill); transition: background 0.2s; }
+        .graph-label { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px; font-style: italic; }
+        .nav-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; justify-content: center; }
+        .nav-links a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); font-size: 0.9rem; padding: 4px 0; }
+        .nav-links a:hover { opacity: 0.8; }
+
+        .controls-panel { background: var(--info-bg); border-radius: 16px; padding: 14px 16px; margin: 12px 0; display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--border); }
+        .control-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .control-row label { color: var(--text); font-size: 0.85rem; font-weight: 600; min-width: 120px; }
+        .control-row input[type="range"] { flex: 1; min-width: 140px; height: 6px; -webkit-appearance: none; appearance: none; background: var(--border); border-radius: 3px; outline: none; }
+        .control-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--special-border); cursor: pointer; border: 2px solid var(--card-bg); box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+        .control-row input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--special-border); cursor: pointer; border: 2px solid var(--card-bg); }
+        .control-row input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+        .control-value { color: var(--special-border); font-size: 0.9rem; font-weight: 700; min-width: 70px; text-align: right; }
+        .control-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+        .btn-reset { background: #666; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-reset:hover { background: #555; }
+        .btn-reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        .property-list { list-style: none; padding: 0; margin: 0; }
+        .property-list li { margin: 12px 0; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+        .property-list li:last-child { border-bottom: none; }
+        .property-link { color: var(--text); text-decoration: none; font-weight: 700; cursor: pointer; transition: color 0.2s; display: inline-block; margin-bottom: 6px; }
+        .property-link:hover, .property-link:focus-visible { color: var(--accent); }
+        .property-link.active { color: var(--accent); }
+        .property-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-top: 4px; }
+        .property-info { background: var(--info-bg); border-radius: 12px; padding: 10px 14px; margin-top: 10px; font-size: 0.9rem; color: var(--text); display: none; }
+        .property-info.show { display: block; }
+
+        button, .btn, [class*="btn"], [class*="button"] { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-appearance: none; appearance: none; outline: none; }
+        a, select, option, input, textarea, .back-link { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; outline: none; }
+
+        .example, .formula-block, .important {
+            position: relative; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            padding-left: 20px; background-color: var(--example-bg, var(--formula-bg, var(--info-bg, #162a38)));
+            margin-bottom: 16px;
+        }
+        .example::before, .formula-block::before, .important::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+            background: linear-gradient(180deg, var(--special-border) 0%, #0d9488 100%);
+            border-radius: 16px 0 0 16px; z-index: 1;
+        }
+        @media (hover: hover) {
+            .example:hover, .formula-block:hover, .important:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        }
+
+        /* ===== Вкладки моделей (как в физике) ===== */
+        .model-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center; }
+        .model-tab {
+            padding: 10px 22px; border-radius: 20px;
+            background: var(--card-bg); color: var(--text-secondary);
+            border: 2px solid var(--border); cursor: pointer;
+            font-size: 1rem; font-weight: 700; transition: all 0.25s;
+            font-family: inherit;
+        }
+        .model-tab:hover { border-color: var(--accent); color: var(--accent); }
+        .model-tab.active { background: var(--special-border); color: #fff; border-color: var(--special-border); }
+        .model-content { display: none; }
+        .model-content.active { display: block; animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true,
+                   macros: { tg: '\\mathop{\\mathrm{tg}}', ctg: '\\mathop{\\mathrm{ctg}}' } },
+            chtml: { scale: 1.0, displayAlign: 'center' }
+        };
+    </script>
+    <script src="mathjax/es5/tex-chtml.js" async></script>
+    <style id="bottom-nav-base">
+        .bottom-nav { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; padding: 8px 12px; border-radius: 22px; background: rgba(30, 53, 69, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border, #d0d8e0); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.45); z-index: 900; transition: background 0.3s, border 0.3s; }
+        :root.light-mode .bottom-nav { background: rgba(255,255,255,0.9); }
+        .bottom-nav a, .bottom-nav button { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent; color: var(--text-secondary, #8ba5b8); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .bottom-nav a:hover, .bottom-nav button:hover { background: rgba(59,130,246,0.15); color: var(--accent, #3b82f6); transform: translateY(-2px); }
+        .bottom-nav a[href="favorites.html"].active { background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important; }
+    </style>
+    <style id="bottom-nav-autohide">
+        .bottom-nav { transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s, border 0.3s; }
+        .bottom-nav.nav-hidden { transform: translate(-50%, 120%); opacity: 0; pointer-events: none; }
+        body.is-index .bottom-nav.nav-hidden { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+    </style>
+    <style id="math-nav-animation">
+        .bottom-nav a, .bottom-nav button { transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s ease, color 0.2s ease !important; }
+        .bottom-nav a:hover, .bottom-nav button:hover { transform: translateY(-3px) scale(1.08) !important; }
+        .bottom-nav a:active, .bottom-nav button:active { transform: translateY(0) scale(0.92) !important; }
+        .bottom-nav a[href="favorites.html"].active { background: rgba(250, 204, 21, 0.20) !important; color: #facc15 !important; transform: translateY(-3px) scale(1.08) !important; }
+        .ripple-host { position: relative !important; overflow: hidden !important; }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(26, 188, 156, 0.35); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 0; }
+        @keyframes rippleAnim { to { transform: scale(2.5); opacity: 0; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Функции $y = \tg x$ и $y = \ctg x$ — свойства и графики</h1>
+
+    <!-- ===== Вкладки ===== -->
+    <div class="model-tabs">
+        <button type="button" class="model-tab active" data-tab="tan" onclick="switchTangentTab('tan')">📐 $y = \tg x$</button>
+        <button type="button" class="model-tab" data-tab="cot" onclick="switchTangentTab('cot')">📐 $y = \ctg x$</button>
+    </div>
+
+    <!-- =========================================================
+         ВКЛАДКА 1: y = tg x
+    ========================================================== -->
+    <div id="tab-tan" class="model-content active">
+
+        <!-- 1. ВВЕДЕНИЕ -->
+        <div class="section">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="true" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">📖 Что такое тангенс и откуда он берётся</span>
+            </div>
+            <div class="section-content">
+                <p>Тангенс — это <strong>отношение катетов</strong> прямоугольного треугольника. Если угол $\alpha$ острый, то:</p>
+                <div class="formula-block">$\tg \alpha = \dfrac{\text{противолежащий катет}}{\text{прилежащий катет}} = \dfrac{\sin\alpha}{\cos\alpha}$</div>
+                <p>В отличие от синуса и косинуса, тангенс может быть <strong>любым</strong> числом: катеты могут быть сколь угодно разной длины. Но есть ограничение: $\cos\alpha \neq 0$, иначе знаменатель обращается в нуль — там будут <strong>асимптоты</strong> графика.</p>
+                <p>Подвигайте ползунок угла — видно, как треугольник меняется, а отношение $\tg\alpha$ уходит в бесконечность при приближении к $\pi/2$ (и к $-\pi/2$).</p>
+
+                <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:12px 0;">
+                    <div class="graph-container" style="flex:1 1 320px;min-width:280px;">
+                        <canvas id="tan_triangle_canvas" width="360" height="300"></canvas>
+                        <div class="graph-label">Прямоугольный треугольник: $\tg\alpha = \dfrac{a}{b}$</div>
+                    </div>
+                    <div class="graph-container" style="flex:1 1 420px;min-width:300px;">
+                        <canvas id="tan_unfold_canvas" width="520" height="300"></canvas>
+                        <div class="graph-label">Тангенсоида: $y = \tg x$ на $\left(-\dfrac{\pi}{2};\dfrac{\pi}{2}\right)$</div>
+                    </div>
+                </div>
+
+                <div class="controls-panel">
+                    <div class="control-row">
+                        <label for="tan_angle_slider">Угол α:</label>
+                        <input type="range" id="tan_angle_slider" min="-1.4" max="1.4" step="0.01" value="0.6">
+                        <span class="control-value" id="tan_angle_value">α = 0,60 рад</span>
+                    </div>
+                    <div class="control-buttons">
+                        <button class="btn-reset" type="button" onclick="animateTangentAngle()">▶ Анимировать</button>
+                        <button class="btn-reset" type="button" onclick="stopTangentAngle()">⏸ Стоп</button>
+                        <button class="btn-reset" type="button" onclick="resetTangentAngle()">⟳ Сброс</button>
+                    </div>
+                </div>
+
+                <p><strong>Зачем это нужно?</strong> Тангенс и котангенс описывают <strong>наклон</strong>: угол подъёма дороги, уклон крыши, положение стрелки часов. Они используются в навигации, геодезии, оптике и всюду, где важно «насколько круто».</p>
+            </div>
+        </div>
+
+        <!-- 2. СВОЙСТВА -->
+        <div class="section">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="true" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">📐 Свойства функции $y = \tg x$</span>
+                <span class="sub-title">нажмите на название — оно подсветится на графике</span>
+            </div>
+            <div class="section-content">
+                <ul class="property-list">
+                    <li>
+                        <a class="property-link" href="#" data-tab="tan" data-prop="domain" role="button" aria-pressed="false">1. Область определения</a>
+                        <div class="property-desc">$x \neq \dfrac{\pi}{2} + \pi n$, $n \in \mathbb{Z}$ — в этих точках $\cos x = 0$, а тангенс не существует.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="tan" data-prop="range" role="button" aria-pressed="false">2. Область значений</a>
+                        <div class="property-desc">$y \in (-\infty; +\infty)$ — тангенс может принимать любое действительное значение.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="tan" data-prop="odd" role="button" aria-pressed="false">3. Нечётность</a>
+                        <div class="property-desc">$\tg(-x) = -\tg x$ — функция нечётная, график симметричен относительно начала координат.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="tan" data-prop="period" role="button" aria-pressed="false">4. Период</a>
+                        <div class="property-desc">$T = \pi$, то есть $\tg(x+\pi) = \tg x$. График повторяется каждые $\pi$.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="tan" data-prop="zeros" role="button" aria-pressed="false">5. Нули функции</a>
+                        <div class="property-desc">$\tg x = 0$ при $x = \pi n$, $n \in \mathbb{Z}$ — там же, где нули синуса.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="tan" data-prop="sign" role="button" aria-pressed="false">6. Промежутки знакопостоянства</a>
+                        <div class="property-desc">$\tg x > 0$ при $x \in \left(\pi n; \dfrac{\pi}{2} + \pi n\right)$;<br>$\tg x < 0$ при $x \in \left(-\dfrac{\pi}{2} + \pi n; \pi n\right)$, $n \in \mathbb{Z}$.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="tan" data-prop="mono" role="button" aria-pressed="false">7. Монотонность</a>
+                        <div class="property-desc">Возрастает на каждом промежутке $\left(-\dfrac{\pi}{2} + \pi n; \dfrac{\pi}{2} + \pi n\right)$, $n \in \mathbb{Z}$.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="tan" data-prop="asymptotes" role="button" aria-pressed="false">8. Асимптоты</a>
+                        <div class="property-desc">Вертикальные асимптоты: $x = \dfrac{\pi}{2} + \pi n$. В этих точках $\tg x \to \pm\infty$.</div>
+                    </li>
+                </ul>
+                <div class="property-info" id="tan-property-info" aria-live="polite"></div>
+            </div>
+        </div>
+
+        <!-- 3. ОСНОВНОЙ ГРАФИК -->
+        <div class="section">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="true" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">📈 График $y = \tg x$</span>
+                <span class="sub-title">тангенсоида</span>
+            </div>
+            <div class="section-content">
+                <p>График $y = \tg x$ называется <strong>тангенсоидой</strong>. Она состоит из бесконечного числа одинаковых ветвей, разделённых вертикальными асимптотами $x = \dfrac{\pi}{2} + \pi n$.</p>
+                <div class="graph-container">
+                    <canvas id="tan_main_canvas" width="800" height="420"></canvas>
+                    <div class="graph-label">$y = \tg x$: ветви уходят в бесконечность, не пересекая асимптоты</div>
+                </div>
+                <div class="example">
+                    <strong>📌 Как читать график:</strong><br>
+                    • В точке $x = 0$: $\tg 0 = 0$.<br>
+                    • При $x \to \dfrac{\pi}{2}^-$ тангенс $\to +\infty$ — асимптота $x = \pi/2$.<br>
+                    • При $x \to -\dfrac{\pi}{2}^+$ тангенс $\to -\infty$ — асимптота $x = -\pi/2$.<br>
+                    • Дальше всё повторяется через $\pi$: $\tg(x+\pi) = \tg x$.
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ПРИМЕРЫ -->
+        <div class="section collapsed">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="false" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">📝 Примеры применения</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Пример 1 (вычисление).</strong> Найти $\tg\dfrac{\pi}{3}$.<br><br>
+                    <span class="step">Решение.</span>
+                    $\tg\dfrac{\pi}{3} = \dfrac{\sin(\pi/3)}{\cos(\pi/3)} = \dfrac{\sqrt{3}/2}{1/2} = \sqrt{3}$.<br>
+                    <span class="result">Ответ: $\sqrt{3}$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>Пример 2 (уравнение).</strong> Решить $\tg x = 1$.<br><br>
+                    <span class="step">Решение.</span>
+                    $x = \arctg 1 + \pi n = \dfrac{\pi}{4} + \pi n$, $n \in \mathbb{Z}$.<br>
+                    <span class="result">Ответ: $x = \dfrac{\pi}{4} + \pi n$, $n \in \mathbb{Z}$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>Пример 3 (нечётность).</strong> Вычислить $\tg(-30°)$.<br><br>
+                    <span class="step">Решение.</span>
+                    $\tg(-30°) = -\tg 30° = -\dfrac{1}{\sqrt{3}} = -\dfrac{\sqrt{3}}{3}$.<br>
+                    <span class="result">Ответ: $-\dfrac{\sqrt{3}}{3}$.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. ЗАДАЧИ -->
+        <div class="section collapsed">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="false" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">🧮 Решение задач</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Задача №1.</strong> Найти область определения функции $y = \tg\left(2x\right)$.<br><br>
+                    <span class="step">Решение.</span>
+                    Аргумент $2x \neq \dfrac{\pi}{2} + \pi n$, значит $x \neq \dfrac{\pi}{4} + \dfrac{\pi n}{2}$, $n \in \mathbb{Z}$.<br>
+                    <span class="result">Ответ: $x \neq \dfrac{\pi}{4} + \dfrac{\pi n}{2}$, $n \in \mathbb{Z}$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>Задача №2.</strong> Найти период функции $y = \tg(3x)$.<br><br>
+                    <span class="step">Решение.</span>
+                    Период $\tg(3x)$ равен $T = \dfrac{\pi}{3}$.<br>
+                    <span class="result">Ответ: $\dfrac{\pi}{3}$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>Задача №3.</strong> Решить неравенство $\tg x > 1$.<br><br>
+                    <span class="step">Решение.</span>
+                    На каждом периоде $x \in \left(\dfrac{\pi}{4} + \pi n; \dfrac{\pi}{2} + \pi n\right)$.<br>
+                    <span class="result">Ответ: $x \in \left(\dfrac{\pi}{4} + \pi n; \dfrac{\pi}{2} + \pi n\right)$, $n \in \mathbb{Z}$.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. ЗАДАНИЯ -->
+        <div class="section collapsed">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="false" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">✏️ Задания для самостоятельного решения</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>1.</strong> Вычислите: $\tg\dfrac{\pi}{6}$, $\tg\dfrac{\pi}{4}$, $\tg\dfrac{\pi}{3}$.
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>2.</strong> Решите уравнение $\tg x = -1$.
+                    <span class="hint">Подсказка: $x = -\dfrac{\pi}{4} + \pi n$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>3.</strong> Найдите область определения $y = \tg\left(x - \dfrac{\pi}{3}\right)$.
+                    <span class="hint">Подсказка: $x - \dfrac{\pi}{3} \neq \dfrac{\pi}{2} + \pi n$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>4.</strong> Найдите период функции $y = \tg\left(\dfrac{x}{2}\right)$.
+                    <span class="hint">Подсказка: $T = \dfrac{\pi}{k} = 2\pi$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>5.</strong> Определите, возрастает или убывает $y = \tg x$ на $\left(-\dfrac{\pi}{2}; \dfrac{\pi}{2}\right)$.
+                    <span class="hint">Подсказка: производная $\left(\tg x\right)' = \dfrac{1}{\cos^2 x} > 0$.</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================================================
+         ВКЛАДКА 2: y = ctg x
+    ========================================================== -->
+    <div id="tab-cot" class="model-content">
+
+        <!-- 1. ВВЕДЕНИЕ -->
+        <div class="section">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="true" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">📖 Что такое котангенс</span>
+            </div>
+            <div class="section-content">
+                <p>Котангенс — это <strong>«перевёрнутый» тангенс</strong>: отношение прилежащего катета к противолежащему.</p>
+                <div class="formula-block">$\ctg \alpha = \dfrac{\text{прилежащий катет}}{\text{противолежащий катет}} = \dfrac{\cos\alpha}{\sin\alpha} = \dfrac{1}{\tg\alpha}$</div>
+                <p>Котангенс определён при $\sin\alpha \neq 0$, то есть везде, кроме $x = \pi n$. Там — вертикальные асимптоты. При переходе через асимптоту котангенс меняет знак с $+\infty$ на $-\infty$.</p>
+                <p>Подвигайте ползунок — видно, как треугольник «поворачивается», и отношение $\ctg\alpha$ уходит в бесконечность при приближении к $0$ или $\pi$.</p>
+
+                <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:12px 0;">
+                    <div class="graph-container" style="flex:1 1 320px;min-width:280px;">
+                        <canvas id="cot_triangle_canvas" width="360" height="300"></canvas>
+                        <div class="graph-label">Прямоугольный треугольник: $\ctg\alpha = \dfrac{b}{a}$</div>
+                    </div>
+                    <div class="graph-container" style="flex:1 1 420px;min-width:300px;">
+                        <canvas id="cot_unfold_canvas" width="520" height="300"></canvas>
+                        <div class="graph-label">Котангенсоида: $y = \ctg x$ на $(0; \pi)$</div>
+                    </div>
+                </div>
+
+                <div class="controls-panel">
+                    <div class="control-row">
+                        <label for="cot_angle_slider">Угол α:</label>
+                        <input type="range" id="cot_angle_slider" min="0.1" max="3.04" step="0.01" value="1.1">
+                        <span class="control-value" id="cot_angle_value">α = 1,10 рад</span>
+                    </div>
+                    <div class="control-buttons">
+                        <button class="btn-reset" type="button" onclick="animateCotangentAngle()">▶ Анимировать</button>
+                        <button class="btn-reset" type="button" onclick="stopCotangentAngle()">⏸ Стоп</button>
+                        <button class="btn-reset" type="button" onclick="resetCotangentAngle()">⟳ Сброс</button>
+                    </div>
+                </div>
+
+                <p><strong>Зачем это нужно?</strong> Котангенс часто встречается в задачах на прямоугольный треугольник, когда «удобнее» считать отношение «прилежащий / противолежащий». А ещё $\ctg x = \tg\left(\dfrac{\pi}{2} - x\right)$ — это просто отражение тангенса.</p>
+            </div>
+        </div>
+
+        <!-- 2. СВОЙСТВА -->
+        <div class="section">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="true" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">📐 Свойства функции $y = \ctg x$</span>
+                <span class="sub-title">нажмите на название — оно подсветится на графике</span>
+            </div>
+            <div class="section-content">
+                <ul class="property-list">
+                    <li>
+                        <a class="property-link" href="#" data-tab="cot" data-prop="domain" role="button" aria-pressed="false">1. Область определения</a>
+                        <div class="property-desc">$x \neq \pi n$, $n \in \mathbb{Z}$ — в этих точках $\sin x = 0$, а котангенс не существует.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="cot" data-prop="range" role="button" aria-pressed="false">2. Область значений</a>
+                        <div class="property-desc">$y \in (-\infty; +\infty)$ — котангенс может принимать любое действительное значение.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="cot" data-prop="odd" role="button" aria-pressed="false">3. Нечётность</a>
+                        <div class="property-desc">$\ctg(-x) = -\ctg x$ — функция нечётная, график симметричен относительно начала координат.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="cot" data-prop="period" role="button" aria-pressed="false">4. Период</a>
+                        <div class="property-desc">$T = \pi$, то есть $\ctg(x+\pi) = \ctg x$. График повторяется каждые $\pi$.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="cot" data-prop="zeros" role="button" aria-pressed="false">5. Нули функции</a>
+                        <div class="property-desc">$\ctg x = 0$ при $x = \dfrac{\pi}{2} + \pi n$ — там, где нули косинуса.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="cot" data-prop="sign" role="button" aria-pressed="false">6. Промежутки знакопостоянства</a>
+                        <div class="property-desc">$\ctg x > 0$ при $x \in \left(\pi n; \dfrac{\pi}{2} + \pi n\right)$;<br>$\ctg x < 0$ при $x \in \left(\dfrac{\pi}{2} + \pi n; \pi + \pi n\right)$, $n \in \mathbb{Z}$.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="cot" data-prop="mono" role="button" aria-pressed="false">7. Монотонность</a>
+                        <div class="property-desc">Убывает на каждом промежутке $(\pi n; \pi + \pi n)$, $n \in \mathbb{Z}$.</div>
+                    </li>
+                    <li>
+                        <a class="property-link" href="#" data-tab="cot" data-prop="asymptotes" role="button" aria-pressed="false">8. Асимптоты</a>
+                        <div class="property-desc">Вертикальные асимптоты: $x = \pi n$. В этих точках $\ctg x \to \pm\infty$.</div>
+                    </li>
+                </ul>
+                <div class="property-info" id="cot-property-info" aria-live="polite"></div>
+            </div>
+        </div>
+
+        <!-- 3. ОСНОВНОЙ ГРАФИК -->
+        <div class="section">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="true" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">📈 График $y = \ctg x$</span>
+                <span class="sub-title">котангенсоида</span>
+            </div>
+            <div class="section-content">
+                <p>График $y = \ctg x$ — это «перевёрнутая» и сдвинутая тангенсоида. Ветви разделены асимптотами $x = \pi n$, и на каждом промежутке функция <strong>убывает</strong>.</p>
+                <div class="graph-container">
+                    <canvas id="cot_main_canvas" width="800" height="420"></canvas>
+                    <div class="graph-label">$y = \ctg x$: ветви убывают, не пересекая асимптоты</div>
+                </div>
+                <div class="example">
+                    <strong>📌 Как читать график:</strong><br>
+                    • При $x \to 0^+$ $\ctg x \to +\infty$ — асимптота $x = 0$.<br>
+                    • При $x = \dfrac{\pi}{2}$ $\ctg x = 0$.<br>
+                    • При $x \to \pi^-$ $\ctg x \to -\infty$ — асимптота $x = \pi$.<br>
+                    • Дальше всё повторяется через $\pi$: $\ctg(x+\pi) = \ctg x$.
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ПРИМЕРЫ -->
+        <div class="section collapsed">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="false" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">📝 Примеры применения</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Пример 1 (вычисление).</strong> Найти $\ctg\dfrac{\pi}{3}$.<br><br>
+                    <span class="step">Решение.</span>
+                    $\ctg\dfrac{\pi}{3} = \dfrac{\cos(\pi/3)}{\sin(\pi/3)} = \dfrac{1/2}{\sqrt{3}/2} = \dfrac{1}{\sqrt{3}} = \dfrac{\sqrt{3}}{3}$.<br>
+                    <span class="result">Ответ: $\dfrac{\sqrt{3}}{3}$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>Пример 2 (уравнение).</strong> Решить $\ctg x = 1$.<br><br>
+                    <span class="step">Решение.</span>
+                    $x = \operatorname{arcctg}\,1 + \pi n = \dfrac{\pi}{4} + \pi n$, $n \in \mathbb{Z}$.<br>
+                    <span class="result">Ответ: $x = \dfrac{\pi}{4} + \pi n$, $n \in \mathbb{Z}$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>Пример 3 (связь с тангенсом).</strong> Доказать, что $\ctg x = \tg\left(\dfrac{\pi}{2} - x\right)$.<br><br>
+                    <span class="step">Решение.</span>
+                    По формуле приведения: $\tg\left(\dfrac{\pi}{2} - x\right) = \dfrac{\sin(\pi/2 - x)}{\cos(\pi/2 - x)} = \dfrac{\cos x}{\sin x} = \ctg x$.<br>
+                    <span class="result">Тождество доказано.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. ЗАДАЧИ -->
+        <div class="section collapsed">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="false" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">🧮 Решение задач</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>Задача №1.</strong> Найти область определения функции $y = \ctg\left(3x\right)$.<br><br>
+                    <span class="step">Решение.</span>
+                    Аргумент $3x \neq \pi n$, значит $x \neq \dfrac{\pi n}{3}$, $n \in \mathbb{Z}$.<br>
+                    <span class="result">Ответ: $x \neq \dfrac{\pi n}{3}$, $n \in \mathbb{Z}$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>Задача №2.</strong> Найти период функции $y = \ctg\left(\dfrac{x}{2}\right)$.<br><br>
+                    <span class="step">Решение.</span>
+                    Период равен $T = \dfrac{\pi}{1/2} = 2\pi$.<br>
+                    <span class="result">Ответ: $2\pi$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>Задача №3.</strong> Решить неравенство $\ctg x < 0$.<br><br>
+                    <span class="step">Решение.</span>
+                    $\ctg x < 0$ на каждом периоде при $x \in \left(\dfrac{\pi}{2} + \pi n; \pi + \pi n\right)$.<br>
+                    <span class="result">Ответ: $x \in \left(\dfrac{\pi}{2} + \pi n; \pi + \pi n\right)$, $n \in \mathbb{Z}$.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. ЗАДАНИЯ -->
+        <div class="section collapsed">
+            <div class="section-title" role="button" tabindex="0" aria-expanded="false" onclick="toggleSection(this)" onkeydown="handleSectionKey(event, this)">
+                <span class="main-title">✏️ Задания для самостоятельного решения</span>
+            </div>
+            <div class="section-content">
+                <div class="example">
+                    <strong>1.</strong> Вычислите: $\ctg\dfrac{\pi}{6}$, $\ctg\dfrac{\pi}{4}$, $\ctg\dfrac{\pi}{3}$.
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>2.</strong> Решите уравнение $\ctg x = -1$.
+                    <span class="hint">Подсказка: $x = -\dfrac{\pi}{4} + \pi n$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>3.</strong> Найдите область определения $y = \ctg\left(x + \dfrac{\pi}{4}\right)$.
+                    <span class="hint">Подсказка: $x + \dfrac{\pi}{4} \neq \pi n$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>4.</strong> Найдите период функции $y = \ctg\left(3x\right)$.
+                    <span class="hint">Подсказка: $T = \dfrac{\pi}{3}$.</span>
+                </div>
+                <div class="example" style="margin-top:12px;">
+                    <strong>5.</strong> Определите, возрастает или убывает $y = \ctg x$ на $(0; \pi)$.
+                    <span class="hint">Подсказка: производная $\left(\ctg x\right)' = -\dfrac{1}{\sin^2 x} < 0$ — убывает.</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav-links">
+        <a href="функция-синус.html">📐 Функция y = sin x</a>
+        <a href="функция-косинус.html">📐 Функция y = cos x</a>
+        <a href="Тождества.html">🧩 Основные тождества</a>
+    </div>
+
+    <a href="trigonometry.html" class="back-link">← Назад к тригонометрии</a>
+</div>
+
+<script>
+    (function () {
+        if (localStorage.getItem('mathTheme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            const __btn = document.getElementById('themeBtn'); if (__btn) __btn.textContent = '☀️';
+        }
+    })();
+
+    function switchTangentTab(tab) {
+        document.querySelectorAll('.model-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+        document.getElementById('tab-tan').classList.toggle('active', tab === 'tan');
+        document.getElementById('tab-cot').classList.toggle('active', tab === 'cot');
+        setTimeout(() => { redrawAllTangents(); renderTangentInteractive(); renderCotangentInteractive(); }, 50);
+    }
+    window.switchTangentTab = switchTangentTab;
+
+    function toggleSection(titleEl) {
+        const section = titleEl.closest('.section');
+        if (!section) return;
+        section.classList.toggle('collapsed');
+        titleEl.setAttribute('aria-expanded', String(!section.classList.contains('collapsed')));
+        setTimeout(redrawAllTangents, 450);
+    }
+    function handleSectionKey(e, titleEl) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection(titleEl); }
+    }
+
+    function fracPiTan(x) {
+        const eps = 1e-6;
+        const num = Math.round(x / (Math.PI / 4));
+        if (Math.abs(num) < eps) return '0';
+        const sign = num < 0 ? '−' : '';
+        const abs = Math.abs(num);
+        if (abs === 1) return sign + 'π/4';
+        if (abs === 2) return sign + 'π/2';
+        if (abs === 3) return sign + '3π/4';
+        if (abs === 4) return sign + 'π';
+        if (abs === 5) return sign + '5π/4';
+        if (abs === 6) return sign + '3π/2';
+        if (abs === 7) return sign + '7π/4';
+        if (abs === 8) return sign + '2π';
+        return sign + abs + 'π/4';
+    }
+
+    function drawTrig(canvasId, fn, xMin, xMax, yMin, yMax, options) {
+        options = options || {};
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return false;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 40;
+        const pw = w - 2 * pad, ph = h - 2 * pad;
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const gridColor = isLight ? '#dce3ec' : '#2a3a4a';
+        const axisColor = isLight ? '#5b7c9c' : '#8899aa';
+        const axisText = isLight ? '#1e3a5f' : '#cbdbe6';
+        const subText = isLight ? '#5a7a94' : '#8ba5b8';
+
+        function toX(x) { return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y) { return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+
+        ctx.fillStyle = isLight ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+
+        // сетка
+        ctx.strokeStyle = gridColor;
+        ctx.lineWidth = 1;
+        const stepX = Math.PI / 4;
+        for (let x = Math.ceil(xMin / stepX) * stepX; x <= xMax + 1e-6; x += stepX) {
+            const sx = toX(x);
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h - pad); ctx.stroke();
+        }
+        const stepY = 1;
+        for (let y = Math.ceil(yMin / stepY) * stepY; y <= yMax + 1e-6; y += stepY) {
+            const sy = toY(y);
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+        }
+
+        // вертикальные асимптоты (постоянный пунктир)
+        if (options.asymptotes) {
+            ctx.save();
+            ctx.setLineDash([6, 6]);
+            ctx.strokeStyle = isLight ? '#b91c1c' : '#f87171';
+            ctx.lineWidth = 1.5;
+            options.asymptotes.forEach(xa => {
+                if (xa < xMin || xa > xMax) return;
+                const sx = toX(xa);
+                ctx.beginPath();
+                ctx.moveTo(sx, pad);
+                ctx.lineTo(sx, h - pad);
+                ctx.stroke();
+            });
+            ctx.restore();
+        }
+
+        // горизонтальные линии
+        if (options.hlines) {
+            ctx.save();
+            ctx.setLineDash([6, 6]);
+            ctx.lineWidth = 1.5;
+            options.hlines.forEach(hl => {
+                if (hl.y < yMin || hl.y > yMax) return;
+                ctx.strokeStyle = hl.color || '#888';
+                const sy = toY(hl.y);
+                ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w - pad, sy); ctx.stroke();
+            });
+            ctx.restore();
+        }
+
+        // подсветка свойств
+        if (options.highlight) {
+            const hl = options.highlight;
+
+            if (hl.type === 'signarea' && hl.fn) {
+                // зелёный/красный между кривой и осью OX
+                const fnH = hl.fn;
+                const step = (xMax - xMin) / 2000;
+                for (let x = xMin; x < xMax; x += step) {
+                    let y1, y2;
+                    try { y1 = fnH(x); y2 = fnH(x + step); } catch(e) { continue; }
+                    if (!isFinite(y1) || !isFinite(y2)) continue;
+                    if (Math.abs(y1) > 50 || Math.abs(y2) > 50) continue;
+                    const mid = (y1 + y2) / 2;
+                    if (Math.abs(mid) < 1e-9) continue;
+                    ctx.fillStyle = mid > 0 ? 'rgba(34,197,94,0.22)' : 'rgba(239,68,68,0.20)';
+                    const sx1 = toX(x);
+                    const sx2 = toX(x + step);
+                    const sy1 = toY(y1);
+                    const sy2 = toY(y2);
+                    const sy0 = toY(0);
+                    ctx.beginPath();
+                    ctx.moveTo(sx1, sy0);
+                    ctx.lineTo(sx1, sy1);
+                    ctx.lineTo(sx2, sy2);
+                    ctx.lineTo(sx2, sy0);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            } else if (hl.type === 'asymptotes' && hl.xs) {
+                ctx.save();
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 3.5;
+                hl.xs.forEach(xa => {
+                    if (xa < xMin || xa > xMax) return;
+                    const sx = toX(xa);
+                    ctx.beginPath();
+                    ctx.moveTo(sx, pad);
+                    ctx.lineTo(sx, h - pad);
+                    ctx.stroke();
+                });
+                ctx.restore();
+            } else if (hl.type === 'bands' && hl.bands) {
+                hl.bands.forEach(b => {
+                    const x1 = Math.max(b.x1, xMin), x2 = Math.min(b.x2, xMax);
+                    if (x2 > x1) {
+                        ctx.fillStyle = b.color;
+                        ctx.fillRect(toX(x1), pad, toX(x2) - toX(x1), ph);
+                    }
+                });
+            } else if (hl.type === 'axis-x') {
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.18)';
+                ctx.fillRect(pad, toY(0) - 10, pw, 20);
+            } else if (hl.type === 'range') {
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.10)';
+                ctx.fillRect(pad, pad, pw, ph);
+            } else if (hl.type === 'points' && hl.points) {
+                hl.points.forEach(pt => {
+                    if (pt.x < xMin || pt.x > xMax) return;
+                    ctx.fillStyle = 'rgba(34, 197, 94, 0.35)';
+                    ctx.beginPath(); ctx.arc(toX(pt.x), toY(pt.y), 8, 0, 2 * Math.PI); ctx.fill();
+                    ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2; ctx.stroke();
+                });
+            } else if (hl.type === 'segments' && hl.segments) {
+                hl.segments.forEach(seg => {
+                    const a = Math.max(seg.x1, xMin), b = Math.min(seg.x2, xMax);
+                    if (b <= a) return;
+                    ctx.strokeStyle = seg.color;
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    let first = true;
+                    const steps = 500;
+                    const dx = (b - a) / steps;
+                    for (let x = a; x <= b; x += dx) {
+                        let y;
+                        try { y = fn(x); } catch(e) { first = true; continue; }
+                        if (!isFinite(y) || y < yMin - 0.5 || y > yMax + 0.5) { first = true; continue; }
+                        const sx = toX(x), sy = toY(y);
+                        if (first) { ctx.moveTo(sx, sy); first = false; }
+                        else ctx.lineTo(sx, sy);
+                    }
+                    ctx.stroke();
+                });
+            }
+        }
+
+        // оси
+        ctx.strokeStyle = axisColor;
+        ctx.lineWidth = 2;
+        const ox = toY(0), oy = toX(0);
+        if (ox >= pad && ox <= h - pad) {
+            ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w - pad, ox); ctx.stroke();
+        }
+        if (oy >= pad && oy <= w - pad) {
+            ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h - pad); ctx.stroke();
+        }
+        ctx.fillStyle = axisColor;
+        ctx.beginPath(); ctx.moveTo(w - pad, ox); ctx.lineTo(w - pad - 10, ox - 5); ctx.lineTo(w - pad - 10, ox + 5); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy - 5, pad + 10); ctx.lineTo(oy + 5, pad + 10); ctx.fill();
+
+        ctx.font = '14px "Segoe UI", sans-serif';
+        ctx.fillStyle = axisText;
+        ctx.fillText('x', w - pad - 14, ox - 10);
+        ctx.fillText('y', oy + 10, pad + 14);
+        ctx.fillText('0', oy - 14, ox + 16);
+
+        // подписи по x
+        ctx.font = '12px "Segoe UI", sans-serif';
+        ctx.fillStyle = subText;
+        ctx.textAlign = 'center';
+        const labelStep = Math.PI / 2;
+        for (let x = Math.ceil(xMin / labelStep) * labelStep; x <= xMax + 1e-6; x += labelStep) {
+            if (Math.abs(x) < 1e-6) continue;
+            ctx.fillText(fracPiTan(x), toX(x), ox + 18);
+        }
+        ctx.textAlign = 'right';
+        [-3, -2, -1, 1, 2, 3].forEach(y => {
+            if (y < yMin || y > yMax) return;
+            ctx.fillText(String(y).replace('.', ','), oy - 6, toY(y) + 4);
+        });
+
+        // сам график
+        ctx.strokeStyle = options.color || '#3b82f6';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        let first = true;
+        const totalSteps = 2000;
+        const dx = (xMax - xMin) / totalSteps;
+        for (let x = xMin; x <= xMax; x += dx) {
+            if (options.domain && !options.domain(x)) { first = true; continue; }
+            let y;
+            try { y = fn(x); } catch(e) { first = true; continue; }
+            if (y === null || y === undefined || isNaN(y) || !isFinite(y)) { first = true; continue; }
+            if (y < yMin - 0.5 || y > yMax + 0.5) { first = true; continue; }
+            const sx = toX(x), sy = toY(y);
+            if (first) { ctx.moveTo(sx, sy); first = false; }
+            else ctx.lineTo(sx, sy);
+        }
+        ctx.stroke();
+
+        return true;
+    }
+
+    let activePropTan = null;
+    let activePropCot = null;
+
+    function getHighlightTan(prop) {
+        switch (prop) {
+            case 'domain':   return { type: 'axis-x' };
+            case 'range':    return { type: 'range' };
+            case 'odd':      return { type: 'points', points: [
+                { x: -Math.PI/4, y: -1 }, { x: Math.PI/4, y: 1 },
+                { x: -Math.PI/3, y: -Math.sqrt(3) }, { x: Math.PI/3, y: Math.sqrt(3) },
+                { x: 0, y: 0 }
+            ] };
+            case 'period':   return { type: 'bands', bands: [{ x1: -Math.PI/2, x2: Math.PI/2, color: 'rgba(34,197,94,0.10)' }] };
+            case 'zeros':    return { type: 'points', points: [
+                { x: -Math.PI, y: 0 }, { x: 0, y: 0 }, { x: Math.PI, y: 0 }
+            ] };
+            case 'sign':     return { type: 'signarea', fn: x => Math.tan(x) };
+            case 'mono':     return { type: 'segments', segments: [
+                { x1: -3*Math.PI/2, x2: -Math.PI/2, color: '#22c55e' },
+                { x1: -Math.PI/2, x2: Math.PI/2, color: '#22c55e' },
+                { x1: Math.PI/2, x2: 3*Math.PI/2, color: '#22c55e' }
+            ] };
+            case 'asymptotes': return { type: 'asymptotes', xs: [-3*Math.PI/2, -Math.PI/2, Math.PI/2, 3*Math.PI/2] };
+            default: return null;
+        }
+    }
+
+    function getHighlightCot(prop) {
+        switch (prop) {
+            case 'domain':   return { type: 'axis-x' };
+            case 'range':    return { type: 'range' };
+            case 'odd':      return { type: 'points', points: [
+                { x: -Math.PI/4, y: -1 }, { x: Math.PI/4, y: 1 },
+                { x: -Math.PI/2, y: 0 }, { x: Math.PI/2, y: 0 }
+            ] };
+            case 'period':   return { type: 'bands', bands: [{ x1: 0, x2: Math.PI, color: 'rgba(34,197,94,0.10)' }] };
+            case 'zeros':    return { type: 'points', points: [
+                { x: -Math.PI/2, y: 0 }, { x: Math.PI/2, y: 0 },
+                { x: 3*Math.PI/2, y: 0 }, { x: -3*Math.PI/2, y: 0 }
+            ] };
+            case 'sign':     return { type: 'signarea', fn: x => 1 / Math.tan(x) };
+            case 'mono':     return { type: 'segments', segments: [
+                { x1: -Math.PI, x2: 0, color: '#ef4444' },
+                { x1: 0, x2: Math.PI, color: '#ef4444' },
+                { x1: Math.PI, x2: 2*Math.PI, color: '#ef4444' }
+            ] };
+            case 'asymptotes': return { type: 'asymptotes', xs: [-Math.PI, 0, Math.PI, 2*Math.PI] };
+            default: return null;
+        }
+    }
+
+    function redrawAllTangents() {
+        drawTrig('tan_main_canvas', x => Math.tan(x), -3*Math.PI/2, 3*Math.PI/2, -4, 4, {
+            color: '#3b82f6',
+            domain: x => Math.abs(Math.cos(x)) > 1e-6,
+            asymptotes: [-3*Math.PI/2, -Math.PI/2, Math.PI/2, 3*Math.PI/2],
+            highlight: activePropTan ? getHighlightTan(activePropTan) : null
+        });
+        drawTrig('cot_main_canvas', x => 1/Math.tan(x), -Math.PI, 2*Math.PI, -4, 4, {
+            color: '#3b82f6',
+            domain: x => Math.abs(Math.sin(x)) > 1e-6,
+            asymptotes: [-Math.PI, 0, Math.PI, 2*Math.PI],
+            highlight: activePropCot ? getHighlightCot(activePropCot) : null
+        });
+    }
+
+    // ===== Интерактив для tan =====
+    let tanAnimId = null;
+    function renderTangentInteractive() {
+        const canvas = document.getElementById('tan_triangle_canvas');
+        const gCanvas = document.getElementById('tan_unfold_canvas');
+        const slider = document.getElementById('tan_angle_slider');
+        const valEl = document.getElementById('tan_angle_value');
+        if (!canvas || !gCanvas || !slider) return;
+        const alpha = parseFloat(slider.value);
+        if (valEl) valEl.textContent = 'α = ' + alpha.toFixed(2).replace('.', ',') + ' рад';
+        drawTangentTriangle(canvas, alpha);
+        drawTangentGraphPiece(gCanvas, alpha);
+    }
+
+    function drawTangentTriangle(canvas, alpha) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const light = document.documentElement.classList.contains('light-mode');
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = light ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+        const ox = 40, oy = h - 30;
+        const scale = 90;
+        const A = { x: ox, y: oy };
+        const B = { x: ox + scale, y: oy };
+        const tgVal = Math.tan(alpha);
+        const H = Math.max(-250, Math.min(250, scale * tgVal));
+        const C = { x: B.x, y: B.y - H };
+        ctx.strokeStyle = light ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(C.x, C.y); ctx.stroke();
+        // дуга угла
+        const minSide = Math.min(scale, Math.abs(H));
+        const rArc = Math.min(30, minSide - 4);
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(A.x, A.y, Math.max(6, rArc), 0, -alpha, true); ctx.stroke();
+        // подписи
+        ctx.fillStyle = light ? '#1e3a5f' : '#cbdbe6';
+        ctx.font = '13px "Segoe UI", sans-serif';
+        ctx.fillText('прилежащий', A.x + 10, A.y + 18);
+        ctx.fillText('противолежащий', B.x + 6, (B.y + C.y)/2);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillText('α', A.x + Math.max(12, rArc + 4), A.y - 6);
+        // значение тангенса
+        ctx.fillStyle = '#1abc9c';
+        ctx.font = 'bold 15px "Segoe UI", sans-serif';
+        ctx.fillText('tg α = ' + (isFinite(tgVal) ? tgVal.toFixed(2).replace('.', ',') : '∞'), w - 140, 30);
+    }
+
+    function drawTangentGraphPiece(canvas, alpha) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 40;
+        const pw = w - 2*pad, ph = h - 2*pad;
+        const xMin = -Math.PI/2 + 0.01, xMax = Math.PI/2 - 0.01;
+        const yMin = -4, yMax = 4;
+        const light = document.documentElement.classList.contains('light-mode');
+        const axisColor = light ? '#5b7c9c' : '#8899aa';
+        const gridColor = light ? '#dce3ec' : '#2a3a4a';
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = light ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+        function toX(x){ return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y){ return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+        ctx.strokeStyle = gridColor; ctx.lineWidth = 1;
+        for (let x = -Math.PI/2 + Math.PI/4; x < Math.PI/2; x += Math.PI/4) {
+            const sx = toX(x);
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h-pad); ctx.stroke();
+        }
+        for (let y = -4; y <= 4; y += 1) {
+            const sy = toY(y);
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w-pad, sy); ctx.stroke();
+        }
+        ctx.strokeStyle = axisColor; ctx.lineWidth = 2;
+        const ox = toY(0), oy = toX(0);
+        ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w-pad, ox); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h-pad); ctx.stroke();
+        ctx.fillStyle = light ? '#5a7a94' : '#8ba5b8';
+        ctx.font = '12px "Segoe UI", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('−π/2', toX(-Math.PI/2 + 0.05), ox + 16);
+        ctx.fillText('0', toX(0), ox + 16);
+        ctx.fillText('π/2', toX(Math.PI/2 - 0.05), ox + 16);
+        ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        let first = true;
+        for (let x = xMin; x <= xMax; x += 0.005) {
+            let y = Math.tan(x);
+            if (!isFinite(y) || y < yMin || y > yMax) { first = true; continue; }
+            const sx = toX(x), sy = toY(y);
+            if (first) { ctx.moveTo(sx, sy); first = false; } else ctx.lineTo(sx, sy);
+        }
+        ctx.stroke();
+        // точка с ограничением
+        let val = Math.tan(alpha);
+        if (val > 3.8) val = 3.8;
+        if (val < -3.8) val = -3.8;
+        const px = toX(alpha), py = toY(val);
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath(); ctx.arc(px, py, 6, 0, 2*Math.PI); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = light ? '#1e3a5f' : '#cbdbe6';
+        ctx.font = 'bold 12px "Segoe UI", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('tg α = ' + Math.tan(alpha).toFixed(2).replace('.', ','), px + 8, py - 8);
+    }
+
+    function animateTangentAngle() {
+        stopTangentAngle();
+        const slider = document.getElementById('tan_angle_slider');
+        const t0 = performance.now();
+        const duration = 5000;
+        const start = parseFloat(slider.value);
+        function step(now) {
+            const t = (now - t0) / duration;
+            if (t >= 1) { slider.value = 1.4; renderTangentInteractive(); return; }
+            const a = start + (1.4 - start) * t;
+            slider.value = a;
+            renderTangentInteractive();
+            tanAnimId = requestAnimationFrame(step);
+        }
+        tanAnimId = requestAnimationFrame(step);
+    }
+    function stopTangentAngle() {
+        if (tanAnimId) { cancelAnimationFrame(tanAnimId); tanAnimId = null; }
+    }
+    function resetTangentAngle() {
+        stopTangentAngle();
+        document.getElementById('tan_angle_slider').value = 0.6;
+        renderTangentInteractive();
+    }
+    window.animateTangentAngle = animateTangentAngle;
+    window.stopTangentAngle = stopTangentAngle;
+    window.resetTangentAngle = resetTangentAngle;
+
+    // ===== Интерактив для cot =====
+    let cotAnimId = null;
+    function renderCotangentInteractive() {
+        const canvas = document.getElementById('cot_triangle_canvas');
+        const gCanvas = document.getElementById('cot_unfold_canvas');
+        const slider = document.getElementById('cot_angle_slider');
+        const valEl = document.getElementById('cot_angle_value');
+        if (!canvas || !gCanvas || !slider) return;
+        const alpha = parseFloat(slider.value);
+        if (valEl) valEl.textContent = 'α = ' + alpha.toFixed(2).replace('.', ',') + ' рад';
+        drawCotangentTriangle(canvas, alpha);
+        drawCotangentGraphPiece(gCanvas, alpha);
+    }
+
+    function drawCotangentTriangle(canvas, alpha) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const light = document.documentElement.classList.contains('light-mode');
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = light ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+        const ox = 40, oy = h - 30;
+        const scale = 90;
+        const A = { x: ox, y: oy };
+        // всегда в первой четверти
+        let aFor = Math.abs(alpha);
+        if (aFor > Math.PI / 2) aFor = Math.PI - aFor;
+        const cosV = Math.cos(aFor);
+        const sinV = Math.sin(aFor);
+        const B = { x: A.x + scale * cosV, y: A.y };
+        const C = { x: A.x + scale * cosV, y: A.y - scale * sinV };
+        ctx.strokeStyle = light ? '#5b7c9c' : '#8899aa';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(C.x, C.y); ctx.stroke();
+        // дуга угла
+        const minSide = Math.min(Math.abs(C.x - A.x), Math.abs(A.y - C.y));
+        const rArc = Math.min(30, minSide - 4);
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(A.x, A.y, Math.max(6, rArc), 0, -aFor, true); ctx.stroke();
+        // подписи
+        ctx.fillStyle = light ? '#1e3a5f' : '#cbdbe6';
+        ctx.font = '13px "Segoe UI", sans-serif';
+        ctx.fillText('прилежащий', (A.x + B.x)/2 - 30, A.y + 18);
+        ctx.fillText('противолежащий', C.x + 6, (A.y + C.y)/2);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillText('α', A.x + Math.max(12, rArc + 4), A.y - 6);
+        // значение котангенса (с настоящим знаком)
+        const ctgVal = Math.cos(alpha) / Math.sin(alpha);
+        ctx.fillStyle = '#1abc9c';
+        ctx.font = 'bold 15px "Segoe UI", sans-serif';
+        ctx.fillText('ctg α = ' + (isFinite(ctgVal) ? ctgVal.toFixed(2).replace('.', ',') : '∞'), w - 140, 30);
+    }
+
+    function drawCotangentGraphPiece(canvas, alpha) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const pad = 40;
+        const pw = w - 2*pad, ph = h - 2*pad;
+        const xMin = 0.01, xMax = Math.PI - 0.01;
+        const yMin = -4, yMax = 4;
+        const light = document.documentElement.classList.contains('light-mode');
+        const axisColor = light ? '#5b7c9c' : '#8899aa';
+        const gridColor = light ? '#dce3ec' : '#2a3a4a';
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = light ? '#fefefe' : '#0f1a24';
+        ctx.fillRect(0, 0, w, h);
+        function toX(x){ return pad + (x - xMin) / (xMax - xMin) * pw; }
+        function toY(y){ return h - pad - (y - yMin) / (yMax - yMin) * ph; }
+        ctx.strokeStyle = gridColor; ctx.lineWidth = 1;
+        for (let x = Math.PI/4; x < Math.PI; x += Math.PI/4) {
+            const sx = toX(x);
+            ctx.beginPath(); ctx.moveTo(sx, pad); ctx.lineTo(sx, h-pad); ctx.stroke();
+        }
+        for (let y = -4; y <= 4; y += 1) {
+            const sy = toY(y);
+            ctx.beginPath(); ctx.moveTo(pad, sy); ctx.lineTo(w-pad, sy); ctx.stroke();
+        }
+        ctx.strokeStyle = axisColor; ctx.lineWidth = 2;
+        const ox = toY(0), oy = toX(0);
+        ctx.beginPath(); ctx.moveTo(pad, ox); ctx.lineTo(w-pad, ox); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(oy, pad); ctx.lineTo(oy, h-pad); ctx.stroke();
+        ctx.fillStyle = light ? '#5a7a94' : '#8ba5b8';
+        ctx.font = '12px "Segoe UI", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('0', toX(0.05), ox + 16);
+        ctx.fillText('π/2', toX(Math.PI/2), ox + 16);
+        ctx.fillText('π', toX(Math.PI - 0.05), ox + 16);
+        ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        let first = true;
+        for (let x = xMin; x <= xMax; x += 0.005) {
+            let y = 1 / Math.tan(x);
+            if (!isFinite(y) || y < yMin || y > yMax) { first = true; continue; }
+            const sx = toX(x), sy = toY(y);
+            if (first) { ctx.moveTo(sx, sy); first = false; } else ctx.lineTo(sx, sy);
+        }
+        ctx.stroke();
+        // точка с ограничением
+        let val = 1 / Math.tan(alpha);
+        if (!isFinite(val)) val = 0;
+        if (val > 3.8) val = 3.8;
+        if (val < -3.8) val = -3.8;
+        const px = toX(alpha), py = toY(val);
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath(); ctx.arc(px, py, 6, 0, 2*Math.PI); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = light ? '#1e3a5f' : '#cbdbe6';
+        ctx.font = 'bold 12px "Segoe UI", sans-serif';
+        ctx.textAlign = 'left';
+        const ctgShow = Math.cos(alpha) / Math.sin(alpha);
+        ctx.fillText('ctg α = ' + (isFinite(ctgShow) ? ctgShow.toFixed(2).replace('.', ',') : '∞'), px + 8, py - 8);
+    }
+
+    function animateCotangentAngle() {
+        stopCotangentAngle();
+        const slider = document.getElementById('cot_angle_slider');
+        const t0 = performance.now();
+        const duration = 5000;
+        const start = parseFloat(slider.value);
+        function step(now) {
+            const t = (now - t0) / duration;
+            if (t >= 1) { slider.value = 3.04; renderCotangentInteractive(); return; }
+            const a = start + (3.04 - start) * t;
+            slider.value = a;
+            renderCotangentInteractive();
+            cotAnimId = requestAnimationFrame(step);
+        }
+        cotAnimId = requestAnimationFrame(step);
+    }
+    function stopCotangentAngle() {
+        if (cotAnimId) { cancelAnimationFrame(cotAnimId); cotAnimId = null; }
+    }
+    function resetCotangentAngle() {
+        stopCotangentAngle();
+        document.getElementById('cot_angle_slider').value = 1.1;
+        renderCotangentInteractive();
+    }
+    window.animateCotangentAngle = animateCotangentAngle;
+    window.stopCotangentAngle = stopCotangentAngle;
+    window.resetCotangentAngle = resetCotangentAngle;
+
+    // ===== Свойства кликом + скролл к графику =====
+    document.querySelectorAll('.property-link[data-prop]').forEach(el => {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tab = this.dataset.tab;
+            const prop = this.dataset.prop;
+            if (tab === 'tan') {
+                if (activePropTan === prop) {
+                    activePropTan = null;
+                    this.classList.remove('active');
+                    this.setAttribute('aria-pressed','false');
+                } else {
+                    document.querySelectorAll('.property-link[data-tab="tan"]').forEach(x => {
+                        x.classList.remove('active'); x.setAttribute('aria-pressed','false');
+                    });
+                    this.classList.add('active');
+                    this.setAttribute('aria-pressed','true');
+                    activePropTan = prop;
+                }
+                showTanPropertyInfo(activePropTan);
+            } else {
+                if (activePropCot === prop) {
+                    activePropCot = null;
+                    this.classList.remove('active');
+                    this.setAttribute('aria-pressed','false');
+                } else {
+                    document.querySelectorAll('.property-link[data-tab="cot"]').forEach(x => {
+                        x.classList.remove('active'); x.setAttribute('aria-pressed','false');
+                    });
+                    this.classList.add('active');
+                    this.setAttribute('aria-pressed','true');
+                    activePropCot = prop;
+                }
+                showCotPropertyInfo(activePropCot);
+            }
+            redrawAllTangents();
+
+            // скролл к нужному графику
+            const targetCanvasId = tab === 'tan' ? 'tan_main_canvas' : 'cot_main_canvas';
+            const target = document.getElementById(targetCanvasId);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    });
+
+    function showTanPropertyInfo(prop) {
+        const info = document.getElementById('tan-property-info');
+        if (!info) return;
+        if (!prop) { info.classList.remove('show'); info.innerHTML = ''; return; }
+        const texts = {
+            domain: 'Красные пунктирные линии — асимптоты $x = \\dfrac{\\pi}{2}+\\pi n$. В этих точках $\\cos x = 0$, а тангенс не существует.',
+            range: 'Светло-зелёная полоса по всей высоте графика — тангенс принимает любое значение от $-\\infty$ до $+\\infty$.',
+            odd: 'Зелёные точки симметричны относительно начала координат: $\\tg(-x) = -\\tg x$.',
+            period: 'Зелёная полоса от $-\\pi/2$ до $\\pi/2$ — один период. Дальше график повторяется.',
+            zeros: 'Зелёные точки — где $\\tg x = 0$: $0, \\pi, -\\pi$.',
+            sign: 'Зелёная область — где $\\tg x > 0$ (выше оси OX), красная — где $\\tg x < 0$ (ниже оси OX).',
+            mono: 'Зелёные сегменты — тангенс возрастает на каждом промежутке $(-\\pi/2+\\pi n; \\pi/2+\\pi n)$.',
+            asymptotes: 'Красные толстые линии — вертикальные асимптоты. Кривая уходит в бесконечность, не пересекая их.'
+        };
+        info.innerHTML = texts[prop] || '';
+        info.classList.add('show');
+    }
+
+    function showCotPropertyInfo(prop) {
+        const info = document.getElementById('cot-property-info');
+        if (!info) return;
+        if (!prop) { info.classList.remove('show'); info.innerHTML = ''; return; }
+        const texts = {
+            domain: 'Красные пунктирные линии — асимптоты $x = \\pi n$. В этих точках $\\sin x = 0$, а котангенс не существует.',
+            range: 'Светло-зелёная полоса по всей высоте — котангенс принимает любое значение.',
+            odd: 'Зелёные точки симметричны относительно начала координат: $\\ctg(-x) = -\\ctg x$.',
+            period: 'Зелёная полоса от $0$ до $\\pi$ — один период. Дальше график повторяется.',
+            zeros: 'Зелёные точки — где $\\ctg x = 0$: $\\pi/2, -\\pi/2, 3\\pi/2$.',
+            sign: 'Зелёная область — где $\\ctg x > 0$ (выше оси OX), красная — где $\\ctg x < 0$ (ниже оси OX).',
+            mono: 'Красные сегменты — котангенс убывает на каждом промежутке $(\\pi n; \\pi+\\pi n)$.',
+            asymptotes: 'Красные толстые линии — вертикальные асимптоты. Кривая уходит в бесконечность, не пересекая их.'
+        };
+        info.innerHTML = texts[prop] || '';
+        info.classList.add('show');
+    }
+
+    // ===== Реакция на смену темы =====
+    (function watchTheme() {
+        const root = document.documentElement;
+        const obs = new MutationObserver(function (mutations) {
+            mutations.forEach(function (m) {
+                if (m.attributeName === 'class') {
+                    redrawAllTangents();
+                    renderTangentInteractive();
+                    renderCotangentInteractive();
+                }
+            });
+        });
+        obs.observe(root, { attributes: true, attributeFilter: ['class'] });
+    })();
+
+    function init() {
+        redrawAllTangents();
+        renderTangentInteractive();
+        renderCotangentInteractive();
+        window.addEventListener('load', () => {
+            redrawAllTangents();
+            renderTangentInteractive();
+            renderCotangentInteractive();
+        });
+        setTimeout(() => {
+            redrawAllTangents();
+            renderTangentInteractive();
+            renderCotangentInteractive();
+        }, 500);
+    }
+    init();
+</script>
+
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+    <a href="index.html" title="Главная" aria-label="Главная"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg></a>
+    <button type="button" title="Поиск" aria-label="Поиск" onclick="if(window.openSearchOverlay) window.openSearchOverlay(); else location.href='index.html#search';"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    <a href="favorites.html" title="Избранное" aria-label="Избранное"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.8 1-5.9L3.5 9.7l5.9-.9L12 3.5z"/></svg></a>
+    <button type="button" title="Настройки" aria-label="Настройки" onclick="if(window.Android && window.Android.openQualityDialog) { window.Android.openQualityDialog(); } else { alert('Настройки 3D доступны только в приложении'); }"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+</nav>
+<script id="bottom-nav-autohide-script">
+    (function(){
+        var nav = document.querySelector('.bottom-nav'); if (!nav) return;
+        var lastY = window.scrollY, threshold = 8, ticking = false;
+        function onScroll(){
+            var y = window.scrollY;
+            if (Math.abs(y - lastY) < threshold) { ticking = false; return; }
+            if (y > lastY && y > 80) nav.classList.add('nav-hidden');
+            else nav.classList.remove('nav-hidden');
+            lastY = y; ticking = false;
+        }
+        window.addEventListener('scroll', function(){ if (!ticking) { requestAnimationFrame(onScroll); ticking = true; } }, { passive: true });
+    })();
+</script>
+<script src="search-overlay.js"></script>
+<script src="math-data.js"></script>
+<script id="math-nav-ripple">
+    (function() {
+        var els = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+        els.forEach(function(el) {
+            if (el.dataset.rippleBound) return;
+            el.dataset.rippleBound = '1';
+            el.classList.add('ripple-host');
+            el.addEventListener('pointerdown', function(e) {
+                var rect = el.getBoundingClientRect();
+                var size = Math.max(rect.width, rect.height);
+                var r = document.createElement('span');
+                r.className = 'ripple';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                el.appendChild(r);
+                setTimeout(function(){ r.remove(); }, 650);
+            });
+        });
+    })();
+</script>
+</body>
+</html>
